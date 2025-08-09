@@ -4,6 +4,7 @@ import './globals.css'
 // import PWAInstall from '@/components/PWAInstall'
 import Header from '@/components/Header'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import AuthProvider from '@/providers/AuthProvider'
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
@@ -37,10 +38,12 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
-        <Header />
-        <main>
-          {children}
-        </main>
+        <AuthProvider>
+          <Header />
+          <main>
+            {children}
+          </main>
+        </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
         {/* <Toaster

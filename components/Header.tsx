@@ -2,16 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import { Menu, X, User, LogOut, Bell } from 'lucide-react'
 export default function Header() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    // Проверка дали потребителят е влязъл
-    if (typeof window !== 'undefined') {
+    // Проверка дали потребителят е влязъл с NextAuth или localStorage
+    if (session) {
+      setIsLoggedIn(true)
+      setUser(session.user)
+    } else if (typeof window !== 'undefined') {
       const loginStatus = localStorage.getItem('isLoggedIn')
       const userData = localStorage.getItem('user')
       
@@ -24,16 +29,22 @@ export default function Header() {
         }
       }
     }
-  }, [])
+  }, [session])
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('isLoggedIn')
-      localStorage.removeItem('user')
+  const handleLogout = async () => {
+    if (session) {
+      // NextAuth logout
+      await signOut({ callbackUrl: '/' })
+    } else {
+      // localStorage logout (demo users)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('isLoggedIn')
+        localStorage.removeItem('user')
+      }
+      setIsLoggedIn(false)
+      setUser(null)
+      router.push('/')
     }
-    setIsLoggedIn(false)
-    setUser(null)
-    router.push('/')
   }
 
   const handleLogin = () => {
