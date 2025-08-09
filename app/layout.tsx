@@ -3,6 +3,7 @@ import './globals.css'
 // import { Toaster } from 'react-hot-toast'
 // import PWAInstall from '@/components/PWAInstall'
 import Header from '@/components/Header'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
@@ -39,6 +40,9 @@ export default function RootLayout({
   return (
     <html lang="bg">
       <body>
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
         <Header />
         <main>
           {children}
