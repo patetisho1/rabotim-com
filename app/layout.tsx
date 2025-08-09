@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     locale: 'bg_BG',
   },
   themeColor: '#3b82f6',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  viewport: 'width=device-width, initial-scale=1',
   formatDetection: {
     telephone: false,
   },
@@ -54,6 +54,29 @@ export default function RootLayout({
           }}
         /> */}
         {/* <PWAInstall /> */}
+        
+        {/* Disable PWA install prompts */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Prevent PWA install prompts
+              window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                return false;
+              });
+              
+              // Prevent any install banners
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for(let registration of registrations) {
+                    registration.unregister();
+                  }
+                });
+              }
+            `,
+          }}
+        />
+        
         {/* <script
           dangerouslySetInnerHTML={{
             __html: `
