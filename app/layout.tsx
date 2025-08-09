@@ -59,13 +59,22 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Prevent PWA install prompts
+              // Aggressively prevent PWA install prompts
               window.addEventListener('beforeinstallprompt', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 return false;
               });
               
-              // Prevent any install banners
+              // Prevent app installed prompts
+              window.addEventListener('appinstalled', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+              });
+              
+              // Clear any service workers
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                   for(let registration of registrations) {
@@ -73,6 +82,18 @@ export default function RootLayout({
                   }
                 });
               }
+              
+              // Override display mode detection
+              if (window.matchMedia) {
+                window.matchMedia('(display-mode: standalone)').matches = false;
+              }
+              
+              // Hide browser native install banners
+              document.addEventListener('DOMContentLoaded', function() {
+                // Remove any potential install prompts
+                const installBanners = document.querySelectorAll('[data-install-banner], .install-banner, .pwa-install');
+                installBanners.forEach(banner => banner.remove());
+              });
             `,
           }}
         />

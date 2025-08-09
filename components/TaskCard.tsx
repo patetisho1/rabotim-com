@@ -53,7 +53,6 @@ interface TaskCardProps {
 export default function TaskCard({ task, className = '' }: TaskCardProps) {
   const [isLiked, setIsLiked] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [showActions, setShowActions] = useState(false)
   const [showRating, setShowRating] = useState(false)
   
   const { userRatings, loadUserRatings } = useRatings()
@@ -149,9 +148,7 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
     setShowRating(true)
   }
 
-  const handleLongPress = () => {
-    setShowActions(true)
-  }
+
 
   return (
     <Link 
@@ -159,10 +156,6 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
       className={`block group ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={() => {
-        const timer = setTimeout(handleLongPress, 500)
-        return () => clearTimeout(timer)
-      }}
     >
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer">
         {/* Image Gallery */}
@@ -316,85 +309,7 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
         <div className="absolute inset-0 bg-blue-500 opacity-0 group-active:opacity-10 transition-opacity duration-150 pointer-events-none rounded-xl" />
       </div>
 
-      {/* Long Press Actions Modal */}
-      {showActions && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowActions(false)} />
-          <div className="relative bg-white dark:bg-gray-800 rounded-t-2xl p-6 w-full max-w-sm">
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-            </div>
-            
-            <div className="space-y-4">
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleLike(e)
-                  setShowActions(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'} />
-                <span className="font-medium">{isLiked ? 'Премахни от любими' : 'Добави в любими'}</span>
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleShare(e)
-                  setShowActions(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Share2 size={20} className="text-gray-600 dark:text-gray-400" />
-                <span className="font-medium">Сподели</span>
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleMessage(e)
-                  setShowActions(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <MessageCircle size={20} className="text-gray-600 dark:text-gray-400" />
-                <span className="font-medium">Съобщение</span>
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleRating(e)
-                  setShowActions(false)
-                }}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Star size={20} className="text-gray-600 dark:text-gray-400" />
-                <span className="font-medium">Оцени</span>
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setShowActions(false)
-                  // Navigate to task detail page
-                  window.location.href = `/task/${task.id}`
-                }}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <MessageCircle size={20} className="text-gray-600 dark:text-gray-400" />
-                <span className="font-medium">Кандидатствай</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Rating Modal */}
       {showRating && (
