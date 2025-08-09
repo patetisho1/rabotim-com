@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { 
-  Notification, 
+  type Notification, 
   NotificationPreferences, 
   NotificationStats, 
   PushSubscription,
@@ -227,13 +227,7 @@ export const useNotifications = () => {
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         tag: newNotification.id,
-        requireInteraction: newNotification.priority === 'urgent',
-        actions: newNotification.actionText ? [
-          {
-            action: 'open',
-            title: newNotification.actionText
-          }
-        ] : undefined
+        requireInteraction: newNotification.priority === 'urgent'
       })
     }
 
@@ -342,8 +336,8 @@ export const useNotifications = () => {
         userId: DEMO_USER_ID,
         endpoint: subscription.endpoint,
         keys: {
-          p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')!))),
-          auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')!)))
+          p256dh: btoa(Array.from(new Uint8Array(subscription.getKey('p256dh')!)).map(b => String.fromCharCode(b)).join('')),
+          auth: btoa(Array.from(new Uint8Array(subscription.getKey('auth')!)).map(b => String.fromCharCode(b)).join(''))
         },
         createdAt: new Date(),
         lastUsed: new Date(),

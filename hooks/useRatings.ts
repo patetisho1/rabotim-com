@@ -157,7 +157,7 @@ export function useRatings() {
     // Разпределение на рейтингите
     const ratingDistribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
     allRatings.forEach(r => {
-      ratingDistribution[r.rating as keyof typeof ratingDistribution]++
+      ratingDistribution[r.rating.toString() as keyof typeof ratingDistribution]++
     })
 
     // Рейтинги по категории

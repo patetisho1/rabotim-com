@@ -265,14 +265,14 @@ export function useAdvancedSearch() {
 
   // Проверка дали има активни филтри
   const hasActiveFilters = useMemo(() => {
-    return filters.query || 
+    return Boolean(filters.query || 
            filters.category || 
            filters.location || 
            filters.minPrice || 
            filters.maxPrice || 
            filters.urgentOnly || 
            filters.minRating || 
-           filters.datePosted !== 'all'
+           filters.datePosted !== 'all')
   }, [filters])
 
   return {

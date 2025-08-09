@@ -125,7 +125,7 @@ export default function RatingDisplay({ userRating, showDetails = false, classNa
           {showDistribution && (
             <div className="mt-2 space-y-2">
               {[5, 4, 3, 2, 1].map((rating) => {
-                const count = userRating.ratingDistribution[rating as keyof typeof userRating.ratingDistribution]
+                const count = userRating.ratingDistribution[rating.toString() as keyof typeof userRating.ratingDistribution]
                 const percentage = userRating.totalReviews > 0 ? (count / userRating.totalReviews) * 100 : 0
                 
                 return (

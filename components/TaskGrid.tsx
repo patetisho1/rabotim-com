@@ -28,12 +28,20 @@ interface Task {
   attachments?: Attachment[]
 }
 
-export default function TaskGrid() {
+interface TaskGridProps {
+  tasks?: Task[]
+}
+
+export default function TaskGrid({ tasks: propTasks }: TaskGridProps = {}) {
   const [tasks, setTasks] = useState<Task[]>([])
 
   useEffect(() => {
-    loadTasks()
-  }, [])
+    if (propTasks) {
+      setTasks(propTasks)
+    } else {
+      loadTasks()
+    }
+  }, [propTasks])
 
   const loadTasks = () => {
     try {
