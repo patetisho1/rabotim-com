@@ -130,7 +130,9 @@ export default function RegisterPage() {
   }
 
   const handleSocialLogin = (provider: string) => {
-    toast.info(`Регистрация с ${provider} ще бъде добавена скоро`)
+    toast(`Регистрация с ${provider} ще бъде добавена скоро`, {
+      icon: 'ℹ️',
+    })
   }
 
   return (

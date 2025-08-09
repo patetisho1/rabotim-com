@@ -103,7 +103,9 @@ export default function LoginPage() {
   }
 
   const handleSocialLogin = (provider: string) => {
-    toast.info(`Вход с ${provider} ще бъде добавен скоро`)
+    toast(`Вход с ${provider} ще бъде добавен скоро`, {
+      icon: 'ℹ️',
+    })
   }
 
   const handleForgotPassword = () => {
