@@ -209,7 +209,7 @@ export const db = {
         conversations.set(msg.conversation_id, {
           id: msg.conversation_id,
           lastMessage: msg,
-          participant: msg.sender.id === userId ? msg.receiver : msg.sender
+          participant: (msg.sender as any).id === userId ? msg.receiver : msg.sender
         })
       }
     })

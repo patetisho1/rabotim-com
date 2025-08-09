@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 // Email templates
 export const emailTemplates = {
@@ -200,12 +200,23 @@ export const emailTemplates = {
 }
 
 // Email service functions
+const checkResendAvailability = () => {
+  if (!resend) {
+    console.warn('Resend not configured, skipping email')
+    return { success: false, error: 'Email service not configured' }
+  }
+  return null
+}
+
 export const emailService = {
   async sendWelcomeEmail(to: string, name: string) {
+    const checkResult = checkResendAvailability()
+    if (checkResult) return checkResult
+    
     try {
       const template = emailTemplates.welcomeUser(name)
       
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <noreply@rabotim.com>',
         to: [to],
         subject: template.subject,
@@ -228,7 +239,7 @@ export const emailService = {
     try {
       const template = emailTemplates.newTaskNotification(recipientName, taskTitle, taskCategory, taskLocation)
       
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <notifications@rabotim.com>',
         to: [to],
         subject: template.subject,
@@ -251,7 +262,7 @@ export const emailService = {
     try {
       const template = emailTemplates.taskApplicationReceived(taskOwner, applicantName, taskTitle)
       
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <notifications@rabotim.com>',
         to: [to],
         subject: template.subject,
@@ -274,7 +285,7 @@ export const emailService = {
     try {
       const template = emailTemplates.taskCompleted(clientName, freelancerName, taskTitle)
       
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <notifications@rabotim.com>',
         to: [to],
         subject: template.subject,
@@ -297,7 +308,7 @@ export const emailService = {
     try {
       const template = emailTemplates.newRatingReceived(recipientName, ratingGiver, rating, taskTitle)
       
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <notifications@rabotim.com>',
         to: [to],
         subject: template.subject,
@@ -320,7 +331,7 @@ export const emailService = {
     try {
       const template = emailTemplates.passwordReset(name, resetUrl)
       
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <security@rabotim.com>',
         to: [to],
         subject: template.subject,
@@ -342,7 +353,7 @@ export const emailService = {
   // Bulk email for newsletter/marketing
   async sendBulkEmail(recipients: string[], subject: string, htmlContent: string) {
     try {
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <newsletter@rabotim.com>',
         to: recipients,
         subject: subject,
