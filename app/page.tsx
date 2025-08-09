@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/components/Header'
 import SearchSection from '@/components/SearchSection'
 import CategoryGrid from '@/components/CategoryGrid'
 import TaskGrid from '@/components/TaskGrid'
-import MobileNav from '@/components/MobileNav'
+
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote } from 'lucide-react'
 
 export default function HomePage() {
@@ -107,9 +106,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <Header />
-      
       {/* Main Content */}
       <main className="pb-20">
         {/* Hero Section */}
@@ -301,8 +297,6 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Mobile Navigation */}
-      <MobileNav />
     </div>
   )
 } 

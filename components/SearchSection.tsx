@@ -109,6 +109,58 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
     { value: 'ruse', label: 'Русе' },
     { value: 'stara-zagora', label: 'Стара Загора' },
     { value: 'pleven', label: 'Плевен' },
+    { value: 'sliven', label: 'Сливен' },
+    { value: 'dobrich', label: 'Добрич' },
+    { value: 'shumen', label: 'Шумен' },
+    { value: 'pernik', label: 'Перник' },
+    { value: 'haskovo', label: 'Хасково' },
+    { value: 'yambol', label: 'Ямбол' },
+    { value: 'pazardzhik', label: 'Пазарджик' },
+    { value: 'blagoevgrad', label: 'Благоевград' },
+    { value: 'veliko-tarnovo', label: 'Велико Търново' },
+    { value: 'vratsa', label: 'Враца' },
+    { value: 'gabrovo', label: 'Габрово' },
+    { value: 'vidin', label: 'Видин' },
+    { value: 'kardzhali', label: 'Кърджали' },
+    { value: 'kyustendil', label: 'Кюстендил' },
+    { value: 'montana', label: 'Монтана' },
+    { value: 'lovech', label: 'Ловеч' },
+    { value: 'razgrad', label: 'Разград' },
+    { value: 'silistra', label: 'Силистра' },
+    { value: 'targovishte', label: 'Търговище' },
+    { value: 'smolyan', label: 'Смолян' },
+    { value: 'petrich', label: 'Петрич' },
+    { value: 'sandanski', label: 'Сандански' },
+    { value: 'gotse-delchev', label: 'Гоце Делчев' },
+    { value: 'razlog', label: 'Разлог' },
+    { value: 'bansko', label: 'Банско' },
+    { value: 'samokov', label: 'Самоков' },
+    { value: 'svoge', label: 'Своге' },
+    { value: 'radomir', label: 'Радомир' },
+    { value: 'breznik', label: 'Брезник' },
+    { value: 'tran', label: 'Трън' },
+    { value: 'kostenets', label: 'Костенец' },
+    { value: 'ikhtiman', label: 'Ихтиман' },
+    { value: 'elhin', label: 'Елин Пелин' },
+    { value: 'mirkovo', label: 'Мирково' },
+    { value: 'dolna-banya', label: 'Долна баня' },
+    { value: 'antony', label: 'Антон' },
+    { value: 'zlatitsa', label: 'Златица' },
+    { value: 'pirdop', label: 'Пирдоп' },
+    { value: 'koprivshtitsa', label: 'Копривщица' },
+    { value: 'panagyurishte', label: 'Панагюрище' },
+    { value: 'strelcha', label: 'Стрелча' },
+    { value: 'lesichovo', label: 'Лесичово' },
+    { value: 'kaloyanovo', label: 'Калояново' },
+    { value: 'saedinenie', label: 'Съединение' },
+    { value: 'bratsigovo', label: 'Брацигово' },
+    { value: 'krichim', label: 'Кричим' },
+    { value: 'perushtitsa', label: 'Перущица' },
+    { value: 'sadovo', label: 'Садово' },
+    { value: 'parvomay', label: 'Първомай' },
+    { value: 'kuklen', label: 'Куклен' },
+    { value: 'rodopi', label: 'Родопи' },
+    { value: 'maritsa', label: 'Марица' },
   ]
 
   const quickFilters = [
@@ -128,54 +180,45 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
       <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
         {/* Main Search Row */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Search Input */}
-          <div className="md:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Какво търсите? (напр. почистване, ремонт, доставка)"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="input pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
-            </div>
-          </div>
+                     {/* Search Input */}
+           <div className="md:col-span-2">
+             <input
+               type="text"
+               placeholder="Какво търсите? (напр. почистване, ремонт, доставка)"
+               value={query}
+               onChange={(e) => setQuery(e.target.value)}
+               className="input dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+             />
+           </div>
 
           {/* Category Filter */}
           <div>
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="input pl-10 appearance-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              >
-                {categories.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.icon ? `${cat.icon} ${cat.label}` : cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="input appearance-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              {categories.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.icon ? `${cat.icon} ${cat.label}` : cat.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Location Filter */}
           <div>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="input pl-10 appearance-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              >
-                {locations.map((loc) => (
-                  <option key={loc.value} value={loc.value}>
-                    {loc.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="input appearance-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              {locations.map((loc) => (
+                <option key={loc.value} value={loc.value}>
+                  {loc.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

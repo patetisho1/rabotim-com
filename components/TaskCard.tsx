@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { 
   MapPin, 
@@ -16,6 +16,9 @@ import {
   Tag
 } from 'lucide-react'
 import ImageGallery from './ImageGallery'
+import RatingDisplay from './RatingDisplay'
+import AddRating from './AddRating'
+import { useRatings } from '@/hooks/useRatings'
 
 interface Attachment {
   name: string
@@ -51,6 +54,16 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
   const [isLiked, setIsLiked] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [showActions, setShowActions] = useState(false)
+  const [showRating, setShowRating] = useState(false)
+  
+  const { userRatings, loadUserRatings } = useRatings()
+  
+  // Зареждане на рейтинги при първо рендериране
+  React.useEffect(() => {
+    if (task.postedBy) {
+      loadUserRatings(task.postedBy)
+    }
+  }, [task.postedBy, loadUserRatings])
 
   const getCategoryLabel = (category: string) => {
     const categories: { [key: string]: string } = {
@@ -123,6 +136,19 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
     }
   }
 
+  const handleMessage = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Навигация към съобщенията с предварително избран потребител
+    window.location.href = `/messages?user=${task.postedBy}`
+  }
+
+  const handleRating = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowRating(true)
+  }
+
   const handleLongPress = () => {
     setShowActions(true)
   }
@@ -175,6 +201,28 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
                 className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm hover:bg-black/70"
               >
                 <Share2 size={16} />
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleMessage(e)
+                }}
+                className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm hover:bg-black/70"
+              >
+                <MessageCircle size={16} />
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleRating(e)
+                }}
+                className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm hover:bg-black/70"
+              >
+                <Star size={16} />
               </button>
             </div>
 
@@ -308,6 +356,32 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
+                  handleMessage(e)
+                  setShowActions(false)
+                }}
+                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <MessageCircle size={20} className="text-gray-600 dark:text-gray-400" />
+                <span className="font-medium">Съобщение</span>
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleRating(e)
+                  setShowActions(false)
+                }}
+                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Star size={20} className="text-gray-600 dark:text-gray-400" />
+                <span className="font-medium">Оцени</span>
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   setShowActions(false)
                   // Navigate to task detail page
                   window.location.href = `/task/${task.id}`
@@ -319,6 +393,31 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Rating Modal */}
+      {showRating && (
+        <AddRating
+          taskId={task.id}
+          reviewedUserId={task.postedBy}
+          onClose={() => setShowRating(false)}
+          onSubmit={async (ratingData) => {
+            // Тук ще добавим логиката за запазване на рейтинга
+            console.log('Rating submitted:', ratingData)
+            setShowRating(false)
+          }}
+        />
+      )}
+
+      {/* Rating Display */}
+      {userRatings[task.postedBy] && (
+        <div className="mt-4">
+          <RatingDisplay 
+            userRating={userRatings[task.postedBy]} 
+            showDetails={false}
+            className="border-t border-gray-200 dark:border-gray-700 pt-4"
+          />
         </div>
       )}
     </Link>

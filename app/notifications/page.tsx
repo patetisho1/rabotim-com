@@ -1,312 +1,308 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bell, MessageSquare, Star, CheckCircle, AlertCircle, Settings } from 'lucide-react'
-import toast from 'react-hot-toast'
+import React, { useState, useMemo } from 'react'
+import { useNotifications } from '@/hooks/useNotifications'
+import NotificationItem from '@/components/NotificationItem'
+import NotificationSettings from '@/components/NotificationSettings'
+import { Bell, Settings, Check, Trash2, Filter, Search, BarChart3, Pin } from 'lucide-react'
+import { Notification, NotificationCategory, NotificationPriority } from '@/types/notification'
 
-interface Notification {
-  id: string
-  type: 'message' | 'application' | 'review' | 'system'
-  title: string
-  message: string
-  timestamp: string
-  isRead: boolean
-  actionUrl?: string
-  icon: string
-}
+const NotificationsPage: React.FC = () => {
+  const {
+    notifications,
+    preferences,
+    stats,
+    isSubscribed,
+    error,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    togglePin,
+    updatePreferences,
+    subscribeToPush,
+    unsubscribeFromPush
+  } = useNotifications()
 
-export default function NotificationsPage() {
-  const router = useRouter()
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'pinned' | 'settings'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<NotificationCategory | 'all'>('all')
+  const [selectedPriority, setSelectedPriority] = useState<NotificationPriority | 'all'>('all')
 
-  useEffect(() => {
-    checkLoginStatus()
-    loadNotifications()
-  }, [])
+  // Filter notifications based on current filters
+  const filteredNotifications = useMemo(() => {
+    let filtered = notifications
 
-  const checkLoginStatus = () => {
-    const loginStatus = localStorage.getItem('isLoggedIn')
-    const userData = localStorage.getItem('user')
-    
-    if (loginStatus !== 'true' || !userData) {
-      toast.error('Трябва да сте влезли в акаунта си')
-      router.push('/login')
-      return
+    // Filter by tab
+    if (activeTab === 'unread') {
+      filtered = filtered.filter(n => !n.isRead)
+    } else if (activeTab === 'pinned') {
+      filtered = filtered.filter(n => n.isPinned)
     }
 
-    setIsLoggedIn(true)
-  }
-
-  const loadNotifications = () => {
-    // Симулация на зареждане на уведомления
-    const sampleNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'message',
-        title: 'Ново съобщение',
-        message: 'Иван Петров ви изпрати съобщение относно задачата "Помощ при преместване"',
-        timestamp: '2024-01-15T10:30:00Z',
-        isRead: false,
-        actionUrl: '/messages',
-        icon: 'message'
-      },
-      {
-        id: '2',
-        type: 'application',
-        title: 'Нова кандидатура',
-        message: 'Мария Георгиева кандидатства за вашата задача "Почистване на апартамент"',
-        timestamp: '2024-01-15T09:15:00Z',
-        isRead: false,
-        actionUrl: '/profile',
-        icon: 'application'
-      },
-      {
-        id: '3',
-        type: 'review',
-        title: 'Нов отзив',
-        message: 'Получихте 5-звезден отзив от Стоян Димитров за задачата "Ремонт на водопровод"',
-        timestamp: '2024-01-14T16:45:00Z',
-        isRead: true,
-        actionUrl: '/review/1',
-        icon: 'review'
-      },
-      {
-        id: '4',
-        type: 'system',
-        title: 'Добре дошли в Rabotim.com!',
-        message: 'Вашият акаунт е създаден успешно. Започнете да публикувате задачи или да кандидатствате.',
-        timestamp: '2024-01-14T14:20:00Z',
-        isRead: true,
-        icon: 'system'
-      },
-      {
-        id: '5',
-        type: 'message',
-        title: 'Съобщение прочетено',
-        message: 'Вашето съобщение към Елена Василева беше прочетено',
-        timestamp: '2024-01-14T12:30:00Z',
-        isRead: true,
-        actionUrl: '/messages',
-        icon: 'message'
-      }
-    ]
-    setNotifications(sampleNotifications)
-    setIsLoading(false)
-  }
-
-  const markAsRead = (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === notificationId 
-          ? { ...notification, isRead: true }
-          : notification
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(n => 
+        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        n.message.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    )
-  }
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    )
-    toast.success('Всички уведомления са маркирани като прочетени')
-  }
-
-  const deleteNotification = (notificationId: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== notificationId))
-    toast.success('Уведомлението е изтрито')
-  }
-
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.isRead) {
-      markAsRead(notification.id)
     }
-    
+
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(n => n.category === selectedCategory)
+    }
+
+    // Filter by priority
+    if (selectedPriority !== 'all') {
+      filtered = filtered.filter(n => n.priority === selectedPriority)
+    }
+
+    return filtered
+  }, [notifications, activeTab, searchQuery, selectedCategory, selectedPriority])
+
+  const handleNotificationAction = (notification: Notification) => {
     if (notification.actionUrl) {
-      router.push(notification.actionUrl)
+      window.location.href = notification.actionUrl
     }
   }
 
-  const getNotificationIcon = (icon: string) => {
-    switch (icon) {
-      case 'message':
-        return <MessageSquare size={20} className="text-blue-600" />
-      case 'application':
-        return <CheckCircle size={20} className="text-green-600" />
-      case 'review':
-        return <Star size={20} className="text-yellow-600" />
-      case 'system':
-        return <Bell size={20} className="text-purple-600" />
-      default:
-        return <Bell size={20} className="text-gray-600" />
-    }
+  const categoryLabels: Record<NotificationCategory, string> = {
+    communication: 'Комуникация',
+    tasks: 'Задачи',
+    payments: 'Плащания',
+    system: 'Система',
+    security: 'Сигурност',
+    achievements: 'Постижения'
   }
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffInMinutes = (now.getTime() - date.getTime()) / (1000 * 60)
-    const diffInHours = diffInMinutes / 60
-    const diffInDays = diffInHours / 24
-
-    if (diffInMinutes < 1) return 'Сега'
-    if (diffInMinutes < 60) return `${Math.floor(diffInMinutes)} мин`
-    if (diffInHours < 24) return `${Math.floor(diffInHours)} ч`
-    if (diffInDays < 7) return `${Math.floor(diffInDays)} дни`
-    return date.toLocaleDateString('bg-BG', { day: '2-digit', month: '2-digit' })
+  const priorityLabels: Record<NotificationPriority, string> = {
+    urgent: 'Спешно',
+    high: 'Важно',
+    normal: 'Нормално',
+    low: 'Ниско'
   }
 
-  const filteredNotifications = filter === 'all' 
-    ? notifications 
-    : notifications.filter(n => !n.isRead)
+  const tabs = [
+    { id: 'all', label: 'Всички', count: notifications.length, icon: Bell },
+    { id: 'unread', label: 'Непрочетени', count: stats.unread, icon: Check },
+    { id: 'pinned', label: 'Закачени', count: notifications.filter(n => n.isPinned).length, icon: Pin },
+    { id: 'settings', label: 'Настройки', count: null, icon: Settings }
+  ]
 
-  const unreadCount = notifications.filter(n => !n.isRead).length
+  if (activeTab === 'settings') {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Настройки на известията
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Управлявайте как и кога получавате известия
+            </p>
+          </div>
 
-  if (!isLoggedIn) {
-    return null
+          <NotificationSettings
+            preferences={preferences}
+            onUpdatePreferences={updatePreferences}
+            isSubscribed={isSubscribed}
+            onSubscribe={subscribeToPush}
+            onUnsubscribe={unsubscribeFromPush}
+            error={error}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Уведомления
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Известия
               </h1>
-              {unreadCount > 0 && (
-                <span className="inline-flex items-center justify-center w-6 h-6 bg-primary-600 text-white text-xs rounded-full">
-                  {unreadCount}
-                </span>
-              )}
+              <p className="text-gray-600 dark:text-gray-400">
+                Управлявайте всички ваши известия и настройки
+              </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <BarChart3 size={16} />
+                <span>{stats.unread} непрочетени</span>
+              </div>
               <button
-                onClick={markAllAsRead}
-                className="btn btn-outline text-sm"
+                onClick={() => setActiveTab('settings')}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Маркирай всички като прочетени
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Settings size={20} />
+                <Settings size={16} />
+                Настройки
               </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Filters */}
-        <div className="mb-6">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'all' 
-                  ? 'bg-primary-600 text-white' 
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              Всички ({notifications.length})
-            </button>
-            <button
-              onClick={() => setFilter('unread')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'unread' 
-                  ? 'bg-primary-600 text-white' 
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              Непрочетени ({unreadCount})
-            </button>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <Bell className="text-blue-600" size={20} />
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Общо</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <Check className="text-green-600" size={20} />
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Непрочетени</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.unread}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <Pin className="text-blue-600" size={20} />
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Закачени</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {notifications.filter(n => n.isPinned).length}
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="text-purple-600" size={20} />
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Днес</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.recentActivity.last24h}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`
+                  flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors
+                  ${activeTab === tab.id
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }
+                `}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+                {tab.count !== null && (
+                  <span className={`
+                    px-2 py-1 text-xs rounded-full
+                    ${activeTab === tab.id
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-300'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    }
+                  `}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Filters and Actions */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  placeholder="Търси в известия..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Category Filter */}
+            <div className="flex gap-2">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value as NotificationCategory | 'all')}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Всички категории</option>
+                {Object.entries(categoryLabels).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+
+              <select
+                value={selectedPriority}
+                onChange={(e) => setSelectedPriority(e.target.value as NotificationPriority | 'all')}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Всички приоритети</option>
+                {Object.entries(priorityLabels).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={markAllAsRead}
+                disabled={stats.unread === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Check size={16} />
+                Маркирай всички като прочетени
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Notifications List */}
         <div className="space-y-4">
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Зареждане на уведомления...</p>
-            </div>
-          ) : filteredNotifications.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Bell size={24} className="text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Няма уведомления
+          {filteredNotifications.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+              <Bell className="mx-auto text-gray-400 mb-4" size={48} />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Няма известия
               </h3>
-              <p className="text-gray-600">
-                {filter === 'all' 
-                  ? 'Все още нямате уведомления' 
-                  : 'Всички уведомления са прочетени'
+              <p className="text-gray-600 dark:text-gray-400">
+                {activeTab === 'all' && searchQuery 
+                  ? 'Не са намерени известия, отговарящи на търсенето.'
+                  : activeTab === 'unread'
+                  ? 'Всички известия са прочетени.'
+                  : activeTab === 'pinned'
+                  ? 'Няма закачени известия.'
+                  : 'Все още нямате известия.'
                 }
               </p>
             </div>
           ) : (
             filteredNotifications.map((notification) => (
-              <div
+              <NotificationItem
                 key={notification.id}
-                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer transition-all hover:shadow-md ${
-                  !notification.isRead ? 'border-l-4 border-l-primary-500' : ''
-                }`}
-                onClick={() => handleNotificationClick(notification)}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    {getNotificationIcon(notification.icon)}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className={`font-medium mb-1 ${
-                          !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
-                          {notification.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {notification.message}
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <span className="text-xs text-gray-500">
-                            {formatTime(notification.timestamp)}
-                          </span>
-                          {!notification.isRead && (
-                            <span className="inline-flex items-center justify-center w-2 h-2 bg-primary-600 rounded-full"></span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          deleteNotification(notification.id)
-                        }}
-                        className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        <AlertCircle size={16} className="text-gray-400" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                notification={notification}
+                onMarkAsRead={markAsRead}
+                onTogglePin={togglePin}
+                onDelete={deleteNotification}
+                onAction={handleNotificationAction}
+              />
             ))
           )}
         </div>
       </div>
     </div>
   )
-} 
+}
+
+export default NotificationsPage 

@@ -18,11 +18,13 @@ import {
   FileText,
   Star
 } from 'lucide-react'
+import { useNotifications } from '@/hooks/useNotifications'
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
+  const { stats } = useNotifications()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +46,7 @@ export default function MobileNav() {
     { href: '/notifications', icon: Bell, label: 'Известия' },
     { href: '/favorites', icon: Heart, label: 'Любими' },
     { href: '/my-tasks', icon: FileText, label: 'Моите обяви' },
-    { href: '/reviews', icon: Star, label: 'Отзиви' },
+    { href: '/ratings', icon: Star, label: 'Рейтинги' },
     { href: '/settings', icon: Settings, label: 'Настройки' },
     { href: '/logout', icon: LogOut, label: 'Изход' }
   ]
@@ -120,15 +122,21 @@ export default function MobileNav() {
             <div className="grid grid-cols-2 gap-4">
               {menuItems.map((item) => {
                 const Icon = item.icon
+                const isNotification = item.href === '/notifications'
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex flex-col items-center p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95"
+                    className="flex flex-col items-center p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 relative"
                     onClick={() => setIsOpen(false)}
                   >
                     <Icon size={24} className="text-gray-600 dark:text-gray-400 mb-2" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
+                    {isNotification && stats.unread > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                        {stats.unread > 99 ? '99+' : stats.unread}
+                      </span>
+                    )}
                   </Link>
                 )
               })}

@@ -33,7 +33,6 @@ export default function LocationPicker({ value, onChange, placeholder = "Изб�
     { value: 'veliko-tarnovo', label: 'Велико Търново' },
     { value: 'vratsa', label: 'Враца' },
     { value: 'gabrovo', label: 'Габрово' },
-    { value: 'asenovgrad', label: 'Асеновград' },
     { value: 'vidin', label: 'Видин' },
     { value: 'kardzhali', label: 'Кърджали' },
     { value: 'kyustendil', label: 'Кюстендил' },
@@ -43,6 +42,38 @@ export default function LocationPicker({ value, onChange, placeholder = "Изб�
     { value: 'silistra', label: 'Силистра' },
     { value: 'targovishte', label: 'Търговище' },
     { value: 'smolyan', label: 'Смолян' },
+    { value: 'petrich', label: 'Петрич' },
+    { value: 'sandanski', label: 'Сандански' },
+    { value: 'gotse-delchev', label: 'Гоце Делчев' },
+    { value: 'razlog', label: 'Разлог' },
+    { value: 'bansko', label: 'Банско' },
+    { value: 'samokov', label: 'Самоков' },
+    { value: 'svoge', label: 'Своге' },
+    { value: 'radomir', label: 'Радомир' },
+    { value: 'breznik', label: 'Брезник' },
+    { value: 'tran', label: 'Трън' },
+    { value: 'kostenets', label: 'Костенец' },
+    { value: 'ikhtiman', label: 'Ихтиман' },
+    { value: 'elhin', label: 'Елин Пелин' },
+    { value: 'mirkovo', label: 'Мирково' },
+    { value: 'dolna-banya', label: 'Долна баня' },
+    { value: 'antony', label: 'Антон' },
+    { value: 'zlatitsa', label: 'Златица' },
+    { value: 'pirdop', label: 'Пирдоп' },
+    { value: 'koprivshtitsa', label: 'Копривщица' },
+    { value: 'panagyurishte', label: 'Панагюрище' },
+    { value: 'strelcha', label: 'Стрелча' },
+    { value: 'lesichovo', label: 'Лесичово' },
+    { value: 'kaloyanovo', label: 'Калояново' },
+    { value: 'saedinenie', label: 'Съединение' },
+    { value: 'bratsigovo', label: 'Брацигово' },
+    { value: 'krichim', label: 'Кричим' },
+    { value: 'perushtitsa', label: 'Перущица' },
+    { value: 'sadovo', label: 'Садово' },
+    { value: 'parvomay', label: 'Първомай' },
+    { value: 'kuklen', label: 'Куклен' },
+    { value: 'rodopi', label: 'Родопи' },
+    { value: 'maritsa', label: 'Марица' },
   ]
 
   const getCurrentLocation = () => {
@@ -122,12 +153,11 @@ export default function LocationPicker({ value, onChange, placeholder = "Изб�
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <div className="flex-1">
           <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 appearance-none"
           >
             {locations.map((location) => (
               <option key={location.value} value={location.value}>

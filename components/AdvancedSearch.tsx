@@ -54,6 +54,58 @@ export default function AdvancedSearch({ onSearch, onClear }: AdvancedSearchProp
     { value: 'ruse', label: 'Русе' },
     { value: 'stara-zagora', label: 'Стара Загора' },
     { value: 'pleven', label: 'Плевен' },
+    { value: 'sliven', label: 'Сливен' },
+    { value: 'dobrich', label: 'Добрич' },
+    { value: 'shumen', label: 'Шумен' },
+    { value: 'pernik', label: 'Перник' },
+    { value: 'haskovo', label: 'Хасково' },
+    { value: 'yambol', label: 'Ямбол' },
+    { value: 'pazardzhik', label: 'Пазарджик' },
+    { value: 'blagoevgrad', label: 'Благоевград' },
+    { value: 'veliko-tarnovo', label: 'Велико Търново' },
+    { value: 'vratsa', label: 'Враца' },
+    { value: 'gabrovo', label: 'Габрово' },
+    { value: 'vidin', label: 'Видин' },
+    { value: 'kardzhali', label: 'Кърджали' },
+    { value: 'kyustendil', label: 'Кюстендил' },
+    { value: 'montana', label: 'Монтана' },
+    { value: 'lovech', label: 'Ловеч' },
+    { value: 'razgrad', label: 'Разград' },
+    { value: 'silistra', label: 'Силистра' },
+    { value: 'targovishte', label: 'Търговище' },
+    { value: 'smolyan', label: 'Смолян' },
+    { value: 'petrich', label: 'Петрич' },
+    { value: 'sandanski', label: 'Сандански' },
+    { value: 'gotse-delchev', label: 'Гоце Делчев' },
+    { value: 'razlog', label: 'Разлог' },
+    { value: 'bansko', label: 'Банско' },
+    { value: 'samokov', label: 'Самоков' },
+    { value: 'svoge', label: 'Своге' },
+    { value: 'radomir', label: 'Радомир' },
+    { value: 'breznik', label: 'Брезник' },
+    { value: 'tran', label: 'Трън' },
+    { value: 'kostenets', label: 'Костенец' },
+    { value: 'ikhtiman', label: 'Ихтиман' },
+    { value: 'elhin', label: 'Елин Пелин' },
+    { value: 'mirkovo', label: 'Мирково' },
+    { value: 'dolna-banya', label: 'Долна баня' },
+    { value: 'antony', label: 'Антон' },
+    { value: 'zlatitsa', label: 'Златица' },
+    { value: 'pirdop', label: 'Пирдоп' },
+    { value: 'koprivshtitsa', label: 'Копривщица' },
+    { value: 'panagyurishte', label: 'Панагюрище' },
+    { value: 'strelcha', label: 'Стрелча' },
+    { value: 'lesichovo', label: 'Лесичово' },
+    { value: 'kaloyanovo', label: 'Калояново' },
+    { value: 'saedinenie', label: 'Съединение' },
+    { value: 'bratsigovo', label: 'Брацигово' },
+    { value: 'krichim', label: 'Кричим' },
+    { value: 'perushtitsa', label: 'Перущица' },
+    { value: 'sadovo', label: 'Садово' },
+    { value: 'parvomay', label: 'Първомай' },
+    { value: 'kuklen', label: 'Куклен' },
+    { value: 'rodopi', label: 'Родопи' },
+    { value: 'maritsa', label: 'Марица' },
   ]
 
   const ratings = [
@@ -96,17 +148,16 @@ export default function AdvancedSearch({ onSearch, onClear }: AdvancedSearchProp
     <div className="bg-white border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Basic Search */}
-        <div className="flex gap-4 mb-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Търси задачи..."
-              value={filters.query}
-              onChange={(e) => handleInputChange('query', e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
+                 <div className="flex gap-4 mb-4">
+                      <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Търси задачи..."
+                value={filters.query}
+                onChange={(e) => handleInputChange('query', e.target.value)}
+                className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
           
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -131,41 +182,41 @@ export default function AdvancedSearch({ onSearch, onClear }: AdvancedSearchProp
         {isExpanded && (
           <div className="border-t border-gray-200 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Категория
-                </label>
-                <select
-                  value={filters.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                             {/* Category */}
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                   Категория
+                 </label>
+                 <select
+                   value={filters.category}
+                   onChange={(e) => handleInputChange('category', e.target.value)}
+                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none"
+                 >
+                   {categories.map((cat) => (
+                     <option key={cat.value} value={cat.value}>
+                       {cat.label}
+                     </option>
+                   ))}
+                 </select>
+               </div>
 
-              {/* Location */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Локация
-                </label>
-                <select
-                  value={filters.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  {locations.map((loc) => (
-                    <option key={loc.value} value={loc.value}>
-                      {loc.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+               {/* Location */}
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                   Локация
+                 </label>
+                 <select
+                   value={filters.location}
+                   onChange={(e) => handleInputChange('location', e.target.value)}
+                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none"
+                 >
+                   {locations.map((loc) => (
+                     <option key={loc.value} value={loc.value}>
+                       {loc.label}
+                     </option>
+                   ))}
+                 </select>
+               </div>
 
               {/* Price Range */}
               <div>
@@ -190,23 +241,23 @@ export default function AdvancedSearch({ onSearch, onClear }: AdvancedSearchProp
                 </div>
               </div>
 
-              {/* Rating */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Минимален рейтинг
-                </label>
-                <select
-                  value={filters.rating}
-                  onChange={(e) => handleInputChange('rating', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  {ratings.map((rating) => (
-                    <option key={rating.value} value={rating.value}>
-                      {rating.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                             {/* Rating */}
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                   Минимален рейтинг
+                 </label>
+                 <select
+                   value={filters.rating}
+                   onChange={(e) => handleInputChange('rating', e.target.value)}
+                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none"
+                 >
+                   {ratings.map((rating) => (
+                     <option key={rating.value} value={rating.value}>
+                       {rating.label}
+                     </option>
+                   ))}
+                 </select>
+               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

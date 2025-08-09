@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, X, User, LogOut, Bell, Shield } from 'lucide-react'
-import ThemeToggle from './ThemeToggle'
-
+import { Menu, X, User, LogOut, Bell } from 'lucide-react'
 export default function Header() {
   const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -13,18 +11,26 @@ export default function Header() {
 
   useEffect(() => {
     // Проверка дали потребителят е влязъл
-    const loginStatus = localStorage.getItem('isLoggedIn')
-    const userData = localStorage.getItem('user')
-    
-    if (loginStatus === 'true' && userData) {
-      setIsLoggedIn(true)
-      setUser(JSON.parse(userData))
+    if (typeof window !== 'undefined') {
+      const loginStatus = localStorage.getItem('isLoggedIn')
+      const userData = localStorage.getItem('user')
+      
+      if (loginStatus === 'true' && userData) {
+        try {
+          setIsLoggedIn(true)
+          setUser(JSON.parse(userData))
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+        }
+      }
     }
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('user')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('isLoggedIn')
+      localStorage.removeItem('user')
+    }
     setIsLoggedIn(false)
     setUser(null)
     router.push('/')
@@ -39,14 +45,14 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
             <button
               onClick={() => router.push('/')}
-              className="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors"
+              className="text-2xl font-bold text-blue-600"
             >
               Rabotim.com
             </button>
@@ -56,21 +62,33 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <button
               onClick={() => router.push('/tasks')}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-600"
             >
               Задачи
             </button>
             <button
+              onClick={() => router.push('/search')}
+              className="text-gray-600"
+            >
+              Разширено търсене
+            </button>
+            <button
               onClick={() => router.push('/post-task')}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-600"
             >
               Публикувай
             </button>
             <button
               onClick={() => router.push('/profile')}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-600"
             >
               Профил
+            </button>
+            <button
+              onClick={() => router.push('/ratings')}
+              className="text-gray-600"
+            >
+              Рейтинги
             </button>
           </nav>
 
@@ -80,30 +98,22 @@ export default function Header() {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => router.push('/notifications')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                  className="p-2 rounded relative"
                 >
                   <Bell size={20} className="text-gray-600" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary-600 rounded-full"></span>
                 </button>
-                <button
-                  onClick={() => router.push('/admin')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Админ панел"
-                >
-                  <Shield size={20} className="text-gray-600" />
-                </button>
-                <ThemeToggle />
+                {/* <ThemeToggle /> */}
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <User size={16} className="text-primary-600" />
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User size={16} className="text-blue-600" />
                   </div>
                   <span className="text-sm font-medium text-gray-700">
-                    {user?.firstName} {user?.lastName}
+                    {user?.firstName || 'User'} {user?.lastName || ''}
                   </span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="btn btn-outline text-sm flex items-center gap-2"
+                  className="px-4 py-2 text-sm border border-gray-300 rounded flex items-center gap-2"
                 >
                   <LogOut size={16} />
                   Излез
@@ -113,13 +123,13 @@ export default function Header() {
               <>
                 <button
                   onClick={handleLogin}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  className="text-gray-600"
                 >
                   Вход
                 </button>
                 <button
                   onClick={handleRegister}
-                  className="btn btn-primary"
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
                 >
                   Регистрация
                 </button>
@@ -131,7 +141,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              className="p-2 rounded text-gray-600"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -147,7 +157,7 @@ export default function Header() {
                   router.push('/tasks')
                   setIsMobileMenuOpen(false)
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                className="block w-full text-left px-4 py-2 text-gray-600"
               >
                 Задачи
               </button>
@@ -156,7 +166,7 @@ export default function Header() {
                   router.push('/post-task')
                   setIsMobileMenuOpen(false)
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                className="block w-full text-left px-4 py-2 text-gray-600"
               >
                 Публикувай
               </button>
@@ -165,9 +175,20 @@ export default function Header() {
                   router.push('/profile')
                   setIsMobileMenuOpen(false)
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                className="block w-full text-left px-4 py-2 text-gray-600"
               >
                 Профил
+              </button>
+              <button
+                onClick={() => {
+                  router.push('/notifications')
+                  setIsMobileMenuOpen(false)
+                }}
+                className="block w-full text-left px-4 py-2 text-gray-600 relative"
+              >
+                <div className="flex items-center justify-between">
+                  <span>Известия</span>
+                </div>
               </button>
             </nav>
 
@@ -176,11 +197,11 @@ export default function Header() {
               {isLoggedIn ? (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2 px-4 py-2">
-                    <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
-                      <User size={12} className="text-primary-600" />
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User size={12} className="text-blue-600" />
                     </div>
                     <span className="text-sm font-medium text-gray-700">
-                      {user?.firstName} {user?.lastName}
+                      {user?.firstName || 'User'} {user?.lastName || ''}
                     </span>
                   </div>
                   <button
@@ -188,7 +209,7 @@ export default function Header() {
                       handleLogout()
                       setIsMobileMenuOpen(false)
                     }}
-                    className="w-full btn btn-outline text-sm flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded flex items-center justify-center gap-2"
                   >
                     <LogOut size={16} />
                     Излез
@@ -201,7 +222,7 @@ export default function Header() {
                       handleLogin()
                       setIsMobileMenuOpen(false)
                     }}
-                    className="w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                    className="w-full text-left px-4 py-2 text-gray-600"
                   >
                     Вход
                   </button>
@@ -210,7 +231,7 @@ export default function Header() {
                       handleRegister()
                       setIsMobileMenuOpen(false)
                     }}
-                    className="w-full btn btn-primary"
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded"
                   >
                     Регистрация
                   </button>

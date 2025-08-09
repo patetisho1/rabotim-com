@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Toaster } from 'react-hot-toast'
-import PWAInstall from '@/components/PWAInstall'
+// import { Toaster } from 'react-hot-toast'
+// import PWAInstall from '@/components/PWAInstall'
+import Header from '@/components/Header'
+// import MobileNav from '@/components/MobileNav'
+// import NotificationManager from '@/components/NotificationManager'
 
 export const metadata: Metadata = {
   metadataBase: new URL('http://localhost:3000'),
@@ -36,8 +39,13 @@ export default function RootLayout({
   return (
     <html lang="bg">
       <body>
-                {children}
-        <Toaster
+        <Header />
+        <main>
+          {children}
+        </main>
+        {/* <MobileNav /> */}
+        {/* <NotificationManager /> */}
+        {/* <Toaster
           position="top-center"
           toastOptions={{
             duration: 4000,
@@ -46,9 +54,9 @@ export default function RootLayout({
               color: '#fff',
             },
           }}
-        />
-        <PWAInstall />
-        <script
+        /> */}
+        {/* <PWAInstall /> */}
+        {/* <script
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
@@ -64,7 +72,7 @@ export default function RootLayout({
               }
             `,
           }}
-        />
+        /> */}
       </body>
     </html>
   )
