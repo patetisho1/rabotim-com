@@ -137,9 +137,10 @@ export default function HomePage() {
           </div>
           
           <div className="relative max-w-6xl mx-auto text-center">
-            <h1 className={`text-5xl md:text-7xl font-bold mb-6 leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              НАМЕРЕТЕ ИЛИ ПРЕДЛОЖЕТЕ
-              <span className={`block text-blue-200 transition-all duration-1000 delay-300 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>ПОЧАСОВА РАБОТА</span>
+            <h1 className={`text-6xl md:text-8xl lg:text-9xl font-bold mb-8 leading-none transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              НАМЕРЕТЕ ИЛИ
+              <span className={`block text-blue-200 transition-all duration-1000 delay-300 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>ПРЕДЛОЖЕТЕ</span>
+              <span className={`block text-white transition-all duration-1000 delay-500 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>ПОЧАСОВА РАБОТА</span>
             </h1>
             <p className={`text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Публикувайте задача. Изберете най-добрия човек. Свършете я.
