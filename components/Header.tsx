@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, User, LogOut, Bell } from 'lucide-react'
+import { Menu, X, User, LogOut, Bell, ChevronDown } from 'lucide-react'
 export default function Header() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<any>(null)
 
@@ -72,24 +73,117 @@ export default function Header() {
               onClick={() => router.push('/post-task')}
               className="hidden sm:flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
             >
-              Публикувай
+              Публикувай задача
             </button>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => router.push('/profile')}
-              className="text-gray-600"
-            >
-              Профил
-            </button>
-            <button
-              onClick={() => router.push('/ratings')}
-              className="text-gray-600"
-            >
-              Рейтинги
-            </button>
+            <div className="relative">
+              <button
+                onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
+                onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Категории
+                <ChevronDown size={16} className="ml-1" />
+              </button>
+              
+              {/* Dropdown Menu */}
+              {isCategoriesDropdownOpen && (
+                <div 
+                  className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                  onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
+                  onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+                >
+                  <div className="p-4">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Аз търся работа</h3>
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => {
+                            router.push('/tasks?category=cleaning')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Почистване
+                        </button>
+                        <button 
+                          onClick={() => {
+                            router.push('/tasks?category=gardening')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Градинарство
+                        </button>
+                        <button 
+                          onClick={() => {
+                            router.push('/tasks?category=handyman')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Майсторски работи
+                        </button>
+                        <button 
+                          onClick={() => {
+                            router.push('/tasks?category=transport')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Транспорт
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-gray-200 pt-4">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Търся работник</h3>
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => {
+                            router.push('/post-task?category=cleaning')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Почистване
+                        </button>
+                        <button 
+                          onClick={() => {
+                            router.push('/post-task?category=gardening')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Градинарство
+                        </button>
+                        <button 
+                          onClick={() => {
+                            router.push('/post-task?category=handyman')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Майсторски работи
+                        </button>
+                        <button 
+                          onClick={() => {
+                            router.push('/post-task?category=transport')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                        >
+                          Транспорт
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Auth Buttons */}
