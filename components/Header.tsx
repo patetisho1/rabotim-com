@@ -96,8 +96,8 @@ export default function Header() {
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
                   onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
                 >
-                  <div className="p-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                  <div className="p-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
                       {/* Left Section - Role Selection */}
                       <div className="lg:col-span-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Какво търсите?</h3>
@@ -168,7 +168,7 @@ export default function Header() {
                                 router.push(`${route}?category=${encodeURIComponent(category)}&role=${selectedRole}`)
                                 setIsCategoriesDropdownOpen(false)
                               }}
-                              className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
+                              className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-0 py-0 transition-colors"
                             >
                               {category}
                             </button>
