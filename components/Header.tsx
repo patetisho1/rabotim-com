@@ -70,6 +70,14 @@ export default function Header() {
               Rabotim.com
             </button>
             
+            {/* Публикувай бутон */}
+            <button
+              onClick={() => router.push('/post-task')}
+              className="hidden sm:flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+            >
+              Публикувай задача
+            </button>
+            
             {/* Категории бутон */}
             <div className="relative">
               <button
@@ -84,100 +92,102 @@ export default function Header() {
               {/* Dropdown Menu */}
               {isCategoriesDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                  className="absolute top-full left-0 mt-2 w-screen max-w-6xl bg-white border border-gray-200 rounded-lg shadow-xl z-50"
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
                   onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
                 >
-                  <div className="p-6">
-                    {/* Role Selection */}
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Какво търсите?</h3>
-                      <p className="text-sm text-gray-600 mb-4">Изберете тип задача.</p>
-                      
-                      <div className="space-y-3">
-                        <button 
-                          onClick={() => setSelectedRole('tasker')}
-                          className={`w-full p-4 text-left rounded-lg transition-all duration-200 ${
-                            selectedRole === 'tasker' 
-                              ? 'bg-blue-50 border-l-4 border-blue-500' 
-                              : 'bg-gray-50 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500'
-                          }`}
-                        >
-                          <div className="font-semibold text-gray-900">КАТО ИЗПЪЛНИТЕЛ</div>
-                          <div className="text-sm text-gray-600">Търся работа в...</div>
-                        </button>
+                  <div className="p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                      {/* Left Section - Role Selection */}
+                      <div className="lg:col-span-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Какво търсите?</h3>
+                        <p className="text-sm text-gray-600 mb-4">Изберете тип задача.</p>
                         
-                        <button 
-                          onClick={() => setSelectedRole('poster')}
-                          className={`w-full p-4 text-left rounded-lg transition-all duration-200 ${
-                            selectedRole === 'poster' 
-                              ? 'bg-blue-50 border-l-4 border-blue-500' 
-                              : 'bg-gray-50 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500'
-                          }`}
-                        >
-                          <div className="font-semibold text-gray-900">КАТО ВЪЗЛОЖИТЕЛ</div>
-                          <div className="text-sm text-gray-600">Търся да наема някого за...</div>
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Categories Grid */}
-                    <div>
-                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                        {[
-                          'Счетоводство', 'Администрация', 'Промени и поправки на дрехи', 'Електроуреди', 'Архитекти',
-                          'Сглобяване', 'Аудио-визуални услуги', 'Автоелектротехник', 'Пекари', 'Доставка на балони',
-                          'Фризьори за мъже / бръснари', 'Ремонт на баня', 'Козметици', 'Сервиз за велосипеди', 'Зидар',
-                          'Строителство', 'Бизнес услуги', 'Доставка на торти', 'Автобояджия', 'Детайлно почистване на автомобили',
-                          'Преглед на автомобил', 'Ремонт на автомобил', 'Автосервиз', 'Автомивка', 'Дърводелство',
-                          'Пране на килими', 'Грижа за котки', 'Кетъринг', 'Готвач', 'Грижи и безопасност за деца',
-                          'Облицовки', 'Почистване', 'Услуги по разчистване', 'Коучинг / личен треньор', 'Доставка на кафе',
-                          'Професионално почистване', 'Компютри и IT услуги', 'Бетонни работи', 'Готвене', 'Консултиране и терапия',
-                          'Куриерски услуги', 'Уроци по танци', 'Дървена тераса / декинг', 'Доставка', 'Дизайн',
-                          'Доставка на десерти', 'Грижа за кучета', 'Технически чертожник', 'Шофьорски услуги', 'Електротехници',
-                          'Ремонт на електроника', 'Гравиране', 'Забавления', 'Събития', 'Ограждане и огради',
-                          'Фитнес', 'Подови настилки', 'Цветар', 'Доставка на цветя', 'Доставка на храна',
-                          'Доставка на свежи продукти', 'Сглобяване на мебели', 'Ремонт на мебели', 'Градинарство', 'Монтаж на порти',
-                          'Доставка на подаръци', 'Стъклар', 'Доставка на хранителни стоки', 'Премахване на косми', 'Фризьори',
-                          'Домашен майстор', 'Здраве и уелнес', 'Отопление и охлаждане', 'Дом и начин на живот', 'Домашна автоматизация и охрана',
-                          'Домашно кино', 'Почистване на домове', 'Интериорен дизайнер', 'Ремонт на кухня', 'Ландшафтен дизайн',
-                          'Пране', 'Грижа за тревни площи', 'Правни услуги', 'Уроци', 'Мобилен автосервиз на място',
-                          'Ключар', 'Гримьор', 'Маркетинг', 'Бойни изкуства', 'Механик',
-                          'Моделиране / модели', 'Помощ за майки', 'Мотоциклетен механик', 'Музикални уроци', 'Боядисване',
-                          'Павиране', 'Борба с вредители', 'Грижа за домашни любимци', 'Фотографи', 'Мазилка',
-                          'ВиК услуги', 'Поддръжка на басейни', 'Недвижими имоти', 'Преместване', 'Покривни ремонти',
-                          'Извозване на боклук', 'Шивачка', 'Заточване', 'Набиране на персонал', 'Геодезисти',
-                          'Уроци по плуване', 'Шивачи', 'Храна за вкъщи и доставка', 'Татуисти', 'Поставяне на плочки',
-                          'Майсторски услуги', 'Преводи', 'Арбористи / подрязване на дървета', 'Уроци с преподавател', 'Транспорт на превозни средства',
-                          'Монтаж на стени и окачване', 'Поставяне на тапети', 'Събиране и изхвърляне на отпадъци', 'Хидроизолация', 'Уеб услуги',
-                          'Сватбени услуги', 'Сервиз за джанти и гуми', 'Почистване на прозорци', 'Прозорци и врати', 'Писане'
-                        ].map((category, index) => (
+                        <div className="space-y-3">
                           <button 
-                            key={index}
+                            onClick={() => setSelectedRole('tasker')}
+                            className={`w-full p-4 text-left rounded-lg transition-all duration-200 ${
+                              selectedRole === 'tasker' 
+                                ? 'bg-blue-50 border-l-4 border-blue-500' 
+                                : 'bg-gray-50 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500'
+                            }`}
+                          >
+                            <div className="font-semibold text-gray-900">КАТО ИЗПЪЛНИТЕЛ</div>
+                            <div className="text-sm text-gray-600">Търся работа в...</div>
+                          </button>
+                          
+                          <button 
+                            onClick={() => setSelectedRole('poster')}
+                            className={`w-full p-4 text-left rounded-lg transition-all duration-200 ${
+                              selectedRole === 'poster' 
+                                ? 'bg-blue-50 border-l-4 border-blue-500' 
+                                : 'bg-gray-50 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500'
+                            }`}
+                          >
+                            <div className="font-semibold text-gray-900">КАТО ВЪЗЛОЖИТЕЛ</div>
+                            <div className="text-sm text-gray-600">Търся да наема някого за...</div>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Right Section - Categories Grid */}
+                      <div className="lg:col-span-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                          {[
+                            'Счетоводство', 'Администрация', 'Промени и поправки на дрехи', 'Електроуреди', 'Архитекти',
+                            'Сглобяване', 'Аудио-визуални услуги', 'Автоелектротехник', 'Пекари', 'Доставка на балони',
+                            'Фризьори за мъже / бръснари', 'Ремонт на баня', 'Козметици', 'Сервиз за велосипеди', 'Зидар',
+                            'Строителство', 'Бизнес услуги', 'Доставка на торти', 'Автобояджия', 'Детайлно почистване на автомобили',
+                            'Преглед на автомобил', 'Ремонт на автомобил', 'Автосервиз', 'Автомивка', 'Дърводелство',
+                            'Пране на килими', 'Грижа за котки', 'Кетъринг', 'Готвач', 'Грижи и безопасност за деца',
+                            'Облицовки', 'Почистване', 'Услуги по разчистване', 'Коучинг / личен треньор', 'Доставка на кафе',
+                            'Професионално почистване', 'Компютри и IT услуги', 'Бетонни работи', 'Готвене', 'Консултиране и терапия',
+                            'Куриерски услуги', 'Уроци по танци', 'Дървена тераса / декинг', 'Доставка', 'Дизайн',
+                            'Доставка на десерти', 'Грижа за кучета', 'Технически чертожник', 'Шофьорски услуги', 'Електротехници',
+                            'Ремонт на електроника', 'Гравиране', 'Забавления', 'Събития', 'Ограждане и огради',
+                            'Фитнес', 'Подови настилки', 'Цветар', 'Доставка на цветя', 'Доставка на храна',
+                            'Доставка на свежи продукти', 'Сглобяване на мебели', 'Ремонт на мебели', 'Градинарство', 'Монтаж на порти',
+                            'Доставка на подаръци', 'Стъклар', 'Доставка на хранителни стоки', 'Премахване на косми', 'Фризьори',
+                            'Домашен майстор', 'Здраве и уелнес', 'Отопление и охлаждане', 'Дом и начин на живот', 'Домашна автоматизация и охрана',
+                            'Домашно кино', 'Почистване на домове', 'Интериорен дизайнер', 'Ремонт на кухня', 'Ландшафтен дизайн',
+                            'Пране', 'Грижа за тревни площи', 'Правни услуги', 'Уроци', 'Мобилен автосервиз на място',
+                            'Ключар', 'Гримьор', 'Маркетинг', 'Бойни изкуства', 'Механик',
+                            'Моделиране / модели', 'Помощ за майки', 'Мотоциклетен механик', 'Музикални уроци', 'Боядисване',
+                            'Павиране', 'Борба с вредители', 'Грижа за домашни любимци', 'Фотографи', 'Мазилка',
+                            'ВиК услуги', 'Поддръжка на басейни', 'Недвижими имоти', 'Преместване', 'Покривни ремонти',
+                            'Извозване на боклук', 'Шивачка', 'Заточване', 'Набиране на персонал', 'Геодезисти',
+                            'Уроци по плуване', 'Шивачи', 'Храна за вкъщи и доставка', 'Татуисти', 'Поставяне на плочки',
+                            'Майсторски услуги', 'Преводи', 'Арбористи / подрязване на дървета', 'Уроци с преподавател', 'Транспорт на превозни средства',
+                            'Монтаж на стени и окачване', 'Поставяне на тапети', 'Събиране и изхвърляне на отпадъци', 'Хидроизолация', 'Уеб услуги',
+                            'Сватбени услуги', 'Сервиз за джанти и гуми', 'Почистване на прозорци', 'Прозорци и врати', 'Писане'
+                          ].map((category, index) => (
+                            <button 
+                              key={index}
+                              onClick={() => {
+                                const route = selectedRole === 'tasker' ? '/tasks' : '/post-task'
+                                router.push(`${route}?category=${encodeURIComponent(category)}&role=${selectedRole}`)
+                                setIsCategoriesDropdownOpen(false)
+                              }}
+                              className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded transition-colors"
+                            >
+                              {category}
+                            </button>
+                          ))}
+                        </div>
+                        
+                        {/* View All Link */}
+                        <div className="mt-6 text-right">
+                          <button 
                             onClick={() => {
                               const route = selectedRole === 'tasker' ? '/tasks' : '/post-task'
-                              router.push(`${route}?category=${encodeURIComponent(category)}&role=${selectedRole}`)
+                              router.push(`${route}?role=${selectedRole}`)
                               setIsCategoriesDropdownOpen(false)
                             }}
-                            className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded transition-colors"
+                            className="text-blue-600 hover:text-blue-800 font-medium text-sm"
                           >
-                            {category}
+                            Виж всички →
                           </button>
-                        ))}
-                      </div>
-                      
-                      {/* View All Link */}
-                      <div className="mt-4 text-right">
-                        <button 
-                          onClick={() => {
-                            const route = selectedRole === 'tasker' ? '/tasks' : '/post-task'
-                            router.push(`${route}?role=${selectedRole}`)
-                            setIsCategoriesDropdownOpen(false)
-                          }}
-                          className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-                        >
-                          Виж всички →
-                        </button>
+                        </div>
                       </div>
                     </div>
                   </div>
