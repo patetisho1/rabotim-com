@@ -253,9 +253,9 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t border-gray-200 bg-white">
             {/* Prominent mobile find executor button */}
-            <div className="px-4 mb-4">
+            <div className="px-4 mb-6">
               <button
                 onClick={() => {
                   router.push('/post-task')
@@ -267,60 +267,94 @@ export default function Header() {
               </button>
             </div>
             
-            <nav className="space-y-2">
+            {/* Mobile Navigation */}
+            <nav className="px-4 space-y-1 mb-6">
               <button
                 onClick={() => {
-                  router.push('/profile')
+                  setIsCategoriesDropdownOpen(true)
                   setIsMobileMenuOpen(false)
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-600"
+                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
-                Профил
+                <span className="font-medium">Категории</span>
+                <ChevronDown size={16} />
               </button>
               <button
                 onClick={() => {
-                  router.push('/notifications')
+                  router.push('/tasks')
                   setIsMobileMenuOpen(false)
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-600 relative"
+                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <span>Известия</span>
-                </div>
+                <span className="font-medium">Преглед на задачи</span>
+                <ArrowRight size={16} />
+              </button>
+              <button
+                onClick={() => {
+                  router.push('/how-it-works')
+                  setIsMobileMenuOpen(false)
+                }}
+                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <span className="font-medium">Как работи</span>
+                <ArrowRight size={16} />
               </button>
             </nav>
 
             {/* Mobile Auth */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="px-4 pt-4 border-t border-gray-200">
               {isLoggedIn ? (
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2 px-4 py-2">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User size={12} className="text-blue-600" />
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 px-3 py-2">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User size={16} className="text-blue-600" />
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {user?.firstName || 'User'} {user?.lastName || ''}
-                    </span>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {user?.firstName || 'User'} {user?.lastName || ''}
+                      </div>
+                      <div className="text-xs text-gray-500">Онлайн</div>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      handleLogout()
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded flex items-center justify-center gap-2"
-                  >
-                    <LogOut size={16} />
-                    Излез
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        router.push('/profile')
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      Профил
+                    </button>
+                    <button
+                      onClick={() => {
+                        router.push('/notifications')
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      Известия
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleLogout()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+                    >
+                      <LogOut size={16} />
+                      Излез
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <button
                     onClick={() => {
                       handleLogin()
                       setIsMobileMenuOpen(false)
                     }}
-                    className="w-full text-left px-4 py-2 text-gray-600"
+                    className="w-full text-left px-3 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                   >
                     Вход
                   </button>
@@ -329,7 +363,7 @@ export default function Header() {
                       handleRegister()
                       setIsMobileMenuOpen(false)
                     }}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded"
+                    className="w-full px-4 py-3 bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 rounded-full font-medium transition-colors duration-200"
                   >
                     Стани изпълнител
                   </button>
