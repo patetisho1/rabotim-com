@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import CategoryGrid from '@/components/CategoryGrid'
 import TaskGrid from '@/components/TaskGrid'
@@ -19,19 +20,38 @@ export default function HomePage() {
     cities: 0,
     completed: 0
   })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+
+  // Intersection Observer hooks for animations
+  const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true })
+  const [statsRef, statsInView] = useInView({ threshold: 0.3, triggerOnce: true })
+  const [categoriesRef, categoriesInView] = useInView({ threshold: 0.2, triggerOnce: true })
+  const [howItWorksRef, howItWorksInView] = useInView({ threshold: 0.2, triggerOnce: true })
+  const [tasksRef, tasksInView] = useInView({ threshold: 0.2, triggerOnce: true })
+  const [testimonialsRef, testimonialsInView] = useInView({ threshold: 0.2, triggerOnce: true })
+  const [ctaRef, ctaInView] = useInView({ threshold: 0.2, triggerOnce: true })
 
   useEffect(() => {
     // Зареждане на статистики от localStorage
-    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const cities = new Set(tasks.map((task: any) => task.location)).size
+    const loadStats = async () => {
+      setIsLoadingStats(true)
+      // Симулиране на зареждане
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const cities = new Set(tasks.map((task: any) => task.location)).size
+      
+      setStats({
+        tasks: tasks.length,
+        users: users.length || 150, // Fallback стойност
+        cities: cities || 8,
+        completed: Math.floor(tasks.length * 0.7) // Симулирани завършени задачи
+      })
+      setIsLoadingStats(false)
+    }
     
-    setStats({
-      tasks: tasks.length,
-      users: users.length || 150, // Fallback стойност
-      cities: cities || 8,
-      completed: Math.floor(tasks.length * 0.7) // Симулирани завършени задачи
-    })
+    loadStats()
   }, [])
 
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
@@ -109,54 +129,80 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="pb-20">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white py-20 px-4 overflow-hidden">
+        <section ref={heroRef} className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white py-20 px-4 overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2 animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-white rounded-full opacity-50 animate-bounce delay-500"></div>
           </div>
           
           <div className="relative max-w-6xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            <h1 className={`text-4xl md:text-6xl font-bold mb-6 leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Намерете или предложете
-              <span className="block text-primary-200">почасова работа</span>
+              <span className={`block text-primary-200 transition-all duration-1000 delay-300 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>почасова работа</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
+            <p className={`text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Свържете се с надеждни изпълнители или намерете работа в цяла България
             </p>
             
             <SearchSection onSearch={handleSearch} />
             
             {/* Quick Stats */}
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold">{stats.tasks}+</div>
-                <div className="text-sm text-primary-200">Активни задачи</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold">{stats.users}+</div>
-                <div className="text-sm text-primary-200">Доверени потребители</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold">{stats.cities}</div>
-                <div className="text-sm text-primary-200">Градове</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold">{stats.completed}+</div>
-                <div className="text-sm text-primary-200">Завършени задачи</div>
-              </div>
+            <div ref={statsRef} className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              {isLoadingStats ? (
+                // Skeleton loading
+                <>
+                  <div className="text-center">
+                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
+                    <div className="text-sm text-primary-200">Активни задачи</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
+                    <div className="text-sm text-primary-200">Доверени потребители</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
+                    <div className="text-sm text-primary-200">Градове</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
+                    <div className="text-sm text-primary-200">Завършени задачи</div>
+                  </div>
+                </>
+              ) : (
+                // Real stats
+                <>
+                  <div className={`text-center group hover:scale-105 transition-all duration-500 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.tasks}+</div>
+                    <div className="text-sm text-primary-200">Активни задачи</div>
+                  </div>
+                  <div className={`text-center group hover:scale-105 transition-all duration-500 delay-100 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.users}+</div>
+                    <div className="text-sm text-primary-200">Доверени потребители</div>
+                  </div>
+                  <div className={`text-center group hover:scale-105 transition-all duration-500 delay-200 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.cities}</div>
+                    <div className="text-sm text-primary-200">Градове</div>
+                  </div>
+                  <div className={`text-center group hover:scale-105 transition-all duration-500 delay-300 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.completed}+</div>
+                    <div className="text-sm text-primary-200">Завършени задачи</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </section>
 
         {/* Categories */}
-        <section className="py-16 px-4">
+        <section ref={categoriesRef} className="py-16 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className={`text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 transition-all duration-1000 ${categoriesInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Популярни категории
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              <p className={`text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto transition-all duration-1000 delay-300 ${categoriesInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Намерете работа или изпълнител в различни области
               </p>
             </div>
@@ -165,27 +211,27 @@ export default function HomePage() {
         </section>
 
         {/* How It Works */}
-        <section className="py-16 px-4 bg-white dark:bg-gray-800">
+        <section ref={howItWorksRef} className="py-16 px-4 bg-white dark:bg-gray-800">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className={`text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 transition-all duration-1000 ${howItWorksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Как работи
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              <p className={`text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto transition-all duration-1000 delay-300 ${howItWorksInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Само три прости стъпки до успешното завършване на вашата задача
               </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
               {howItWorks.map((item, index) => (
-                <div key={index} className="text-center group">
+                <div key={index} className={`text-center group transition-all duration-700 delay-${index * 200} ${howItWorksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   <div className="relative mb-6">
-                    <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 animate-float">
                       <div className="text-primary-600 dark:text-primary-400">
                         {item.icon}
                       </div>
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold animate-bounce">
                       {item.step}
                     </div>
                   </div>
@@ -202,9 +248,9 @@ export default function HomePage() {
         </section>
 
         {/* Recent Tasks */}
-        <section className="py-16 px-4">
+        <section ref={tasksRef} className="py-16 px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+            <div className={`flex justify-between items-center mb-8 transition-all duration-1000 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   Последно публикувани задачи
@@ -227,20 +273,20 @@ export default function HomePage() {
         </section>
 
         {/* Testimonials */}
-        <section className="py-16 px-4 bg-gray-100 dark:bg-gray-700">
+        <section ref={testimonialsRef} className="py-16 px-4 bg-gray-100 dark:bg-gray-700">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className={`text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 transition-all duration-1000 ${testimonialsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Какво казват нашите потребители
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              <p className={`text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto transition-all duration-1000 delay-300 ${testimonialsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Реални отзиви от доволни клиенти и изпълнители
               </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
               {testimonials.map((testimonial, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div key={index} className={`bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:scale-105 transition-all duration-500 delay-${index * 200} cursor-pointer ${testimonialsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   <div className="flex items-center mb-4">
                     <div className="text-3xl mr-3">{testimonial.avatar}</div>
                     <div>
@@ -269,15 +315,15 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 px-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+        <section ref={ctaRef} className="py-20 px-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-1000 ${ctaInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Готови сте да започнете?
             </h2>
-            <p className="text-xl mb-8 text-primary-100 max-w-2xl mx-auto">
+            <p className={`text-xl mb-8 text-primary-100 max-w-2xl mx-auto transition-all duration-1000 delay-300 ${ctaInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Публикувайте задача или намерете работа в минути. Присъединете се към нашата общност!
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-1000 delay-500 ${ctaInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <button 
                 onClick={handlePostTask}
                 className="btn bg-white text-primary-600 hover:bg-gray-100 flex items-center justify-center gap-2 text-lg px-8 py-3 font-semibold"
