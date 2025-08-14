@@ -164,80 +164,215 @@ export default function HomePage() {
 
             {/* Right Task Cards */}
             <div className="relative w-full md:w-1/2 flex justify-center">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-700 p-8 rounded-3xl shadow-lg">
-                <div className="w-96 h-64 bg-white/10 rounded-lg overflow-hidden relative">
-                  {/* Task Cards */}
-                  <div className="absolute inset-0">
-                    {[
-                      {
-                        id: 1,
-                        title: "Почистване на дом",
-                        price: "50-80 лв",
-                        location: "София",
-                        image: "🧹",
-                        category: "Почистване"
-                      },
-                      {
-                        id: 2,
-                        title: "Ремонт на баня",
-                        price: "200-400 лв",
-                        location: "Пловдив",
-                        image: "🔧",
-                        category: "Ремонт"
-                      },
-                      {
-                        id: 3,
-                        title: "Доставка на храна",
-                        price: "15-25 лв",
-                        location: "Варна",
-                        image: "🛒",
-                        category: "Доставка"
-                      },
-                      {
-                        id: 4,
-                        title: "Градинарски услуги",
-                        price: "80-120 лв",
-                        location: "Бургас",
-                        image: "🌱",
-                        category: "Градинарство"
-                      },
-                      {
-                        id: 5,
-                        title: "Уроци по математика",
-                        price: "30-50 лв/час",
-                        location: "София",
-                        image: "📚",
-                        category: "Образование"
-                      },
-                      {
-                        id: 6,
-                        title: "Фотографски услуги",
-                        price: "150-300 лв",
-                        location: "Пловдив",
-                        image: "📸",
-                        category: "Фотография"
-                      }
-                    ].map((task, index) => (
-                      <div
-                        key={task.id}
-                        className="absolute inset-0 bg-white rounded-lg p-4 task-card-rotation"
-                      >
-                        <div className="flex items-start space-x-3 h-full">
-                          <div className="text-3xl">{task.image}</div>
-                          <div className="flex-1">
-                            <div className="text-sm text-blue-600 font-medium mb-1">{task.category}</div>
-                            <div className="text-lg font-semibold text-gray-900 mb-2">{task.title}</div>
-                            <div className="text-sm text-gray-600 mb-1">{task.location}</div>
-                            <div className="text-lg font-bold text-green-600">{task.price}</div>
+              <div className="w-96 h-80 overflow-hidden relative">
+                {/* Task Cards */}
+                <div className="absolute inset-0">
+                  {[
+                    {
+                      id: 1,
+                      title: "Почистване на дом",
+                      price: 65,
+                      priceType: "fixed",
+                      location: "София",
+                      category: "cleaning",
+                      postedBy: "Мария И.",
+                      postedDate: "2024-01-15",
+                      rating: 4.8,
+                      reviewCount: 12,
+                      views: 45,
+                      applications: 3,
+                      attachments: [
+                        {
+                          name: "cleaning1.jpg",
+                          size: 1024000,
+                          type: "image/jpeg",
+                          url: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop"
+                        }
+                      ]
+                    },
+                    {
+                      id: 2,
+                      title: "Ремонт на баня",
+                      price: 300,
+                      priceType: "fixed",
+                      location: "Пловдив",
+                      category: "handyman",
+                      postedBy: "Иван П.",
+                      postedDate: "2024-01-14",
+                      rating: 4.9,
+                      reviewCount: 8,
+                      views: 32,
+                      applications: 2,
+                      attachments: [
+                        {
+                          name: "bathroom1.jpg",
+                          size: 1024000,
+                          type: "image/jpeg",
+                          url: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop"
+                        }
+                      ]
+                    },
+                    {
+                      id: 3,
+                      title: "Доставка на храна",
+                      price: 20,
+                      priceType: "fixed",
+                      location: "Варна",
+                      category: "delivery",
+                      postedBy: "Петър Д.",
+                      postedDate: "2024-01-13",
+                      rating: 4.7,
+                      reviewCount: 15,
+                      views: 28,
+                      applications: 1,
+                      attachments: [
+                        {
+                          name: "delivery1.jpg",
+                          size: 1024000,
+                          type: "image/jpeg",
+                          url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop"
+                        }
+                      ]
+                    },
+                    {
+                      id: 4,
+                      title: "Градинарски услуги",
+                      price: 100,
+                      priceType: "fixed",
+                      location: "Бургас",
+                      category: "gardening",
+                      postedBy: "Стоян Г.",
+                      postedDate: "2024-01-12",
+                      rating: 4.6,
+                      reviewCount: 6,
+                      views: 19,
+                      applications: 2,
+                      attachments: [
+                        {
+                          name: "gardening1.jpg",
+                          size: 1024000,
+                          type: "image/jpeg",
+                          url: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop"
+                        }
+                      ]
+                    },
+                    {
+                      id: 5,
+                      title: "Уроци по математика",
+                      price: 40,
+                      priceType: "hourly",
+                      location: "София",
+                      category: "tutoring",
+                      postedBy: "Анна К.",
+                      postedDate: "2024-01-11",
+                      rating: 4.9,
+                      reviewCount: 22,
+                      views: 67,
+                      applications: 4,
+                      attachments: [
+                        {
+                          name: "tutoring1.jpg",
+                          size: 1024000,
+                          type: "image/jpeg",
+                          url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop"
+                        }
+                      ]
+                    },
+                    {
+                      id: 6,
+                      title: "Фотографски услуги",
+                      price: 250,
+                      priceType: "fixed",
+                      location: "Пловдив",
+                      category: "other",
+                      postedBy: "Елена М.",
+                      postedDate: "2024-01-10",
+                      rating: 4.8,
+                      reviewCount: 18,
+                      views: 41,
+                      applications: 3,
+                      attachments: [
+                        {
+                          name: "photography1.jpg",
+                          size: 1024000,
+                          type: "image/jpeg",
+                          url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop"
+                        }
+                      ]
+                    }
+                  ].map((task, index) => (
+                    <div
+                      key={task.id}
+                      className="absolute inset-0 task-card-rotation"
+                    >
+                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 h-full">
+                        {/* Image */}
+                        {task.attachments && task.attachments.length > 0 && (
+                          <div className="relative h-48 overflow-hidden">
+                            <img 
+                              src={task.attachments[0].url} 
+                              alt={task.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-2 left-2">
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                task.category === 'cleaning' ? 'bg-blue-100 text-blue-600' :
+                                task.category === 'handyman' ? 'bg-orange-100 text-orange-600' :
+                                task.category === 'delivery' ? 'bg-yellow-100 text-yellow-600' :
+                                task.category === 'gardening' ? 'bg-green-100 text-green-600' :
+                                task.category === 'tutoring' ? 'bg-indigo-100 text-indigo-600' :
+                                'bg-gray-100 text-gray-600'
+                              }`}>
+                                {task.category === 'cleaning' ? 'Почистване' :
+                                 task.category === 'handyman' ? 'Ремонт' :
+                                 task.category === 'delivery' ? 'Доставка' :
+                                 task.category === 'gardening' ? 'Градинарство' :
+                                 task.category === 'tutoring' ? 'Обучение' :
+                                 'Фотография'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Content */}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg mb-2 line-clamp-2">
+                            {task.title}
+                          </h3>
+                          
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                              <MapPin size={14} className="mr-1" />
+                              {task.location}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                              <Clock size={14} className="mr-1" />
+                              {task.postedDate === '2024-01-15' ? 'днес' :
+                               task.postedDate === '2024-01-14' ? 'вчера' :
+                               'преди 2 дни'}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <Star size={14} className="text-yellow-400 fill-current mr-1" />
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {task.rating}
+                              </span>
+                              <span className="text-sm text-gray-500 ml-1">
+                                ({task.reviewCount})
+                              </span>
+                            </div>
+                            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="absolute top-0 left-0 -translate-x-6 -translate-y-6 w-20 h-20 bg-yellow-300 rounded-full blur-2xl opacity-70"></div>
-              <div className="absolute bottom-0 right-0 translate-x-6 translate-y-6 w-32 h-32 bg-pink-400 rounded-full blur-2xl opacity-50"></div>
             </div>
           </div>
         </section>
