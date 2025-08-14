@@ -96,8 +96,8 @@ export default function Header() {
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
                   onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
                 >
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  <div className="p-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                       {/* Left Section - Role Selection */}
                       <div className="lg:col-span-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Какво търсите?</h3>
@@ -106,7 +106,7 @@ export default function Header() {
                         <div className="space-y-3">
                           <button 
                             onClick={() => setSelectedRole('tasker')}
-                            className={`w-full p-4 text-left rounded-lg transition-all duration-200 ${
+                            className={`w-full p-3 text-left rounded-lg transition-all duration-200 ${
                               selectedRole === 'tasker' 
                                 ? 'bg-blue-50 border-l-4 border-blue-500' 
                                 : 'bg-gray-50 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500'
@@ -118,7 +118,7 @@ export default function Header() {
                           
                           <button 
                             onClick={() => setSelectedRole('poster')}
-                            className={`w-full p-4 text-left rounded-lg transition-all duration-200 ${
+                            className={`w-full p-3 text-left rounded-lg transition-all duration-200 ${
                               selectedRole === 'poster' 
                                 ? 'bg-blue-50 border-l-4 border-blue-500' 
                                 : 'bg-gray-50 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500'
@@ -132,7 +132,7 @@ export default function Header() {
                       
                       {/* Right Section - Categories Grid */}
                       <div className="lg:col-span-4">
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
                           {[
                             'Счетоводство', 'Администрация', 'Промени и поправки на дрехи', 'Електроуреди', 'Архитекти',
                             'Сглобяване', 'Аудио-визуални услуги', 'Автоелектротехник', 'Пекари', 'Доставка на балони',
@@ -168,7 +168,7 @@ export default function Header() {
                                 router.push(`${route}?category=${encodeURIComponent(category)}&role=${selectedRole}`)
                                 setIsCategoriesDropdownOpen(false)
                               }}
-                              className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded transition-colors"
+                              className="block w-full text-left text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
                             >
                               {category}
                             </button>
