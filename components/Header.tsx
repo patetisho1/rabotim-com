@@ -82,7 +82,13 @@ export default function Header() {
             <div className="relative">
               <button
                 onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
-                onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+                onMouseLeave={() => {
+                  setTimeout(() => {
+                    if (!document.querySelector('.categories-dropdown:hover')) {
+                      setIsCategoriesDropdownOpen(false)
+                    }
+                  }, 100)
+                }}
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Категории
@@ -92,9 +98,13 @@ export default function Header() {
               {/* Dropdown Menu */}
               {isCategoriesDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-2 w-screen max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                  className="absolute top-full left-0 mt-2 w-screen max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl z-50 categories-dropdown"
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
-                  onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+                  onMouseLeave={() => {
+                    setTimeout(() => {
+                      setIsCategoriesDropdownOpen(false)
+                    }, 150)
+                  }}
                 >
                   <div className="p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
