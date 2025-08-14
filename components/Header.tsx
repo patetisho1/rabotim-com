@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, User, LogOut, Bell, ChevronDown } from 'lucide-react'
+import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight } from 'lucide-react'
 export default function Header() {
   const router = useRouter()
   const { data: session, status } = useSession()
