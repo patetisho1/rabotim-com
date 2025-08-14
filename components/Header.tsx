@@ -79,24 +79,6 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <button
-              onClick={() => router.push('/tasks')}
-              className="text-gray-600"
-            >
-              Задачи
-            </button>
-            <button
-              onClick={() => router.push('/search')}
-              className="text-gray-600"
-            >
-              Разширено търсене
-            </button>
-            <button
-              onClick={() => router.push('/post-task')}
-              className="text-gray-600"
-            >
-              Публикувай
-            </button>
-            <button
               onClick={() => router.push('/profile')}
               className="text-gray-600"
             >
@@ -183,24 +165,6 @@ export default function Header() {
             </div>
             
             <nav className="space-y-2">
-              <button
-                onClick={() => {
-                  router.push('/tasks')
-                  setIsMobileMenuOpen(false)
-                }}
-                className="block w-full text-left px-4 py-2 text-gray-600"
-              >
-                Задачи
-              </button>
-              <button
-                onClick={() => {
-                  router.push('/post-task')
-                  setIsMobileMenuOpen(false)
-                }}
-                className="block w-full text-left px-4 py-2 text-gray-600"
-              >
-                Публикувай (лента)
-              </button>
               <button
                 onClick={() => {
                   router.push('/profile')
