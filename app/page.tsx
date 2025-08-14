@@ -129,74 +129,52 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="pb-20">
         {/* Hero Section */}
-        <section ref={heroRef} className="relative bg-blue-900 text-white py-24 px-4 overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
-          </div>
-          
-          <div className="relative max-w-6xl mx-auto text-center">
-            <h1 className={`text-5xl md:text-7xl font-bold mb-8 leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              НАМЕРЕТЕ ИЛИ ПРЕДЛОЖЕТЕ
-              <span className={`block text-blue-200 transition-all duration-1000 delay-300 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>ПОЧАСОВА РАБОТА</span>
-            </h1>
-            <p className={`text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              Публикувайте задача. Изберете най-добрия човек. Свършете я.
-            </p>
+        <section ref={heroRef} className="bg-[#001B44] text-white py-20">
+          <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-6">
             
-            {/* CTA Buttons */}
-            <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-12 transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <button
-                onClick={handlePostTask}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                Възложи задача
-                <ArrowRight size={20} />
-              </button>
-              <button
-                onClick={handleViewAllTasks}
-                className="bg-white hover:bg-gray-100 text-blue-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                Търси задача
-              </button>
+            {/* Left Text */}
+            <div className="max-w-lg mb-10 md:mb-0">
+              <h1 className={`text-5xl md:text-6xl font-extrabold leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                Направи работата <span className="text-blue-400">лесна</span>
+              </h1>
+              <p className={`mt-6 text-lg text-gray-300 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                Публикувайте задача. Изберете най-добрия човек. Свършете я — бързо и лесно.
+              </p>
+              <div className={`mt-8 flex flex-wrap gap-4 transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <button
+                  onClick={handlePostTask}
+                  className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-full text-white font-semibold transition-all duration-200 flex items-center gap-2"
+                >
+                  Публикувай задача безплатно
+                  <ArrowRight size={16} />
+                </button>
+                <button
+                  onClick={handleViewAllTasks}
+                  className="bg-white text-blue-700 hover:bg-gray-100 px-6 py-3 rounded-full font-semibold transition-all duration-200"
+                >
+                  Печели пари като изпълнител
+                </button>
+              </div>
+              <div className={`mt-6 flex gap-6 text-sm text-gray-300 transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <span>👥 {stats.users}+ клиенти</span>
+                <span>✅ {stats.completed}+ свършени задачи</span>
+                <span>⭐ 4.8★ рейтинг</span>
+              </div>
             </div>
-            
-            {/* Quick Stats */}
-            <div ref={statsRef} className="flex justify-center items-center gap-8 text-blue-100">
-              {isLoadingStats ? (
-                // Skeleton loading
-                <>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-300 rounded-full animate-pulse"></div>
-                    <div className="text-sm animate-shimmer bg-blue-300 rounded h-4 w-20"></div>
+
+            {/* Right Illustration */}
+            <div className="relative w-full md:w-1/2 flex justify-center">
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-700 p-8 rounded-3xl shadow-lg">
+                <div className="w-96 h-64 bg-white/10 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <div className="text-4xl mb-4">🚀</div>
+                    <div className="text-lg font-semibold">Rabotim.com</div>
+                    <div className="text-sm opacity-80">Най-добрата платформа за работа</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-300 rounded-full animate-pulse"></div>
-                    <div className="text-sm animate-shimmer bg-blue-300 rounded h-4 w-20"></div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-300 rounded-full animate-pulse"></div>
-                    <div className="text-sm animate-shimmer bg-blue-300 rounded h-4 w-20"></div>
-                  </div>
-                </>
-              ) : (
-                // Real stats
-                <>
-                  <div className={`flex items-center gap-2 ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <Users size={16} />
-                    <span className="text-sm">{stats.users}+ клиенти</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${statsInView ? 'animate-fade-in opacity-100 translate-y-0 delay-100' : 'opacity-0 translate-y-8'}`}>
-                    <CheckCircle size={16} />
-                    <span className="text-sm">{stats.completed}+ свършени задачи</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${statsInView ? 'animate-fade-in opacity-100 translate-y-0 delay-200' : 'opacity-0 translate-y-8'}`}>
-                    <Star size={16} />
-                    <span className="text-sm">4.8★ рейтинг</span>
-                  </div>
-                </>
-              )}
+                </div>
+              </div>
+              <div className="absolute top-0 left-0 -translate-x-6 -translate-y-6 w-20 h-20 bg-yellow-300 rounded-full blur-2xl opacity-70"></div>
+              <div className="absolute bottom-0 right-0 translate-x-6 translate-y-6 w-32 h-32 bg-pink-400 rounded-full blur-2xl opacity-50"></div>
             </div>
           </div>
         </section>
