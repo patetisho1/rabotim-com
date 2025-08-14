@@ -92,11 +92,11 @@ export default function Header() {
               {/* Dropdown Menu */}
               {isCategoriesDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-2 w-screen max-w-6xl bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                  className="absolute top-full left-0 mt-2 w-[65%] max-w-4xl h-[75vh] bg-white border border-gray-200 rounded-lg shadow-xl z-50"
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
                   onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
                 >
-                  <div className="p-8">
+                  <div className="p-6 h-full flex flex-col">
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                       {/* Left Section - Role Selection */}
                       <div className="lg:col-span-1">
@@ -194,14 +194,6 @@ export default function Header() {
                 </div>
               )}
             </div>
-            
-            {/* Публикувай бутон */}
-            <button
-              onClick={() => router.push('/post-task')}
-              className="hidden sm:flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
-            >
-              Публикувай задача
-            </button>
           </div>
 
           {/* Desktop Navigation */}
