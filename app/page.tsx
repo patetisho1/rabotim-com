@@ -237,45 +237,45 @@ export default function HomePage() {
                     },
                     {
                       id: "4",
-                      title: "Градинарски услуги",
-                      price: 80,
-                      priceType: "fixed",
-                      location: "Бургас, Център",
-                      category: "gardening",
-                      postedBy: "Стоян Георгиев",
+                      title: "Уроци по математика",
+                      price: 30,
+                      priceType: "hourly",
+                      location: "София, Младост",
+                      category: "tutoring",
+                      postedBy: "Стефан Георгиев",
                       postedDate: "2024-01-12T16:45:00Z",
                       rating: 4.6,
-                      reviewCount: 73,
-                      views: 19,
-                      applications: 2,
+                      reviewCount: 78,
+                      views: 35,
+                      applications: 6,
                       attachments: [
                         {
-                          name: "gardening1.jpg",
+                          name: "math1.jpg",
                           size: 1024000,
                           type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop"
+                          url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop"
                         }
                       ]
                     },
                     {
                       id: "5",
-                      title: "Преместване на мебели",
-                      price: 80,
-                      priceType: "fixed",
-                      location: "София, Надежда",
-                      category: "moving",
-                      postedBy: "Стефан Тодоров",
-                      postedDate: "2024-01-11T11:30:00Z",
-                      rating: 4.5,
-                      reviewCount: 94,
-                      views: 41,
-                      applications: 7,
+                      title: "Грижа за възрастен човек",
+                      price: 35,
+                      priceType: "hourly",
+                      location: "Бургас, Център",
+                      category: "care",
+                      postedBy: "Анна Димитрова",
+                      postedDate: "2024-01-11T11:20:00Z",
+                      rating: 4.9,
+                      reviewCount: 203,
+                      views: 52,
+                      applications: 15,
                       attachments: [
                         {
-                          name: "furniture1.jpg",
+                          name: "care1.jpg",
                           size: 1024000,
                           type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop"
+                          url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=300&fit=crop"
                         }
                       ]
                     }
