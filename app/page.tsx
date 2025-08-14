@@ -8,6 +8,7 @@ import CategoryGrid from '@/components/CategoryGrid'
 import TaskGrid from '@/components/TaskGrid'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote } from 'lucide-react'
+import Link from 'next/link'
 
 export default function HomePage() {
   const router = useRouter()
@@ -300,12 +301,13 @@ export default function HomePage() {
                         }
                       ]
                     }
-                  ].map((task, index) => (
-                    <div
-                      key={task.id}
-                      className="absolute inset-0 task-card-rotation"
-                    >
-                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 h-full">
+                                     ].map((task, index) => (
+                     <Link
+                       key={task.id}
+                       href={`/task/${task.id}`}
+                       className="absolute inset-0 task-card-rotation block"
+                     >
+                       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 h-full cursor-pointer group">
                         {/* Image */}
                         {task.attachments && task.attachments.length > 0 && (
                           <div className="relative h-48 overflow-hidden">
@@ -366,11 +368,11 @@ export default function HomePage() {
                             <div className="text-lg font-bold text-green-600 dark:text-green-400">
                               {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                                                     </div>
+                         </div>
+                       </div>
+                     </Link>
+                   ))}
                 </div>
               </div>
             </div>
