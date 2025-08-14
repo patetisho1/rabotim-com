@@ -129,65 +129,71 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="pb-20">
         {/* Hero Section */}
-        <section ref={heroRef} className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white py-20 px-4 overflow-hidden">
+        <section ref={heroRef} className="relative bg-blue-900 text-white py-24 px-4 overflow-hidden">
           {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2 animate-pulse delay-1000"></div>
-            <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-white rounded-full opacity-50 animate-bounce delay-500"></div>
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
           </div>
           
           <div className="relative max-w-6xl mx-auto text-center">
-            <h1 className={`text-4xl md:text-6xl font-bold mb-6 leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              Намерете или предложете
-              <span className={`block text-primary-200 transition-all duration-1000 delay-300 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>почасова работа</span>
+            <h1 className={`text-5xl md:text-7xl font-bold mb-6 leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              НАМЕРЕТЕ ИЛИ ПРЕДЛОЖЕТЕ
+              <span className={`block text-blue-200 transition-all duration-1000 delay-300 ${heroInView ? 'animate-slide-up opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>ПОЧАСОВА РАБОТА</span>
             </h1>
-            <p className={`text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              Свържете се с надеждни изпълнители или намерете работа в цяла България
+            <p className={`text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              Публикувайте задача. Изберете най-добрия човек. Свършете я.
             </p>
             
-            <SearchSection onSearch={handleSearch} />
+            {/* CTA Buttons */}
+            <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-12 transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <button
+                onClick={handlePostTask}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Възложи задача
+                <ArrowRight size={20} />
+              </button>
+              <button
+                onClick={handleViewAllTasks}
+                className="bg-white hover:bg-gray-100 text-blue-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Търси задача
+              </button>
+            </div>
             
             {/* Quick Stats */}
-            <div ref={statsRef} className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div ref={statsRef} className="flex justify-center items-center gap-8 text-blue-100">
               {isLoadingStats ? (
                 // Skeleton loading
                 <>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
-                    <div className="text-sm text-primary-200">Активни задачи</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-300 rounded-full animate-pulse"></div>
+                    <div className="text-sm animate-shimmer bg-blue-300 rounded h-4 w-20"></div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
-                    <div className="text-sm text-primary-200">Доверени потребители</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-300 rounded-full animate-pulse"></div>
+                    <div className="text-sm animate-shimmer bg-blue-300 rounded h-4 w-20"></div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
-                    <div className="text-sm text-primary-200">Градове</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold animate-shimmer bg-gray-300 dark:bg-gray-600 rounded h-8 md:h-10 w-16 md:w-20 mx-auto mb-2"></div>
-                    <div className="text-sm text-primary-200">Завършени задачи</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-300 rounded-full animate-pulse"></div>
+                    <div className="text-sm animate-shimmer bg-blue-300 rounded h-4 w-20"></div>
                   </div>
                 </>
               ) : (
                 // Real stats
                 <>
-                  <div className={`text-center group hover:scale-105 transition-all duration-500 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.tasks}+</div>
-                    <div className="text-sm text-primary-200">Активни задачи</div>
+                  <div className={`flex items-center gap-2 ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <Users size={16} />
+                    <span className="text-sm">{stats.users}+ клиенти</span>
                   </div>
-                  <div className={`text-center group hover:scale-105 transition-all duration-500 delay-100 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.users}+</div>
-                    <div className="text-sm text-primary-200">Доверени потребители</div>
+                  <div className={`flex items-center gap-2 ${statsInView ? 'animate-fade-in opacity-100 translate-y-0 delay-100' : 'opacity-0 translate-y-8'}`}>
+                    <CheckCircle size={16} />
+                    <span className="text-sm">{stats.completed}+ свършени задачи</span>
                   </div>
-                  <div className={`text-center group hover:scale-105 transition-all duration-500 delay-200 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.cities}</div>
-                    <div className="text-sm text-primary-200">Градове</div>
-                  </div>
-                  <div className={`text-center group hover:scale-105 transition-all duration-500 delay-300 cursor-pointer ${statsInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <div className="text-2xl md:text-3xl font-bold group-hover:text-primary-200 transition-colors">{stats.completed}+</div>
-                    <div className="text-sm text-primary-200">Завършени задачи</div>
+                  <div className={`flex items-center gap-2 ${statsInView ? 'animate-fade-in opacity-100 translate-y-0 delay-200' : 'opacity-0 translate-y-8'}`}>
+                    <Star size={16} />
+                    <span className="text-sm">4.8★ рейтинг</span>
                   </div>
                 </>
               )}
