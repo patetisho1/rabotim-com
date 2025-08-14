@@ -92,12 +92,12 @@ export default function Header() {
               {/* Dropdown Menu */}
               {isCategoriesDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-2 w-[65%] max-w-4xl h-[75vh] bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                  className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-[80%] max-w-5xl bg-white border border-gray-200 rounded-lg shadow-xl z-50"
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
                   onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
                 >
-                  <div className="p-6 h-full flex flex-col">
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                       {/* Left Section - Role Selection */}
                       <div className="lg:col-span-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Какво търсите?</h3>
@@ -131,8 +131,8 @@ export default function Header() {
                       </div>
                       
                       {/* Right Section - Categories Grid */}
-                      <div className="lg:col-span-4">
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                      <div className="lg:col-span-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                           {[
                             'Счетоводство', 'Администрация', 'Промени и поправки на дрехи', 'Електроуреди', 'Архитекти',
                             'Сглобяване', 'Аудио-визуални услуги', 'Автоелектротехник', 'Пекари', 'Доставка на балони',
