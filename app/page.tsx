@@ -145,14 +145,14 @@ export default function HomePage() {
                   onClick={handlePostTask}
                   className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-full text-white font-semibold transition-all duration-200 flex items-center gap-2"
                 >
-                  Публикувай задача безплатно
+                  Намери изпълнител
                   <ArrowRight size={16} />
                 </button>
                 <button
                   onClick={handleViewAllTasks}
                   className="bg-white text-blue-700 hover:bg-gray-100 px-6 py-3 rounded-full font-semibold transition-all duration-200"
                 >
-                  Печели пари като изпълнител
+                  Стани изпълнител
                 </button>
               </div>
               <div className={`mt-6 flex gap-6 text-sm text-gray-300 transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
