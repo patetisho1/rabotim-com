@@ -162,14 +162,77 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Illustration */}
+            {/* Right Task Cards */}
             <div className="relative w-full md:w-1/2 flex justify-center">
               <div className="bg-gradient-to-br from-blue-500 to-indigo-700 p-8 rounded-3xl shadow-lg">
-                <div className="w-96 h-64 bg-white/10 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="text-4xl mb-4">🚀</div>
-                    <div className="text-lg font-semibold">Rabotim.com</div>
-                    <div className="text-sm opacity-80">Най-добрата платформа за работа</div>
+                <div className="w-96 h-64 bg-white/10 rounded-lg overflow-hidden relative">
+                  {/* Task Cards */}
+                  <div className="absolute inset-0">
+                    {[
+                      {
+                        id: 1,
+                        title: "Почистване на дом",
+                        price: "50-80 лв",
+                        location: "София",
+                        image: "🧹",
+                        category: "Почистване"
+                      },
+                      {
+                        id: 2,
+                        title: "Ремонт на баня",
+                        price: "200-400 лв",
+                        location: "Пловдив",
+                        image: "🔧",
+                        category: "Ремонт"
+                      },
+                      {
+                        id: 3,
+                        title: "Доставка на храна",
+                        price: "15-25 лв",
+                        location: "Варна",
+                        image: "🛒",
+                        category: "Доставка"
+                      },
+                      {
+                        id: 4,
+                        title: "Градинарски услуги",
+                        price: "80-120 лв",
+                        location: "Бургас",
+                        image: "🌱",
+                        category: "Градинарство"
+                      },
+                      {
+                        id: 5,
+                        title: "Уроци по математика",
+                        price: "30-50 лв/час",
+                        location: "София",
+                        image: "📚",
+                        category: "Образование"
+                      },
+                      {
+                        id: 6,
+                        title: "Фотографски услуги",
+                        price: "150-300 лв",
+                        location: "Пловдив",
+                        image: "📸",
+                        category: "Фотография"
+                      }
+                    ].map((task, index) => (
+                      <div
+                        key={task.id}
+                        className="absolute inset-0 bg-white rounded-lg p-4 task-card-rotation"
+                      >
+                        <div className="flex items-start space-x-3 h-full">
+                          <div className="text-3xl">{task.image}</div>
+                          <div className="flex-1">
+                            <div className="text-sm text-blue-600 font-medium mb-1">{task.category}</div>
+                            <div className="text-lg font-semibold text-gray-900 mb-2">{task.title}</div>
+                            <div className="text-sm text-gray-600 mb-1">{task.location}</div>
+                            <div className="text-lg font-bold text-green-600">{task.price}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

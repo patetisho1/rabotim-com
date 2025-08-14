@@ -387,4 +387,27 @@ body {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
-} 
+}
+
+/* Task Cards Rotation Animation */
+@keyframes slideInOut {
+  0%, 16.66% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  16.67%, 100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.task-card-rotation {
+  animation: slideInOut 30s infinite;
+}
+
+.task-card-rotation:nth-child(1) { animation-delay: 0s; }
+.task-card-rotation:nth-child(2) { animation-delay: 5s; }
+.task-card-rotation:nth-child(3) { animation-delay: 10s; }
+.task-card-rotation:nth-child(4) { animation-delay: 15s; }
+.task-card-rotation:nth-child(5) { animation-delay: 20s; }
+.task-card-rotation:nth-child(6) { animation-delay: 25s; } 
