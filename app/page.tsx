@@ -170,82 +170,82 @@ export default function HomePage() {
                 <div className="absolute inset-0">
                   {[
                     {
-                      id: 1,
-                      title: "Почистване на дом",
-                      price: 65,
-                      priceType: "fixed",
-                      location: "София",
+                      id: "1",
+                      title: "Почистване на апартамент",
+                      price: 25,
+                      priceType: "hourly",
+                      location: "София, Лозенец",
                       category: "cleaning",
-                      postedBy: "Мария И.",
-                      postedDate: "2024-01-15",
+                      postedBy: "Мария Петрова",
+                      postedDate: "2024-01-15T10:30:00Z",
                       rating: 4.8,
-                      reviewCount: 12,
+                      reviewCount: 127,
                       views: 45,
-                      applications: 3,
+                      applications: 8,
                       attachments: [
                         {
-                          name: "cleaning1.jpg",
+                          name: "apartment1.jpg",
                           size: 1024000,
                           type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop"
+                          url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop"
                         }
                       ]
                     },
                     {
-                      id: 2,
+                      id: "2",
                       title: "Ремонт на баня",
-                      price: 300,
+                      price: 1500,
                       priceType: "fixed",
-                      location: "Пловдив",
+                      location: "Пловдив, Център",
                       category: "handyman",
-                      postedBy: "Иван П.",
-                      postedDate: "2024-01-14",
+                      postedBy: "Иван Димитров",
+                      postedDate: "2024-01-14T14:20:00Z",
                       rating: 4.9,
-                      reviewCount: 8,
+                      reviewCount: 89,
                       views: 32,
-                      applications: 2,
+                      applications: 5,
                       attachments: [
                         {
                           name: "bathroom1.jpg",
                           size: 1024000,
                           type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop"
+                          url: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&h=300&fit=crop"
                         }
                       ]
                     },
                     {
-                      id: 3,
-                      title: "Доставка на храна",
+                      id: "3",
+                      title: "Разходка с кучето ми",
                       price: 20,
-                      priceType: "fixed",
-                      location: "Варна",
-                      category: "delivery",
-                      postedBy: "Петър Д.",
-                      postedDate: "2024-01-13",
+                      priceType: "hourly",
+                      location: "Варна, Морска градина",
+                      category: "dog-care",
+                      postedBy: "Елена Стоянова",
+                      postedDate: "2024-01-13T09:15:00Z",
                       rating: 4.7,
-                      reviewCount: 15,
+                      reviewCount: 156,
                       views: 28,
-                      applications: 1,
+                      applications: 12,
                       attachments: [
                         {
-                          name: "delivery1.jpg",
+                          name: "dog1.jpg",
                           size: 1024000,
                           type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop"
+                          url: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=300&fit=crop"
                         }
                       ]
                     },
                     {
-                      id: 4,
+                      id: "4",
                       title: "Градинарски услуги",
-                      price: 100,
+                      price: 80,
                       priceType: "fixed",
-                      location: "Бургас",
+                      location: "Бургас, Център",
                       category: "gardening",
-                      postedBy: "Стоян Г.",
-                      postedDate: "2024-01-12",
+                      postedBy: "Стоян Георгиев",
+                      postedDate: "2024-01-12T16:45:00Z",
                       rating: 4.6,
-                      reviewCount: 6,
+                      reviewCount: 73,
                       views: 19,
                       applications: 2,
                       attachments: [
@@ -258,46 +258,24 @@ export default function HomePage() {
                       ]
                     },
                     {
-                      id: 5,
-                      title: "Уроци по математика",
-                      price: 40,
-                      priceType: "hourly",
-                      location: "София",
-                      category: "tutoring",
-                      postedBy: "Анна К.",
-                      postedDate: "2024-01-11",
-                      rating: 4.9,
-                      reviewCount: 22,
-                      views: 67,
-                      applications: 4,
-                      attachments: [
-                        {
-                          name: "tutoring1.jpg",
-                          size: 1024000,
-                          type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop"
-                        }
-                      ]
-                    },
-                    {
-                      id: 6,
-                      title: "Фотографски услуги",
-                      price: 250,
+                      id: "5",
+                      title: "Преместване на мебели",
+                      price: 80,
                       priceType: "fixed",
-                      location: "Пловдив",
-                      category: "other",
-                      postedBy: "Елена М.",
-                      postedDate: "2024-01-10",
-                      rating: 4.8,
-                      reviewCount: 18,
+                      location: "София, Надежда",
+                      category: "moving",
+                      postedBy: "Стефан Тодоров",
+                      postedDate: "2024-01-11T11:30:00Z",
+                      rating: 4.5,
+                      reviewCount: 94,
                       views: 41,
-                      applications: 3,
+                      applications: 7,
                       attachments: [
                         {
-                          name: "photography1.jpg",
+                          name: "furniture1.jpg",
                           size: 1024000,
                           type: "image/jpeg",
-                          url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop"
+                          url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop"
                         }
                       ]
                     }
