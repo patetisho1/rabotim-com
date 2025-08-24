@@ -81,6 +81,76 @@ const serviceCards: ServiceCard[] = [
     image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=120&fit=crop',
     personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
     description: 'Монтиране на изкуство и картини на стена'
+  },
+  {
+    id: 'electrical',
+    title: 'Електро инсталация',
+    image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+    description: 'Монтиране и ремонт на електрически инсталации'
+  },
+  {
+    id: 'plumbing',
+    title: 'Водопровод',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    description: 'Ремонт и поддръжка на водопроводни системи'
+  },
+  {
+    id: 'carpentry',
+    title: 'Дърводелство',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
+    description: 'Изработка и ремонт на дървени изделия'
+  },
+  {
+    id: 'roofing',
+    title: 'Покривни работи',
+    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=32&h=32&fit=crop&crop=face',
+    description: 'Ремонт и поддръжка на покриви'
+  },
+  {
+    id: 'landscaping',
+    title: 'Озеленяване',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    description: 'Дизайн и изпълнение на градински проекти'
+  },
+  {
+    id: 'photography',
+    title: 'Фотография',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
+    description: 'Професионални фотосесии и събития'
+  },
+  {
+    id: 'tutoring',
+    title: 'Частни уроци',
+    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+    description: 'Обучение в различни предмети и умения'
+  },
+  {
+    id: 'pet-care',
+    title: 'Грижа за домашни любимци',
+    image: 'https://images.unsplash.com/photo-1560435650-7470e0f12610?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    description: 'Разходка, хранене и грижа за животни'
+  },
+  {
+    id: 'event-planning',
+    title: 'Организиране на събития',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    description: 'Планиране и организация на празненства'
+  },
+  {
+    id: 'translation',
+    title: 'Превод',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=120&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
+    description: 'Превод на документи и текстове'
   }
 ]
 
@@ -89,36 +159,21 @@ interface CategoryGridProps {
 }
 
 export default function CategoryGrid({ className = '' }: CategoryGridProps) {
-  const leftRef = useRef<HTMLDivElement>(null)
-  const rightRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  // Разделяне на картите в две колони
-  const leftCards = serviceCards.filter((_, index) => index % 2 === 0)
-  const rightCards = serviceCards.filter((_, index) => index % 2 === 1)
-
-  // Автоматично скролиране нагоре
+  // Автоматично скролиране нагоре за всички карти заедно
   useEffect(() => {
-    const leftInterval = setInterval(() => {
-      if (leftRef.current) {
-        leftRef.current.scrollTop += 1
-        if (leftRef.current.scrollTop >= leftRef.current.scrollHeight / 2) {
-          leftRef.current.scrollTop = 0
-        }
-      }
-    }, 30)
-
-    const rightInterval = setInterval(() => {
-      if (rightRef.current) {
-        rightRef.current.scrollTop += 1
-        if (rightRef.current.scrollTop >= rightRef.current.scrollHeight / 2) {
-          rightRef.current.scrollTop = 0
+    const interval = setInterval(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollTop += 1
+        if (containerRef.current.scrollTop >= containerRef.current.scrollHeight / 2) {
+          containerRef.current.scrollTop = 0
         }
       }
     }, 30)
 
     return () => {
-      clearInterval(leftInterval)
-      clearInterval(rightInterval)
+      clearInterval(interval)
     }
   }, [])
 
@@ -239,39 +294,20 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
             {/* Right Column - Service Cards with Auto-scroll */}
             <div className="flex justify-center">
               <div className="w-72">
-                {/* Fixed height container with scroll */}
-                <div className="h-96 overflow-hidden">
-                  <div className="grid grid-cols-2 gap-3 h-full">
-                    {/* Left Column of Cards */}
-                    <div className="relative">
-                      <div
-                        ref={leftRef}
-                        className="h-full overflow-y-auto scrollbar-hide"
-                        style={{
-                          scrollbarWidth: 'none',
-                          msOverflowStyle: 'none'
-                        }}
-                      >
-                        {leftCards.map(renderServiceCard)}
-                        {/* Duplicate for seamless loop */}
-                        {leftCards.map(renderServiceCard)}
-                      </div>
-                    </div>
-
-                    {/* Right Column of Cards */}
-                    <div className="relative">
-                      <div
-                        ref={rightRef}
-                        className="h-full overflow-y-auto scrollbar-hide"
-                        style={{
-                          scrollbarWidth: 'none',
-                          msOverflowStyle: 'none'
-                        }}
-                      >
-                        {rightCards.map(renderServiceCard)}
-                        {/* Duplicate for seamless loop */}
-                        {rightCards.map(renderServiceCard)}
-                      </div>
+                {/* Light blue frame with scroll */}
+                <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden">
+                  <div
+                    ref={containerRef}
+                    className="h-full overflow-y-auto scrollbar-hide"
+                    style={{
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none'
+                    }}
+                  >
+                    <div className="grid grid-cols-2 gap-3">
+                      {serviceCards.map(renderServiceCard)}
+                      {/* Duplicate for seamless loop */}
+                      {serviceCards.map(renderServiceCard)}
                     </div>
                   </div>
                 </div>
