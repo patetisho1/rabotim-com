@@ -1,297 +1,451 @@
 'use client'
 
-import { useState } from 'react'
-import { SearchFilters } from '@/types/search'
+import { useState, useEffect } from 'react'
 import { 
   Filter, 
-  X, 
+  Search, 
+  MapPin, 
   DollarSign, 
   Calendar, 
-  Star, 
-  MapPin, 
-  Clock,
-  Zap,
-  CheckCircle,
-  SortAsc,
-  SortDesc
+  Tag,
+  X,
+  SlidersHorizontal
 } from 'lucide-react'
 
-interface AdvancedFiltersProps {
-  filters: SearchFilters
-  onFiltersChange: (filters: SearchFilters) => void
-  onClear: () => void
-  hasActiveFilters: boolean
+interface FilterOptions {
+  search: string
+  category: string
+  location: string
+  priceRange: {
+    min: number
+    max: number
+  }
+  priceType: 'all' | 'hourly' | 'fixed'
+  urgency: 'all' | 'low' | 'medium' | 'high'
+  datePosted: 'all' | 'today' | 'week' | 'month'
+  sortBy: 'newest' | 'oldest' | 'price-low' | 'price-high' | 'urgent'
+  isRemote: boolean
+  hasImages: boolean
+  verifiedOnly: boolean
 }
 
-export default function AdvancedFilters({ 
-  filters, 
-  onFiltersChange, 
-  onClear, 
-  hasActiveFilters 
-}: AdvancedFiltersProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+interface AdvancedFiltersProps {
+  onFiltersChange: (filters: FilterOptions) => void
+  isOpen: boolean
+  onToggle: () => void
+}
 
-  const handleFilterChange = (key: keyof SearchFilters, value: any) => {
-    onFiltersChange({
-      ...filters,
-      [key]: value
+const categories = [
+  { id: 'all', name: 'Всички категории' },
+  { id: 'repair', name: 'Ремонт и поддръжка' },
+  { id: 'cleaning', name: 'Почистване' },
+  { id: 'care', name: 'Грижа и помощ' },
+  { id: 'delivery', name: 'Доставка' },
+  { id: 'garden', name: 'Градинарство' },
+  { id: 'transport', name: 'Транспорт' },
+  { id: 'education', name: 'Обучение' },
+  { id: 'other', name: 'Други' }
+]
+
+const locations = [
+  { id: 'all', name: 'Всички градове' },
+  { id: 'sofia', name: 'София' },
+  { id: 'plovdiv', name: 'Пловдив' },
+  { id: 'varna', name: 'Варна' },
+  { id: 'burgas', name: 'Бургас' },
+  { id: 'ruse', name: 'Русе' },
+  { id: 'stara-zagora', name: 'Стара Загора' },
+  { id: 'pleven', name: 'Плевен' },
+  { id: 'sliven', name: 'Сливен' },
+  { id: 'dobrich', name: 'Добрич' },
+  { id: 'shumen', name: 'Шумен' }
+]
+
+const sortOptions = [
+  { id: 'newest', name: 'Най-нови' },
+  { id: 'oldest', name: 'Най-стари' },
+  { id: 'price-low', name: 'Цена (ниска → висока)' },
+  { id: 'price-high', name: 'Цена (висока → ниска)' },
+  { id: 'urgent', name: 'Спешни първи' }
+]
+
+const dateOptions = [
+  { id: 'all', name: 'Всички дати' },
+  { id: 'today', name: 'Днес' },
+  { id: 'week', name: 'Последната седмица' },
+  { id: 'month', name: 'Последния месец' }
+]
+
+export default function AdvancedFilters({ onFiltersChange, isOpen, onToggle }: AdvancedFiltersProps) {
+  const [filters, setFilters] = useState<FilterOptions>({
+    search: '',
+    category: 'all',
+    location: 'all',
+    priceRange: {
+      min: 0,
+      max: 10000
+    },
+    priceType: 'all',
+    urgency: 'all',
+    datePosted: 'all',
+    sortBy: 'newest',
+    isRemote: false,
+    hasImages: false,
+    verifiedOnly: false
+  })
+
+  const [activeFilters, setActiveFilters] = useState<string[]>([])
+
+  useEffect(() => {
+    onFiltersChange(filters)
+    
+    // Обновяваме активните филтри
+    const active: string[] = []
+    if (filters.search) active.push(`Търсене: "${filters.search}"`)
+    if (filters.category !== 'all') {
+      const cat = categories.find(c => c.id === filters.category)
+      if (cat) active.push(cat.name)
+    }
+    if (filters.location !== 'all') {
+      const loc = locations.find(l => l.id === filters.location)
+      if (loc) active.push(loc.name)
+    }
+    if (filters.priceRange.min > 0 || filters.priceRange.max < 10000) {
+      active.push(`Цена: ${filters.priceRange.min}-${filters.priceRange.max} лв.`)
+    }
+    if (filters.priceType !== 'all') {
+      active.push(filters.priceType === 'hourly' ? 'На час' : 'Фиксирана')
+    }
+    if (filters.urgency !== 'all') {
+      const urgencyMap = { low: 'Не е спешно', medium: 'Средна спешност', high: 'Много спешно' }
+      active.push(urgencyMap[filters.urgency])
+    }
+    if (filters.datePosted !== 'all') {
+      const dateMap = { today: 'Днес', week: 'Седмица', month: 'Месец' }
+      active.push(dateMap[filters.datePosted])
+    }
+    if (filters.isRemote) active.push('От разстояние')
+    if (filters.hasImages) active.push('Със снимки')
+    if (filters.verifiedOnly) active.push('Верифицирани')
+    
+    setActiveFilters(active)
+  }, [filters, onFiltersChange])
+
+  const handleFilterChange = (field: keyof FilterOptions, value: any) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handlePriceRangeChange = (field: 'min' | 'max', value: number) => {
+    setFilters(prev => ({
+      ...prev,
+      priceRange: {
+        ...prev.priceRange,
+        [field]: value
+      }
+    }))
+  }
+
+  const clearAllFilters = () => {
+    setFilters({
+      search: '',
+      category: 'all',
+      location: 'all',
+      priceRange: {
+        min: 0,
+        max: 10000
+      },
+      priceType: 'all',
+      urgency: 'all',
+      datePosted: 'all',
+      sortBy: 'newest',
+      isRemote: false,
+      hasImages: false,
+      verifiedOnly: false
     })
   }
 
-  const priceRanges = [
-    { label: 'Всички цени', min: undefined, max: undefined },
-    { label: 'До 50 лв', min: undefined, max: 50 },
-    { label: '50-100 лв', min: 50, max: 100 },
-    { label: '100-200 лв', min: 100, max: 200 },
-    { label: '200-500 лв', min: 200, max: 500 },
-    { label: 'Над 500 лв', min: 500, max: undefined }
-  ]
-
-  const dateOptions = [
-    { value: 'all', label: 'Всички дати' },
-    { value: 'today', label: 'Днес' },
-    { value: 'week', label: 'Последната седмица' },
-    { value: 'month', label: 'Последния месец' }
-  ]
-
-  const sortOptions = [
-    { value: 'relevance', label: 'Релевантност' },
-    { value: 'date', label: 'Дата' },
-    { value: 'price', label: 'Цена' },
-    { value: 'rating', label: 'Рейтинг' },
-    { value: 'distance', label: 'Разстояние' }
-  ]
-
-  const getActiveFiltersCount = () => {
-    let count = 0
-    if (filters.query) count++
-    if (filters.category) count++
-    if (filters.location) count++
-    if (filters.minPrice || filters.maxPrice) count++
-    if (filters.urgentOnly) count++
-    if (filters.minRating) count++
-    if (filters.datePosted && filters.datePosted !== 'all') count++
-    if (filters.priceType && filters.priceType !== 'all') count++
-    return count
+  const removeFilter = (filterText: string) => {
+    // Намираме и премахваме филтъра
+    if (filterText.includes('Търсене:')) {
+      handleFilterChange('search', '')
+    } else if (filterText.includes('Цена:')) {
+      handleFilterChange('priceRange', { min: 0, max: 10000 })
+    } else if (filterText === 'На час' || filterText === 'Фиксирана') {
+      handleFilterChange('priceType', 'all')
+    } else if (filterText === 'От разстояние') {
+      handleFilterChange('isRemote', false)
+    } else if (filterText === 'Със снимки') {
+      handleFilterChange('hasImages', false)
+    } else if (filterText === 'Верифицирани') {
+      handleFilterChange('verifiedOnly', false)
+    } else {
+      // За категория и локация
+      const category = categories.find(c => c.name === filterText)
+      if (category) {
+        handleFilterChange('category', 'all')
+      } else {
+        const location = locations.find(l => l.name === filterText)
+        if (location) {
+          handleFilterChange('location', 'all')
+        }
+      }
+    }
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Filter size={20} className="text-gray-600 dark:text-gray-400" />
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">
-              Филтри
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal size={20} className="text-gray-600 dark:text-gray-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Разширени филтри
             </h3>
-            {hasActiveFilters && (
-              <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs rounded-full">
-                {getActiveFiltersCount()}
-              </span>
-            )}
           </div>
-          
-          <div className="flex items-center space-x-2">
-            {hasActiveFilters && (
-              <button
-                onClick={onClear}
-                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center space-x-1"
-              >
-                <X size={14} />
-                <span>Изчисти</span>
-              </button>
-            )}
-            
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-            >
-              {isExpanded ? 'Скрий' : 'Покажи'}
-            </button>
-          </div>
+          <button
+            onClick={onToggle}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <X size={20} className="text-gray-600 dark:text-gray-400" />
+          </button>
         </div>
       </div>
 
-      {/* Expanded Filters */}
-      {isExpanded && (
-        <div className="p-4 space-y-6">
-          {/* Цена */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <DollarSign size={16} className="text-green-500" />
-              <span>Цена</span>
-            </h4>
-            
-            <div className="space-y-3">
-              {/* Тип цена */}
-              <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Тип цена
-                </label>
-                <select
-                  value={filters.priceType || 'all'}
-                  onChange={(e) => handleFilterChange('priceType', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="all">Всички типове</option>
-                  <option value="hourly">На час</option>
-                  <option value="fixed">Фиксирана цена</option>
-                </select>
-              </div>
-
-              {/* Диапазон цена */}
-              <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Диапазон цена
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    placeholder="От"
-                    value={filters.minPrice || ''}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : undefined)}
-                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                  <input
-                    type="number"
-                    placeholder="До"
-                    value={filters.maxPrice || ''}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)}
-                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Дата */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <Calendar size={16} className="text-blue-500" />
-              <span>Дата на публикуване</span>
-            </h4>
-            
-            <select
-              value={filters.datePosted || 'all'}
-              onChange={(e) => handleFilterChange('datePosted', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+      {/* Active Filters */}
+      {activeFilters.length > 0 && (
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Активни филтри:
+            </span>
+            <button
+              onClick={clearAllFilters}
+              className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400"
             >
-              {dateOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              Изчисти всички
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {activeFilters.map((filter, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
+              >
+                {filter}
+                <button
+                  onClick={() => removeFilter(filter)}
+                  className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full p-0.5"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Filters Content */}
+      <div className="p-4 space-y-6">
+        {/* Search */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Търсене
+          </label>
+          <div className="relative">
+            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              placeholder="Търси в заглавия и описания..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+        </div>
+
+        {/* Category and Location */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Категория
+            </label>
+            <select
+              value={filters.category}
+              onChange={(e) => handleFilterChange('category', e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Спешност */}
           <div>
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <Zap size={16} className="text-yellow-500" />
-              <span>Спешност</span>
-            </h4>
-            
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={filters.urgentOnly || false}
-                onChange={(e) => handleFilterChange('urgentOnly', e.target.checked)}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Само спешни задачи
-              </span>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Локация
             </label>
-          </div>
-
-          {/* Рейтинг */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <Star size={16} className="text-yellow-500" />
-              <span>Минимален рейтинг</span>
-            </h4>
-            
             <select
-              value={filters.minRating || 0}
-              onChange={(e) => handleFilterChange('minRating', Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              value={filters.location}
+              onChange={(e) => handleFilterChange('location', e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value={0}>Всички рейтинги</option>
-              <option value={3}>3+ звезди</option>
-              <option value={4}>4+ звезди</option>
-              <option value={4.5}>4.5+ звезди</option>
+              {locations.map(location => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
             </select>
           </div>
+        </div>
 
-          {/* Верификация */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <CheckCircle size={16} className="text-green-500" />
-              <span>Верификация</span>
-            </h4>
-            
-            <label className="flex items-center space-x-2">
+        {/* Price Range */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Ценови диапазон (лв.)
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <input
-                type="checkbox"
-                checked={filters.verifiedOnly || false}
-                onChange={(e) => handleFilterChange('verifiedOnly', e.target.checked)}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                type="number"
+                value={filters.priceRange.min}
+                onChange={(e) => handlePriceRangeChange('min', Number(e.target.value))}
+                placeholder="От"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Само верифицирани изпълнители
-              </span>
-            </label>
-          </div>
-
-          {/* Сортиране */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <SortAsc size={16} className="text-purple-500" />
-              <span>Сортиране</span>
-            </h4>
-            
-            <div className="space-y-2">
-              <select
-                value={filters.sortBy || 'relevance'}
-                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              >
-                {sortOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleFilterChange('sortOrder', 'asc')}
-                  className={`flex-1 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                    filters.sortOrder === 'asc'
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500'
-                  }`}
-                >
-                  <SortAsc size={14} className="inline mr-1" />
-                  Възходящо
-                </button>
-                <button
-                  onClick={() => handleFilterChange('sortOrder', 'desc')}
-                  className={`flex-1 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                    filters.sortOrder === 'desc'
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500'
-                  }`}
-                >
-                  <SortDesc size={14} className="inline mr-1" />
-                  Низходящо
-                </button>
-              </div>
+            </div>
+            <div>
+              <input
+                type="number"
+                value={filters.priceRange.max}
+                onChange={(e) => handlePriceRangeChange('max', Number(e.target.value))}
+                placeholder="До"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
             </div>
           </div>
         </div>
-      )}
+
+        {/* Price Type and Urgency */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Тип на заплащането
+            </label>
+            <select
+              value={filters.priceType}
+              onChange={(e) => handleFilterChange('priceType', e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="all">Всички</option>
+              <option value="hourly">На час</option>
+              <option value="fixed">Фиксирана сума</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Спешност
+            </label>
+            <select
+              value={filters.urgency}
+              onChange={(e) => handleFilterChange('urgency', e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="all">Всички</option>
+              <option value="low">Не е спешно</option>
+              <option value="medium">Средна спешност</option>
+              <option value="high">Много спешно</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Date Posted and Sort */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Публикувана
+            </label>
+            <select
+              value={filters.datePosted}
+              onChange={(e) => handleFilterChange('datePosted', e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              {dateOptions.map(option => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Подреди по
+            </label>
+            <select
+              value={filters.sortBy}
+              onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              {sortOptions.map(option => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Additional Filters */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Допълнителни филтри
+          </label>
+          <div className="space-y-2">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={filters.isRemote}
+                onChange={(e) => handleFilterChange('isRemote', e.target.checked)}
+                className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Може да се извърши от разстояние
+              </span>
+            </label>
+            
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={filters.hasImages}
+                onChange={(e) => handleFilterChange('hasImages', e.target.checked)}
+                className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Само задачи със снимки
+              </span>
+            </label>
+            
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={filters.verifiedOnly}
+                onChange={(e) => handleFilterChange('verifiedOnly', e.target.checked)}
+                className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Само от верифицирани потребители
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

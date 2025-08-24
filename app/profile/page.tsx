@@ -1,225 +1,236 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, User, Calendar, CheckCircle, Clock, AlertCircle, LogOut, Edit, Star, TrendingUp, Award, MapPin, Phone, Mail, Settings, Eye, EyeOff } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
-import NotificationManager from '@/components/NotificationManager'
+import { 
+  User, 
+  Star, 
+  Award, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Calendar,
+  Edit,
+  Camera,
+  CheckCircle,
+  Shield,
+  Clock,
+  DollarSign,
+  MessageCircle,
+  Heart,
+  Share2,
+  Settings,
+  Plus
+} from 'lucide-react'
 
-interface Application {
-  taskId: number
-  taskTitle: string
-  appliedAt: string
-  status: 'pending' | 'accepted' | 'rejected'
-}
-
-interface Task {
-  id: number
-  title: string
-  description: string
-  location: string
-  price: string
-  priceType: string
-  date: string
-  time: string
-  category: string
-  user: {
-    name: string
-    rating: number
-    completedTasks: number
-    avatar: string
-  }
-  urgent: boolean
-  createdAt: string
-  status?: 'active' | 'completed' | 'cancelled'
-}
-
-interface UserData {
-  id: number
-  firstName: string
-  lastName: string
+interface UserProfile {
+  id: string
+  name: string
   email: string
   phone: string
-  createdAt: string
+  avatar: string
+  bio: string
+  location: string
+  joinDate: string
+  rating: number
+  totalReviews: number
+  completedTasks: number
+  totalEarnings: number
+  responseRate: number
+  avgResponseTime: string
   isVerified: boolean
-  avatar?: string
-  bio?: string
-  location?: string
-  rating?: number
-  completedTasks?: number
+  badges: Badge[]
+  skills: Skill[]
+  portfolio: PortfolioItem[]
+  reviews: Review[]
+}
+
+interface Badge {
+  id: string
+  name: string
+  description: string
+  icon: string
+  color: string
+  earnedAt: string
+}
+
+interface Skill {
+  id: string
+  name: string
+  level: 'beginner' | 'intermediate' | 'expert'
+  category: string
+}
+
+interface PortfolioItem {
+  id: string
+  title: string
+  description: string
+  images: string[]
+  category: string
+  completedAt: string
+  clientRating: number
+  clientComment: string
+}
+
+interface Review {
+  id: string
+  taskTitle: string
+  rating: number
+  comment: string
+  clientName: string
+  clientAvatar: string
+  date: string
 }
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const [applications, setApplications] = useState<Application[]>([])
-  const [myTasks, setMyTasks] = useState<Task[]>([])
-  const [user, setUser] = useState<UserData | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [editForm, setEditForm] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    bio: '',
-    location: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  })
+  const [activeTab, setActiveTab] = useState<'overview' | 'portfolio' | 'reviews' | 'settings'>('overview')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadProfileData()
+    // Симулираме зареждане на профил
+    setTimeout(() => {
+      const mockProfile: UserProfile = {
+        id: '1',
+        name: 'Иван Петров',
+        email: 'ivan.petrov@email.com',
+        phone: '+359 888 123 456',
+        avatar: '/api/placeholder/150/150',
+        bio: 'Опитен майстор с над 10 години опит в ремонтни дейности. Специализиран в електрически инсталации, водопровод и общ ремонт. Работя качествено и навреме.',
+        location: 'София, България',
+        joinDate: '2023-01-15',
+        rating: 4.8,
+        totalReviews: 47,
+        completedTasks: 156,
+        totalEarnings: 12500,
+        responseRate: 98,
+        avgResponseTime: '2 часа',
+        isVerified: true,
+        badges: [
+          {
+            id: '1',
+            name: 'Топ изпълнител',
+            description: 'Най-висок рейтинг в категорията',
+            icon: '🏆',
+            color: 'bg-yellow-500',
+            earnedAt: '2024-01-15'
+          },
+          {
+            id: '2',
+            name: 'Бърз отговор',
+            description: 'Отговаря в рамките на 2 часа',
+            icon: '⚡',
+            color: 'bg-green-500',
+            earnedAt: '2024-02-20'
+          },
+          {
+            id: '3',
+            name: 'Верифициран',
+            description: 'Идентичността е потвърдена',
+            icon: '✓',
+            color: 'bg-blue-500',
+            earnedAt: '2023-03-10'
+          },
+          {
+            id: '4',
+            name: '100+ задачи',
+            description: 'Завършил над 100 задачи',
+            icon: '💯',
+            color: 'bg-purple-500',
+            earnedAt: '2024-01-05'
+          }
+        ],
+        skills: [
+          { id: '1', name: 'Електрически инсталации', level: 'expert', category: 'Ремонт' },
+          { id: '2', name: 'Водопровод', level: 'expert', category: 'Ремонт' },
+          { id: '3', name: 'Общ ремонт', level: 'expert', category: 'Ремонт' },
+          { id: '4', name: 'Плочки', level: 'intermediate', category: 'Ремонт' },
+          { id: '5', name: 'Дърводелство', level: 'intermediate', category: 'Ремонт' },
+          { id: '6', name: 'Боядисване', level: 'beginner', category: 'Ремонт' }
+        ],
+        portfolio: [
+          {
+            id: '1',
+            title: 'Ремонт на баня',
+            description: 'Пълен ремонт на баня - плочки, санитария, електрика',
+            images: ['/api/placeholder/300/200', '/api/placeholder/300/200'],
+            category: 'Ремонт',
+            completedAt: '2024-02-15',
+            clientRating: 5,
+            clientComment: 'Отлично качество, навреме и подредено!'
+          },
+          {
+            id: '2',
+            title: 'Електрически инсталации',
+            description: 'Монтаж на нови електрически инсталации в апартамент',
+            images: ['/api/placeholder/300/200'],
+            category: 'Ремонт',
+            completedAt: '2024-01-20',
+            clientRating: 5,
+            clientComment: 'Професионална работа, препоръчвам!'
+          }
+        ],
+        reviews: [
+          {
+            id: '1',
+            taskTitle: 'Ремонт на баня',
+            rating: 5,
+            comment: 'Иван е отличен майстор! Работи качествено, навреме и подредено. Определено ще го наема отново.',
+            clientName: 'Мария Георгиева',
+            clientAvatar: '/api/placeholder/40/40',
+            date: '2024-02-15'
+          },
+          {
+            id: '2',
+            taskTitle: 'Електрически инсталации',
+            rating: 5,
+            comment: 'Професионална работа, всичко е направено перфектно. Благодаря!',
+            clientName: 'Петър Димитров',
+            clientAvatar: '/api/placeholder/40/40',
+            date: '2024-01-20'
+          }
+        ]
+      }
+      setProfile(mockProfile)
+      setLoading(false)
+    }, 1000)
   }, [])
 
-  const loadProfileData = () => {
-    try {
-      // Проверка дали потребителят е влязъл
-      const loginStatus = localStorage.getItem('isLoggedIn')
-      const userData = localStorage.getItem('user')
-      
-      if (loginStatus !== 'true' || !userData) {
-        toast.error('Трябва да сте влезли в акаунта си')
-        router.push('/login')
-        return
-      }
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        size={16}
+        className={`${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+      />
+    ))
+  }
 
-      const user = JSON.parse(userData)
-      setUser(user)
-      setEditForm({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        phone: user.phone || '',
-        bio: user.bio || '',
-        location: user.location || ''
-      })
-
-      // Зареждане на кандидатури
-      const savedApplications = JSON.parse(localStorage.getItem('applications') || '[]')
-      setApplications(savedApplications)
-
-      // Зареждане на публикувани задачи
-      const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      setMyTasks(savedTasks)
-    } catch (error) {
-      toast.error('Грешка при зареждането на профила')
+  const getSkillLevelColor = (level: string) => {
+    switch (level) {
+      case 'expert': return 'bg-green-500'
+      case 'intermediate': return 'bg-yellow-500'
+      case 'beginner': return 'bg-blue-500'
+      default: return 'bg-gray-500'
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('user')
-    toast.success('Успешно излязохте от акаунта')
-    router.push('/')
-  }
-
-  const handleEditProfile = () => {
-    setIsEditing(true)
-  }
-
-  const handleSaveProfile = () => {
-    if (!user) return
-
-    const updatedUser = {
-      ...user,
-      ...editForm
-    }
-
-    localStorage.setItem('user', JSON.stringify(updatedUser))
-    setUser(updatedUser)
-    setIsEditing(false)
-    toast.success('Профилът е обновен успешно')
-  }
-
-  const handleCancelEdit = () => {
-    setEditForm({
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      phone: user?.phone || '',
-      bio: user?.bio || '',
-      location: user?.location || ''
-    })
-    setIsEditing(false)
-  }
-
-  const handleChangePassword = () => {
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('Паролите не съвпадат')
-      return
-    }
-
-    if (passwordForm.newPassword.length < 6) {
-      toast.error('Паролата трябва да е поне 6 символа')
-      return
-    }
-
-    // В реален проект тук ще има API заявка
-    toast.success('Паролата е променена успешно')
-    setPasswordForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    })
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'accepted':
-        return <CheckCircle size={16} className="text-success-600" />
-      case 'rejected':
-        return <AlertCircle size={16} className="text-danger-600" />
-      default:
-        return <Clock size={16} className="text-secondary-600" />
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'accepted':
-        return 'Приета'
-      case 'rejected':
-        return 'Отхвърлена'
-      default:
-        return 'В изчакване'
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('bg-BG', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const getStats = () => {
-    const totalApplications = applications.length
-    const acceptedApplications = applications.filter(app => app.status === 'accepted').length
-    const totalTasks = myTasks.length
-    const completedTasks = myTasks.filter(task => task.status === 'completed').length
-    const activeTasks = myTasks.filter(task => task.status === 'active').length
-
-    return {
-      totalApplications,
-      acceptedApplications,
-      totalTasks,
-      completedTasks,
-      activeTasks,
-      successRate: totalApplications > 0 ? Math.round((acceptedApplications / totalApplications) * 100) : 0
-    }
-  }
-
-  const stats = getStats()
-
-  if (!user) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Зареждане...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Зареждане на профил...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 dark:text-gray-400">Профилът не е намерен</p>
         </div>
       </div>
     )
@@ -228,433 +239,255 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="bg-white dark:bg-gray-800 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                Мой профил
-              </h1>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="btn btn-outline text-sm flex items-center gap-2"
-            >
-              <LogOut size={16} />
-              Излез
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt="Avatar" className="w-20 h-20 rounded-full object-cover" />
-                  ) : (
-                    <User size={40} className="text-primary-600 dark:text-primary-400" />
-                  )}
-                </div>
-                {user.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-success-500 rounded-full flex items-center justify-center">
-                    <CheckCircle size={12} className="text-white" />
-                  </div>
-                )}
+                <img
+                  src={profile.avatar}
+                  alt={profile.name}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
+                />
+                <button className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors">
+                  <Camera size={16} />
+                </button>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  {user.firstName} {user.lastName}
-                </h2>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  <div className="flex items-center gap-1">
-                    <Mail size={14} />
-                    {user.email}
-                  </div>
-                  {user.phone && (
-                    <div className="flex items-center gap-1">
-                      <Phone size={14} />
-                      {user.phone}
-                    </div>
-                  )}
-                  {user.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin size={14} />
-                      {user.location}
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {profile.name}
+                  </h1>
+                  {profile.isVerified && (
+                    <div className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-sm">
+                      <CheckCircle size={14} />
+                      Верифициран
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Calendar size={14} />
-                    Член от {new Date(user.createdAt).toLocaleDateString('bg-BG', { month: 'long', year: 'numeric' })}
-                  </span>
-                  {user.rating && (
-                    <span className="flex items-center gap-1">
-                      <Star size={14} className="text-yellow-500 fill-current" />
-                      {user.rating.toFixed(1)}
-                    </span>
-                  )}
+                <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-1">
+                    <MapPin size={16} />
+                    {profile.location}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar size={16} />
+                    Член от {new Date(profile.joinDate).toLocaleDateString('bg-BG')}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              {user.isVerified ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-300">
-                  <CheckCircle size={14} />
-                  Верифициран
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-300">
-                  <Clock size={14} />
-                  Неверифициран
-                </span>
-              )}
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                <Share2 size={16} />
+                Сподели
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <MessageCircle size={16} />
+                Съобщение
+              </button>
               <button
-                onClick={handleEditProfile}
-                className="btn btn-outline text-sm flex items-center gap-2"
+                onClick={() => setIsEditing(!isEditing)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <Edit size={16} />
                 Редактирай
               </button>
             </div>
           </div>
-
-          {/* Bio */}
-          {user.bio && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">За мен</h3>
-              <p className="text-gray-600 dark:text-gray-400">{user.bio}</p>
-            </div>
-          )}
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-1">
-                {stats.totalApplications}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Кандидатури</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-success-600 dark:text-success-400 mb-1">
-                {stats.acceptedApplications}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Приети</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-secondary-600 dark:text-secondary-400 mb-1">
-                {stats.totalTasks}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Публикувани</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-warning-600 dark:text-warning-400 mb-1">
-                {stats.successRate}%
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Успеваемост</div>
-            </div>
-          </div>
         </div>
+      </div>
 
-        {/* Edit Profile Modal */}
-        {isEditing && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Редактирай профил
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Stats & Info */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Rating & Stats */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <div className="text-center mb-4">
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  {renderStars(profile.rating)}
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {profile.rating}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {profile.totalReviews} отзива
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {profile.completedTasks}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Завършени задачи
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {profile.responseRate}%
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Процент отговори
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Постижения
               </h3>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Име
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.firstName}
-                      onChange={(e) => setEditForm({...editForm, firstName: e.target.value})}
-                      className="input w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Фамилия
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.lastName}
-                      onChange={(e) => setEditForm({...editForm, lastName: e.target.value})}
-                      className="input w-full"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Телефон
-                  </label>
-                  <input
-                    type="tel"
-                    value={editForm.phone}
-                    onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                    className="input w-full"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Локация
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.location}
-                    onChange={(e) => setEditForm({...editForm, location: e.target.value})}
-                    className="input w-full"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    За мен
-                  </label>
-                  <textarea
-                    value={editForm.bio}
-                    onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                    className="input w-full h-24 resize-none"
-                    placeholder="Разкажете малко за себе си..."
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={handleSaveProfile}
-                  className="btn btn-primary flex-1"
-                >
-                  Запази
-                </button>
-                <button
-                  onClick={handleCancelEdit}
-                  className="btn btn-outline flex-1"
-                >
-                  Отказ
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Applications */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Моите кандидатури ({applications.length})
-            </h3>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <TrendingUp size={16} />
-              Успеваемост: {stats.successRate}%
-            </div>
-          </div>
-          
-          {applications.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500 dark:text-gray-400 mb-4">
-                Все още не сте кандидатствали за задачи
-              </div>
-              <button
-                onClick={() => router.push('/tasks')}
-                className="btn btn-primary"
-              >
-                Разгледай задачи
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {applications.map((app, index) => (
-                <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
-                        {app.taskTitle}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Кандидатствана на {formatDate(app.appliedAt)}
-                      </p>
+              <div className="space-y-3">
+                {profile.badges.map(badge => (
+                  <div key={badge.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className={`w-10 h-10 rounded-full ${badge.color} flex items-center justify-center text-white text-lg`}>
+                      {badge.icon}
                     </div>
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(app.status)}
-                      <span className="text-sm font-medium">
-                        {getStatusText(app.status)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* My Tasks */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Моите публикувани задачи ({myTasks.length})
-            </h3>
-            <div className="flex items-center gap-4 text-sm">
-              <span className="text-success-600 dark:text-success-400">
-                {stats.completedTasks} завършени
-              </span>
-              <span className="text-secondary-600 dark:text-secondary-400">
-                {stats.activeTasks} активни
-              </span>
-            </div>
-          </div>
-          
-          {myTasks.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500 dark:text-gray-400 mb-4">
-                Все още не сте публикували задачи
-              </div>
-              <button
-                onClick={() => router.push('/post-task')}
-                className="btn btn-primary"
-              >
-                Публикувай първата задача
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {myTasks.map((task) => (
-                <div key={task.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
-                        {task.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {task.description.substring(0, 100)}...
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="flex items-center gap-1">
-                          <MapPin size={14} />
-                          {task.location}
-                        </span>
-                        <span>{task.price} {task.priceType === 'hourly' ? 'лв/час' : 'лв'}</span>
-                        <span>{task.date}</span>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {badge.name}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {badge.description}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {task.urgent && (
-                        <span className="text-xs bg-danger-100 text-danger-600 px-2 py-1 rounded dark:bg-danger-900 dark:text-danger-300">
-                          Спешно
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Контактна информация
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Mail size={16} className="text-gray-400" />
+                  <span className="text-gray-700 dark:text-gray-300">{profile.email}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone size={16} className="text-gray-400" />
+                  <span className="text-gray-700 dark:text-gray-300">{profile.phone}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Bio */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                За мен
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                {profile.bio}
+              </p>
+            </div>
+
+            {/* Skills */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Умения и опит
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {profile.skills.map(skill => (
+                  <div key={skill.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <span className="text-gray-700 dark:text-gray-300">{skill.name}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs text-white ${getSkillLevelColor(skill.level)}`}>
+                      {skill.level === 'expert' ? 'Експерт' : 
+                       skill.level === 'intermediate' ? 'Напреднал' : 'Начинаещ'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Portfolio */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Портфолио
+                </h3>
+                <button className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                  <Plus size={16} />
+                  Добави проект
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {profile.portfolio.map(item => (
+                  <div key={item.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                    <div className="aspect-video bg-gray-100 dark:bg-gray-700 relative">
+                      <img
+                        src={item.images[0]}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        {item.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          {renderStars(item.clientRating)}
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {new Date(item.completedAt).toLocaleDateString('bg-BG')}
                         </span>
-                      )}
-                      {task.status && (
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          task.status === 'completed' 
-                            ? 'bg-success-100 text-success-600 dark:bg-success-900 dark:text-success-300'
-                            : task.status === 'active'
-                            ? 'bg-secondary-100 text-secondary-600 dark:bg-secondary-900 dark:text-secondary-300'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-                        }`}>
-                          {task.status === 'completed' ? 'Завършена' : 
-                           task.status === 'active' ? 'Активна' : 'Отменена'}
-                        </span>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-            <Settings size={20} />
-            Настройки
-          </h3>
-          
-          <div className="space-y-6">
-            {/* Notification Settings */}
-            <div>
-              <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
-                Настройки за уведомления
-              </h4>
-              <NotificationManager />
+                ))}
+              </div>
             </div>
 
-            {/* Change Password */}
-            <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-              <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
-                Промяна на парола
-              </h4>
-              
+            {/* Reviews */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Отзиви от клиенти
+              </h3>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Текуща парола
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
-                      className="input w-full pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
+                {profile.reviews.map(review => (
+                  <div key={review.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={review.clientAvatar}
+                        alt={review.clientName}
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-white">
+                              {review.clientName}
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {review.taskTitle}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {renderStars(review.rating)}
+                          </div>
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300 mb-2">
+                          {review.comment}
+                        </p>
+                        <div className="text-sm text-gray-500">
+                          {new Date(review.date).toLocaleDateString('bg-BG')}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Нова парола
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
-                    className="input w-full"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Потвърди нова парола
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
-                    className="input w-full"
-                  />
-                </div>
-                
-                <button
-                  onClick={handleChangePassword}
-                  className="btn btn-primary"
-                >
-                  Промени парола
-                </button>
+                ))}
               </div>
             </div>
           </div>

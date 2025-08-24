@@ -2,408 +2,587 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Plus, MapPin, Calendar, DollarSign, Clock } from 'lucide-react'
-import toast from 'react-hot-toast'
-import LocationPicker from '../../components/LocationPicker'
-import FileUpload from '../../components/FileUpload'
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Upload, 
+  MapPin, 
+  Calendar, 
+  DollarSign,
+  Tag,
+  FileText,
+  Image as ImageIcon,
+  CheckCircle
+} from 'lucide-react'
 
-export default function PostTaskPage() {
+interface TaskFormData {
+  // Стъпка 1: Категория
+  category: string
+  subcategory: string
+  
+  // Стъпка 2: Детайли
+  title: string
+  description: string
+  requirements: string
+  
+  // Стъпка 3: Бюджет и срок
+  budget: {
+    min: number
+    max: number
+    type: 'hourly' | 'fixed'
+  }
+  deadline: string
+  urgency: 'low' | 'medium' | 'high'
+  
+  // Стъпка 4: Локация
+  location: {
+    city: string
+    address: string
+    isRemote: boolean
+  }
+  
+  // Стъпка 5: Медии и условия
+  images: File[]
+  conditions: string[]
+  contactPhone: string
+  contactEmail: string
+}
+
+const categories = [
+  { id: 'repair', name: 'Ремонт и поддръжка', icon: '🔧' },
+  { id: 'cleaning', name: 'Почистване', icon: '🧹' },
+  { id: 'care', name: 'Грижа и помощ', icon: '👥' },
+  { id: 'delivery', name: 'Доставка', icon: '📦' },
+  { id: 'garden', name: 'Градинарство', icon: '🌱' },
+  { id: 'transport', name: 'Транспорт', icon: '🚗' },
+  { id: 'education', name: 'Обучение', icon: '📚' },
+  { id: 'other', name: 'Други', icon: '✨' }
+]
+
+const urgencyLevels = [
+  { id: 'low', name: 'Не е спешно', color: 'text-green-600' },
+  { id: 'medium', name: 'Средна спешност', color: 'text-yellow-600' },
+  { id: 'high', name: 'Много спешно', color: 'text-red-600' }
+]
+
+const commonConditions = [
+  'Изпитване на кандидати',
+  'Договор за работа',
+  'Застраховка',
+  'Материали включени',
+  'Материали за сметка на изпълнителя',
+  'Транспорт включен',
+  'Транспорт за сметка на изпълнителя'
+]
+
+export default function PostTask() {
   const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isConvertingFiles, setIsConvertingFiles] = useState(false)
-  const [formData, setFormData] = useState({
+  const [currentStep, setCurrentStep] = useState(1)
+  const [formData, setFormData] = useState<TaskFormData>({
+    category: '',
+    subcategory: '',
     title: '',
     description: '',
-    category: '',
-    location: '',
-    price: '',
-    priceType: 'hourly', // hourly или fixed
-    date: '',
-    time: '',
-    urgent: false,
-    attachments: [] as File[]
+    requirements: '',
+    budget: {
+      min: 0,
+      max: 0,
+      type: 'hourly'
+    },
+    deadline: '',
+    urgency: 'medium',
+    location: {
+      city: '',
+      address: '',
+      isRemote: false
+    },
+    images: [],
+    conditions: [],
+    contactPhone: '',
+    contactEmail: ''
   })
 
-  const categories = [
-    { value: 'repair', label: 'Ремонт' },
-    { value: 'cleaning', label: 'Почистване' },
-    { value: 'care', label: 'Грижа' },
-    { value: 'delivery', label: 'Доставка' },
-    { value: 'moving', label: 'Преместване' },
-    { value: 'garden', label: 'Градинарство' },
-    { value: 'dog-care', label: 'Разходка/грижа за куче' },
-    { value: 'packaging', label: 'Опаковане' },
-    { value: 'other', label: 'Друго' },
+  const steps = [
+    { id: 1, title: 'Категория', icon: Tag },
+    { id: 2, title: 'Детайли', icon: FileText },
+    { id: 3, title: 'Бюджет & Срок', icon: DollarSign },
+    { id: 4, title: 'Локация', icon: MapPin },
+    { id: 5, title: 'Медии & Условия', icon: ImageIcon }
   ]
 
-  const locations = [
-    { value: 'sofia', label: 'София' },
-    { value: 'plovdiv', label: 'Пловдив' },
-    { value: 'varna', label: 'Варна' },
-    { value: 'burgas', label: 'Бургас' },
-    { value: 'ruse', label: 'Русе' },
-    { value: 'stara-zagora', label: 'Стара Загора' },
-    { value: 'pleven', label: 'Плевен' },
-  ]
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      // Проверка дали потребителят е влязъл
-      const isLoggedIn = localStorage.getItem('isLoggedIn')
-      const user = JSON.parse(localStorage.getItem('user') || '{}')
-      
-      if (!isLoggedIn || !user.id) {
-        toast.error('Трябва да сте влезли в акаунта си за да публикувате задача')
-        router.push('/login')
-        return
-      }
-
-      // Валидация
-      if (!formData.title || !formData.description || !formData.category || !formData.location || !formData.price) {
-        toast.error('Моля, попълнете всички задължителни полета')
-        return
-      }
-
-      // Валидация на заглавието
-      if (formData.title.length < 10) {
-        toast.error('Заглавието трябва да бъде поне 10 символа')
-        return
-      }
-
-      if (formData.title.length > 100) {
-        toast.error('Заглавието не може да бъде повече от 100 символа')
-        return
-      }
-
-      // Валидация на описанието
-      if (formData.description.length < 20) {
-        toast.error('Описанието трябва да бъде поне 20 символа')
-        return
-      }
-
-      if (formData.description.length > 1000) {
-        toast.error('Описанието не може да бъде повече от 1000 символа')
-        return
-      }
-
-      // Валидация на цената
-      const price = parseFloat(formData.price)
-      if (isNaN(price) || price <= 0) {
-        toast.error('Моля, въведете валидна цена')
-        return
-      }
-
-      if (price > 10000) {
-        toast.error('Цената не може да бъде повече от 10,000 лв')
-        return
-      }
-
-      // Валидация на датата (ако е въведена)
-      if (formData.date) {
-        const selectedDate = new Date(formData.date)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        
-        if (selectedDate < today) {
-          toast.error('Датата не може да бъде в миналото')
-          return
-        }
-      }
-
-      // Конвертиране на файловете в base64 за запазване в localStorage
-      setIsConvertingFiles(true)
-      const attachmentsWithBase64 = await Promise.all(
-        formData.attachments.map(async (file) => {
-          return new Promise<{
-            name: string
-            size: number
-            type: string
-            url: string
-          }>((resolve) => {
-            const reader = new FileReader()
-            reader.onload = () => {
-              resolve({
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                url: reader.result as string // base64 string
-              })
-            }
-            reader.readAsDataURL(file)
-          })
-        })
-      )
-      setIsConvertingFiles(false)
-
-      // Създаване на нова задача
-      const newTask = {
-        id: Date.now(),
-        ...formData,
-        price: price,
-        attachments: attachmentsWithBase64,
-        user: {
-          id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-          rating: user.rating || 0,
-          completedTasks: user.completedTasks || 0,
-          avatar: user.avatar || '/api/placeholder/40/40'
-        },
-        status: 'active',
-        applications: [],
-        createdAt: new Date().toISOString(),
-        urgent: formData.urgent
-      }
-
-      // Запазване в localStorage
-      const existingTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      existingTasks.unshift(newTask)
-      localStorage.setItem('tasks', JSON.stringify(existingTasks))
-
-      // Добавяне към потребителските задачи
-      const userTasks = JSON.parse(localStorage.getItem(`userTasks_${user.id}`) || '[]')
-      userTasks.push(newTask.id)
-      localStorage.setItem(`userTasks_${user.id}`, JSON.stringify(userTasks))
-
-      toast.success('Задачата е публикувана успешно!')
-      
-      // Пренасочване към списъка с задачи
-      setTimeout(() => {
-        router.push('/tasks')
-      }, 1500)
-
-    } catch (error) {
-      toast.error('Възникна грешка при публикуването')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleInputChange = (field: string, value: string | boolean | File[]) => {
+  const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }))
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Публикувай задача
-            </h1>
-          </div>
-        </div>
-      </div>
+  const handleBudgetChange = (field: string, value: number) => {
+    setFormData(prev => ({
+      ...prev,
+      budget: {
+        ...prev.budget,
+        [field]: value
+      }
+    }))
+  }
 
-      {/* Form */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Основна информация
-            </h2>
-            
-            <div className="space-y-4">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Заглавие на задачата *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="Напр. Помощ при преместване, Почистване на апартамент"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
-                />
-              </div>
+  const handleLocationChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        [field]: value
+      }
+    }))
+  }
 
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Описание *
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Опишете подробно какво се изисква, колко време ще отнеме, специфични изисквания..."
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
-                />
-              </div>
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ...files]
+    }))
+  }
 
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Категория *
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Изберете категория</option>
-                  {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }))
+  }
 
-          {/* Location & Price */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Локация и цена
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Location */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Локация *
-                </label>
-                <LocationPicker
-                  value={formData.location}
-                  onChange={(location) => handleInputChange('location', location)}
-                />
-              </div>
+  const toggleCondition = (condition: string) => {
+    setFormData(prev => ({
+      ...prev,
+      conditions: prev.conditions.includes(condition)
+        ? prev.conditions.filter(c => c !== condition)
+        : [...prev.conditions, condition]
+    }))
+  }
 
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Цена *
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange('price', e.target.value)}
-                    placeholder="0"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    required
-                  />
-                  <select
-                    value={formData.priceType}
-                    onChange={(e) => handleInputChange('priceType', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+  const nextStep = () => {
+    if (currentStep < 5) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handleSubmit = async () => {
+    try {
+      // Тук ще се добави логика за запазване в базата данни
+      console.log('Submitting task:', formData)
+      
+      // Симулираме успешно запазване
+      alert('Задачата е публикувана успешно!')
+      router.push('/tasks')
+    } catch (error) {
+      console.error('Error submitting task:', error)
+      alert('Грешка при публикуване на задачата')
+    }
+  }
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Изберете категория</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {categories.map(category => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleInputChange('category', category.id)}
+                    className={`p-4 border-2 rounded-lg text-center transition-all ${
+                      formData.category === category.id
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
                   >
-                    <option value="hourly">лв/час</option>
-                    <option value="fixed">лв</option>
-                  </select>
-                </div>
+                    <div className="text-2xl mb-2">{category.icon}</div>
+                    <div className="text-sm font-medium">{category.name}</div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
+        )
 
-          {/* Date & Time */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Дата и час
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Date */}
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Заглавие на задачата *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Напр. Нужен е майстор за ремонт на баня"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Описание *
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                rows={4}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Опишете подробно какво трябва да се направи..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Изисквания към изпълнителя
+              </label>
+              <textarea
+                value={formData.requirements}
+                onChange={(e) => handleInputChange('requirements', e.target.value)}
+                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Опит, квалификации, инструменти..."
+              />
+            </div>
+          </div>
+        )
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Тип на заплащането
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="hourly"
+                    checked={formData.budget.type === 'hourly'}
+                    onChange={(e) => handleInputChange('budget', { ...formData.budget, type: e.target.value })}
+                    className="mr-2"
+                  />
+                  На час
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="fixed"
+                    checked={formData.budget.type === 'fixed'}
+                    onChange={(e) => handleInputChange('budget', { ...formData.budget, type: e.target.value })}
+                    className="mr-2"
+                  />
+                  Фиксирана сума
+                </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Дата
+                <label className="block text-sm font-medium mb-2">
+                  Минимална цена (лв.)
                 </label>
                 <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => handleInputChange('date', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  type="number"
+                  value={formData.budget.min}
+                  onChange={(e) => handleBudgetChange('min', Number(e.target.value))}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
-              {/* Time */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Час
+                <label className="block text-sm font-medium mb-2">
+                  Максимална цена (лв.)
                 </label>
                 <input
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => handleInputChange('time', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  type="number"
+                  value={formData.budget.max}
+                  onChange={(e) => handleBudgetChange('max', Number(e.target.value))}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
-            {/* Urgent */}
-            <div className="mt-4">
-              <label className="flex items-center gap-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Краен срок
+              </label>
+              <input
+                type="date"
+                value={formData.deadline}
+                onChange={(e) => handleInputChange('deadline', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Спешност
+              </label>
+              <div className="space-y-2">
+                {urgencyLevels.map(level => (
+                  <label key={level.id} className="flex items-center">
+                    <input
+                      type="radio"
+                      value={level.id}
+                      checked={formData.urgency === level.id}
+                      onChange={(e) => handleInputChange('urgency', e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className={level.color}>{level.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Град *
+              </label>
+              <input
+                type="text"
+                value={formData.location.city}
+                onChange={(e) => handleLocationChange('city', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="София, Пловдив, Варна..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Адрес
+              </label>
+              <input
+                type="text"
+                value={formData.location.address}
+                onChange={(e) => handleLocationChange('address', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Улица, номер, район..."
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.urgent}
-                  onChange={(e) => handleInputChange('urgent', e.target.checked)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  checked={formData.location.isRemote}
+                  onChange={(e) => handleLocationChange('isRemote', e.target.checked)}
+                  className="mr-2"
                 />
-                <span className="text-sm font-medium text-gray-700">
-                  Спешна задача
-                </span>
+                Работата може да се извърши от разстояние
               </label>
             </div>
           </div>
+        )
 
-          {/* Attachments */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Прикачени файлове
-            </h2>
-            <FileUpload
-              onFilesChange={(files) => handleInputChange('attachments', files)}
-              maxFiles={5}
-              maxSize={10}
-              acceptedTypes={['image/*', '.pdf', '.doc', '.docx']}
-              label="Прикачи файлове към задачата"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting || isConvertingFiles}
-              className="btn btn-primary flex items-center gap-2 px-8 py-3 text-lg disabled:opacity-50"
-            >
-              {isConvertingFiles ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Обработка на файлове...
-                </>
-              ) : isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Публикуване...
-                </>
-              ) : (
-                <>
-                  <Plus size={20} />
-                  Публикувай задача
-                </>
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Снимки (по желание)
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600">
+                    Кликнете за качване на снимки
+                  </p>
+                </label>
+              </div>
+              
+              {formData.images.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Upload ${index + 1}`}
+                        className="w-full h-24 object-cover rounded"
+                      />
+                      <button
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
-            </button>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Условия за работа
+              </label>
+              <div className="space-y-2">
+                {commonConditions.map(condition => (
+                  <label key={condition} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.conditions.includes(condition)}
+                      onChange={() => toggleCondition(condition)}
+                      className="mr-2"
+                    />
+                    {condition}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Телефон за контакт
+                </label>
+                <input
+                  type="tel"
+                  value={formData.contactPhone}
+                  onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="0888 123 456"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Имейл за контакт
+                </label>
+                <input
+                  type="email"
+                  value={formData.contactEmail}
+                  onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="email@example.com"
+                />
+              </div>
+            </div>
           </div>
-        </form>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Публикувай нова задача
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Попълнете детайлите за вашата задача и намерете подходящ изпълнител
+            </p>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              {steps.map((step, index) => {
+                const Icon = step.icon
+                const isActive = currentStep === step.id
+                const isCompleted = currentStep > step.id
+                
+                return (
+                  <div key={step.id} className="flex items-center">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                      isCompleted
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : isActive
+                        ? 'bg-blue-500 border-blue-500 text-white'
+                        : 'border-gray-300 text-gray-500'
+                    }`}>
+                      {isCompleted ? (
+                        <CheckCircle size={20} />
+                      ) : (
+                        <Icon size={20} />
+                      )}
+                    </div>
+                    <div className="ml-3">
+                      <div className={`text-sm font-medium ${
+                        isActive ? 'text-blue-600' : 'text-gray-500'
+                      }`}>
+                        {step.title}
+                      </div>
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div className={`w-16 h-0.5 mx-4 ${
+                        isCompleted ? 'bg-green-500' : 'bg-gray-300'
+                      }`} />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Step Content */}
+          <div className="mb-8">
+            {renderStepContent()}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between">
+            <button
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className={`flex items-center px-6 py-3 rounded-lg ${
+                currentStep === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              <ChevronLeft size={20} className="mr-2" />
+              Назад
+            </button>
+
+            {currentStep < 5 ? (
+              <button
+                onClick={nextStep}
+                className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Продължи
+                <ChevronRight size={20} className="ml-2" />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Публикувай задачата
+                <CheckCircle size={20} className="ml-2" />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
