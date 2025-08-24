@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import AdminStats from '../../components/AdminStats'
+import BoostSystem from '../../components/BoostSystem'
 
 interface Stats {
   totalUsers: number
@@ -230,6 +231,11 @@ export default function AdminPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <AdminStats />
+
+        {/* Boost System */}
+        <div className="mb-8">
+          <BoostSystem />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Activity */}

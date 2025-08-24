@@ -16,7 +16,8 @@ import {
   HeartOff,
   Share2,
   Bookmark,
-  BookmarkCheck
+  BookmarkCheck,
+  TrendingUp
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -56,6 +57,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
   const [isFavorite, setIsFavorite] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [isBoosted, setIsBoosted] = useState(false)
 
   useEffect(() => {
     // Проверка дали задачата е в любими
@@ -65,6 +67,10 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     // Проверка дали задачата е запазена
     const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
     setIsSaved(saved.includes(task.id))
+
+    // Проверка дали задачата е boost-ната
+    const boosted = JSON.parse(localStorage.getItem('boostedTasks') || '[]')
+    setIsBoosted(boosted.includes(task.id))
   }, [task.id])
 
   const handleFavoriteToggle = () => {
@@ -138,6 +144,19 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     router.push(`/task/${task.id}`)
   }
 
+  const handleBoostClick = () => {
+    // Проверка дали потребителят е логнат
+    const isLoggedIn = localStorage.getItem('isLoggedIn')
+    if (isLoggedIn !== 'true') {
+      toast.error('Трябва да сте влезли в акаунта си за да boost-нете задача')
+      router.push('/login')
+      return
+    }
+
+    // Навигация към boost страницата
+    router.push(`/admin?boostTask=${task.id}`)
+  }
+
   const getCategoryLabel = (categoryValue: string) => {
     const categories = [
       { value: 'repair', label: 'Ремонт' },
@@ -202,64 +221,65 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
           </h3>
         </div>
         
+        {/* Action Buttons */}
         {showActions && (
           <div className="flex items-center gap-2 ml-4">
             <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleFavoriteToggle()
-              }}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label={isFavorite ? 'Премахни от любими' : 'Добави в любими'}
+              onClick={handleFavoriteToggle}
+              className={`p-2 rounded-lg transition-colors ${
+                isFavorite 
+                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+              }`}
+              title={isFavorite ? 'Премахни от любими' : 'Добави в любими'}
             >
-              {isFavorite ? (
-                <Heart size={18} className="text-red-500 fill-current" />
-              ) : (
-                <Heart size={18} className="text-gray-400 hover:text-red-500" />
-              )}
+              {isFavorite ? <Heart size={16} className="fill-current" /> : <Heart size={16} />}
             </button>
-            
+
             <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleSaveToggle()
-              }}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label={isSaved ? 'Премахни от запазени' : 'Запази задача'}
+              onClick={handleSaveToggle}
+              className={`p-2 rounded-lg transition-colors ${
+                isSaved 
+                  ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+              }`}
+              title={isSaved ? 'Премахни от запазени' : 'Запази задача'}
             >
-              {isSaved ? (
-                <BookmarkCheck size={18} className="text-blue-500 fill-current" />
-              ) : (
-                <Bookmark size={18} className="text-gray-400 hover:text-blue-500" />
-              )}
+              {isSaved ? <BookmarkCheck size={16} className="fill-current" /> : <Bookmark size={16} />}
             </button>
-            
-            <div className="relative">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowShareMenu(!showShareMenu)
-                }}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                aria-label="Сподели"
-              >
-                <Share2 size={18} className="text-gray-400 hover:text-gray-600" />
-              </button>
-              
-              {showShareMenu && (
-                <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 min-w-[200px]">
-                  <button
-                    onClick={handleShare}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    Сподели задача
-                  </button>
-                </div>
-              )}
-            </div>
+
+            <button
+              onClick={handleBoostClick}
+              className={`p-2 rounded-lg transition-colors ${
+                isBoosted 
+                  ? 'text-green-500 bg-green-50 dark:bg-green-900/20' 
+                  : 'text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20'
+              }`}
+              title={isBoosted ? 'Задачата е boost-ната' : 'Boost задача'}
+            >
+              <TrendingUp size={16} className={isBoosted ? 'fill-current' : ''} />
+            </button>
+
+            <button
+              onClick={() => setShowShareMenu(!showShareMenu)}
+              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="Сподели задача"
+            >
+              <Share2 size={16} />
+            </button>
           </div>
         )}
       </div>
+
+      {/* Boost Badge */}
+      {isBoosted && (
+        <div className="mb-3">
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+            <TrendingUp size={12} />
+            Boost-ната
+          </span>
+        </div>
+      )}
 
       {/* Description */}
       <p 
