@@ -15,71 +15,71 @@ const serviceCards: ServiceCard[] = [
   {
     id: 'removalists',
     title: 'Хамали',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
     description: 'Опаковане, увиване, преместване и други!'
   },
   {
     id: 'furniture-assembly',
     title: 'Сглобяване на мебели',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
     description: 'Сглобяване и разглобяване на плоски пакети'
   },
   {
     id: 'gardening',
-    title: 'Градинарство и озеленяване',
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face',
+    title: 'Градинарство',
+    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
     description: 'Мулчиране, плевене и подреждане'
   },
   {
     id: 'handyperson',
     title: 'Майстор за дома',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=40&h=40&fit=crop&crop=face',
     description: 'Помощ с поддръжката на дома'
   },
   {
     id: 'marketing-design',
     title: 'Маркетинг и дизайн',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
     description: 'Помощ с уебсайт и дизайн'
   },
   {
     id: 'home-cleaning',
     title: 'Почистване на дома',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
-    description: 'Почистване, миене и подреждане на дома'
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
+    description: 'Почистване, миене и подреждане'
   },
   {
     id: 'deliveries',
     title: 'Доставки',
-    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
     description: 'Спешни доставки и куриерски услуги'
   },
   {
     id: 'painting',
     title: 'Боядисване',
-    image: 'https://images.unsplash.com/photo-1560435650-7470e0f12610?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face',
-    description: 'Интериорно и екстериорно боядисване на стени'
+    image: 'https://images.unsplash.com/photo-1560435650-7470e0f12610?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
+    description: 'Интериорно и екстериорно боядисване'
   },
   {
     id: 'business-admin',
     title: 'Бизнес и администрация',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
     description: 'Помощ със счетоводство и данъчни декларации'
   },
   {
     id: 'something-else',
     title: 'Нещо друго',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=120&h=80&fit=crop',
-    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=80&h=60&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
     description: 'Монтиране на изкуство и картини на стена'
   }
 ]
@@ -125,35 +125,35 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
   const renderServiceCard = (card: ServiceCard) => (
     <div
       key={card.id}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-300 hover:scale-105 cursor-pointer group"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 hover:shadow-md transition-all duration-300 cursor-pointer group"
     >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <img
             src={card.personImage}
             alt={card.title}
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover"
             onError={(e) => {
-              e.currentTarget.src = 'https://via.placeholder.com/60x60/6B7280/FFFFFF?text=👤'
+              e.currentTarget.src = 'https://via.placeholder.com/40x40/6B7280/FFFFFF?text=👤'
             }}
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 dark:text-white text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          <h3 className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
             {card.title}
           </h3>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-600 mt-1 leading-tight">
             {card.description}
           </p>
         </div>
       </div>
-      <div className="mt-3">
+      <div className="mt-2">
         <img
           src={card.image}
           alt={card.title}
-          className="w-full h-16 rounded object-cover"
+          className="w-full h-12 rounded object-cover"
           onError={(e) => {
-            e.currentTarget.src = 'https://via.placeholder.com/120x80/6B7280/FFFFFF?text=📷'
+            e.currentTarget.src = 'https://via.placeholder.com/80x60/6B7280/FFFFFF?text=📷'
           }}
         />
       </div>
@@ -230,13 +230,13 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
 
             {/* Right Column - Service Cards with Auto-scroll */}
             <div className="flex justify-center">
-              <div className="w-80">
-                <div className="grid grid-cols-2 gap-3 h-96">
+              <div className="w-64 bg-blue-50 rounded-lg p-4">
+                <div className="grid grid-cols-2 gap-4 h-96">
                   {/* Left Column of Cards */}
                   <div className="relative">
                     <div
                       ref={leftRef}
-                      className="space-y-3 h-full overflow-y-auto scrollbar-hide"
+                      className="space-y-4 h-full overflow-y-auto scrollbar-hide"
                       style={{
                         scrollbarWidth: 'none',
                         msOverflowStyle: 'none'
@@ -252,7 +252,7 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
                   <div className="relative">
                     <div
                       ref={rightRef}
-                      className="space-y-3 h-full overflow-y-auto scrollbar-hide"
+                      className="space-y-4 h-full overflow-y-auto scrollbar-hide"
                       style={{
                         scrollbarWidth: 'none',
                         msOverflowStyle: 'none'
