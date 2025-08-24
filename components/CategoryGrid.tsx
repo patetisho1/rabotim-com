@@ -162,8 +162,8 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
 
   return (
     <div className={`bg-gray-50 dark:bg-gray-900 py-12 ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
           {/* Left Column - How it works */}
           <div className="flex flex-col justify-center">
@@ -228,36 +228,38 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
           </div>
 
           {/* Right Column - Service Cards with Auto-scroll */}
-          <div className="grid grid-cols-2 gap-4 h-96">
-            {/* Left Column of Cards */}
-            <div className="relative">
-              <div
-                ref={leftRef}
-                className="space-y-4 h-full overflow-y-auto scrollbar-hide"
-                style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none'
-                }}
-              >
-                {leftCards.map(renderServiceCard)}
-                {/* Duplicate for seamless loop */}
-                {leftCards.map(renderServiceCard)}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 gap-4 h-96 w-full max-w-md">
+              {/* Left Column of Cards */}
+              <div className="relative">
+                <div
+                  ref={leftRef}
+                  className="space-y-4 h-full overflow-y-auto scrollbar-hide"
+                  style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}
+                >
+                  {leftCards.map(renderServiceCard)}
+                  {/* Duplicate for seamless loop */}
+                  {leftCards.map(renderServiceCard)}
+                </div>
               </div>
-            </div>
 
-            {/* Right Column of Cards */}
-            <div className="relative">
-              <div
-                ref={rightRef}
-                className="space-y-4 h-full overflow-y-auto scrollbar-hide"
-                style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none'
-                }}
-              >
-                {rightCards.map(renderServiceCard)}
-                {/* Duplicate for seamless loop */}
-                {rightCards.map(renderServiceCard)}
+              {/* Right Column of Cards */}
+              <div className="relative">
+                <div
+                  ref={rightRef}
+                  className="space-y-4 h-full overflow-y-auto scrollbar-hide"
+                  style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}
+                >
+                  {rightCards.map(renderServiceCard)}
+                  {/* Duplicate for seamless loop */}
+                  {rightCards.map(renderServiceCard)}
+                </div>
               </div>
             </div>
           </div>
