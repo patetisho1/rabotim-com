@@ -347,10 +347,15 @@ export default function AdvancedSearchSection({ onSearch, className = '' }: Adva
       {showFilters && (
         <div className="border-t border-gray-200 dark:border-gray-700 p-6">
           <AdvancedFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            onClear={clearFilters}
-            hasActiveFilters={hasActiveFilters}
+            onFiltersChange={(newFilters) => {
+              setFilters({
+                query: newFilters.search,
+                category: newFilters.category,
+                location: newFilters.location
+              })
+            }}
+            isOpen={showFilters}
+            onToggle={() => setShowFilters(!showFilters)}
           />
         </div>
       )}

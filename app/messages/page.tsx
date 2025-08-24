@@ -8,14 +8,14 @@ import ChatWindow from '@/components/ChatWindow'
 export default function MessagesPage() {
   const {
     conversations,
-    currentConversation,
     messages,
+    currentConversation,
     isLoading,
     error,
     loadMessages,
     sendMessage,
-    markAsRead,
     createConversation,
+    markAsRead,
     setCurrentConversation
   } = useMessages()
 
@@ -26,7 +26,6 @@ export default function MessagesPage() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
@@ -56,6 +55,12 @@ export default function MessagesPage() {
   }
 
   const handleBack = () => {
+    if (isMobile) {
+      setShowChat(false)
+    }
+  }
+
+  const handleCloseChat = () => {
     if (isMobile) {
       setShowChat(false)
     }
@@ -93,13 +98,20 @@ export default function MessagesPage() {
               onSelectConversation={handleSelectConversation}
               onCreateNew={handleCreateNew}
             />
-            <ChatWindow
-              conversation={currentConversation}
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              onBack={() => {}}
-              isLoading={isLoading}
-            />
+            {currentConversation && (
+              <ChatWindow
+                taskId={currentConversation.id}
+                taskTitle={currentConversation.title || 'Разговор'}
+                otherUser={{
+                  id: currentConversation.participants.find((p: string) => p !== 'user1') || '',
+                  name: currentConversation.title || 'Потребител',
+                  avatar: '/api/placeholder/40/40',
+                  isOnline: true
+                }}
+                onClose={() => {}}
+                isOpen={true}
+              />
+            )}
           </div>
         )}
 
@@ -113,13 +125,18 @@ export default function MessagesPage() {
                 onSelectConversation={handleSelectConversation}
                 onCreateNew={handleCreateNew}
               />
-            ) : (
+            ) : currentConversation && (
               <ChatWindow
-                conversation={currentConversation}
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                onBack={handleBack}
-                isLoading={isLoading}
+                taskId={currentConversation.id}
+                taskTitle={currentConversation.title || 'Разговор'}
+                otherUser={{
+                  id: currentConversation.participants.find((p: string) => p !== 'user1') || '',
+                  name: currentConversation.title || 'Потребител',
+                  avatar: '/api/placeholder/40/40',
+                  isOnline: true
+                }}
+                onClose={handleCloseChat}
+                isOpen={showChat}
               />
             )}
           </div>

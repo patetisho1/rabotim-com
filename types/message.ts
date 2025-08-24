@@ -13,6 +13,7 @@ export interface Message {
 export interface Conversation {
   id: string
   participants: string[]
+  title?: string
   lastMessage?: Message
   unreadCount: number
   createdAt: Date
