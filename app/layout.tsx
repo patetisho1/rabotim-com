@@ -5,6 +5,7 @@ import './globals.css'
 import Header from '@/components/Header'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import AuthProvider from '@/providers/AuthProvider'
+import SPANavigation from '@/components/SPANavigation'
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
@@ -39,10 +40,12 @@ export default function RootLayout({
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
         <AuthProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
+          <SPANavigation>
+            <Header />
+            <main>
+              {children}
+            </main>
+          </SPANavigation>
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
@@ -58,44 +61,32 @@ export default function RootLayout({
         /> */}
         {/* <PWAInstall /> */}
         
-        {/* Disable PWA install prompts */}
+        {/* Service Worker Registration */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Aggressively prevent PWA install prompts
-              window.addEventListener('beforeinstallprompt', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                return false;
-              });
-              
-              // Prevent app installed prompts
-              window.addEventListener('appinstalled', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-              });
-              
-              // Clear any service workers
               if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for(let registration of registrations) {
-                    registration.unregister();
-                  }
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                      console.log('SW registration failed: ', registrationError);
+                    });
                 });
               }
               
-              // Override display mode detection
-              if (window.matchMedia) {
-                window.matchMedia('(display-mode: standalone)').matches = false;
-              }
-              
-              // Hide browser native install banners
+              // SPA Navigation Enhancement
               document.addEventListener('DOMContentLoaded', function() {
-                // Remove any potential install prompts
-                const installBanners = document.querySelectorAll('[data-install-banner], .install-banner, .pwa-install');
-                installBanners.forEach(banner => banner.remove());
+                // Preload critical pages
+                const criticalPages = ['/tasks', '/favorites', '/login'];
+                criticalPages.forEach(page => {
+                  const link = document.createElement('link');
+                  link.rel = 'prefetch';
+                  link.href = page;
+                  document.head.appendChild(link);
+                });
               });
             `,
           }}
