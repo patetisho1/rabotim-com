@@ -13,60 +13,74 @@ interface ServiceCard {
 
 const serviceCards: ServiceCard[] = [
   {
-    id: 'electrical',
-    title: 'Електро инсталация',
+    id: 'removalists',
+    title: 'Хамали',
     image: '/api/placeholder/120/80',
     personImage: '/api/placeholder/60/60',
-    description: 'Професионални електротехнически услуги'
+    description: 'Опаковане, увиване, преместване и други!'
+  },
+  {
+    id: 'furniture-assembly',
+    title: 'Сглобяване на мебели',
+    image: '/api/placeholder/120/80',
+    personImage: '/api/placeholder/60/60',
+    description: 'Сглобяване и разглобяване на плоски пакети'
   },
   {
     id: 'gardening',
-    title: 'Градинарство',
+    title: 'Градинарство и озеленяване',
     image: '/api/placeholder/120/80',
     personImage: '/api/placeholder/60/60',
-    description: 'Косене, плевене и поддръжка на градина'
+    description: 'Мулчиране, плевене и подреждане'
+  },
+  {
+    id: 'handyperson',
+    title: 'Майстор за дома',
+    image: '/api/placeholder/120/80',
+    personImage: '/api/placeholder/60/60',
+    description: 'Помощ с поддръжката на дома'
+  },
+  {
+    id: 'marketing-design',
+    title: 'Маркетинг и дизайн',
+    image: '/api/placeholder/120/80',
+    personImage: '/api/placeholder/60/60',
+    description: 'Помощ с уебсайт и дизайн'
+  },
+  {
+    id: 'home-cleaning',
+    title: 'Почистване на дома',
+    image: '/api/placeholder/120/80',
+    personImage: '/api/placeholder/60/60',
+    description: 'Почистване, миене и подреждане на дома'
+  },
+  {
+    id: 'deliveries',
+    title: 'Доставки',
+    image: '/api/placeholder/120/80',
+    personImage: '/api/placeholder/60/60',
+    description: 'Спешни доставки и куриерски услуги'
   },
   {
     id: 'painting',
     title: 'Боядисване',
     image: '/api/placeholder/120/80',
     personImage: '/api/placeholder/60/60',
-    description: 'Интериорно и екстериорно боядисване'
+    description: 'Интериорно и екстериорно боядисване на стени'
   },
   {
-    id: 'cleaning',
-    title: 'Почистване',
+    id: 'business-admin',
+    title: 'Бизнес и администрация',
     image: '/api/placeholder/120/80',
     personImage: '/api/placeholder/60/60',
-    description: 'Домашно и офис почистване'
+    description: 'Помощ със счетоводство и данъчни декларации'
   },
   {
-    id: 'plumbing',
-    title: 'Водопровод',
+    id: 'something-else',
+    title: 'Нещо друго',
     image: '/api/placeholder/120/80',
     personImage: '/api/placeholder/60/60',
-    description: 'Ремонт и поддръжка на водопровод'
-  },
-  {
-    id: 'carpentry',
-    title: 'Дърводелство',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
-    description: 'Изработка и ремонт на мебели'
-  },
-  {
-    id: 'delivery',
-    title: 'Доставка',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
-    description: 'Бързи и надеждни доставки'
-  },
-  {
-    id: 'assembly',
-    title: 'Сглобяване',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
-    description: 'Сглобяване на мебели и техника'
+    description: 'Монтиране на изкуство и картини на стена'
   }
 ]
 
@@ -75,26 +89,51 @@ interface CategoryGridProps {
 }
 
 export default function CategoryGrid({ className = '' }: CategoryGridProps) {
-  const [currentCardIndex, setCurrentCardIndex] = useState(0)
+  const leftRef = useRef<HTMLDivElement>(null)
   const rightRef = useRef<HTMLDivElement>(null)
 
-  // Автоматично скролиране на дясната колона
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentCardIndex((prev) => (prev + 1) % serviceCards.length)
-    }, 3000) // Смяна на всеки 3 секунди
+  // Разделяне на картите в две колони
+  const leftCards = serviceCards.filter((_, index) => index % 2 === 0)
+  const rightCards = serviceCards.filter((_, index) => index % 2 === 1)
 
-    return () => clearInterval(interval)
+  // Автоматично скролиране нагоре
+  useEffect(() => {
+    const leftInterval = setInterval(() => {
+      if (leftRef.current) {
+        const firstChild = leftRef.current.firstElementChild as HTMLElement
+        if (firstChild) {
+          leftRef.current.scrollTop += 1
+          if (leftRef.current.scrollTop >= firstChild.offsetHeight) {
+            leftRef.current.scrollTop = 0
+          }
+        }
+      }
+    }, 50)
+
+    const rightInterval = setInterval(() => {
+      if (rightRef.current) {
+        const firstChild = rightRef.current.firstElementChild as HTMLElement
+        if (firstChild) {
+          rightRef.current.scrollTop += 1
+          if (rightRef.current.scrollTop >= firstChild.offsetHeight) {
+            rightRef.current.scrollTop = 0
+          }
+        }
+      }
+    }, 50)
+
+    return () => {
+      clearInterval(leftInterval)
+      clearInterval(rightInterval)
+    }
   }, [])
 
-  const renderServiceCard = (card: ServiceCard, index: number) => (
+  const renderServiceCard = (card: ServiceCard) => (
     <div
       key={card.id}
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 transition-all duration-500 ${
-        index === currentCardIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute inset-0'
-      }`}
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-300 hover:scale-105 cursor-pointer group"
     >
-      <div className="flex items-center space-x-3">
+      <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <img
             src={card.personImage}
@@ -102,8 +141,8 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
             className="w-12 h-12 rounded-full object-cover"
           />
         </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900 dark:text-white text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             {card.title}
           </h3>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -188,39 +227,49 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
             </div>
           </div>
 
-          {/* Right Column - Service Cards */}
-          <div className="relative">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 h-96">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                Популярни услуги
-              </h3>
+          {/* Right Column - Service Cards with Auto-scroll */}
+          <div className="grid grid-cols-2 gap-4 h-96">
+            {/* Left Column of Cards */}
+            <div className="relative">
+              <div
+                ref={leftRef}
+                className="space-y-4 h-full overflow-y-auto scrollbar-hide"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none'
+                }}
+              >
+                {leftCards.map(renderServiceCard)}
+                {/* Duplicate for seamless loop */}
+                {leftCards.map(renderServiceCard)}
+              </div>
+            </div>
+
+            {/* Right Column of Cards */}
+            <div className="relative">
               <div
                 ref={rightRef}
-                className="relative h-80 overflow-hidden"
+                className="space-y-4 h-full overflow-y-auto scrollbar-hide"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none'
+                }}
               >
-                {serviceCards.map((card, index) => 
-                  renderServiceCard(card, index)
-                )}
-              </div>
-              
-              {/* Dots indicator */}
-              <div className="flex justify-center space-x-2 mt-4">
-                {serviceCards.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentCardIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      index === currentCardIndex 
-                        ? 'bg-blue-600' 
-                        : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                  />
-                ))}
+                {rightCards.map(renderServiceCard)}
+                {/* Duplicate for seamless loop */}
+                {rightCards.map(renderServiceCard)}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Custom scrollbar styles */}
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   )
 } 
