@@ -15,71 +15,71 @@ const serviceCards: ServiceCard[] = [
   {
     id: 'removalists',
     title: 'Хамали',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
     description: 'Опаковане, увиване, преместване и други!'
   },
   {
     id: 'furniture-assembly',
     title: 'Сглобяване на мебели',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face',
     description: 'Сглобяване и разглобяване на плоски пакети'
   },
   {
     id: 'gardening',
     title: 'Градинарство и озеленяване',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face',
     description: 'Мулчиране, плевене и подреждане'
   },
   {
     id: 'handyperson',
     title: 'Майстор за дома',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=60&h=60&fit=crop&crop=face',
     description: 'Помощ с поддръжката на дома'
   },
   {
     id: 'marketing-design',
     title: 'Маркетинг и дизайн',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face',
     description: 'Помощ с уебсайт и дизайн'
   },
   {
     id: 'home-cleaning',
     title: 'Почистване на дома',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
     description: 'Почистване, миене и подреждане на дома'
   },
   {
     id: 'deliveries',
     title: 'Доставки',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
     description: 'Спешни доставки и куриерски услуги'
   },
   {
     id: 'painting',
     title: 'Боядисване',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1560435650-7470e0f12610?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face',
     description: 'Интериорно и екстериорно боядисване на стени'
   },
   {
     id: 'business-admin',
     title: 'Бизнес и администрация',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face',
     description: 'Помощ със счетоводство и данъчни декларации'
   },
   {
     id: 'something-else',
     title: 'Нещо друго',
-    image: '/api/placeholder/120/80',
-    personImage: '/api/placeholder/60/60',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=120&h=80&fit=crop',
+    personImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face',
     description: 'Монтиране на изкуство и картини на стена'
   }
 ]
@@ -100,27 +100,21 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
   useEffect(() => {
     const leftInterval = setInterval(() => {
       if (leftRef.current) {
-        const firstChild = leftRef.current.firstElementChild as HTMLElement
-        if (firstChild) {
-          leftRef.current.scrollTop += 1
-          if (leftRef.current.scrollTop >= firstChild.offsetHeight) {
-            leftRef.current.scrollTop = 0
-          }
+        leftRef.current.scrollTop += 1
+        if (leftRef.current.scrollTop >= leftRef.current.scrollHeight / 2) {
+          leftRef.current.scrollTop = 0
         }
       }
-    }, 50)
+    }, 30)
 
     const rightInterval = setInterval(() => {
       if (rightRef.current) {
-        const firstChild = rightRef.current.firstElementChild as HTMLElement
-        if (firstChild) {
-          rightRef.current.scrollTop += 1
-          if (rightRef.current.scrollTop >= firstChild.offsetHeight) {
-            rightRef.current.scrollTop = 0
-          }
+        rightRef.current.scrollTop += 1
+        if (rightRef.current.scrollTop >= rightRef.current.scrollHeight / 2) {
+          rightRef.current.scrollTop = 0
         }
       }
-    }, 50)
+    }, 30)
 
     return () => {
       clearInterval(leftInterval)
@@ -139,6 +133,9 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
             src={card.personImage}
             alt={card.title}
             className="w-12 h-12 rounded-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = 'https://via.placeholder.com/60x60/6B7280/FFFFFF?text=👤'
+            }}
           />
         </div>
         <div className="flex-1 min-w-0">
@@ -155,6 +152,9 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
           src={card.image}
           alt={card.title}
           className="w-full h-16 rounded object-cover"
+          onError={(e) => {
+            e.currentTarget.src = 'https://via.placeholder.com/120x80/6B7280/FFFFFF?text=📷'
+          }}
         />
       </div>
     </div>
