@@ -41,13 +41,20 @@ export default function HomePage() {
       
       const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
       const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+      const savedSearches = JSON.parse(localStorage.getItem('savedSearches') || '[]')
+      
+      // По-реалистични статистики
+      const baseTasks = Math.max(tasks.length, 15) // Минимум 15 задачи
+      const baseUsers = Math.max(users.length, 250) // Минимум 250 потребители
       const cities = new Set(tasks.map((task: any) => task.location)).size
+      const activeCities = Math.max(cities, 12) // Минимум 12 града
       
       setStats({
-        tasks: tasks.length,
-        users: users.length || 150, // Fallback стойност
-        cities: cities || 8,
-        completed: Math.floor(tasks.length * 0.7) // Симулирани завършени задачи
+        tasks: baseTasks,
+        users: baseUsers,
+        cities: activeCities,
+        completed: Math.floor(baseTasks * 0.85) // 85% завършени задачи
       })
       setIsLoadingStats(false)
     }
@@ -130,42 +137,52 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="pb-20">
         {/* Hero Section */}
-        <section ref={heroRef} className="bg-[#001B44] text-white py-20">
-          <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-6">
+        <section ref={heroRef} className="bg-[#001B44] text-white py-12 md:py-20">
+          <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between px-4 md:px-6">
             
             {/* Left Text */}
-            <div className="max-w-lg mb-10 md:mb-0">
-              <h1 className={`text-5xl md:text-6xl font-extrabold leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="max-w-lg mb-8 lg:mb-0 text-center lg:text-left">
+              <h1 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Направи работата <span className="text-blue-400">лесна</span>
               </h1>
-              <p className={`mt-6 text-lg text-gray-300 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <p className={`mt-4 md:mt-6 text-base md:text-lg text-gray-300 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Публикувайте задача. Изберете най-добрия човек. Свършете я — бързо и лесно.
               </p>
-              <div className={`mt-8 flex flex-wrap gap-4 transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <div className={`mt-6 md:mt-8 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <button
                   onClick={handlePostTask}
-                  className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-full text-white font-semibold transition-all duration-200 flex items-center gap-2"
+                  className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-full text-white font-semibold transition-all duration-200 flex items-center justify-center gap-2 w-full sm:w-auto"
                 >
                   Намери изпълнител
                   <ArrowRight size={16} />
                 </button>
                 <button
                   onClick={handleViewAllTasks}
-                  className="bg-white text-blue-700 hover:bg-gray-100 px-6 py-3 rounded-full font-semibold transition-all duration-200"
+                  className="bg-white text-blue-700 hover:bg-gray-100 px-6 py-3 rounded-full font-semibold transition-all duration-200 w-full sm:w-auto"
                 >
                   Стани изпълнител
                 </button>
               </div>
-              <div className={`mt-6 flex gap-6 text-sm text-gray-300 transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                <span>👥 {stats.users}+ клиенти</span>
-                <span>✅ {stats.completed}+ свършени задачи</span>
-                <span>⭐ 4.8★ рейтинг</span>
+              <div className={`mt-4 md:mt-6 flex flex-wrap justify-center lg:justify-start gap-3 md:gap-6 text-sm text-gray-300 transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                {isLoadingStats ? (
+                  <>
+                    <span className="animate-pulse">👥 Зареждане...</span>
+                    <span className="animate-pulse">✅ Зареждане...</span>
+                    <span className="animate-pulse">⭐ Зареждане...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>👥 {stats.users}+ клиенти</span>
+                    <span>✅ {stats.completed}+ свършени задачи</span>
+                    <span>⭐ 4.8★ рейтинг</span>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Right Task Cards */}
-            <div className="relative w-full md:w-1/2 flex justify-center">
-              <div className="w-96 h-80 overflow-hidden relative">
+            <div className="relative w-full lg:w-1/2 flex justify-center mt-8 lg:mt-0">
+              <div className="w-full max-w-sm md:w-96 h-64 md:h-80 overflow-hidden relative">
                 {/* Task Cards */}
                 <div className="absolute inset-0">
                   {[
@@ -279,20 +296,25 @@ export default function HomePage() {
                         }
                       ]
                     }
-                                     ].map((task, index) => (
-                     <Link
-                       key={task.id}
-                       href={`/task/${task.id}`}
-                       className="absolute inset-0 task-card-rotation block"
-                     >
-                       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 h-full cursor-pointer group">
+                  ].map((task, index) => (
+                    <Link
+                      key={task.id}
+                      href={`/task/${task.id}`}
+                      className="absolute inset-0 task-card-rotation block"
+                      style={{
+                        animation: `slideInOut ${5 * 6}s infinite`,
+                        animationDelay: `${index * 5}s`,
+                        zIndex: index === 0 ? 5 : 4 - index
+                      }}
+                    >
+                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 h-full cursor-pointer group">
                         {/* Image */}
                         {task.attachments && task.attachments.length > 0 && (
-                          <div className="relative h-48 overflow-hidden">
+                          <div className="relative h-40 md:h-48 overflow-hidden">
                             <img 
                               src={task.attachments[0].url} 
                               alt={task.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                             <div className="absolute top-2 left-2">
                               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -301,6 +323,8 @@ export default function HomePage() {
                                 task.category === 'delivery' ? 'bg-yellow-100 text-yellow-600' :
                                 task.category === 'gardening' ? 'bg-green-100 text-green-600' :
                                 task.category === 'tutoring' ? 'bg-indigo-100 text-indigo-600' :
+                                task.category === 'dog-care' ? 'bg-purple-100 text-purple-600' :
+                                task.category === 'care' ? 'bg-pink-100 text-pink-600' :
                                 'bg-gray-100 text-gray-600'
                               }`}>
                                 {task.category === 'cleaning' ? 'Почистване' :
@@ -308,25 +332,32 @@ export default function HomePage() {
                                  task.category === 'delivery' ? 'Доставка' :
                                  task.category === 'gardening' ? 'Градинарство' :
                                  task.category === 'tutoring' ? 'Обучение' :
+                                 task.category === 'dog-care' ? 'Грижа за кучета' :
+                                 task.category === 'care' ? 'Грижа' :
                                  'Фотография'}
+                              </span>
+                            </div>
+                            <div className="absolute top-2 right-2">
+                              <span className="bg-black bg-opacity-50 text-white px-2 py-1 text-xs rounded-full">
+                                {task.views} прегледа
                               </span>
                             </div>
                           </div>
                         )}
                         
                         {/* Content */}
-                        <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg mb-2 line-clamp-2">
+                        <div className="p-3 md:p-4">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-base md:text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                             {task.title}
                           </h3>
                           
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <MapPin size={14} className="mr-1" />
-                              {task.location}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 mb-2">
+                            <div className="flex items-center text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                              <MapPin size={12} className="mr-1 md:mr-1" />
+                              <span className="truncate">{task.location}</span>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <Clock size={14} className="mr-1" />
+                            <div className="flex items-center text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                              <Clock size={12} className="mr-1 md:mr-1" />
                               {task.postedDate === '2024-01-15' ? 'днес' :
                                task.postedDate === '2024-01-14' ? 'вчера' :
                                'преди 2 дни'}
@@ -335,22 +366,27 @@ export default function HomePage() {
                           
                           <div className="flex items-center justify-between">
                             <div className="flex items-center">
-                              <Star size={14} className="text-yellow-400 fill-current mr-1" />
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              <Star size={12} className="text-yellow-400 fill-current mr-1" />
+                              <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {task.rating}
                               </span>
-                              <span className="text-sm text-gray-500 ml-1">
+                              <span className="text-xs md:text-sm text-gray-500 ml-1">
                                 ({task.reviewCount})
                               </span>
                             </div>
-                            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                            <div className="text-sm md:text-lg font-bold text-green-600 dark:text-green-400">
                               {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
                             </div>
-                                                     </div>
-                         </div>
-                       </div>
-                     </Link>
-                   ))}
+                          </div>
+                          
+                          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                            <span className="truncate">от {task.postedBy}</span>
+                            <span>{task.applications} кандидати</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
             </div>
@@ -369,6 +405,51 @@ export default function HomePage() {
               </p>
             </div>
             <CategoryGrid />
+          </div>
+        </section>
+
+        {/* Popular Cities */}
+        <section className="py-16 px-4 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Най-активни градове
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Намерете работа или изпълнител в най-активните градове в България
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {[
+                { name: 'София', count: 45, icon: '🏙️' },
+                { name: 'Пловдив', count: 28, icon: '🏛️' },
+                { name: 'Варна', count: 22, icon: '🌊' },
+                { name: 'Бургас', count: 18, icon: '⚓' },
+                { name: 'Русе', count: 15, icon: '🌉' },
+                { name: 'Стара Загора', count: 12, icon: '🏘️' },
+                { name: 'Плевен', count: 10, icon: '🏰' },
+                { name: 'Сливен', count: 8, icon: '🏔️' },
+                { name: 'Добрич', count: 7, icon: '🌾' },
+                { name: 'Шумен', count: 6, icon: '🏛️' },
+                { name: 'Перник', count: 5, icon: '⚒️' },
+                { name: 'Хасково', count: 4, icon: '🏭' }
+              ].map((city, index) => (
+                <button
+                  key={city.name}
+                  onClick={() => router.push(`/tasks?location=${encodeURIComponent(city.name)}`)}
+                  className="group p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:scale-105 transition-all duration-200 text-center"
+                >
+                  <div className="text-2xl mb-2">{city.icon}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                    {city.name}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {city.count} задачи
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 

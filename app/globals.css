@@ -391,18 +391,26 @@ body {
 
 /* Task Cards Rotation Animation */
 @keyframes slideInOut {
-  0%, 16.66% {
+  0%, 15% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
+    z-index: 5;
   }
-  16.67%, 100% {
+  15.1%, 20% {
     opacity: 0;
-    transform: translateX(-100%);
+    transform: translateX(-100%) scale(0.95);
+    z-index: 1;
+  }
+  20.1%, 100% {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.95);
+    z-index: 1;
   }
 }
 
 .task-card-rotation {
-  animation: slideInOut 30s infinite;
+  animation: slideInOut 25s infinite ease-in-out;
+  transition: all 0.5s ease-in-out;
 }
 
 .task-card-rotation:nth-child(1) { animation-delay: 0s; }
@@ -410,4 +418,10 @@ body {
 .task-card-rotation:nth-child(3) { animation-delay: 10s; }
 .task-card-rotation:nth-child(4) { animation-delay: 15s; }
 .task-card-rotation:nth-child(5) { animation-delay: 20s; }
-.task-card-rotation:nth-child(6) { animation-delay: 25s; } 
+
+/* Hover effects for task cards */
+.task-card-rotation:hover {
+  animation-play-state: paused;
+  transform: scale(1.05) !important;
+  z-index: 10 !important;
+} 

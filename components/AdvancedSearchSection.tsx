@@ -358,13 +358,7 @@ export default function AdvancedSearchSection({ onSearch, className = '' }: Adva
       {/* Saved Searches */}
       {showSavedSearches && (
         <div className="border-t border-gray-200 dark:border-gray-700 p-6">
-          <SavedSearches
-            savedSearches={savedSearches}
-            onLoadSearch={loadSavedSearch}
-            onDeleteSearch={deleteSavedSearch}
-            onSaveSearch={saveSearch}
-            currentFilters={filters}
-          />
+          <SavedSearches />
         </div>
       )}
 

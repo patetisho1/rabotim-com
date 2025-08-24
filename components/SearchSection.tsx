@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, MapPin, Filter, X, SlidersHorizontal, Star, Clock, Zap } from 'lucide-react'
+import { Search, MapPin, Filter, X, SlidersHorizontal, Star, Clock, Zap, Bookmark, BookmarkCheck } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 interface SearchSectionProps {
   onSearch: (query: string, category: string, location: string, filters: any) => void
@@ -19,6 +20,8 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
     rating: '',
     datePosted: ''
   })
+  const [showSaveSearchModal, setShowSaveSearchModal] = useState(false)
+  const [searchName, setSearchName] = useState('')
 
   // Зареждане на запазени филтри от localStorage
   useEffect(() => {
@@ -47,6 +50,37 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
     e.preventDefault()
     saveFilters()
     onSearch(query, category, location, filters)
+  }
+
+  const handleSaveSearch = () => {
+    if (!searchName.trim()) {
+      toast.error('Моля, въведете име за търсенето')
+      return
+    }
+
+    const searchData = {
+      id: Date.now().toString(),
+      name: searchName.trim(),
+      query,
+      category,
+      location,
+      priceMin: filters.priceMin,
+      priceMax: filters.priceMax,
+      urgent: filters.urgent,
+      rating: filters.rating,
+      datePosted: filters.datePosted,
+      createdAt: new Date().toISOString(),
+      lastUsed: new Date().toISOString(),
+      useCount: 1
+    }
+
+    const savedSearches = JSON.parse(localStorage.getItem('savedSearches') || '[]')
+    savedSearches.push(searchData)
+    localStorage.setItem('savedSearches', JSON.stringify(savedSearches))
+
+    setSearchName('')
+    setShowSaveSearchModal(false)
+    toast.success('Търсенето е запазено успешно')
   }
 
   const handleQuickFilter = (quickFilter: string) => {
@@ -246,14 +280,27 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
 
         {/* Advanced Filters Toggle */}
         <div className="mt-4 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-          >
-            <SlidersHorizontal size={16} />
-            {showAdvancedFilters ? 'Скрий' : 'Покажи'} разширени филтри
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              <SlidersHorizontal size={16} />
+              {showAdvancedFilters ? 'Скрий' : 'Покажи'} разширени филтри
+            </button>
+            
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={() => setShowSaveSearchModal(true)}
+                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <Bookmark size={16} />
+                Запази търсене
+              </button>
+            )}
+          </div>
           
           {hasActiveFilters && (
             <button
@@ -355,6 +402,71 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
           </button>
         </div>
       </form>
+
+      {/* Save Search Modal */}
+      {showSaveSearchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                  Запази търсене
+                </h3>
+                <button
+                  onClick={() => setShowSaveSearchModal(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X size={20} className="text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Име на търсене
+                  </label>
+                  <input
+                    type="text"
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                    placeholder="Напр. Спешни задачи в София"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    autoFocus
+                  />
+                </div>
+                
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    Текущи филтри:
+                  </p>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {query && `"${query}"`} {category && `• ${category}`} {location && `• ${location}`}
+                    {filters.priceMin && filters.priceMax && ` • ${filters.priceMin}-${filters.priceMax} лв`}
+                    {filters.urgent && ' • Спешни'}
+                    {filters.rating && ` • ${filters.rating}+ звезди`}
+                  </p>
+                </div>
+                
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={() => setShowSaveSearchModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Отказ
+                  </button>
+                  <button
+                    onClick={handleSaveSearch}
+                    disabled={!searchName.trim()}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Запази
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

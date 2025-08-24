@@ -513,7 +513,6 @@ export default function TasksPage() {
                 <TaskCard 
                   key={task.id} 
                   task={task}
-                  className={viewMode === 'list' ? 'flex-row' : ''}
                 />
               ))}
             </div>

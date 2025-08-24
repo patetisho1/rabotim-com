@@ -1,24 +1,24 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   MapPin, 
   Clock, 
   DollarSign, 
   Star, 
-  Heart, 
-  Eye,
+  Eye, 
+  MessageCircle, 
+  Calendar, 
+  User, 
+  Tag, 
+  Heart,
+  HeartOff,
   Share2,
-  MessageCircle,
-  Calendar,
-  User,
-  Tag
+  Bookmark,
+  BookmarkCheck
 } from 'lucide-react'
-import ImageGallery from './ImageGallery'
-import RatingDisplay from './RatingDisplay'
-import AddRating from './AddRating'
-import { useRatings } from '@/hooks/useRatings'
+import toast from 'react-hot-toast'
 
 interface Attachment {
   name: string
@@ -47,53 +47,127 @@ interface Task {
 
 interface TaskCardProps {
   task: Task
-  className?: string
+  showActions?: boolean
+  onFavoriteToggle?: (taskId: string, isFavorite: boolean) => void
 }
 
-export default function TaskCard({ task, className = '' }: TaskCardProps) {
-  const [isLiked, setIsLiked] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-  const [showRating, setShowRating] = useState(false)
-  
-  const { userRatings, loadUserRatings } = useRatings()
-  
-  // Зареждане на рейтинги при първо рендериране
-  React.useEffect(() => {
-    if (task.postedBy) {
-      loadUserRatings(task.postedBy)
-    }
-  }, [task.postedBy, loadUserRatings])
+export default function TaskCard({ task, showActions = true, onFavoriteToggle }: TaskCardProps) {
+  const router = useRouter()
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
+  const [showShareMenu, setShowShareMenu] = useState(false)
 
-  const getCategoryLabel = (category: string) => {
-    const categories: { [key: string]: string } = {
-      'cleaning': 'Почистване',
-      'gardening': 'Градинарство',
-      'moving': 'Преместване',
-      'handyman': 'Ремонт',
-      'tutoring': 'Обучение',
-      'pet-care': 'Грижа за животни',
-      'cooking': 'Готвене',
-      'delivery': 'Доставка',
-      'dog-care': 'Разходка/грижа за куче',
-      'other': 'Друго'
+  useEffect(() => {
+    // Проверка дали задачата е в любими
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+    setIsFavorite(favorites.includes(task.id))
+    
+    // Проверка дали задачата е запазена
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
+    setIsSaved(saved.includes(task.id))
+  }, [task.id])
+
+  const handleFavoriteToggle = () => {
+    const newFavoriteState = !isFavorite
+    setIsFavorite(newFavoriteState)
+    
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+    
+    if (newFavoriteState) {
+      if (!favorites.includes(task.id)) {
+        favorites.push(task.id)
+        toast.success('Задачата е добавена в любими')
+      }
+    } else {
+      const index = favorites.indexOf(task.id)
+      if (index > -1) {
+        favorites.splice(index, 1)
+        toast.success('Задачата е премахната от любими')
+      }
     }
-    return categories[category] || category
+    
+    localStorage.setItem('favorites', JSON.stringify(favorites))
+    
+    if (onFavoriteToggle) {
+      onFavoriteToggle(task.id, newFavoriteState)
+    }
   }
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      'cleaning': 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
-      'gardening': 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300',
-      'moving': 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300',
-      'handyman': 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300',
-      'tutoring': 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300',
-      'pet-care': 'bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-300',
-      'cooking': 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300',
-      'delivery': 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300',
-      'dog-care': 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300',
-      'other': 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300'
+  const handleSaveToggle = () => {
+    const newSavedState = !isSaved
+    setIsSaved(newSavedState)
+    
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
+    
+    if (newSavedState) {
+      if (!saved.includes(task.id)) {
+        saved.push(task.id)
+        toast.success('Задачата е запазена')
+      }
+    } else {
+      const index = saved.indexOf(task.id)
+      if (index > -1) {
+        saved.splice(index, 1)
+        toast.success('Задачата е премахната от запазените')
+      }
     }
-    return colors[category] || colors['other']
+    
+    localStorage.setItem('savedTasks', JSON.stringify(saved))
+  }
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: task.title,
+          text: task.description,
+          url: `${window.location.origin}/task/${task.id}`
+        })
+      } catch (error) {
+        console.log('Error sharing:', error)
+      }
+    } else {
+      // Fallback - копиране на линка
+      navigator.clipboard.writeText(`${window.location.origin}/task/${task.id}`)
+      toast.success('Линкът е копиран в клипборда')
+    }
+    setShowShareMenu(false)
+  }
+
+  const handleTaskClick = () => {
+    router.push(`/task/${task.id}`)
+  }
+
+  const getCategoryLabel = (categoryValue: string) => {
+    const categories = [
+      { value: 'repair', label: 'Ремонт' },
+      { value: 'cleaning', label: 'Почистване' },
+      { value: 'care', label: 'Грижа' },
+      { value: 'delivery', label: 'Доставка' },
+      { value: 'moving', label: 'Преместване' },
+      { value: 'garden', label: 'Градинарство' },
+      { value: 'dog-care', label: 'Разходка/грижа за куче' },
+      { value: 'packaging', label: 'Опаковане' },
+      { value: 'other', label: 'Друго' },
+    ]
+    const category = categories.find(cat => cat.value === categoryValue)
+    return category ? category.label : categoryValue
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - date.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 1) return 'Днес'
+    if (diffDays === 2) return 'Вчера'
+    if (diffDays <= 7) return `преди ${diffDays - 1} дни`
+    
+    return date.toLocaleDateString('bg-BG', {
+      day: 'numeric',
+      month: 'short'
+    })
   }
 
   const formatPrice = (price: number, priceType: string) => {
@@ -103,238 +177,178 @@ export default function TaskCard({ task, className = '' }: TaskCardProps) {
     return `${price} лв`
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays === 1) return 'днес'
-    if (diffDays === 2) return 'вчера'
-    if (diffDays <= 7) return `преди ${diffDays} дни`
-    return date.toLocaleDateString('bg-BG')
-  }
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsLiked(!isLiked)
-  }
-
-  const handleShare = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (navigator.share) {
-      navigator.share({
-        title: task.title,
-        text: task.description,
-        url: window.location.href
-      })
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-    }
-  }
-
-  const handleMessage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    // Навигация към съобщенията с предварително избран потребител
-    window.location.href = `/messages?user=${task.postedBy}`
-  }
-
-  const handleRating = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setShowRating(true)
-  }
-
-
-
   return (
-    <Link 
-      href={`/task/${task.id}`}
-      className={`block group ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer">
-        {/* Image Gallery */}
-        {task.attachments && task.attachments.length > 0 && (
-          <div className="relative">
-            <ImageGallery 
-              attachments={task.attachments} 
-              className="w-full"
-            />
-            
-            {/* Quick Actions Overlay */}
-            <div className={`absolute top-2 right-2 flex gap-1 transition-all duration-200 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
-            }`}>
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleLike(e)
-                }}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
-                  isLiked 
-                    ? 'bg-red-500 text-white' 
-                    : 'bg-black/50 text-white hover:bg-red-500'
-                }`}
-              >
-                <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleShare(e)
-                }}
-                className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm hover:bg-black/70"
-              >
-                <Share2 size={16} />
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleMessage(e)
-                }}
-                className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm hover:bg-black/70"
-              >
-                <MessageCircle size={16} />
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleRating(e)
-                }}
-                className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm hover:bg-black/70"
-              >
-                <Star size={16} />
-              </button>
-            </div>
-
-            {/* Urgent Badge */}
+    <div className="card p-6 hover:shadow-md transition-all duration-200 cursor-pointer group">
+      {/* Header */}
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Tag size={16} className="text-gray-400" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {getCategoryLabel(task.category)}
+            </span>
             {task.urgent && (
-              <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+              <span className="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full font-medium">
                 Спешно
+              </span>
+            )}
+          </div>
+          
+          <h3 
+            className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors"
+            onClick={handleTaskClick}
+          >
+            {task.title}
+          </h3>
+        </div>
+        
+        {showActions && (
+          <div className="flex items-center gap-2 ml-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleFavoriteToggle()
+              }}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label={isFavorite ? 'Премахни от любими' : 'Добави в любими'}
+            >
+              {isFavorite ? (
+                <Heart size={18} className="text-red-500 fill-current" />
+              ) : (
+                <Heart size={18} className="text-gray-400 hover:text-red-500" />
+              )}
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleSaveToggle()
+              }}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label={isSaved ? 'Премахни от запазени' : 'Запази задача'}
+            >
+              {isSaved ? (
+                <BookmarkCheck size={18} className="text-blue-500 fill-current" />
+              ) : (
+                <Bookmark size={18} className="text-gray-400 hover:text-blue-500" />
+              )}
+            </button>
+            
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowShareMenu(!showShareMenu)
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Сподели"
+              >
+                <Share2 size={18} className="text-gray-400 hover:text-gray-600" />
+              </button>
+              
+              {showShareMenu && (
+                <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 min-w-[200px]">
+                  <button
+                    onClick={handleShare}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    Сподели задача
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Description */}
+      <p 
+        className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3"
+        onClick={handleTaskClick}
+      >
+        {task.description}
+      </p>
+
+      {/* Attachments */}
+      {task.attachments && task.attachments.length > 0 && (
+        <div className="mb-4">
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {task.attachments.slice(0, 3).map((attachment, index) => (
+              <div key={index} className="flex-shrink-0">
+                <img
+                  src={attachment.url}
+                  alt={attachment.name}
+                  className="w-16 h-16 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                />
+              </div>
+            ))}
+            {task.attachments.length > 3 && (
+              <div className="flex-shrink-0 w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500">
+                +{task.attachments.length - 3}
               </div>
             )}
           </div>
-        )}
-
-        {/* Content */}
-        <div className="p-4">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-white text-lg leading-tight line-clamp-2 mb-1">
-                {task.title}
-              </h3>
-              
-              <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 leading-relaxed">
-                {task.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Category */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(task.category)}`}>
-              <Tag size={12} className="mr-1" />
-              {getCategoryLabel(task.category)}
-            </span>
-          </div>
-
-          {/* Location and Date */}
-          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
-            <div className="flex items-center gap-1">
-              <MapPin size={14} />
-              <span className="truncate">{task.location}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Calendar size={14} />
-              <span>{formatDate(task.postedDate)}</span>
-            </div>
-          </div>
-
-          {/* Price and Rating */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 text-lg font-semibold text-green-600 dark:text-green-400">
-                <DollarSign size={16} />
-                <span>{formatPrice(task.price, task.priceType)}</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Star size={14} className="text-yellow-500 fill-current" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {task.rating.toFixed(1)}
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  ({task.reviewCount})
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              <div className="flex items-center gap-1">
-                <Eye size={12} />
-                <span>{task.views}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <MessageCircle size={12} />
-                <span>{task.applications}</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-              <User size={12} />
-              <span>{task.postedBy}</span>
-            </div>
-          </div>
         </div>
+      )}
 
-        {/* Touch Feedback */}
-        <div className="absolute inset-0 bg-blue-500 opacity-0 group-active:opacity-10 transition-opacity duration-150 pointer-events-none rounded-xl" />
+      {/* Location and Date */}
+      <div className="flex items-center justify-between mb-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-1">
+          <MapPin size={14} />
+          <span>{task.location}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Calendar size={14} />
+          <span>{formatDate(task.postedDate)}</span>
+        </div>
       </div>
 
-
-
-      {/* Rating Modal */}
-      {showRating && (
-        <AddRating
-          taskId={task.id}
-          reviewedUserId={task.postedBy}
-          onClose={() => setShowRating(false)}
-          onSubmit={async (ratingData) => {
-            // Тук ще добавим логиката за запазване на рейтинга
-            console.log('Rating submitted:', ratingData)
-            setShowRating(false)
-          }}
-        />
-      )}
-
-      {/* Rating Display */}
-      {userRatings[task.postedBy] && (
-        <div className="mt-4">
-          <RatingDisplay 
-            userRating={userRatings[task.postedBy]} 
-            showDetails={false}
-            className="border-t border-gray-200 dark:border-gray-700 pt-4"
-          />
+      {/* Price and Rating */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <DollarSign size={16} className="text-green-600" />
+          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {formatPrice(task.price, task.priceType)}
+          </span>
         </div>
-      )}
-    </Link>
+        
+        <div className="flex items-center gap-1">
+          <Star size={16} className="text-yellow-500 fill-current" />
+          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            {task.rating}
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            ({task.reviewCount})
+          </span>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <Eye size={14} />
+            <span>{task.views}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MessageCircle size={14} />
+            <span>{task.applications} кандидати</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <User size={14} />
+          <span>{task.postedBy}</span>
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <button
+        onClick={handleTaskClick}
+        className="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
+      >
+        Преглед на задача
+      </button>
+    </div>
   )
 } 

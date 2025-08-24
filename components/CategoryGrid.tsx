@@ -70,21 +70,21 @@ const categories = [
 
 export default function CategoryGrid() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
       {categories.map((category) => {
         const IconComponent = category.icon
         return (
           <button
             key={category.id}
-            className="card hover:shadow-md transition-shadow duration-200 text-center group"
+            className="card hover:shadow-md transition-all duration-200 text-center group p-3 md:p-4 hover:scale-105"
           >
-            <div className={`w-12 h-12 rounded-full ${category.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200`}>
-              <IconComponent size={24} />
+            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${category.color} flex items-center justify-center mx-auto mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-200`}>
+              <IconComponent size={20} className="md:w-6 md:h-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">
               {category.name}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs md:text-sm text-gray-600 line-clamp-2">
               {category.description}
             </p>
           </button>
