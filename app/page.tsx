@@ -192,20 +192,19 @@ export default function HomePage() {
   useEffect(() => {
     if (!containerRef.current) return
 
-    const scrollHeight = containerRef.current.scrollHeight / 2 // Half because we duplicate content
     const cardHeight = 208 + 24 // Card height (h-52 = 208px) + mb-6 (1.5rem = 24px)
-    const scrollStep = cardHeight // Scroll by one card height
+    const scrollStep = 1 // Scroll by 1px for smooth continuous movement
 
     scrollIntervalRef.current = setInterval(() => {
       setScrollPosition((prevPos) => {
         const newPos = prevPos + scrollStep
-        if (newPos >= scrollHeight) {
-          // Reset to 0 for seamless loop
+        // When we reach the end of the first set, reset to continue seamlessly
+        if (newPos >= serviceCards.length * cardHeight) {
           return 0
         }
         return newPos
       })
-    }, 2000) // Adjust scroll speed here (2000ms = 2 seconds per card)
+    }, 50) // Faster interval for smooth continuous scrolling
 
     return () => {
       if (scrollIntervalRef.current) {
@@ -479,8 +478,7 @@ export default function HomePage() {
                     ref={containerRef}
                     className="absolute inset-0 w-full h-full grid grid-cols-2 gap-6 p-8"
                     style={{ 
-                      transform: `translateY(${-scrollPosition}px)`,
-                      transition: 'transform 0.5s ease-in-out'
+                      transform: `translateY(${-scrollPosition}px)`
                     }}
                   >
                     {serviceCards.concat(serviceCards).map((service, index) => (
