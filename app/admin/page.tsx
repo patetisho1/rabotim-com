@@ -5,18 +5,27 @@ import { useRouter } from 'next/navigation'
 import { 
   Users, 
   Briefcase, 
-  DollarSign, 
+  MessageCircle, 
+  Star, 
   TrendingUp, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock,
   BarChart3,
-  Settings,
-  Shield
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  DollarSign,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Shield,
+  Settings
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import AdminStats from '../../components/AdminStats'
 import BoostSystem from '../../components/BoostSystem'
+import AnalyticsDashboard from '../../components/AnalyticsDashboard'
+import PaymentSystem from '../../components/PaymentSystem'
 
 interface Stats {
   totalUsers: number
@@ -233,9 +242,12 @@ export default function AdminPage() {
         <AdminStats />
 
         {/* Boost System */}
-        <div className="mb-8">
-          <BoostSystem />
-        </div>
+                          <div className="mb-8">
+                    <BoostSystem />
+                  </div>
+                  <div className="mb-8">
+                    <PaymentSystem />
+                  </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Activity */}
@@ -330,33 +342,9 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Charts Section */}
+        {/* Analytics Dashboard */}
         <div className="mt-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Аналитика
-              </h2>
-              <div className="flex gap-2">
-                <button className="px-3 py-1 text-sm bg-primary-600 text-white rounded-lg">
-                  7 дни
-                </button>
-                <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
-                  30 дни
-                </button>
-                <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
-                  90 дни
-                </button>
-              </div>
-            </div>
-
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 size={48} className="text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Графиката ще бъде добавена скоро</p>
-              </div>
-            </div>
-          </div>
+          <AnalyticsDashboard />
         </div>
       </div>
     </div>
