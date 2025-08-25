@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
-import CategoryGrid from '@/components/CategoryGrid'
+
 import TaskGrid from '@/components/TaskGrid'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
@@ -661,8 +661,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Categories with Auto-scrolling */}
-        <CategoryGrid />
+
 
         {/* Recent Tasks */}
         <section ref={tasksRef} className="py-20 px-4 bg-gray-50">
