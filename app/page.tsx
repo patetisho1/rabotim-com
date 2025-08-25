@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
@@ -23,9 +23,137 @@ export default function HomePage() {
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
 
+  // Refs for scrolling animation
+  const containerRef = useRef<HTMLDivElement>(null)
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [scrollPosition, setScrollPosition] = useState(0)
+
+  // Service cards data for scrolling
+  const serviceCards = [
+    {
+      name: "Преместване",
+      subtitle: "Пакетиране, опаковане, преместване и още!",
+      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Почистване на дома",
+      subtitle: "Почистване, миене и подреждане на дома",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Сглобяване на мебели",
+      subtitle: "Сглобяване и разглобяване на плоски мебели",
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Доставки",
+      subtitle: "Спешни доставки и куриерски услуги",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Градинарство",
+      subtitle: "Мулчиране, плевене и подреждане",
+      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Боядисване",
+      subtitle: "Интериорно и екстериорно боядисване",
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Майсторски услуги",
+      subtitle: "Помощ с поддръжката на дома",
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Бизнес и админ",
+      subtitle: "Помощ с счетоводство и данъчни декларации",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Маркетинг и дизайн",
+      subtitle: "Помощ с уебсайт и дизайн",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Нещо друго",
+      subtitle: "Монтиране на изкуство и картини",
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Фотография",
+      subtitle: "Сватбена, портретна и продуктова фотография",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Уеб разработка",
+      subtitle: "Създаване и поддръжка на уебсайтове",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Личен треньор",
+      subtitle: "Фитнес коучинг и тренировъчни планове",
+      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Грижа за домашни любимци",
+      subtitle: "Грижа за вашите домашни любимци",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Организиране на събития",
+      subtitle: "Организиране и управление на вашите събития",
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Частни уроци",
+      subtitle: "Академична поддръжка и помощ с домашните",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Измиване на автомобили",
+      subtitle: "Външно и вътрешно почистване на автомобили",
+      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Масажна терапия",
+      subtitle: "Релаксационни и терапевтични масажи",
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "Готвене и печене",
+      subtitle: "Приготвяне на ястия и персонализирани сладкиши",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
+    },
+    {
+      name: "IT поддръжка",
+      subtitle: "Ремонт на компютри и техническа помощ",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+    }
+  ]
+
   // Intersection Observer hooks for animations
   const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true })
-
   const [taskersRef, taskersInView] = useInView({ threshold: 0.2, triggerOnce: true })
   const [categoriesRef, categoriesInView] = useInView({ threshold: 0.2, triggerOnce: true })
   const [tasksRef, tasksInView] = useInView({ threshold: 0.2, triggerOnce: true })
@@ -58,6 +186,32 @@ export default function HomePage() {
     }
     
     loadStats()
+  }, [])
+
+  // Auto-scroll effect for service cards
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const scrollHeight = containerRef.current.scrollHeight / 2 // Half because we duplicate content
+    const cardHeight = 120 + 12 // Card height + mb-3 (0.75rem = 12px)
+    const scrollStep = cardHeight // Scroll by one card height
+
+    scrollIntervalRef.current = setInterval(() => {
+      setScrollPosition((prevPos) => {
+        const newPos = prevPos + scrollStep
+        if (newPos >= scrollHeight) {
+          // Reset to 0 for seamless loop
+          return 0
+        }
+        return newPos
+      })
+    }, 2000) // Adjust scroll speed here (2000ms = 2 seconds per card)
+
+    return () => {
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current)
+      }
+    }
   }, [])
 
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
@@ -318,50 +472,20 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right Column - Service Categories Grid */}
+              {/* Right Column - Service Categories Grid with Auto-scroll */}
               <div className="flex justify-center">
                 <div className="w-80">
-                  <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden">
-                    <div className="grid grid-cols-2 gap-3 h-full overflow-y-auto">
-                      {[
-                        {
-                          name: "Градинарство",
-                          subtitle: "Мулчиране, плевене и подреждане",
-                          image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
-                          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-                        },
-                        {
-                          name: "Майстор за дома",
-                          subtitle: "Помощ с поддръжката на дома",
-                          image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-                          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-                        },
-                        {
-                          name: "Маркетинг и дизайн",
-                          subtitle: "Помощ с уебсайт и дизайн",
-                          image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
-                          avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
-                        },
-                        {
-                          name: "Почистване на дома",
-                          subtitle: "Почистване, миене и дезинфекция",
-                          image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-                          avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
-                        },
-                        {
-                          name: "Доставки",
-                          subtitle: "Спешни доставки и куриерски услуги",
-                          image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-                          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-                        },
-                        {
-                          name: "Боядисване",
-                          subtitle: "Интериорно и екстериорно боядисване",
-                          image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
-                          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-                        }
-                      ].map((service, index) => (
-                        <div key={index} className="relative h-32 rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200">
+                  <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden relative">
+                    <div
+                      ref={containerRef}
+                      className="absolute inset-0 w-full h-full grid grid-cols-2 gap-3 p-4"
+                      style={{ 
+                        transform: `translateY(${-scrollPosition}px)`,
+                        transition: 'transform 0.5s ease-in-out'
+                      }}
+                    >
+                      {serviceCards.concat(serviceCards).map((service, index) => (
+                        <div key={index} className="relative h-32 rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-3">
                           {/* Background Image */}
                           <img 
                             src={service.image} 
