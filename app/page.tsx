@@ -25,7 +25,7 @@ export default function HomePage() {
 
   // Intersection Observer hooks for animations
   const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true })
-  const [trustRef, trustInView] = useInView({ threshold: 0.3, triggerOnce: true })
+
   const [taskersRef, taskersInView] = useInView({ threshold: 0.2, triggerOnce: true })
   const [categoriesRef, categoriesInView] = useInView({ threshold: 0.2, triggerOnce: true })
   const [tasksRef, tasksInView] = useInView({ threshold: 0.2, triggerOnce: true })
@@ -89,26 +89,7 @@ export default function HomePage() {
     router.push('/register')
   }
 
-  const trustFeatures = [
-    {
-      icon: <DollarSign className="w-6 h-6" />,
-      title: "Директни плащания",
-      description: "Плащането се извършва директно между вас и изпълнителя след завършване на задачата.",
-      link: "Прочетете повече"
-    },
-    {
-      icon: <Star className="w-6 h-6" />,
-      title: "Доверени рейтинги и отзиви",
-      description: "Изберете правилния човек за задачата въз основа на реални рейтинги и отзиви от други потребители.",
-      link: "Прочетете повече"
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "Защита и сигурност",
-      description: "Предоставяме защита и сигурност за изпълнителите при извършване на повечето задачи.",
-      link: "Прочетете повече"
-    }
-  ]
+
 
   const featuredTaskers = [
     {
@@ -369,88 +350,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust & Safety Section */}
-        <section ref={trustRef} className="py-20 px-4 bg-white">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              
-              {/* Left - User Story */}
-              <div className="relative">
-                <div className="relative">
-                  <img 
-                    src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=500&fit=crop&crop=face" 
-                    alt="Tasker" 
-                    className="w-full h-96 object-cover rounded-2xl"
-                  />
-                  
-                  {/* Blue splash effects */}
-                  <div className="absolute -top-4 -left-4 w-32 h-32 bg-blue-200 rounded-full opacity-50"></div>
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-300 rounded-full opacity-60"></div>
-                  
-                  {/* Mobile phone overlay */}
-                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-lg">
-                    <div className="text-xs text-gray-600 mb-1">Задача завършена</div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-green-500">👍</span>
-                      <span className="text-xs">Плащането освободено преди 2м</span>
-                    </div>
-                  </div>
-                  
-                  {/* Rating overlay */}
-                  <div className="absolute -top-4 left-4 bg-white rounded-lg p-3 shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=30&h=30&fit=crop&crop=face" 
-                        alt="Profile" 
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <div>
-                        <div className="font-semibold text-sm">5.0 ★ Общ рейтинг</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Right - Trust Features */}
-              <div>
-                <h2 className={`text-4xl font-bold text-gray-900 mb-8 transition-all duration-1000 ${trustInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Функции за доверие и сигурност за вашата защита
-                </h2>
-                
-                <div className="space-y-8">
-                  {trustFeatures.map((feature, index) => (
-                    <div key={index} className={`flex gap-4 transition-all duration-1000 delay-${index * 200} ${trustInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <div className="text-blue-600">
-                          {feature.icon}
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                          {feature.title}
-                        </h3>
-                        <p className="text-gray-600 mb-2">
-                          {feature.description}
-                        </p>
-                        <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                          {feature.link}
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <button 
-                  onClick={handlePostTask}
-                  className="mt-8 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
-                >
-                  Публикувайте задачата си безплатно
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Be Your Own Boss Section */}
         <section ref={taskersRef} className="py-20 px-4 bg-gray-50">
