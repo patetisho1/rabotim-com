@@ -28,6 +28,19 @@ export default function HomePage() {
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [scrollPosition, setScrollPosition] = useState(0)
 
+  // Dynamic hero text animation
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
+  const tasks = [
+    "да разходи кучето",
+    "да боядиса оградата", 
+    "да смени крушките",
+    "да прекопае градината",
+    "да почисти апартамента",
+    "да сглоби мебели",
+    "да достави пратка",
+    "да направи ремонт"
+  ]
+
   // Service cards data for scrolling
   const serviceCards = [
     {
@@ -213,6 +226,15 @@ export default function HomePage() {
     }
   }, [])
 
+  // Dynamic hero text animation
+  useEffect(() => {
+    const textInterval = setInterval(() => {
+      setCurrentTaskIndex((prevIndex) => (prevIndex + 1) % tasks.length)
+    }, 2000) // Change task every 2 seconds
+
+    return () => clearInterval(textInterval)
+  }, [tasks.length])
+
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
     setSearchQuery(query)
     setSelectedCategory(category)
@@ -342,10 +364,15 @@ export default function HomePage() {
               {/* Left Text */}
               <div className="max-w-2xl mb-12 lg:mb-0 text-center lg:text-left">
                 <h1 className={`text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  СВЪРШЕТЕ ВСИЧКО
+                  Търся някой...
                 </h1>
+                <div className={`text-2xl md:text-3xl text-blue-200 mb-6 h-12 flex items-center justify-center lg:justify-start transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                  <span className="transition-all duration-500">
+                    {tasks[currentTaskIndex]}
+                  </span>
+                </div>
                 <p className={`text-xl md:text-2xl text-gray-300 mb-8 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Публикувайте всяка задача. Изберете най-добрия човек. Свършете я.
+                  Намери точния човек за твоята задача.
                 </p>
                 <div className={`flex flex-col sm:flex-row gap-4 justify-center lg:justify-start transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   <button
@@ -379,21 +406,44 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right Illustrations */}
-              <div className="relative w-full lg:w-1/2 flex justify-center">
-                <div className="relative">
-                  {/* Ladder illustration */}
-                  <div className="absolute left-0 top-0 w-32 h-64 bg-blue-400 rounded-lg transform rotate-12 opacity-80"></div>
-                  <div className="absolute left-4 top-8 w-24 h-48 bg-blue-300 rounded-lg transform rotate-12 opacity-60"></div>
-                  
-                  {/* Person climbing */}
-                  <div className="absolute left-8 top-16 w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                    <span className="text-2xl">👤</span>
+              {/* Right Column - People Images */}
+              <div className="w-full lg:w-1/2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <div className="relative h-48 rounded-xl overflow-hidden">
+                      <img 
+                        src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop" 
+                        alt="Човек градинарства"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    </div>
+                    <div className="relative h-48 rounded-xl overflow-hidden">
+                      <img 
+                        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
+                        alt="Човек почиства"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    </div>
                   </div>
-                  
-                  {/* Swinging character */}
-                  <div className="absolute right-8 top-8 w-20 h-20 bg-blue-300 rounded-full flex items-center justify-center transform rotate-12">
-                    <span className="text-2xl">🎯</span>
+                  <div className="space-y-4 pt-8">
+                    <div className="relative h-48 rounded-xl overflow-hidden">
+                      <img 
+                        src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop" 
+                        alt="Майстор работи"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    </div>
+                    <div className="relative h-48 rounded-xl overflow-hidden">
+                      <img 
+                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop" 
+                        alt="Човек разхожда куче"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    </div>
                   </div>
                 </div>
               </div>
