@@ -324,21 +324,70 @@ export default function HomePage() {
                   <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden">
                     <div className="grid grid-cols-2 gap-3 h-full overflow-y-auto">
                       {[
-                        { name: "Преместване", icon: "📦", color: "bg-orange-100 text-orange-600" },
-                        { name: "Почистване на дома", icon: "🧹", color: "bg-blue-100 text-blue-600" },
-                        { name: "Доставки", icon: "🚚", color: "bg-green-100 text-green-600" },
-                        { name: "Премахване", icon: "🗑️", color: "bg-red-100 text-red-600" },
-                        { name: "Градинарство", icon: "🌱", color: "bg-emerald-100 text-emerald-600" },
-                        { name: "Боядисване", icon: "🎨", color: "bg-purple-100 text-purple-600" },
-                        { name: "Майсторски услуги", icon: "🔧", color: "bg-yellow-100 text-yellow-600" },
-                        { name: "Бизнес и админ", icon: "💼", color: "bg-indigo-100 text-indigo-600" },
-                        { name: "Маркетинг и дизайн", icon: "🎯", color: "bg-pink-100 text-pink-600" },
-                        { name: "Нещо друго", icon: "❓", color: "bg-gray-100 text-gray-600" }
+                        {
+                          name: "Градинарство",
+                          subtitle: "Мулчиране, плевене и подреждане",
+                          image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+                          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+                        },
+                        {
+                          name: "Майстор за дома",
+                          subtitle: "Помощ с поддръжката на дома",
+                          image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+                          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+                        },
+                        {
+                          name: "Маркетинг и дизайн",
+                          subtitle: "Помощ с уебсайт и дизайн",
+                          image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop",
+                          avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+                        },
+                        {
+                          name: "Почистване на дома",
+                          subtitle: "Почистване, миене и дезинфекция",
+                          image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+                          avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
+                        },
+                        {
+                          name: "Доставки",
+                          subtitle: "Спешни доставки и куриерски услуги",
+                          image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+                          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+                        },
+                        {
+                          name: "Боядисване",
+                          subtitle: "Интериорно и екстериорно боядисване",
+                          image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+                          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+                        }
                       ].map((service, index) => (
-                        <div key={index} className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                          <div className="text-center">
-                            <div className="text-2xl mb-2">{service.icon}</div>
-                            <div className="text-sm font-medium text-gray-900">{service.name}</div>
+                        <div key={index} className="relative h-32 rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200">
+                          {/* Background Image */}
+                          <img 
+                            src={service.image} 
+                            alt={service.name}
+                            className="w-full h-full object-cover"
+                          />
+                          
+                          {/* Dark Overlay */}
+                          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                          
+                          {/* Content */}
+                          <div className="absolute inset-0 p-3 flex flex-col justify-between">
+                            {/* Avatar */}
+                            <div className="flex justify-start">
+                              <img 
+                                src={service.avatar} 
+                                alt="Profile" 
+                                className="w-8 h-8 rounded-full border-2 border-white"
+                              />
+                            </div>
+                            
+                            {/* Text */}
+                            <div className="text-white">
+                              <h3 className="font-bold text-sm mb-1">{service.name}</h3>
+                              <p className="text-xs opacity-90">{service.subtitle}</p>
+                            </div>
                           </div>
                         </div>
                       ))}
