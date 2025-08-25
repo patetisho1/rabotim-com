@@ -193,7 +193,7 @@ export default function HomePage() {
     if (!containerRef.current) return
 
     const scrollHeight = containerRef.current.scrollHeight / 2 // Half because we duplicate content
-    const cardHeight = 120 + 12 // Card height + mb-3 (0.75rem = 12px)
+    const cardHeight = 192 + 16 // Card height (h-48 = 192px) + mb-4 (1rem = 16px)
     const scrollStep = cardHeight // Scroll by one card height
 
     scrollIntervalRef.current = setInterval(() => {
@@ -473,49 +473,47 @@ export default function HomePage() {
               </div>
 
               {/* Right Column - Service Categories Grid with Auto-scroll */}
-              <div className="flex justify-center">
-                <div className="w-80">
-                  <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden relative">
-                    <div
-                      ref={containerRef}
-                      className="absolute inset-0 w-full h-full grid grid-cols-2 gap-3 p-4"
-                      style={{ 
-                        transform: `translateY(${-scrollPosition}px)`,
-                        transition: 'transform 0.5s ease-in-out'
-                      }}
-                    >
-                      {serviceCards.concat(serviceCards).map((service, index) => (
-                        <div key={index} className="relative h-32 rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-3">
-                          {/* Background Image */}
-                          <img 
-                            src={service.image} 
-                            alt={service.name}
-                            className="w-full h-full object-cover"
-                          />
+              <div className="w-full h-full">
+                <div className="bg-blue-50 rounded-lg p-6 h-[500px] overflow-hidden relative">
+                  <div
+                    ref={containerRef}
+                    className="absolute inset-0 w-full h-full grid grid-cols-2 gap-4 p-6"
+                    style={{ 
+                      transform: `translateY(${-scrollPosition}px)`,
+                      transition: 'transform 0.5s ease-in-out'
+                    }}
+                  >
+                    {serviceCards.concat(serviceCards).map((service, index) => (
+                      <div key={index} className="relative h-48 rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-4">
+                        {/* Background Image */}
+                        <img 
+                          src={service.image} 
+                          alt={service.name}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Dark Overlay */}
+                        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                        
+                        {/* Content */}
+                        <div className="absolute inset-0 p-4 flex flex-col justify-between">
+                          {/* Avatar */}
+                          <div className="flex justify-start">
+                            <img 
+                              src={service.avatar} 
+                              alt="Profile" 
+                              className="w-10 h-10 rounded-full border-2 border-white"
+                            />
+                          </div>
                           
-                          {/* Dark Overlay */}
-                          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                          
-                          {/* Content */}
-                          <div className="absolute inset-0 p-3 flex flex-col justify-between">
-                            {/* Avatar */}
-                            <div className="flex justify-start">
-                              <img 
-                                src={service.avatar} 
-                                alt="Profile" 
-                                className="w-8 h-8 rounded-full border-2 border-white"
-                              />
-                            </div>
-                            
-                            {/* Text */}
-                            <div className="text-white">
-                              <h3 className="font-bold text-sm mb-1">{service.name}</h3>
-                              <p className="text-xs opacity-90">{service.subtitle}</p>
-                            </div>
+                          {/* Text */}
+                          <div className="text-white">
+                            <h3 className="font-bold text-base mb-2">{service.name}</h3>
+                            <p className="text-sm opacity-90">{service.subtitle}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
