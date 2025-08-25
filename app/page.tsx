@@ -193,7 +193,7 @@ export default function HomePage() {
     if (!containerRef.current) return
 
     const scrollHeight = containerRef.current.scrollHeight / 2 // Half because we duplicate content
-    const cardHeight = 192 + 16 // Card height (h-48 = 192px) + mb-4 (1rem = 16px)
+    const cardHeight = 208 + 24 // Card height (h-52 = 208px) + mb-6 (1.5rem = 24px)
     const scrollStep = cardHeight // Scroll by one card height
 
     scrollIntervalRef.current = setInterval(() => {
@@ -473,18 +473,18 @@ export default function HomePage() {
               </div>
 
               {/* Right Column - Service Categories Grid with Auto-scroll */}
-              <div className="w-full h-full">
-                <div className="bg-blue-50 rounded-lg p-6 h-[500px] overflow-hidden relative">
+              <div className="w-full">
+                <div className="bg-blue-50 rounded-xl p-8 h-[600px] overflow-hidden relative shadow-sm">
                   <div
                     ref={containerRef}
-                    className="absolute inset-0 w-full h-full grid grid-cols-2 gap-4 p-6"
+                    className="absolute inset-0 w-full h-full grid grid-cols-2 gap-6 p-8"
                     style={{ 
                       transform: `translateY(${-scrollPosition}px)`,
                       transition: 'transform 0.5s ease-in-out'
                     }}
                   >
                     {serviceCards.concat(serviceCards).map((service, index) => (
-                      <div key={index} className="relative h-48 rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-4">
+                      <div key={index} className="relative h-52 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-6">
                         {/* Background Image */}
                         <img 
                           src={service.image} 
@@ -496,20 +496,20 @@ export default function HomePage() {
                         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
                         
                         {/* Content */}
-                        <div className="absolute inset-0 p-4 flex flex-col justify-between">
+                        <div className="absolute inset-0 p-5 flex flex-col justify-between">
                           {/* Avatar */}
                           <div className="flex justify-start">
                             <img 
                               src={service.avatar} 
                               alt="Profile" 
-                              className="w-10 h-10 rounded-full border-2 border-white"
+                              className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
                             />
                           </div>
                           
                           {/* Text */}
                           <div className="text-white">
-                            <h3 className="font-bold text-base mb-2">{service.name}</h3>
-                            <p className="text-sm opacity-90">{service.subtitle}</p>
+                            <h3 className="font-bold text-lg mb-2">{service.name}</h3>
+                            <p className="text-sm opacity-90 leading-relaxed">{service.subtitle}</p>
                           </div>
                         </div>
                       </div>
