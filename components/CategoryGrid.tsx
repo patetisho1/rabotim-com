@@ -224,91 +224,34 @@ export default function CategoryGrid({ className = '' }: CategoryGridProps) {
   )
 
   return (
-    <div className={`bg-gray-50 dark:bg-gray-900 py-12 ${className}`}>
+    <div className={`bg-white py-12 ${className}`}>
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            
-            {/* Left Column - How it works */}
-            <div className="flex flex-col justify-center">
-              <div className="max-w-md">
-                <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                  Публикувайте първата си задача за секунди
-                </h2>
-                <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-                  Спестете си часове и изпълнете списъка си със задачи
-                </p>
-                
-                {/* Steps */}
-                <div className="space-y-6 mb-8">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                      1
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        Опишете какво ви е необходимо
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        Детайлно описание на задачата, която искате да бъде изпълнена
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                      2
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        Определете бюджета си
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        Задайте бюджет и срок за изпълнение на задачата
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                      3
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        Получете оферти и изберете най-добрия изпълнител
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        Сравнете предложенията и изберете най-подходящия изпълнител
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* CTA Button */}
-                <button className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg">
-                  Публикувайте задачата си
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column - Service Cards with Auto-scroll */}
-            <div className="flex justify-center">
-              <div className="w-72">
-                {/* Light blue frame with scroll */}
-                <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden">
-                  <div
-                    ref={containerRef}
-                    className="h-full overflow-y-auto scrollbar-hide"
-                    style={{
-                      scrollbarWidth: 'none',
-                      msOverflowStyle: 'none'
-                    }}
-                  >
-                    <div className="grid grid-cols-2 gap-3">
-                      {serviceCards.map(renderServiceCard)}
-                      {/* Duplicate for seamless loop */}
-                      {serviceCards.map(renderServiceCard)}
-                    </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Популярни категории услуги
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Разгледайте най-търсените категории услуги в нашата платформа
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <div className="w-80">
+              {/* Light blue frame with scroll */}
+              <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden">
+                <div
+                  ref={containerRef}
+                  className="h-full overflow-y-auto scrollbar-hide"
+                  style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    {serviceCards.map(renderServiceCard)}
+                    {/* Duplicate for seamless loop */}
+                    {serviceCards.map(renderServiceCard)}
                   </div>
                 </div>
               </div>

@@ -267,6 +267,108 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Post Your First Task Section */}
+        <section className="py-20 px-4 bg-gray-50">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+              
+              {/* Left Column - How it works */}
+              <div className="flex flex-col justify-center">
+                <div className="max-w-md">
+                  <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                    Публикувайте първата си задача за секунди
+                  </h2>
+                  <p className="text-xl text-gray-600 mb-8">
+                    Спестете си часове и изпълнете списъка си със задачи
+                  </p>
+                  
+                  {/* Steps */}
+                  <div className="space-y-6 mb-8">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        1
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          Опишете какво ви е необходимо
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Детайлно описание на задачата, която искате да бъде изпълнена
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        2
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          Определете бюджета си
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Задайте бюджет и срок за изпълнение на задачата
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        3
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          Получете оферти и изберете най-добрия изпълнител
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Сравнете предложенията и изберете най-подходящия изпълнител
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* CTA Button */}
+                  <button 
+                    onClick={handlePostTask}
+                    className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg"
+                  >
+                    Публикувайте задачата си
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column - Service Categories Grid */}
+              <div className="flex justify-center">
+                <div className="w-80">
+                  <div className="bg-blue-50 rounded-lg p-4 h-96 overflow-hidden">
+                    <div className="grid grid-cols-2 gap-3 h-full overflow-y-auto">
+                      {[
+                        { name: "Преместване", icon: "📦", color: "bg-orange-100 text-orange-600" },
+                        { name: "Почистване на дома", icon: "🧹", color: "bg-blue-100 text-blue-600" },
+                        { name: "Доставки", icon: "🚚", color: "bg-green-100 text-green-600" },
+                        { name: "Премахване", icon: "🗑️", color: "bg-red-100 text-red-600" },
+                        { name: "Градинарство", icon: "🌱", color: "bg-emerald-100 text-emerald-600" },
+                        { name: "Боядисване", icon: "🎨", color: "bg-purple-100 text-purple-600" },
+                        { name: "Майсторски услуги", icon: "🔧", color: "bg-yellow-100 text-yellow-600" },
+                        { name: "Бизнес и админ", icon: "💼", color: "bg-indigo-100 text-indigo-600" },
+                        { name: "Маркетинг и дизайн", icon: "🎯", color: "bg-pink-100 text-pink-600" },
+                        { name: "Нещо друго", icon: "❓", color: "bg-gray-100 text-gray-600" }
+                      ].map((service, index) => (
+                        <div key={index} className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">{service.icon}</div>
+                            <div className="text-sm font-medium text-gray-900">{service.name}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Trust & Safety Section */}
         <section ref={trustRef} className="py-20 px-4 bg-white">
           <div className="max-w-6xl mx-auto">
