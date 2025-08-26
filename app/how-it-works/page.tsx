@@ -209,6 +209,129 @@ const benefits = [
   }
 ]
 
+// Steps for task seekers/workers
+const workerSteps: Step[] = [
+  {
+    id: 1,
+    title: 'Регистрирайте се за минути',
+    description: 'Създайте профил с няколко клика. Добавете вашите умения, опит и снимка за да привлечете повече клиенти.',
+    icon: <UserCheck size={24} />,
+    color: 'text-blue-600',
+    mobileScreen: 'bg-gradient-to-br from-blue-50 to-blue-100',
+    mobileContent: (
+      <div className="p-4 space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Създайте профил</h3>
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <UserCheck size={24} className="text-blue-600" />
+            </div>
+            <input 
+              type="text" 
+              placeholder="Вашето име"
+              className="w-full text-sm text-gray-700 placeholder-gray-400 border border-gray-200 rounded p-2 mb-2"
+              readOnly
+            />
+            <input 
+              type="email" 
+              placeholder="Вашият имейл"
+              className="w-full text-sm text-gray-700 placeholder-gray-400 border border-gray-200 rounded p-2"
+              readOnly
+            />
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 2,
+    title: 'Изберете вашите умения',
+    description: 'Маркирайте категориите, в които сте експерт. Колкото повече умения имате, толкова повече задачи можете да получавате.',
+    icon: <Award size={24} />,
+    color: 'text-green-600',
+    mobileScreen: 'bg-gradient-to-br from-green-50 to-green-100',
+    mobileContent: (
+      <div className="p-4 space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Вашите умения</h3>
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className="space-y-2">
+              {['Майсторски услуги', 'Почистване', 'Градинарство', 'Доставки'].map((skill, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded flex items-center justify-center">
+                    <CheckCircle size={12} className="text-white" />
+                  </div>
+                  <span className="text-sm text-gray-700">{skill}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 3,
+    title: 'Получете уведомления за нови задачи',
+    description: 'Получавайте известия за задачи, които отговарят на вашите умения. Отговаряйте бързо за да увеличите шансовете си.',
+    icon: <MessageCircle size={24} />,
+    color: 'text-purple-600',
+    mobileScreen: 'bg-gradient-to-br from-purple-50 to-purple-100',
+    mobileContent: (
+      <div className="p-4 space-y-4">
+        <div className="text-center">
+          <div className="bg-purple-100 text-purple-800 rounded-full px-3 py-1 text-sm font-medium mb-3">
+            🔔 3 Нови задачи
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Нови задачи за вас</h3>
+        </div>
+        <div className="space-y-3">
+          {[
+            { title: 'Почистване на апартамент', location: 'София, Лозенец', price: '25 лв/час' },
+            { title: 'Ремонт на баня', location: 'Пловдив, Център', price: '1500 лв' },
+            { title: 'Разходка с куче', location: 'Варна, Морска градина', price: '20 лв/час' }
+          ].map((task, index) => (
+            <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
+              <p className="font-medium text-gray-800 text-sm">{task.title}</p>
+              <p className="text-xs text-gray-600">{task.location}</p>
+              <p className="text-xs font-semibold text-green-600">{task.price}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 4,
+    title: 'Изпълнете задачите и изкарайте пари',
+    description: 'След завършване на задачата, получавайте плащането директно от клиента. Изградете репутация и получавайте повече задачи.',
+    icon: <DollarSign size={24} />,
+    color: 'text-yellow-600',
+    mobileScreen: 'bg-gradient-to-br from-yellow-50 to-yellow-100',
+    mobileContent: (
+      <div className="p-4 space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Вашите приходи</h3>
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className="text-2xl font-bold text-green-600 mb-2">2,450 лв</div>
+            <p className="text-sm text-gray-600 mb-3">Общо изкарани този месец</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Завършени задачи:</span>
+                <span className="font-semibold">12</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Среден рейтинг:</span>
+                <span className="font-semibold">4.9 ⭐</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+]
+
 export default function HowItWorksPage() {
   const router = useRouter()
 
@@ -389,6 +512,81 @@ export default function HowItWorksPage() {
                 <p className="text-gray-600">
                   {benefit.description}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* How It Works for Workers Section */}
+      <div className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Изкарайте допълнителен доход
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Четири прости стъпки за да започнете да изкарвате пари с вашите умения
+            </p>
+          </div>
+
+          <div className="space-y-20">
+            {workerSteps.map((step, index) => (
+              <div key={step.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${
+                index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+              }`}>
+                {/* Text Content */}
+                <div className={`${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 ${step.color}`}>
+                      {step.icon}
+                    </div>
+                    <span className="text-2xl font-bold text-gray-900">Стъпка {step.id}</span>
+                  </div>
+                  
+                  <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                    {step.title}
+                  </h3>
+                  <p className="text-lg text-gray-600 leading-relaxed mb-8">
+                    {step.description}
+                  </p>
+                  
+                  <button
+                    onClick={handleBecomeTasker}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                  >
+                    Станете изпълнител
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+
+                {/* Mobile Screen */}
+                <div className={`${index % 2 === 1 ? 'lg:col-start-1' : ''} flex justify-center`}>
+                  <div className="relative">
+                    {/* Phone Frame */}
+                    <div className="w-80 h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
+                      <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+                        {/* Status Bar */}
+                        <div className="absolute top-0 left-0 right-0 h-8 bg-gray-900 rounded-t-[2.5rem] flex items-center justify-between px-6 text-white text-xs">
+                          <span>9:41</span>
+                          <div className="flex items-center gap-1">
+                            <div className="w-4 h-2 bg-white rounded-sm"></div>
+                            <div className="w-1 h-3 bg-white rounded-sm"></div>
+                          </div>
+                        </div>
+                        
+                        {/* Screen Content */}
+                        <div className={`w-full h-full ${step.mobileScreen} pt-8`}>
+                          {step.mobileContent}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Decorative Elements */}
+                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-green-600 rounded-full opacity-20"></div>
+                    <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-600 rounded-full opacity-20"></div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
