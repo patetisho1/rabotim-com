@@ -16,16 +16,16 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4">Открийте</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Как работи</Link></li>
-              <li><Link href="/business" className="hover:text-blue-200 transition-colors">Rabotim за бизнес</Link></li>
-              <li><Link href="/earn-money" className="hover:text-blue-200 transition-colors">Печелете пари</Link></li>
-              <li><Link href="/calculator" className="hover:text-blue-200 transition-colors">Калкулатор за странични доходи</Link></li>
-              <li><Link href="/search-jobs" className="hover:text-blue-200 transition-colors">Търсете задачи</Link></li>
-              <li><Link href="/cost-guides" className="hover:text-blue-200 transition-colors">Ръководства за цени</Link></li>
-              <li><Link href="/service-guides" className="hover:text-blue-200 transition-colors">Ръководства за услуги</Link></li>
-              <li><Link href="/comparison" className="hover:text-blue-200 transition-colors">Сравнителни ръководства</Link></li>
-              <li><Link href="/student-discount" className="hover:text-blue-200 transition-colors">Студентски отстъпки</Link></li>
-              <li><Link href="/partners" className="hover:text-blue-200 transition-colors">Партньори</Link></li>
-              <li><Link href="/faq" className="hover:text-blue-200 transition-colors">ЧЗВ за нови потребители</Link></li>
+              <li><Link href="/post-task" className="hover:text-blue-200 transition-colors">Rabotim за бизнес</Link></li>
+              <li><Link href="/register" className="hover:text-blue-200 transition-colors">Печелете пари</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Калкулатор за странични доходи</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Търсете задачи</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Ръководства за цени</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Ръководства за услуги</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Сравнителни ръководства</Link></li>
+              <li><Link href="/register" className="hover:text-blue-200 transition-colors">Студентски отстъпки</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Партньори</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">ЧЗВ за нови потребители</Link></li>
             </ul>
           </div>
 
@@ -33,16 +33,16 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Компания</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-blue-200 transition-colors">За нас</Link></li>
-              <li><Link href="/careers" className="hover:text-blue-200 transition-colors">Кариери</Link></li>
-              <li><Link href="/media" className="hover:text-blue-200 transition-colors">Медийни запитвания</Link></li>
-              <li><Link href="/community-guidelines" className="hover:text-blue-200 transition-colors">Обществени правила</Link></li>
-              <li><Link href="/worker-principles" className="hover:text-blue-200 transition-colors">Принципи на работниците</Link></li>
-              <li><Link href="/terms" className="hover:text-blue-200 transition-colors">Общи условия</Link></li>
-              <li><Link href="/blog" className="hover:text-blue-200 transition-colors">Блог</Link></li>
-              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Свържете се с нас</Link></li>
-              <li><Link href="/privacy" className="hover:text-blue-200 transition-colors">Политика за поверителност</Link></li>
-              <li><Link href="/investors" className="hover:text-blue-200 transition-colors">Инвеститори</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">За нас</Link></li>
+              <li><Link href="/register" className="hover:text-blue-200 transition-colors">Кариери</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Медийни запитвания</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Обществени правила</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Принципи на работниците</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Общи условия</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Блог</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Свържете се с нас</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Политика за поверителност</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Инвеститори</Link></li>
             </ul>
           </div>
 
@@ -53,7 +53,7 @@ const Footer = () => {
               <li><Link href="/post-task" className="hover:text-blue-200 transition-colors">Публикувайте задача</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Разглеждайте задачи</Link></li>
               <li><Link href="/login" className="hover:text-blue-200 transition-colors">Вход</Link></li>
-              <li><Link href="/support" className="hover:text-blue-200 transition-colors">Център за поддръжка</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Център за поддръжка</Link></li>
             </ul>
           </div>
 
@@ -61,13 +61,13 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Популярни категории</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/category/handyman" className="hover:text-blue-200 transition-colors">Услуги за майстори</Link></li>
-              <li><Link href="/category/cleaning" className="hover:text-blue-200 transition-colors">Почистващи услуги</Link></li>
-              <li><Link href="/category/delivery" className="hover:text-blue-200 transition-colors">Доставни услуги</Link></li>
-              <li><Link href="/category/moving" className="hover:text-blue-200 transition-colors">Преместване</Link></li>
-              <li><Link href="/category/gardening" className="hover:text-blue-200 transition-colors">Градински услуги</Link></li>
-              <li><Link href="/category/auto-electrician" className="hover:text-blue-200 transition-colors">Авто електрици</Link></li>
-              <li><Link href="/category/assembly" className="hover:text-blue-200 transition-colors">Сглобяване</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Услуги за майстори</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Почистващи услуги</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Доставни услуги</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Преместване</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Градински услуги</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Авто електрици</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Сглобяване</Link></li>
               <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Всички услуги</Link></li>
             </ul>
           </div>
@@ -76,13 +76,13 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Популярни локации</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/location/sofia" className="hover:text-blue-200 transition-colors">София</Link></li>
-              <li><Link href="/location/plovdiv" className="hover:text-blue-200 transition-colors">Пловдив</Link></li>
-              <li><Link href="/location/varna" className="hover:text-blue-200 transition-colors">Варна</Link></li>
-              <li><Link href="/location/burgas" className="hover:text-blue-200 transition-colors">Бургас</Link></li>
-              <li><Link href="/location/ruse" className="hover:text-blue-200 transition-colors">Русе</Link></li>
-              <li><Link href="/location/stara-zagora" className="hover:text-blue-200 transition-colors">Стара Загора</Link></li>
-              <li><Link href="/location/pleven" className="hover:text-blue-200 transition-colors">Плевен</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">София</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Пловдив</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Варна</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Бургас</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Русе</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Стара Загора</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Плевен</Link></li>
             </ul>
           </div>
         </div>
