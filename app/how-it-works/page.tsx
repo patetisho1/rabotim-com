@@ -459,14 +459,28 @@ export default function HowItWorksPage() {
                 <div className={`${index % 2 === 1 ? 'lg:col-start-1' : ''} flex justify-center`}>
                   <div className="relative">
                     {/* Main Image */}
-                    <div className="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-100 to-green-100">
                       <img
-                        src={step.id === 1 ? "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=400&fit=crop" :
-                             step.id === 2 ? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop" :
-                             step.id === 3 ? "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=400&fit=crop" :
-                             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop"}
+                        src={step.id === 1 ? "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=300&h=300&fit=crop&crop=center" :
+                             step.id === 2 ? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&crop=center" :
+                             step.id === 3 ? "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop&crop=center" :
+                             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=center"}
                         alt={step.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.parentElement!.innerHTML = `
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-green-100">
+                              <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                  📱
+                                </div>
+                                <p class="text-gray-600 font-medium">${step.title}</p>
+                              </div>
+                            </div>
+                          `;
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                       
@@ -569,14 +583,28 @@ export default function HowItWorksPage() {
                 <div className={`${index % 2 === 1 ? 'lg:col-start-1' : ''} flex justify-center`}>
                   <div className="relative">
                     {/* Main Image */}
-                    <div className="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-green-100 to-blue-100">
                       <img
-                        src={step.id === 1 ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" :
-                             step.id === 2 ? "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face" :
-                             step.id === 3 ? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" :
-                             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face"}
+                        src={step.id === 1 ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face" :
+                             step.id === 2 ? "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face" :
+                             step.id === 3 ? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face" :
+                             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face"}
                         alt={step.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.parentElement!.innerHTML = `
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100">
+                              <div class="text-center">
+                                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                  👤
+                                </div>
+                                <p class="text-gray-600 font-medium">${step.title}</p>
+                              </div>
+                            </div>
+                          `;
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                       
