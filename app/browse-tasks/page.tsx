@@ -24,6 +24,7 @@ import {
   Leaf
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import GoogleMap from '@/components/GoogleMap'
 
 interface Task {
   id: number
@@ -450,8 +451,8 @@ export default function BrowseTasksPage() {
                   <p className="text-gray-600">Опитайте да промените филтрите или търсенето</p>
                 </div>
               ) : (
-                filteredTasks.map(task => (
-                  <div key={task.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+                                 filteredTasks.map(task => (
+                   <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -533,30 +534,22 @@ export default function BrowseTasksPage() {
             </div>
           </div>
 
-          {/* Map */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Карта</h3>
-              <div className="bg-gray-200 rounded-lg h-96 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600">Карта ще бъде добавена скоро</p>
-                  <p className="text-sm text-gray-500">Интеграция с Google Maps</p>
-                </div>
-              </div>
-              
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Активни задачи:</span>
-                  <span className="font-semibold">{filteredTasks.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">В избрания район:</span>
-                  <span className="font-semibold">{selectedLocation || 'Всички'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+                     {/* Map */}
+           <div className="lg:col-span-1">
+             <div className="sticky top-4">
+               <GoogleMap 
+                 tasks={filteredTasks}
+                 selectedLocation={selectedLocation}
+                 onTaskClick={(taskId) => {
+                   // Скролиране към задачата в списъка
+                   const taskElement = document.getElementById(`task-${taskId}`)
+                   if (taskElement) {
+                     taskElement.scrollIntoView({ behavior: 'smooth' })
+                   }
+                 }}
+               />
+             </div>
+           </div>
         </div>
       </div>
     </div>
