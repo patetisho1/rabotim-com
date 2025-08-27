@@ -38,8 +38,8 @@ const cityCoordinates: { [key: string]: { lat: number; lng: number } } = {
 
 export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const [map, setMap] = useState<google.maps.Map | null>(null)
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([])
+  const [map, setMap] = useState<any>(null)
+  const [markers, setMarkers] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -49,8 +49,16 @@ export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: Goog
         setIsLoading(true)
         setError(null)
 
+        // Проверка дали има API ключ
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+        if (!apiKey) {
+          setError('Google Maps не е конфигуриран')
+          setIsLoading(false)
+          return
+        }
+
         const loader = new Loader({
-          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+          apiKey,
           version: 'weekly',
           libraries: ['places']
         })
@@ -62,7 +70,7 @@ export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: Goog
         // Център на България
         const center = { lat: 42.7339, lng: 25.4858 }
         
-        const mapInstance = new google.maps.Map(mapRef.current, {
+        const mapInstance = new (google as any).maps.Map(mapRef.current, {
           center,
           zoom: 7,
           styles: [
@@ -78,7 +86,7 @@ export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: Goog
         setIsLoading(false)
       } catch (err) {
         console.error('Error loading Google Maps:', err)
-        setError('Грешка при зареждането на картата')
+        setError('Google Maps не е наличен')
         setIsLoading(false)
       }
     }
@@ -104,7 +112,7 @@ export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: Goog
         const position = cityCoordinates[city]
         
         // Създаване на маркер
-        const marker = new google.maps.Marker({
+        const marker = new (google as any).maps.Marker({
           position,
           map,
           title: task.title,
@@ -122,13 +130,13 @@ export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: Goog
                   <text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-weight="bold">$</text>
                 </svg>
               `),
-            scaledSize: new google.maps.Size(24, 24),
-            anchor: new google.maps.Point(12, 12)
+            scaledSize: new (google as any).maps.Size(24, 24),
+            anchor: new (google as any).maps.Point(12, 12)
           }
         })
 
         // Info Window за маркера
-        const infoWindow = new google.maps.InfoWindow({
+        const infoWindow = new (google as any).maps.InfoWindow({
           content: `
             <div style="padding: 8px; max-width: 200px;">
               <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${task.title}</h3>
@@ -166,12 +174,26 @@ export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: Goog
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="text-center">
-          <div className="text-red-600 font-medium mb-2">Грешка при зареждането на картата</div>
-          <div className="text-red-500 text-sm">{error}</div>
-          <div className="text-red-400 text-xs mt-2">
-            Проверете дали Google Maps API ключът е конфигуриран правилно
+      <div className="bg-white rounded-lg shadow-sm border p-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Карта с задачи</h3>
+        <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <p className="text-gray-600 text-sm mb-2">Картата временно не е налична</p>
+          <p className="text-gray-500 text-xs">Използвайте филтрите за намиране на задачи</p>
+        </div>
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Активни задачи:</span>
+            <span className="font-semibold">{tasks.length}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">В избрания район:</span>
+            <span className="font-semibold">{selectedLocation || 'Всички'}</span>
           </div>
         </div>
       </div>
