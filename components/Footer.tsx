@@ -33,16 +33,16 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Компания</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">За нас</Link></li>
-              <li><Link href="/register" className="hover:text-blue-200 transition-colors">Кариери</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Медийни запитвания</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Обществени правила</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Принципи на работниците</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Общи условия</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Блог</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Свържете се с нас</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Политика за поверителност</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Инвеститори</Link></li>
+              <li><Link href="/about" className="hover:text-blue-200 transition-colors">За нас</Link></li>
+              <li><Link href="/careers" className="hover:text-blue-200 transition-colors">Кариери</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Медийни запитвания</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Обществени правила</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Принципи на работниците</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Общи условия</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Блог</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Свържете се с нас</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Политика за поверителност</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-200 transition-colors">Инвеститори</Link></li>
             </ul>
           </div>
 
