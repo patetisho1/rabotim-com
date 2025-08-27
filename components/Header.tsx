@@ -191,6 +191,14 @@ export default function Header() {
               )}
             </div>
 
+            {/* Разгледай задачи линк */}
+            <button
+              onClick={() => router.push('/browse-tasks')}
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            >
+              Разгледай задачи
+            </button>
+
             {/* Как работи линк */}
             <button
               onClick={() => router.push('/how-it-works')}
@@ -306,12 +314,12 @@ export default function Header() {
               </button>
               <button
                 onClick={() => {
-                  router.push('/tasks')
+                  router.push('/browse-tasks')
                   setIsMobileMenuOpen(false)
                 }}
                 className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <span className="font-medium">Преглед на задачи</span>
+                <span className="font-medium">Разгледай задачи</span>
                 <ArrowRight size={16} />
               </button>
               <button

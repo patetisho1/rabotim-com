@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-// import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 // import PWAInstall from '@/components/PWAInstall'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -51,7 +51,7 @@ export default function RootLayout({
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
-        {/* <Toaster
+        <Toaster
           position="top-center"
           toastOptions={{
             duration: 4000,
@@ -60,7 +60,7 @@ export default function RootLayout({
               color: '#fff',
             },
           }}
-        /> */}
+        />
         {/* <PWAInstall /> */}
         
         {/* Service Worker Registration */}

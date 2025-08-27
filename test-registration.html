@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на регистрацията</title>
+</head>
+<body>
+    <h1>Тест на регистрацията</h1>
+    <p>Отворете конзолата на браузъра (F12) и проверете дали има грешки.</p>
+    <p>След това отидете на <a href="http://localhost:3000/register">http://localhost:3000/register</a></p>
+    
+    <script>
+        // Тест на localStorage
+        console.log('Тестване на localStorage...');
+        
+        // Проверка дали localStorage работи
+        try {
+            localStorage.setItem('test', 'test-value');
+            const testValue = localStorage.getItem('test');
+            console.log('localStorage работи:', testValue === 'test-value');
+            localStorage.removeItem('test');
+        } catch (error) {
+            console.error('localStorage не работи:', error);
+        }
+        
+        // Проверка на съществуващи потребители
+        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        console.log('Съществуващи потребители:', existingUsers);
+        
+        // Проверка на текущ потребител
+        const currentUser = localStorage.getItem('user');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        console.log('Текущ потребител:', currentUser);
+        console.log('Влязъл ли е:', isLoggedIn);
+    </script>
+</body>
+</html>
