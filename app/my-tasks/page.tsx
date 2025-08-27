@@ -125,7 +125,10 @@ export default function MyTasksPage() {
 
   const handleEditTask = (taskId: number) => {
     // За сега просто показваме съобщение
-    toast.info('Редактирането на задачи ще бъде добавено скоро')
+    toast('Редактирането на задачи ще бъде добавено скоро', {
+      icon: 'ℹ️',
+      duration: 3000
+    })
   }
 
   const formatDate = (dateString: string) => {
