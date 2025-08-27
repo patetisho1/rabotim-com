@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Search, 
   MapPin, 
@@ -228,6 +229,7 @@ const mockTasks: Task[] = [
 ]
 
 export default function BrowseTasksPage() {
+  const router = useRouter()
   const [tasks, setTasks] = useState<Task[]>([])
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -561,9 +563,12 @@ export default function BrowseTasksPage() {
                         >
                           <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
                         </button>
-                        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                          Отвори
-                        </button>
+                                                 <button 
+                           onClick={() => router.push(`/submit-offer/${task.id}`)}
+                           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                         >
+                           Подай оферта
+                         </button>
                       </div>
                     </div>
                   </div>
