@@ -228,8 +228,8 @@ const mockTasks: Task[] = [
 ]
 
 export default function BrowseTasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(mockTasks)
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>(mockTasks)
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('')
@@ -237,8 +237,41 @@ export default function BrowseTasksPage() {
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Зареждане на задачи от localStorage
+    const loadTasks = () => {
+      try {
+        const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+        const allTasks = [...mockTasks, ...savedTasks] // Комбинираме mock и реални задачи
+        
+        // Добавяме липсващи полета за mock задачите
+        const processedTasks = allTasks.map(task => ({
+          ...task,
+          offers: task.offers || 0,
+          views: task.views || 0,
+          status: task.status || 'active',
+          user: task.user || {
+            name: 'Потребител',
+            rating: 4.5,
+            avatar: ''
+          }
+        }))
+        
+        setTasks(processedTasks)
+        setFilteredTasks(processedTasks)
+        setLoading(false)
+      } catch (error) {
+        console.error('Грешка при зареждането на задачите:', error)
+        setTasks(mockTasks)
+        setFilteredTasks(mockTasks)
+        setLoading(false)
+      }
+    }
+
+    loadTasks()
+    
     // Зареждане на любими задачи от localStorage
     const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]')
     setFavorites(savedFavorites)
@@ -441,16 +474,21 @@ export default function BrowseTasksPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Tasks List */}
-          <div className="lg:col-span-2">
-            <div className="space-y-4">
-              {filteredTasks.length === 0 ? (
-                <div className="text-center py-12">
-                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Няма намерени задачи</h3>
-                  <p className="text-gray-600">Опитайте да промените филтрите или търсенето</p>
-                </div>
-              ) : (
+                     {/* Tasks List */}
+           <div className="lg:col-span-2">
+             <div className="space-y-4">
+               {loading ? (
+                 <div className="text-center py-12">
+                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                   <p className="text-gray-600">Зареждане на задачи...</p>
+                 </div>
+               ) : filteredTasks.length === 0 ? (
+                 <div className="text-center py-12">
+                   <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                   <h3 className="text-lg font-medium text-gray-900 mb-2">Няма намерени задачи</h3>
+                   <p className="text-gray-600">Опитайте да промените филтрите или търсенето</p>
+                 </div>
+               ) : (
                                  filteredTasks.map(task => (
                    <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-4">

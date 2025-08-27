@@ -191,13 +191,23 @@ export default function Header() {
               )}
             </div>
 
-            {/* Разгледай задачи линк */}
-            <button
-              onClick={() => router.push('/browse-tasks')}
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
-              Разгледай задачи
-            </button>
+                              {/* Разгледай задачи линк */}
+                  <button
+                    onClick={() => router.push('/browse-tasks')}
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  >
+                    Разгледай задачи
+                  </button>
+                  
+                  {/* Моите задачи линк - само за влезли потребители */}
+                  {isLoggedIn && (
+                    <button
+                      onClick={() => router.push('/my-tasks')}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                    >
+                      Моите задачи
+                    </button>
+                  )}
 
             {/* Как работи линк */}
             <button
@@ -312,16 +322,29 @@ export default function Header() {
                 <span className="font-medium">Категории</span>
                 <ChevronDown size={16} />
               </button>
-              <button
-                onClick={() => {
-                  router.push('/browse-tasks')
-                  setIsMobileMenuOpen(false)
-                }}
-                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <span className="font-medium">Разгледай задачи</span>
-                <ArrowRight size={16} />
-              </button>
+                                <button
+                    onClick={() => {
+                      router.push('/browse-tasks')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <span className="font-medium">Разгледай задачи</span>
+                    <ArrowRight size={16} />
+                  </button>
+                  
+                  {isLoggedIn && (
+                    <button
+                      onClick={() => {
+                        router.push('/my-tasks')
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      <span className="font-medium">Моите задачи</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  )}
               <button
                 onClick={() => {
                   router.push('/how-it-works')
