@@ -368,9 +368,9 @@ export default function HomePage() {
   ]
 
   return (
-    <main className="bg-brand-50 min-h-dvh">
+    <main className="bg-blue-50 min-h-dvh">
       <header className="mx-auto w-full max-w-[640px] px-4 py-4 sm:px-6 flex items-center justify-between">
-        <a href="/" className="text-[22px] font-extrabold text-brand-700">Rabotim.com</a>
+        <a href="/" className="text-[22px] font-extrabold text-blue-700">Rabotim.com</a>
         <button className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white">
           <span className="sr-only">Отвори меню</span>
           <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">

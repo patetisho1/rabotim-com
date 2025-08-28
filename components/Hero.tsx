@@ -43,57 +43,47 @@ export default function Hero() {
       className="relative mx-auto w-full max-w-[640px] px-4 pt-5 pb-6 sm:px-6"
       aria-label="Основна секция – намери изпълнител"
     >
-      {/* Top bar (logo will be elsewhere; тук само място за навигация, ако трябва) */}
-      <div className="flex items-center justify-between mb-2">
-        <div aria-hidden className="h-6" />
-        <nav className="sr-only" aria-label="Главна навигация" />
-      </div>
+      {/* Main content with light blue background */}
+      <div className="bg-blue-100 rounded-3xl p-6 sm:p-8">
+        {/* Large white title */}
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
+          Търся някой…
+        </h1>
 
-      {/* Card-like hero */}
-      <div className="rounded-3xl bg-white shadow-[0_6px_30px_rgba(0,0,0,.06)] ring-1 ring-black/5 overflow-hidden">
-        {/* Content */}
-        <div className="p-5 sm:p-6">
-          <h1 className="text-3xl leading-tight font-extrabold text-ink-900 sm:text-4xl">
-            Търся някой…
-          </h1>
+        {/* List of tasks in white text */}
+        <div className="text-white text-lg sm:text-xl mb-6">
+          <p className="mb-2">да боядиса стая</p>
+          <p className="mb-2">да пренесе кашон</p>
+          <p className="mb-2">да изчисти къща</p>
+        </div>
 
-          {/* Rotating phrase */}
-          <p
-            key={index}
-            className="rotate-phrase mt-2 text-[20px] sm:text-[22px] text-slate-700"
-            aria-live="polite"
+        {/* Subtitle */}
+        <p className="text-white text-lg sm:text-xl mb-8">
+          Намери точния човек за всяка задача.
+        </p>
+
+        {/* CTAs */}
+        <div className="flex flex-col gap-4 mb-8">
+          <Link
+            href="/post-task"
+            className="focus-ring inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-4 text-white text-lg font-semibold shadow-sm hover:bg-blue-700 active:bg-blue-800 transition"
+            aria-label="Публикувай задача безплатно"
           >
-            {PHRASES[index]}
-          </p>
+            Публикувай задача безплатно
+            <span aria-hidden className="ml-2">→</span>
+          </Link>
 
-          {/* Subcopy */}
-          <p className="mt-3 text-slate-600">
-            Намери точния човек за всяка задача.
-          </p>
-
-          {/* CTAs */}
-          <div className="mt-5 flex flex-col gap-3">
-            <Link
-              href="/post-task"
-              className="focus-ring inline-flex items-center justify-center rounded-full bg-brand-500 px-5 py-3 text-white text-base font-semibold shadow-sm hover:bg-brand-600 active:bg-brand-700 transition"
-              aria-label="Публикувай задача безплатно"
-            >
-              Публикувай задача безплатно
-              <span aria-hidden className="ml-2">→</span>
-            </Link>
-
-            <Link
-              href="/become-tasker"
-              className="focus-ring inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-brand-700 bg-white hover:bg-slate-50 active:bg-slate-100 transition"
-              aria-label="Стани изпълнител"
-            >
-              Стани изпълнител
-            </Link>
-          </div>
+          <Link
+            href="/become-tasker"
+            className="focus-ring inline-flex items-center justify-center rounded-full border-2 border-blue-600 px-6 py-4 text-blue-600 bg-white hover:bg-gray-50 active:bg-gray-100 transition"
+            aria-label="Стани изпълнител"
+          >
+            Стани изпълнител
+          </Link>
         </div>
 
         {/* Illustration */}
-        <div className="relative w-full h-48 sm:h-56 bg-slate-50">
+        <div className="relative w-full h-48 sm:h-56 bg-gray-100 rounded-2xl overflow-hidden">
           <Image
             src="/hero-people.svg"
             alt="Хора, които изпълняват различни задачи"
@@ -103,11 +93,6 @@ export default function Hero() {
             className="object-contain p-4"
           />
         </div>
-      </div>
-
-      {/* Optional: secondary text under card */}
-      <div className="mt-3 text-center text-sm text-slate-500">
-        Бързо, лесно и сигурно – започни сега.
       </div>
     </section>
   );
