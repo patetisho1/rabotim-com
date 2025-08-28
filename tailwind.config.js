@@ -9,21 +9,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: "#eef5ff",
-          100: "#d9e8ff",
-          200: "#b7d3ff",
-          300: "#8fb9ff",
-          400: "#5f97ff",
-          500: "#3778ff", // primary blue (основен)
-          600: "#285fd6",
-          700: "#214db0",
-          800: "#1b3f8e",
-          900: "#162f69"
-        },
-        ink: {
-          900: "#0b1b2b" // тъмносин за заглавия
-        },
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
