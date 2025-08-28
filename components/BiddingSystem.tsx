@@ -476,3 +476,4 @@ export default function BiddingSystem({
     </div>
   )
 }
+

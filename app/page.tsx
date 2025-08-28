@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
-
 import TaskGrid from '@/components/TaskGrid'
+import Hero from '@/components/Hero'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -368,103 +368,18 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Main Content */}
-      <main>
-        {/* Hero Section */}
-        <section ref={heroRef} className="bg-[#001B44] text-white py-16 md:py-24">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col lg:flex-row items-center justify-between">
-              
-              {/* Left Text */}
-              <div className="max-w-2xl mb-12 lg:mb-0 text-center lg:text-left">
-                <h1 className={`text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Търся някой...
-                </h1>
-                <div className={`text-2xl md:text-3xl text-blue-200 mb-6 h-12 flex items-center justify-center lg:justify-start transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <span className="transition-all duration-500">
-                    {tasks[currentTaskIndex]}
-                  </span>
-                </div>
-                <p className={`text-xl md:text-2xl text-gray-300 mb-8 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Намери точния човек за твоята задача.
-                </p>
-                <div className={`flex flex-col sm:flex-row gap-4 justify-center lg:justify-start transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <button
-                    onClick={handlePostTask}
-                    className="bg-blue-500 hover:bg-blue-600 px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3"
-                  >
-                    Публикувайте задачата си безплатно
-                    <ArrowRight size={20} />
-                  </button>
-                  <button
-                    onClick={handleBecomeTasker}
-                    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
-                  >
-                    Печелете пари като изпълнител
-                  </button>
-                </div>
-                <div className={`mt-8 flex flex-wrap justify-center lg:justify-start gap-6 text-lg transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  {isLoadingStats ? (
-                    <>
-                      <span className="animate-pulse">Зареждане...</span>
-                      <span className="animate-pulse">Зареждане...</span>
-                      <span className="animate-pulse">Зареждане...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{stats.users}+ клиенти</span>
-                      <span>{stats.completed}+ свършени задачи</span>
-                      <span>4.8★ рейтинг</span>
-                    </>
-                  )}
-                </div>
-              </div>
+    <main className="bg-brand-50 min-h-dvh">
+      <header className="mx-auto w-full max-w-[640px] px-4 py-4 sm:px-6 flex items-center justify-between">
+        <a href="/" className="text-[22px] font-extrabold text-brand-700">Rabotim.com</a>
+        <button className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white">
+          <span className="sr-only">Отвори меню</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M3 6h14M3 10h14M3 14h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </header>
 
-              {/* Right Column - People Images */}
-              <div className="w-full lg:w-1/2">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-4">
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop" 
-                        alt="Човек градинарства"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
-                        alt="Човек почиства"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                  </div>
-                  <div className="space-y-4 pt-8">
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop" 
-                        alt="Майстор работи"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop" 
-                        alt="Човек разхожда куче"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <Hero />
 
         {/* Post Your First Task Section */}
         <section className="py-20 px-4 bg-gray-50">
@@ -809,6 +724,5 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-    </div>
   )
 } 

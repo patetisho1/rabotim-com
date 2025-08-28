@@ -124,3 +124,4 @@ function doBackgroundSync() {
   console.log('Background sync executed');
   return Promise.resolve();
 }
+

@@ -1,0 +1,99 @@
+<svg width="640" height="400" viewBox="0 0 640 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="640" height="400" fill="#F8FAFC"/>
+  
+  <!-- Cloud decorations -->
+  <ellipse cx="80" cy="60" rx="40" ry="25" fill="white" opacity="0.8"/>
+  <ellipse cx="520" cy="120" rx="35" ry="20" fill="white" opacity="0.6"/>
+  
+  <!-- Person 1: Painting (left) -->
+  <g transform="translate(80, 200)">
+    <!-- Person -->
+    <circle cx="25" cy="15" r="12" fill="#FEF3C7"/> <!-- Head with hat -->
+    <rect x="20" y="27" width="10" height="25" fill="#FEF3C7"/> <!-- Body -->
+    <rect x="15" y="52" width="20" height="8" fill="#3B82F6"/> <!-- Pants -->
+    
+    <!-- Hat -->
+    <ellipse cx="25" cy="12" rx="15" ry="6" fill="white"/>
+    <rect x="20" y="12" width="10" height="3" fill="white"/>
+    
+    <!-- Arms -->
+    <rect x="15" y="30" width="8" height="15" fill="#FEF3C7" transform="rotate(-30 19 37.5)"/> <!-- Left arm -->
+    <rect x="32" y="30" width="8" height="15" fill="#FEF3C7" transform="rotate(30 36 37.5)"/> <!-- Right arm -->
+    
+    <!-- Ladder -->
+    <rect x="45" y="40" width="4" height="60" fill="#3B82F6"/> <!-- Left ladder rail -->
+    <rect x="65" y="40" width="4" height="60" fill="#3B82F6"/> <!-- Right ladder rail -->
+    <rect x="45" y="50" width="24" height="3" fill="#3B82F6"/> <!-- Step 1 -->
+    <rect x="45" y="65" width="24" height="3" fill="#3B82F6"/> <!-- Step 2 -->
+    <rect x="45" y="80" width="24" height="3" fill="#3B82F6"/> <!-- Step 3 -->
+    
+    <!-- Painting roller -->
+    <rect x="35" y="25" width="6" height="20" fill="#F59E0B"/> <!-- Roller handle -->
+    <ellipse cx="38" cy="20" rx="8" ry="4" fill="#F59E0B"/> <!-- Roller -->
+    
+    <!-- Wall being painted -->
+    <rect x="50" y="30" width="40" height="50" fill="#F3F4F6"/> <!-- Wall -->
+    <rect x="50" y="30" width="40" height="20" fill="#F59E0B" opacity="0.7"/> <!-- Painted area -->
+  </g>
+  
+  <!-- Person 2: Carrying box (center) -->
+  <g transform="translate(280, 180)">
+    <!-- Person -->
+    <circle cx="25" cy="15" r="12" fill="#DBEAFE"/> <!-- Head -->
+    <rect x="20" y="27" width="10" height="25" fill="#DBEAFE"/> <!-- Body -->
+    <rect x="15" y="52" width="20" height="8" fill="#1E40AF"/> <!-- Pants -->
+    
+    <!-- Arms holding box -->
+    <rect x="10" y="30" width="8" height="15" fill="#DBEAFE" transform="rotate(-20 14 37.5)"/> <!-- Left arm -->
+    <rect x="37" y="30" width="8" height="15" fill="#DBEAFE" transform="rotate(20 41 37.5)"/> <!-- Right arm -->
+    
+    <!-- Box -->
+    <rect x="15" y="25" width="30" height="20" fill="#8B4513"/> <!-- Box body -->
+    <rect x="15" y="25" width="30" height="3" fill="#A0522D"/> <!-- Box top -->
+    <rect x="15" y="25" width="3" height="20" fill="#A0522D"/> <!-- Box left side -->
+    <rect x="42" y="25" width="3" height="20" fill="#A0522D"/> <!-- Box right side -->
+    
+    <!-- Box handle -->
+    <rect x="25" y="20" width="10" height="2" fill="#654321"/>
+    <rect x="27" y="18" width="6" height="2" fill="#654321"/>
+  </g>
+  
+  <!-- Person 3: Cleaning (right) -->
+  <g transform="translate(480, 200)">
+    <!-- Person -->
+    <circle cx="25" cy="15" r="12" fill="#FEF3C7"/> <!-- Head -->
+    <rect x="20" y="27" width="10" height="25" fill="#FEF3C7"/> <!-- Body -->
+    <rect x="15" y="52" width="20" height="8" fill="#1E40AF"/> <!-- Pants -->
+    
+    <!-- Apron -->
+    <rect x="18" y="30" width="14" height="20" fill="#3B82F6" opacity="0.8"/> <!-- Apron body -->
+    <rect x="20" y="28" width="10" height="4" fill="#3B82F6" opacity="0.8"/> <!-- Apron top -->
+    
+    <!-- Arms -->
+    <rect x="15" y="30" width="8" height="15" fill="#FEF3C7" transform="rotate(-15 19 37.5)"/> <!-- Left arm -->
+    <rect x="32" y="30" width="8" height="15" fill="#FEF3C7" transform="rotate(15 36 37.5)"/> <!-- Right arm -->
+    
+    <!-- Gloves -->
+    <ellipse cx="18" cy="42" rx="4" ry="3" fill="#FEF3C7"/> <!-- Left glove -->
+    <ellipse cx="37" cy="42" rx="4" ry="3" fill="#FEF3C7"/> <!-- Right glove -->
+    
+    <!-- Mop -->
+    <rect x="40" y="35" width="3" height="25" fill="#8B4513"/> <!-- Mop handle -->
+    <ellipse cx="41.5" cy="35" rx="8" ry="4" fill="#22C55E"/> <!-- Mop head -->
+    <ellipse cx="41.5" cy="33" rx="6" ry="3" fill="#16A34A"/> <!-- Mop inner -->
+    
+    <!-- Floor -->
+    <rect x="20" y="60" width="40" height="5" fill="#E5E7EB"/> <!-- Floor -->
+    <rect x="20" y="60" width="40" height="2" fill="#22C55E" opacity="0.3"/> <!-- Cleaned area -->
+  </g>
+  
+  <!-- Decorative elements -->
+  <g opacity="0.1">
+    <!-- Small decorative circles -->
+    <circle cx="120" cy="80" r="3" fill="#3B82F6"/>
+    <circle cx="500" cy="100" r="2" fill="#F59E0B"/>
+    <circle cx="150" cy="320" r="2" fill="#22C55E"/>
+    <circle cx="450" cy="280" r="3" fill="#F59E0B"/>
+  </g>
+</svg>
