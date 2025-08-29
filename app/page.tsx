@@ -420,45 +420,21 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right Column - People Images */}
+              {/* Right Column - Hero Image */}
               <div className="w-full lg:w-1/2">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-4">
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop" 
-                        alt="Човек градинарства"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
-                        alt="Човек почиства"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
+                <div className="relative">
+                  <div className="relative h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                    <img 
+                      src="/hero-image-dark.png" 
+                      alt="Хора, които изпълняват различни задачи"
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Subtle overlay to blend with design */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 to-transparent"></div>
                   </div>
-                  <div className="space-y-4 pt-8">
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop" 
-                        alt="Майстор работи"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                    <div className="relative h-48 rounded-xl overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop" 
-                        alt="Човек разхожда куче"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    </div>
-                  </div>
+                  {/* Decorative elements to integrate with design */}
+                  <div className="absolute -top-4 -right-4 w-8 h-8 bg-blue-500 rounded-full opacity-80"></div>
+                  <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400 rounded-full opacity-60"></div>
                 </div>
               </div>
             </div>
