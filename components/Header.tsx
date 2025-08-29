@@ -94,128 +94,131 @@ export default function Header() {
           <div className="flex items-center space-x-6">
             <button
               onClick={() => router.push('/')}
-              className="text-2xl font-bold text-blue-600 dark:text-blue-400"
+              className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400"
             >
               Rabotim.com
             </button>
             
-            {/* Пусни обява бутон */}
-            <button
-              onClick={() => router.push('/post-task')}
-              className="hidden sm:flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
-            >
-              Пусни обява
-            </button>
-            
-            {/* Категории бутон */}
-            <div className="relative">
+            {/* Desktop Navigation - скрито на mobile */}
+            <div className="hidden md:flex items-center space-x-6">
+              {/* Пусни обява бутон */}
               <button
-                onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
-                onMouseLeave={() => {
-                  setTimeout(() => {
-                    if (!document.querySelector('.categories-dropdown:hover')) {
-                      setIsCategoriesDropdownOpen(false)
-                    }
-                  }, 100)
-                }}
-                className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                onClick={() => router.push('/post-task')}
+                className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
               >
-                Категории
-                <ChevronDown size={16} className="ml-1" />
+                Пусни обява
               </button>
               
-              {/* Dropdown Menu */}
-              {isCategoriesDropdownOpen && (
-                <div 
-                  className="categories-dropdown absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+              {/* Категории бутон */}
+              <div className="relative">
+                <button
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
-                  onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+                  onMouseLeave={() => {
+                    setTimeout(() => {
+                      if (!document.querySelector('.categories-dropdown:hover')) {
+                        setIsCategoriesDropdownOpen(false)
+                      }
+                    }, 100)
+                  }}
+                  className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
-                  <div className="p-4">
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => {
-                          router.push('/categories?role=tasker')
-                          setIsCategoriesDropdownOpen(false)
-                        }}
-                        className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <div className="font-medium text-gray-900 dark:text-gray-100">Ремонт</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Домашен ремонт</div>
-                      </button>
-                      <button
-                        onClick={() => {
-                          router.push('/categories?role=tasker')
-                          setIsCategoriesDropdownOpen(false)
-                        }}
-                        className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <div className="font-medium text-gray-900 dark:text-gray-100">Почистване</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Домашно почистване</div>
-                      </button>
-                      <button
-                        onClick={() => {
-                          router.push('/categories?role=tasker')
-                          setIsCategoriesDropdownOpen(false)
-                        }}
-                        className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <div className="font-medium text-gray-900 dark:text-gray-100">Грижа</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Грижа за деца</div>
-                      </button>
-                      <button
-                        onClick={() => {
-                          router.push('/categories?role=tasker')
-                          setIsCategoriesDropdownOpen(false)
-                        }}
-                        className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <div className="font-medium text-gray-900 dark:text-gray-100">Доставка</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Куриерски услуги</div>
-                      </button>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <button
-                        onClick={() => {
-                          router.push('/categories')
-                          setIsCategoriesDropdownOpen(false)
-                        }}
-                        className="w-full text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-                      >
-                        Виж всички категории
-                        <ArrowRight size={16} className="inline ml-1" />
-                      </button>
+                  Категории
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
+                
+                {/* Dropdown Menu */}
+                {isCategoriesDropdownOpen && (
+                  <div 
+                    className="categories-dropdown absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                    onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
+                    onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+                  >
+                    <div className="p-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => {
+                            router.push('/categories?role=tasker')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <div className="font-medium text-gray-900 dark:text-gray-100">Ремонт</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">Домашен ремонт</div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            router.push('/categories?role=tasker')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <div className="font-medium text-gray-900 dark:text-gray-100">Почистване</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">Домашно почистване</div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            router.push('/categories?role=tasker')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <div className="font-medium text-gray-900 dark:text-gray-100">Грижа</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">Грижа за деца</div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            router.push('/categories?role=tasker')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <div className="font-medium text-gray-900 dark:text-gray-100">Доставка</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">Куриерски услуги</div>
+                        </button>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                          onClick={() => {
+                            router.push('/categories')
+                            setIsCategoriesDropdownOpen(false)
+                          }}
+                          className="w-full text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                        >
+                          Виж всички категории
+                          <ArrowRight size={16} className="inline ml-1" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+              </div>
+
+              {/* Разгледай задачи линк */}
+              <button
+                onClick={() => router.push('/browse-tasks')}
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              >
+                Разгледай задачи
+              </button>
+              
+              {/* Моите задачи линк - само за влезли потребители */}
+              {isLoggedIn && (
+                <button
+                  onClick={() => router.push('/my-tasks')}
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                >
+                  Моите задачи
+                </button>
               )}
+
+              {/* Как работи линк */}
+              <button
+                onClick={() => router.push('/how-it-works')}
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              >
+                Как работи
+              </button>
             </div>
-
-                              {/* Разгледай задачи линк */}
-                  <button
-                    onClick={() => router.push('/browse-tasks')}
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                  >
-                    Разгледай задачи
-                  </button>
-                  
-                  {/* Моите задачи линк - само за влезли потребители */}
-                  {isLoggedIn && (
-                    <button
-                      onClick={() => router.push('/my-tasks')}
-                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                    >
-                      Моите задачи
-                    </button>
-                  )}
-
-            {/* Как работи линк */}
-            <button
-              onClick={() => router.push('/how-it-works')}
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
-              Как работи
-            </button>
           </div>
 
           {/* Desktop Navigation */}
