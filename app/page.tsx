@@ -371,71 +371,71 @@ export default function HomePage() {
       {/* Main Content */}
       <main>
         {/* Hero Section */}
-        <section ref={heroRef} className="bg-[#001B44] text-white py-16 md:py-24">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col lg:flex-row items-center justify-between">
+        <section 
+          ref={heroRef} 
+          className="relative text-white py-16 md:py-24 overflow-hidden"
+          style={{
+            backgroundImage: `url('/hero-image-dark.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center bottom',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+          
+          <div className="container mx-auto px-4 md:px-6 relative z-10">
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               
-              {/* Left Text */}
-              <div className="max-w-2xl mb-12 lg:mb-0 text-center lg:text-left">
-                <h1 className={`text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Търся някой...
-                </h1>
-                <div className={`text-2xl md:text-3xl text-blue-200 mb-6 h-12 flex items-center justify-center lg:justify-start transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <span className="transition-all duration-500">
-                    {tasks[currentTaskIndex]}
-                  </span>
-                </div>
-                <p className={`text-xl md:text-2xl text-gray-300 mb-8 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Намери точния човек за твоята задача.
-                </p>
-                <div className={`flex flex-col sm:flex-row gap-4 justify-center lg:justify-start transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <button
-                    onClick={handlePostTask}
-                    className="bg-blue-500 hover:bg-blue-600 px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3"
-                  >
-                    Публикувайте задачата си безплатно
-                    <ArrowRight size={20} />
-                  </button>
-                  <button
-                    onClick={handleBecomeTasker}
-                    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
-                  >
-                    Печелете пари като изпълнител
-                  </button>
-                </div>
-                <div className={`mt-8 flex flex-wrap justify-center lg:justify-start gap-6 text-lg transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  {isLoadingStats ? (
-                    <>
-                      <span className="animate-pulse">Зареждане...</span>
-                      <span className="animate-pulse">Зареждане...</span>
-                      <span className="animate-pulse">Зареждане...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{stats.users}+ клиенти</span>
-                      <span>{stats.completed}+ свършени задачи</span>
-                      <span>4.8★ рейтинг</span>
-                    </>
-                  )}
-                </div>
+              {/* Main Title */}
+              <h1 className={`text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                Търся някой...
+              </h1>
+              
+              {/* Rotating Task Text */}
+              <div className={`text-2xl md:text-3xl text-blue-200 mb-6 h-12 flex items-center justify-center transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <span className="transition-all duration-500">
+                  {tasks[currentTaskIndex]}
+                </span>
               </div>
-
-              {/* Right Column - Hero Image */}
-              <div className="w-full lg:w-1/2">
-                <div className="relative">
-                  <div className="relative h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
-                    <img 
-                      src="/hero-image-dark.png" 
-                      alt="Хора, които изпълняват различни задачи"
-                      className="w-full h-full object-cover"
-                    />
-                    {/* Subtle overlay to blend with design */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 to-transparent"></div>
-                  </div>
-                  {/* Decorative elements to integrate with design */}
-                  <div className="absolute -top-4 -right-4 w-8 h-8 bg-blue-500 rounded-full opacity-80"></div>
-                  <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400 rounded-full opacity-60"></div>
-                </div>
+              
+              {/* Subtitle */}
+              <p className={`text-xl md:text-2xl text-gray-300 mb-12 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                Намери точния човек за твоята задача.
+              </p>
+              
+              {/* Airtasker-style Buttons - positioned below the characters */}
+              <div className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <button
+                  onClick={handlePostTask}
+                  className="bg-white hover:bg-gray-100 text-blue-700 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg"
+                >
+                  Публикувай задача безплатно
+                  <ArrowRight size={20} />
+                </button>
+                <button
+                  onClick={handleBecomeTasker}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg"
+                >
+                  Стани изпълнител
+                </button>
+              </div>
+              
+              {/* Stats */}
+              <div className={`mt-12 flex flex-wrap justify-center gap-8 text-lg transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                {isLoadingStats ? (
+                  <>
+                    <span className="animate-pulse">Зареждане...</span>
+                    <span className="animate-pulse">Зареждане...</span>
+                    <span className="animate-pulse">Зареждане...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{stats.users}+ клиенти</span>
+                    <span>{stats.completed}+ свършени задачи</span>
+                    <span>4.8★ рейтинг</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
