@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, MapPin, Clock, DollarSign, User, Star, Calendar, Phone, Mail, MessageSquare, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
-import ImageGallery from '../../components/ImageGallery'
+import ImageGallery from '../../../components/ImageGallery'
 
 interface Attachment {
   name: string
