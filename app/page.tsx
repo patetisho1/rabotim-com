@@ -29,6 +29,7 @@ export default function HomePage() {
 
   // Dynamic hero text animation
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
+  const [currentTaskExampleIndex, setCurrentTaskExampleIndex] = useState(0)
   const tasks = [
     "да разходи кучето",
     "да боядиса оградата", 
@@ -249,6 +250,15 @@ export default function HomePage() {
     return () => clearInterval(textInterval)
   }, [tasks.length])
 
+  // Rotating task examples animation
+  useEffect(() => {
+    const taskExampleInterval = setInterval(() => {
+      setCurrentTaskExampleIndex((prevIndex) => (prevIndex + 1) % taskExamples.length)
+    }, 3000) // Change task example every 3 seconds
+
+    return () => clearInterval(taskExampleInterval)
+  }, [])
+
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
     setSearchQuery(query)
     setSelectedCategory(category)
@@ -302,6 +312,130 @@ export default function HomePage() {
       reviewer: "— Арт Х."
     }
   ]
+
+  // Rotating task examples data
+  const taskExamples = [
+    {
+      name: "Ивайло",
+      task: "Разхождане на куче",
+      amount: "30 лв/час",
+      type: "Приел работа"
+    },
+    {
+      name: "Геновева", 
+      task: "Почасова работа за кетъринг",
+      amount: "15 лв/час",
+      type: "Приела работа"
+    },
+    {
+      name: "Иван",
+      task: "Бъркане на бетон",
+      amount: "120 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Елена",
+      task: "Пролетно почистване на апартамент",
+      amount: "220 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Стефан",
+      task: "Монтаж на кухненски шкафове",
+      amount: "350 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Анна",
+      task: "Грижа за възрастен човек",
+      amount: "25 лв/час",
+      type: "Приела работа"
+    },
+    {
+      name: "Димитър",
+      task: "Ремонт на компютър",
+      amount: "80 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Виктория",
+      task: "Готвене за сватба",
+      amount: "500 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Николай",
+      task: "Транспорт на мебели",
+      amount: "150 лв",
+      type: "Приел работа"
+    },
+    {
+      name: "Ралица",
+      task: "Масаж на къщи",
+      amount: "60 лв/час",
+      type: "Приела работа"
+    },
+    {
+      name: "Петър",
+      task: "Посадка на дървета",
+      amount: "200 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Силвия",
+      task: "Уроци по математика",
+      amount: "20 лв/час",
+      type: "Приела работа"
+    },
+    {
+      name: "Мартин",
+      task: "Ремонт на велосипед",
+      amount: "45 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Дария",
+      task: "Организиране на гардероб",
+      amount: "180 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Александър",
+      task: "Монтаж на климатик",
+      amount: "400 лв",
+      type: "Приел работа"
+    },
+    {
+      name: "Надежда",
+      task: "Печене на торта",
+      amount: "120 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Васил",
+      task: "Ремонт на електрически уреди",
+      amount: "90 лв",
+      type: "Плащане получено"
+    },
+    {
+      name: "Кристина",
+      task: "Грижа за растения",
+      amount: "35 лв/час",
+      type: "Приела работа"
+    },
+    {
+      name: "Борис",
+      task: "Доставка на храна",
+      amount: "25 лв",
+      type: "Приел работа"
+    },
+    {
+      name: "Златина",
+      task: "Шиене на дрехи",
+      amount: "150 лв",
+      type: "Плащане получено"
+    }
+  ];
 
   const recentTasks = [
     {
@@ -615,18 +749,18 @@ export default function HomePage() {
                   <div className="absolute -top-4 -left-4 w-32 h-32 bg-blue-200 rounded-full opacity-50"></div>
                   <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-300 rounded-full opacity-60"></div>
                   
-                  {/* Mobile phone overlay */}
-                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-lg">
-                    <div className="text-xs text-gray-600 mb-1">Плащането получено</div>
-                    <div className="font-semibold">"Боядисване на столове"</div>
-                    <div className="text-green-600 font-bold">179 лв</div>
+                  {/* Mobile phone overlay - Rotating task examples */}
+                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-lg transition-all duration-500">
+                    <div className="text-xs text-gray-600 mb-1">{taskExamples[currentTaskExampleIndex].type}</div>
+                    <div className="font-semibold">"{taskExamples[currentTaskExampleIndex].task}"</div>
+                    <div className="text-green-600 font-bold">{taskExamples[currentTaskExampleIndex].amount}</div>
                   </div>
                   
                   {/* Earnings graph */}
                   <div className="absolute -bottom-4 left-4 bg-white rounded-lg p-3 shadow-lg">
-                    <div className="text-xs text-gray-600 mb-1">Общи приходи</div>
-                    <div className="font-bold text-lg">13,066 лв</div>
-                    <div className="text-green-600 text-sm">+20% миналия месец</div>
+                    <div className="text-xs text-gray-600 mb-1">Общи приходи Август</div>
+                    <div className="font-bold text-lg">2,890 лв</div>
+                    <div className="text-red-600 text-sm">-20% от предишен месец</div>
                   </div>
                 </div>
               </div>
