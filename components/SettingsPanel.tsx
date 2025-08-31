@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, User, Bell, Shield, Moon, Sun, Monitor, Palette, Smartphone, Globe, CheckCircle, AlertCircle, X, Save, Loader2, Eye, EyeOff, Lock, Key, Smartphone as Mobile, Desktop, Tablet } from 'lucide-react'
+import { Settings, User, Bell, Shield, Moon, Sun, Monitor, Palette, Smartphone, Globe, CheckCircle, AlertCircle, X, Save, Loader2, Eye, EyeOff, Lock, Key, Smartphone as Mobile, Monitor as Desktop, Tablet } from 'lucide-react'
 
 interface UserSettings {
   profile: {
