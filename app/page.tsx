@@ -701,10 +701,21 @@ export default function HomePage() {
                   {/* CTA Button */}
                   <button 
                     onClick={handlePostTask}
-                    className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg"
+                    className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg mb-6"
                   >
                     Публикувайте задачата си
                   </button>
+                  
+                  {/* Learn How It Works Link */}
+                  <div className="text-center">
+                    <Link 
+                      href="/how-it-works" 
+                      className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-lg"
+                    >
+                      Научете как работи
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
