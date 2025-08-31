@@ -56,6 +56,190 @@ export default function HomePage() {
     "да направи торта"
   ]
 
+  // Real-time task examples with user profiles and images
+  const taskExamples = [
+    {
+      name: "Иван Петров",
+      task: "Прие оферта за разходка на куче",
+      amount: "30 лв/час",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Геновева Стоянова", 
+      task: "Приела оферта за кетъринг услуги",
+      amount: "15 лв/час",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Стефан Димитров",
+      task: "Приел оферта за бъркане на бетон",
+      amount: "120 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Елена Василева",
+      task: "Приела оферта за пролетно почистване",
+      amount: "220 лв",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Николай Георгиев",
+      task: "Приел оферта за монтаж на мебели",
+      amount: "350 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Анна Тодорова",
+      task: "Приела оферта за грижа за възрастен",
+      amount: "25 лв/час",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Димитър Иванов",
+      task: "Приел оферта за ремонт на компютър",
+      amount: "80 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
+      rating: 4.6,
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Виктория Петрова",
+      task: "Приела оферта за готвене за сватба",
+      amount: "500 лв",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Мартин Стоянов",
+      task: "Приел оферта за транспорт на мебели",
+      amount: "150 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Ралица Димитрова",
+      task: "Приела оферта за масаж на къщи",
+      amount: "60 лв/час",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Петър Василев",
+      task: "Приел оферта за посадка на дървета",
+      amount: "200 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Силвия Георгиева",
+      task: "Приела оферта за уроци по математика",
+      amount: "20 лв/час",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Александър Тодоров",
+      task: "Приел оферта за ремонт на велосипед",
+      amount: "45 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Дария Иванова",
+      task: "Приела оферта за организиране на гардероб",
+      amount: "180 лв",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Борис Петров",
+      task: "Приел оферта за монтаж на климатик",
+      amount: "400 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
+      rating: 4.6,
+      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Надежда Стоянова",
+      task: "Приела оферта за печене на торта",
+      amount: "120 лв",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Васил Димитров",
+      task: "Приел оферта за ремонт на уреди",
+      amount: "90 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Кристина Георгиева",
+      task: "Приела оферта за грижа за растения",
+      amount: "35 лв/час",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Златина Василева",
+      task: "Приела оферта за доставка на храна",
+      amount: "25 лв",
+      type: "Приела работа",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=500&fit=crop"
+    },
+    {
+      name: "Георги Тодоров",
+      task: "Приел оферта за шиене на дрехи",
+      amount: "150 лв",
+      type: "Приел работа",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
+    }
+  ];
+
   // Service cards data for scrolling
   const serviceCards = [
     {
@@ -313,190 +497,6 @@ export default function HomePage() {
     }
   ]
 
-  // Real-time task examples with user profiles and images
-  const taskExamples = [
-    {
-      name: "Иван Петров",
-      task: "Прие оферта за разходка на куче",
-      amount: "30 лв/час",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Геновева Стоянова", 
-      task: "Приела оферта за кетъринг услуги",
-      amount: "15 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Стефан Димитров",
-      task: "Приел оферта за бъркане на бетон",
-      amount: "120 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Елена Василева",
-      task: "Приела оферта за пролетно почистване",
-      amount: "220 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Николай Георгиев",
-      task: "Приел оферта за монтаж на мебели",
-      amount: "350 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Анна Тодорова",
-      task: "Приела оферта за грижа за възрастен",
-      amount: "25 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Димитър Иванов",
-      task: "Приел оферта за ремонт на компютър",
-      amount: "80 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Виктория Петрова",
-      task: "Приела оферта за готвене за сватба",
-      amount: "500 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Мартин Стоянов",
-      task: "Приел оферта за транспорт на мебели",
-      amount: "150 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Ралица Димитрова",
-      task: "Приела оферта за масаж на къщи",
-      amount: "60 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Петър Василев",
-      task: "Приел оферта за посадка на дървета",
-      amount: "200 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Силвия Георгиева",
-      task: "Приела оферта за уроци по математика",
-      amount: "20 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Александър Тодоров",
-      task: "Приел оферта за ремонт на велосипед",
-      amount: "45 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Дария Иванова",
-      task: "Приела оферта за организиране на гардероб",
-      amount: "180 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Борис Петров",
-      task: "Приел оферта за монтаж на климатик",
-      amount: "400 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Надежда Стоянова",
-      task: "Приела оферта за печене на торта",
-      amount: "120 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Васил Димитров",
-      task: "Приел оферта за ремонт на уреди",
-      amount: "90 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Кристина Георгиева",
-      task: "Приела оферта за грижа за растения",
-      amount: "35 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Златина Василева",
-      task: "Приела оферта за доставка на храна",
-      amount: "25 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Георги Тодоров",
-      task: "Приел оферта за шиене на дрехи",
-      amount: "150 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop"
-    }
-  ];
-
   const recentTasks = [
     {
       id: "1",
@@ -604,7 +604,7 @@ export default function HomePage() {
                   onClick={handlePostTask}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg"
                 >
-                  Публикувай обява безплатно
+                                      Публикувай обява безплатно
                   <ArrowRight size={20} />
                 </button>
                 <button
@@ -763,7 +763,7 @@ export default function HomePage() {
               {/* Left - Value Proposition */}
               <div>
                 <h2 className={`text-4xl font-bold text-gray-900 mb-6 transition-all duration-1000 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Печели допълнително с уменията си – по твой график
+                                      Печели допълнително с уменията си – по твой график
                 </h2>
                 <p className={`text-xl text-gray-600 mb-8 transition-all duration-1000 delay-300 ${taskersInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   Независимо дали сте гений в електронните таблици или усърден дърводелец, намерете следващата си работа в Rabotim.
