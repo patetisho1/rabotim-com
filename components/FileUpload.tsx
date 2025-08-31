@@ -171,7 +171,7 @@ export default function FileUpload({
   }
 
   const takePhoto = () => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    if (navigator.mediaDevices) {
       const input = document.createElement('input')
       input.type = 'file'
       input.accept = 'image/*'
