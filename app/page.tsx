@@ -638,134 +638,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Post Your First Task Section */}
-        <section className="py-20 px-4 bg-gray-50">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-              
-              {/* Left Column - How it works */}
-              <div className="flex flex-col justify-center">
-                <div className="max-w-md">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
-                    Публикувайте първата си задача за секунди
-                  </h2>
-                  <p className="text-xl text-gray-600 mb-8">
-                    Спестете си часове и изпълнете списъка си със задачи
-                  </p>
-                  
-                  {/* Steps */}
-                  <div className="space-y-6 mb-8">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                        1
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          Опишете какво ви е необходимо
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                          Детайлно описание на задачата, която искате да бъде изпълнена
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                        2
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          Определете бюджета си
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                          Задайте бюджет и срок за изпълнение на задачата
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                        3
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          Получете оферти и изберете най-добрия изпълнител
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                          Сравнете предложенията и изберете най-подходящия изпълнител
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* CTA Button */}
-                  <button 
-                    onClick={handlePostTask}
-                    className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg mb-6"
-                  >
-                    Публикувайте задачата си
-                  </button>
-                  
-                  {/* Learn How It Works Link */}
-                  <div className="text-center">
-                    <Link 
-                      href="/how-it-works" 
-                      className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-lg"
-                    >
-                      Научете как работи
-                      <ArrowRight size={16} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
 
-              {/* Right Column - Service Categories Grid with Auto-scroll */}
-              <div className="w-full">
-                <div className="bg-blue-50 rounded-xl p-8 h-[600px] overflow-hidden relative shadow-sm">
-                  <div
-                    ref={containerRef}
-                    className="absolute inset-0 w-full h-full grid grid-cols-2 gap-6 p-8"
-                    style={{ 
-                      transform: `translateY(${-scrollPosition}px)`
-                    }}
-                  >
-                    {serviceCards.concat(serviceCards).map((service, index) => (
-                      <div key={index} className="relative h-52 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-6">
-                        {/* Background Image */}
-                        <img 
-                          src={service.image} 
-                          alt={service.name}
-                          className="w-full h-full object-cover"
-                        />
-                        
-                        {/* Dark Overlay */}
-                        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                        
-                        {/* Content */}
-                        <div className="absolute inset-0 p-5 flex flex-col justify-between">
-                          {/* Avatar */}
-                          <div className="flex justify-start">
-                            <img 
-                              src={service.avatar} 
-                              alt="Profile" 
-                              className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
-                            />
-                          </div>
-                          
-                          {/* Text */}
-                          <div className="text-white">
-                            <h3 className="font-bold text-lg mb-2">{service.name}</h3>
-                            <p className="text-sm opacity-90 leading-relaxed">{service.subtitle}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
 
 
@@ -1040,10 +913,21 @@ export default function HomePage() {
             <div className={`text-center transition-all duration-1000 delay-700 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <button 
                 onClick={handlePostTask}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 mb-6"
               >
                 Публикувайте задачата си безплатно
               </button>
+              
+              {/* Learn How It Works Link */}
+              <div className="text-center">
+                <Link 
+                  href="/how-it-works" 
+                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-lg"
+                >
+                  Научете как работи
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
