@@ -444,14 +444,7 @@ export default function HomePage() {
     return () => clearInterval(taskExampleInterval)
   }, [])
 
-  // Simulate user registration counter (for demo purposes)
-  useEffect(() => {
-    const userCounterInterval = setInterval(() => {
-      setRegisteredUsers(prev => prev + Math.floor(Math.random() * 3) + 1) // Add 1-3 users randomly
-    }, 30000) // Update every 30 seconds
 
-    return () => clearInterval(userCounterInterval)
-  }, [])
 
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
     setSearchQuery(query)
@@ -852,15 +845,53 @@ export default function HomePage() {
               <h3 className="text-3xl font-bold text-gray-900 mb-4">
                 {registeredUsers} регистрирани потребители печелят допълнителен или основен доход в Rabotim.com
               </h3>
-              <p className="text-xl text-gray-600 mb-6">
-                Станете част от нашата общност. Поемайте задачи съответсващи на вашите възможности. Можете да заварявате - някой има нужда от вас. Можете да боядисвате - някой има стена за боядисване. Можете да направите сайт - някой ще плати за това. Искате просто да се разходите - Чудесно, защо не разходите кучето на някой, който е зает.
+              <p className="text-xl text-gray-600 mb-8">
+                Независимо дали сте опитен електротехник, квалифициран майстор или усърден дърводелец, намерете следващата си работа в Rabotim.
               </p>
+              
+              {/* Benefits Checklist */}
+              <div className="max-w-2xl mx-auto mb-8">
+                <div className="space-y-4 text-left">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-lg text-gray-900">Безплатен достъп до хиляди възможности за работа</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-lg text-gray-900">Без абонамент или кредитни такси</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-lg text-gray-900">Печелете допълнителен доход с гъвкав график</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-lg text-gray-900">Развийте бизнеса и клиентската база</span>
+                  </div>
+                </div>
+              </div>
+              
               <Link 
-                href="/tasks" 
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200"
+                href="/register" 
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                Разгледайте активните обяви
-                <ArrowRight size={16} />
+                Печелете пари като изпълнител
               </Link>
             </div>
           </div>
