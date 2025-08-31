@@ -41,7 +41,7 @@ export default function UserProfile({
   const [errors, setErrors] = useState<Partial<Record<keyof UserData, string>>>({})
   const [newSkill, setNewSkill] = useState('')
   const [newLanguage, setNewLanguage] = useState('')
-  const fileUploadRef = useRef<any>(null)
+  const fileUploadRef = useRef<HTMLInputElement>(null)
 
   const skills = [
     'Почистване', 'Майсторски услуги', 'Транспорт', 'Дизайн', 'Обучение',
@@ -190,7 +190,7 @@ export default function UserProfile({
             
             {isOwnProfile && isEditing && (
               <button
-                onClick={() => fileUploadRef.current?.openFileDialog()}
+                onClick={() => fileUploadRef.current?.click()}
                 className="absolute bottom-2 right-2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
               >
                 <Camera size={16} />
@@ -540,14 +540,16 @@ export default function UserProfile({
       )}
 
       {/* Hidden File Upload */}
-      <FileUpload
+      <input
         ref={fileUploadRef}
-        onFilesSelected={handleAvatarChange}
-        maxFiles={1}
-        maxFileSize={2}
-        acceptedTypes={['image/*']}
-        showPreview={false}
-        multiple={false}
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const files = e.target.files
+          if (files && files.length > 0) {
+            handleAvatarChange(Array.from(files))
+          }
+        }}
         className="hidden"
       />
     </div>

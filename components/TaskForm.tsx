@@ -597,11 +597,16 @@ export default function TaskForm({
       {showLocationPicker && (
         <LocationPicker
           onLocationSelect={(location) => {
-            handleInputChange('location', location)
+            handleInputChange('location', location.name)
             setShowLocationPicker(false)
           }}
           onClose={() => setShowLocationPicker(false)}
-          currentLocation={formData.location}
+          currentLocation={formData.location ? {
+            id: 'current',
+            name: formData.location,
+            address: formData.location,
+            type: 'recent' as const
+          } : undefined}
         />
       )}
     </div>
