@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, MapPin, Clock, DollarSign, User, Star, Calendar, Phone, Mail, MessageSquare, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
-import ImageGallery from '../../../components/ImageGallery'
+import ImageGallery from '../../components/ImageGallery'
 
 interface Attachment {
   name: string
@@ -377,7 +377,14 @@ export default function TaskDetailPage() {
             {/* Image Gallery */}
             {task.attachments && task.attachments.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <ImageGallery attachments={task.attachments} />
+                <ImageGallery 
+                  images={task.attachments.map(attachment => ({
+                    id: attachment.name,
+                    src: attachment.url,
+                    alt: attachment.name,
+                    thumbnail: attachment.url
+                  }))} 
+                />
               </div>
             )}
 
