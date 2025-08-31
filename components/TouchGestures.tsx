@@ -1,268 +1,197 @@
 'use client'
 
-import { useState, useRef, useEffect, ReactNode } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { RefreshCw, ArrowLeft, ArrowRight, Home, Search, Heart, User } from 'lucide-react'
 
 interface TouchGesturesProps {
-  children: ReactNode
-  onSwipeLeft?: () => void
-  onSwipeRight?: () => void
-  onSwipeUp?: () => void
-  onSwipeDown?: () => void
-  onLongPress?: () => void
-  onDoubleTap?: () => void
-  threshold?: number
-  longPressDelay?: number
-  className?: string
+  children: React.ReactNode
+  onRefresh?: () => void
+  currentPath?: string
 }
 
-export default function TouchGestures({
-  children,
-  onSwipeLeft,
-  onSwipeRight,
-  onSwipeUp,
-  onSwipeDown,
-  onLongPress,
-  onDoubleTap,
-  threshold = 50,
-  longPressDelay = 500,
-  className = ''
-}: TouchGesturesProps) {
-  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
-  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null)
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
-  const [lastTap, setLastTap] = useState<number>(0)
-  const [isLongPressing, setIsLongPressing] = useState(false)
-  
-  const elementRef = useRef<HTMLDivElement>(null)
+export default function TouchGestures({ children, onRefresh, currentPath = '/' }: TouchGesturesProps) {
+  const router = useRouter()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [pullDistance, setPullDistance] = useState(0)
+  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 })
+  const [touchEnd, setTouchEnd] = useState({ x: 0, y: 0 })
+  const [showRefreshIndicator, setShowRefreshIndicator] = useState(false)
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0]
-    setTouchStart({ x: touch.clientX, y: touch.clientY })
-    setTouchEnd(null)
-    setIsLongPressing(false)
+  // Minimum swipe distance
+  const minSwipeDistance = 50
 
-    // Start long press timer
-    const timer = setTimeout(() => {
-      setIsLongPressing(true)
-      onLongPress?.()
-    }, longPressDelay)
-    
-    setLongPressTimer(timer)
+  // Navigation paths for swipe gestures
+  const navigationPaths = {
+    '/': { left: '/tasks', right: '/favorites' },
+    '/tasks': { left: '/favorites', right: '/' },
+    '/favorites': { left: '/', right: '/tasks' },
+    '/profile': { left: '/favorites', right: '/tasks' }
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (isLongPressing) return
-    
-    const touch = e.touches[0]
-    setTouchEnd({ x: touch.clientX, y: touch.clientY })
-    
-    // Cancel long press if user moves finger
-    if (longPressTimer) {
-      clearTimeout(longPressTimer)
-      setLongPressTimer(null)
-    }
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchStart({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY })
+    setTouchEnd({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY })
   }
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    // Clear long press timer
-    if (longPressTimer) {
-      clearTimeout(longPressTimer)
-      setLongPressTimer(null)
-    }
-
-    if (!touchStart || !touchEnd) {
-      // Handle tap/double tap
-      const now = Date.now()
-      const DOUBLE_TAP_DELAY = 300
+  const handleTouchMove = (e: TouchEvent) => {
+    setTouchEnd({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY })
+    
+    // Pull to refresh logic
+    if (e.targetTouches[0].clientY > touchStart.y && window.scrollY === 0) {
+      const distance = e.targetTouches[0].clientY - touchStart.y
+      setPullDistance(Math.min(distance * 0.5, 100))
       
-      if (now - lastTap < DOUBLE_TAP_DELAY) {
-        onDoubleTap?.()
-        setLastTap(0)
-      } else {
-        setLastTap(now)
+      if (distance > 80) {
+        setShowRefreshIndicator(true)
       }
-      return
     }
+  }
 
+  const handleTouchEnd = () => {
     const distanceX = touchStart.x - touchEnd.x
     const distanceY = touchStart.y - touchEnd.y
     const isHorizontalSwipe = Math.abs(distanceX) > Math.abs(distanceY)
-    const isVerticalSwipe = Math.abs(distanceY) > Math.abs(distanceX)
-
-    if (isHorizontalSwipe && Math.abs(distanceX) > threshold) {
-      if (distanceX > 0) {
-        onSwipeLeft?.()
-      } else {
-        onSwipeRight?.()
+    
+    if (isHorizontalSwipe && Math.abs(distanceX) > minSwipeDistance) {
+      // Horizontal swipe navigation
+      const currentPaths = navigationPaths[currentPath as keyof typeof navigationPaths]
+      if (currentPaths) {
+        if (distanceX > 0) {
+          // Swipe left - go to right path
+          router.push(currentPaths.right)
+        } else {
+          // Swipe right - go to left path
+          router.push(currentPaths.left)
+        }
       }
-    } else if (isVerticalSwipe && Math.abs(distanceY) > threshold) {
-      if (distanceY > 0) {
-        onSwipeUp?.()
-      } else {
-        onSwipeDown?.()
-      }
+    } else if (distanceY > 80 && window.scrollY === 0 && showRefreshIndicator) {
+      // Pull to refresh
+      handleRefresh()
     }
-
-    setTouchStart(null)
-    setTouchEnd(null)
-    setIsLongPressing(false)
+    
+    // Reset states
+    setPullDistance(0)
+    setShowRefreshIndicator(false)
+    setTouchStart({ x: 0, y: 0 })
+    setTouchEnd({ x: 0, y: 0 })
   }
 
-  const handleTouchCancel = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer)
-      setLongPressTimer(null)
+  const handleRefresh = async () => {
+    if (!onRefresh) return
+    
+    setIsRefreshing(true)
+    try {
+      await onRefresh()
+    } finally {
+      setIsRefreshing(false)
     }
-    setTouchStart(null)
-    setTouchEnd(null)
-    setIsLongPressing(false)
   }
 
-  // Cleanup on unmount
+  // Keyboard navigation for desktop
   useEffect(() => {
-    return () => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return // Don't handle navigation when typing
+      }
+      
+      const currentPaths = navigationPaths[currentPath as keyof typeof navigationPaths]
+      if (!currentPaths) return
+      
+      switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault()
+          router.push(currentPaths.left)
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          router.push(currentPaths.right)
+          break
+        case 'Home':
+          e.preventDefault()
+          router.push('/')
+          break
       }
     }
-  }, [longPressTimer])
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentPath, router])
+
+  // Touch event listeners
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: true })
+    container.addEventListener('touchmove', handleTouchMove, { passive: true })
+    container.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart)
+      container.removeEventListener('touchmove', handleTouchMove)
+      container.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [touchStart, touchEnd, showRefreshIndicator])
 
   return (
-    <div
-      ref={elementRef}
-      className={`touch-feedback ${className}`}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
-      style={{
-        touchAction: 'manipulation',
-        WebkitTouchCallout: 'none',
-        WebkitUserSelect: 'none',
-        userSelect: 'none'
-      }}
-    >
-      {children}
-      
-      {/* Visual feedback for long press */}
-      {isLongPressing && (
-        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 rounded-lg pointer-events-none animate-pulse" />
+    <div ref={containerRef} className="relative min-h-screen">
+      {/* Pull to Refresh Indicator */}
+      {pullDistance > 0 && (
+        <div 
+          className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 transition-all duration-200"
+          style={{ height: `${pullDistance}px` }}
+        >
+          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+            <RefreshCw 
+              size={20} 
+              className={`transition-transform duration-200 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+            <span className="text-sm font-medium">
+              {showRefreshIndicator ? 'Пусни за обновяване' : 'Дръпни за обновяване'}
+            </span>
+          </div>
+        </div>
       )}
+
+      {/* Swipe Navigation Hints */}
+      <div className="fixed top-4 left-4 z-40 md:hidden">
+        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-2 py-1 rounded-full">
+          <ArrowLeft size={12} />
+          <span>Свайп за навигация</span>
+          <ArrowRight size={12} />
+        </div>
+      </div>
+
+      {/* Navigation Dots Indicator */}
+      <div className="fixed top-4 right-4 z-40 md:hidden">
+        <div className="flex items-center gap-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-2 py-1 rounded-full">
+          <div className={`w-2 h-2 rounded-full transition-colors ${
+            currentPath === '/' ? 'bg-blue-600' : 'bg-gray-300'
+          }`} />
+          <div className={`w-2 h-2 rounded-full transition-colors ${
+            currentPath === '/tasks' ? 'bg-blue-600' : 'bg-gray-300'
+          }`} />
+          <div className={`w-2 h-2 rounded-full transition-colors ${
+            currentPath === '/favorites' ? 'bg-blue-600' : 'bg-gray-300'
+          }`} />
+          <div className={`w-2 h-2 rounded-full transition-colors ${
+            currentPath === '/profile' ? 'bg-blue-600' : 'bg-gray-300'
+          }`} />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative">
+        {children}
+      </div>
+
+      {/* Swipe Gesture Overlay for Visual Feedback */}
+      <div className="fixed inset-0 pointer-events-none z-30 md:hidden">
+        <div className="absolute top-0 left-0 w-20 h-full bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 transition-opacity duration-200" />
+        <div className="absolute top-0 right-0 w-20 h-full bg-gradient-to-l from-blue-500/10 to-transparent opacity-0 transition-opacity duration-200" />
+      </div>
     </div>
   )
-}
-
-// Hook for touch gestures
-export function useTouchGestures() {
-  const [gestures, setGestures] = useState({
-    swipeLeft: false,
-    swipeRight: false,
-    swipeUp: false,
-    swipeDown: false,
-    longPress: false,
-    doubleTap: false
-  })
-
-  const resetGestures = () => {
-    setGestures({
-      swipeLeft: false,
-      swipeRight: false,
-      swipeUp: false,
-      swipeDown: false,
-      longPress: false,
-      doubleTap: false
-    })
-  }
-
-  return { gestures, resetGestures }
-}
-
-// Hook for detecting device capabilities
-export function useDeviceCapabilities() {
-  const [capabilities, setCapabilities] = useState({
-    isTouch: false,
-    isMobile: false,
-    isTablet: false,
-    isDesktop: false,
-    hasHover: false,
-    hasPointer: false
-  })
-
-  useEffect(() => {
-    const updateCapabilities = () => {
-      const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-      const isMobile = window.innerWidth <= 768
-      const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024
-      const isDesktop = window.innerWidth > 1024
-      const hasHover = window.matchMedia('(hover: hover)').matches
-      const hasPointer = window.matchMedia('(pointer: fine)').matches
-
-      setCapabilities({
-        isTouch,
-        isMobile,
-        isTablet,
-        isDesktop,
-        hasHover,
-        hasPointer
-      })
-    }
-
-    updateCapabilities()
-    window.addEventListener('resize', updateCapabilities)
-    
-    return () => window.removeEventListener('resize', updateCapabilities)
-  }, [])
-
-  return capabilities
-}
-
-// Hook for detecting orientation changes
-export function useOrientation() {
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait')
-
-  useEffect(() => {
-    const updateOrientation = () => {
-      setOrientation(window.innerHeight > window.innerWidth ? 'portrait' : 'landscape')
-    }
-
-    updateOrientation()
-    window.addEventListener('resize', updateOrientation)
-    window.addEventListener('orientationchange', updateOrientation)
-    
-    return () => {
-      window.removeEventListener('resize', updateOrientation)
-      window.removeEventListener('orientationchange', updateOrientation)
-    }
-  }, [])
-
-  return orientation
-}
-
-// Hook for detecting safe areas
-export function useSafeAreas() {
-  const [safeAreas, setSafeAreas] = useState({
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-  })
-
-  useEffect(() => {
-    const updateSafeAreas = () => {
-      const style = getComputedStyle(document.documentElement)
-      setSafeAreas({
-        top: parseInt(style.getPropertyValue('--sat') || '0'),
-        right: parseInt(style.getPropertyValue('--sar') || '0'),
-        bottom: parseInt(style.getPropertyValue('--sab') || '0'),
-        left: parseInt(style.getPropertyValue('--sal') || '0')
-      })
-    }
-
-    updateSafeAreas()
-    window.addEventListener('resize', updateSafeAreas)
-    
-    return () => window.removeEventListener('resize', updateSafeAreas)
-  }, [])
-
-  return safeAreas
 } 

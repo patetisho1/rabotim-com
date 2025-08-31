@@ -58,6 +58,8 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
   const [isSaved, setIsSaved] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [isBoosted, setIsBoosted] = useState(false)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
 
   useEffect(() => {
     // Проверка дали задачата е в любими
@@ -99,6 +101,51 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     }
   }
 
+  // Swipe gesture handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+
+    if (isLeftSwipe) {
+      // Left swipe - add to favorites
+      handleFavoriteToggle()
+    } else if (isRightSwipe) {
+      // Right swipe - share task
+      handleShare()
+    }
+
+    setTouchStart(0)
+    setTouchEnd(0)
+  }
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: task.title,
+          text: task.description,
+          url: `${window.location.origin}/task/${task.id}`,
+        })
+      } catch (error) {
+        console.log('Error sharing:', error)
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      setShowShareMenu(!showShareMenu)
+    }
+  }
+
   const handleSaveToggle = () => {
     const newSavedState = !isSaved
     setIsSaved(newSavedState)
@@ -119,29 +166,6 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     }
     
     localStorage.setItem('savedTasks', JSON.stringify(saved))
-  }
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: task.title,
-          text: task.description,
-          url: `${window.location.origin}/task/${task.id}`
-        })
-      } catch (error) {
-        console.log('Error sharing:', error)
-      }
-    } else {
-      // Fallback - копиране на линка
-      navigator.clipboard.writeText(`${window.location.origin}/task/${task.id}`)
-      toast.success('Линкът е копиран в клипборда')
-    }
-    setShowShareMenu(false)
-  }
-
-  const handleTaskClick = () => {
-    router.push(`/task/${task.id}`)
   }
 
   const handleBoostClick = () => {
@@ -173,202 +197,188 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     return category ? category.label : categoryValue
   }
 
+  const formatPrice = (price: number, priceType: string) => {
+    return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
+  }
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
+    const diffTime = date.getTime() - now.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
-    if (diffDays === 1) return 'Днес'
-    if (diffDays === 2) return 'Вчера'
-    if (diffDays <= 7) return `преди ${diffDays - 1} дни`
-    
-    return date.toLocaleDateString('bg-BG', {
-      day: 'numeric',
-      month: 'short'
-    })
-  }
-
-  const formatPrice = (price: number, priceType: string) => {
-    if (priceType === 'hourly') {
-      return `${price} лв/час`
-    }
-    return `${price} лв`
+    if (diffDays < 0) return 'Изтекъл срок'
+    if (diffDays === 0) return 'Днес'
+    if (diffDays === 1) return 'Утре'
+    if (diffDays <= 7) return `След ${diffDays} дни`
+    return date.toLocaleDateString('bg-BG')
   }
 
   return (
-    <div className="card p-6 hover:shadow-md transition-all duration-200 cursor-pointer group">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <Tag size={16} className="text-gray-400" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {getCategoryLabel(task.category)}
-            </span>
-            {task.urgent && (
-              <span className="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full font-medium">
-                Спешно
-              </span>
-            )}
+    <div 
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-200 group cursor-pointer touch-manipulation"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onClick={() => router.push(`/task/${task.id}`)}
+    >
+      {/* Mobile-optimized card layout */}
+      <div className="p-4 sm:p-6">
+        {/* Header with title and badges */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
+              {task.title}
+            </h3>
+            
+            {/* Badges row */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {task.urgent && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                  Спешно
+                </span>
+              )}
+              {isBoosted && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
+                  <TrendingUp size={12} className="mr-1" />
+                  Boost
+                </span>
+              )}
+            </div>
           </div>
           
-          <h3 
-            className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors"
-            onClick={handleTaskClick}
-          >
-            {task.title}
-          </h3>
+          {/* Price - Mobile optimized */}
+          <div className="text-right ml-3 flex-shrink-0">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {formatPrice(task.price, task.priceType)}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {task.applications} оферти
+            </div>
+          </div>
         </div>
-        
-        {/* Action Buttons */}
+
+        {/* Description */}
+        <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-4 line-clamp-3">
+          {task.description}
+        </p>
+
+        {/* Task details grid - Mobile optimized */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <MapPin size={16} className="flex-shrink-0" />
+            <span className="truncate">{task.location}</span>
+          </div>
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <Calendar size={16} className="flex-shrink-0" />
+            <span>{formatDate(task.postedDate)}</span>
+          </div>
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <User size={16} className="flex-shrink-0" />
+            <span className="truncate">{task.postedBy}</span>
+          </div>
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <Eye size={16} className="flex-shrink-0" />
+            <span>{task.views}</span>
+          </div>
+        </div>
+
+        {/* Rating and category */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Star size={16} className="text-yellow-400 fill-current" />
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {task.rating}
+              </span>
+            </div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              ({task.reviewCount} отзива)
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <Tag size={16} />
+            <span>{task.category}</span>
+          </div>
+        </div>
+
+        {/* Action buttons - Mobile optimized with larger touch targets */}
         {showActions && (
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex gap-2 sm:gap-3">
             <button
-              onClick={handleFavoriteToggle}
-              className={`p-2 rounded-lg transition-colors ${
-                isFavorite 
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+              onClick={(e) => {
+                e.stopPropagation()
+                handleFavoriteToggle()
+              }}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200 min-h-[48px] touch-manipulation ${
+                isFavorite
+                  ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+                  : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
               }`}
-              title={isFavorite ? 'Премахни от любими' : 'Добави в любими'}
             >
-              {isFavorite ? <Heart size={16} className="fill-current" /> : <Heart size={16} />}
+              {isFavorite ? <Heart size={18} className="fill-current" /> : <HeartOff size={18} />}
+              <span className="hidden sm:inline">Любима</span>
             </button>
-
+            
             <button
-              onClick={handleSaveToggle}
-              className={`p-2 rounded-lg transition-colors ${
-                isSaved 
-                  ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-              }`}
-              title={isSaved ? 'Премахни от запазени' : 'Запази задача'}
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/submit-offer/${task.id}`)
+              }}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 min-h-[48px] touch-manipulation"
             >
-              {isSaved ? <BookmarkCheck size={16} className="fill-current" /> : <Bookmark size={16} />}
+              <span className="hidden sm:inline">Подай оферта</span>
+              <span className="sm:hidden">Оферта</span>
             </button>
-
+            
             <button
-              onClick={handleBoostClick}
-              className={`p-2 rounded-lg transition-colors ${
-                isBoosted 
-                  ? 'text-green-500 bg-green-50 dark:bg-green-900/20' 
-                  : 'text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20'
-              }`}
-              title={isBoosted ? 'Задачата е boost-ната' : 'Boost задача'}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleShare()
+              }}
+              className="p-3 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-600 border border-gray-200 rounded-lg transition-all duration-200 min-h-[48px] min-w-[48px] flex items-center justify-center touch-manipulation dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
             >
-              <TrendingUp size={16} className={isBoosted ? 'fill-current' : ''} />
-            </button>
-
-            <button
-              onClick={() => setShowShareMenu(!showShareMenu)}
-              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Сподели задача"
-            >
-              <Share2 size={16} />
+              <Share2 size={18} />
             </button>
           </div>
         )}
       </div>
 
-      {/* Boost Badge */}
-      {isBoosted && (
-        <div className="mb-3">
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-            <TrendingUp size={12} />
-            Boost-ната
-          </span>
-        </div>
-      )}
-
-      {/* Description */}
-      <p 
-        className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3"
-        onClick={handleTaskClick}
-      >
-        {task.description}
-      </p>
-
-      {/* Attachments */}
-      {task.attachments && task.attachments.length > 0 && (
-        <div className="mb-4">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {task.attachments.slice(0, 3).map((attachment, index) => (
-              <div key={index} className="flex-shrink-0">
-                <img
-                  src={attachment.url}
-                  alt={attachment.name}
-                  className="w-16 h-16 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                />
-              </div>
-            ))}
-            {task.attachments.length > 3 && (
-              <div className="flex-shrink-0 w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500">
-                +{task.attachments.length - 3}
-              </div>
-            )}
+      {/* Share menu overlay */}
+      {showShareMenu && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4">Сподели задача</h3>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/task/${task.id}`)
+                  toast.success('Линкът е копиран!')
+                  setShowShareMenu(false)
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Копирай линк
+              </button>
+              <button
+                onClick={() => {
+                  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/task/${task.id}`)}`, '_blank')
+                  setShowShareMenu(false)
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Сподели във Facebook
+              </button>
+              <button
+                onClick={() => setShowShareMenu(false)}
+                className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Затвори
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* Location and Date */}
-      <div className="flex items-center justify-between mb-4 text-sm text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-1">
-          <MapPin size={14} />
-          <span>{task.location}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Calendar size={14} />
-          <span>{formatDate(task.postedDate)}</span>
-        </div>
-      </div>
-
-      {/* Price and Rating */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <DollarSign size={16} className="text-green-600" />
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {formatPrice(task.price, task.priceType)}
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-1">
-          <Star size={16} className="text-yellow-500 fill-current" />
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            {task.rating}
-          </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            ({task.reviewCount})
-          </span>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1">
-            <Eye size={14} />
-            <span>{task.views}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageCircle size={14} />
-            <span>{task.applications} кандидати</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-1">
-          <User size={14} />
-          <span>{task.postedBy}</span>
-        </div>
-      </div>
-
-      {/* Action Button */}
-      <button
-        onClick={handleTaskClick}
-        className="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
-      >
-        Преглед на задача
-      </button>
     </div>
   )
 } 

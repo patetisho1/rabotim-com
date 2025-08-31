@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, MapPin, Filter, X, SlidersHorizontal, Star, Clock, Zap, Bookmark, BookmarkCheck } from 'lucide-react'
+import { Search, MapPin, Filter, X, SlidersHorizontal, Star, Clock, Zap, Bookmark, BookmarkCheck, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface SearchSectionProps {
@@ -22,6 +22,7 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
   })
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false)
   const [searchName, setSearchName] = useState('')
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
 
   // Зареждане на запазени филтри от localStorage
   useEffect(() => {
@@ -33,6 +34,10 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
       setLocation(parsed.location || '')
       setFilters(parsed.filters || {})
     }
+
+    // Зареждане на последните търсения
+    const recent = JSON.parse(localStorage.getItem('recentSearches') || '[]')
+    setRecentSearches(recent.slice(0, 5)) // Показваме само последните 5
   }, [])
 
   // Запазване на филтри в localStorage
@@ -49,6 +54,15 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     saveFilters()
+    
+    // Запазване в последните търсения
+    if (query.trim()) {
+      const recent = JSON.parse(localStorage.getItem('recentSearches') || '[]')
+      const newRecent = [query.trim(), ...recent.filter((q: string) => q !== query.trim())].slice(0, 10)
+      localStorage.setItem('recentSearches', JSON.stringify(newRecent))
+      setRecentSearches(newRecent.slice(0, 5))
+    }
+    
     onSearch(query, category, location, filters)
   }
 
@@ -91,23 +105,34 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
         newFilters.urgent = !filters.urgent
         break
       case 'today':
-        newFilters.datePosted = 'today'
+        newFilters.datePosted = filters.datePosted === 'today' ? '' : 'today'
         break
       case 'week':
-        newFilters.datePosted = 'week'
+        newFilters.datePosted = filters.datePosted === 'week' ? '' : 'week'
         break
       case 'highRating':
-        newFilters.rating = '4'
+        newFilters.rating = filters.rating === '4' ? '' : '4'
         break
-      case 'lowPrice':
-        newFilters.priceMax = '50'
+      case 'clear':
+        newFilters = {
+          priceMin: '',
+          priceMax: '',
+          urgent: false,
+          rating: '',
+          datePosted: ''
+        }
         break
     }
     
     setFilters(newFilters)
   }
 
-  const clearFilters = () => {
+  const handleRecentSearchClick = (searchQuery: string) => {
+    setQuery(searchQuery)
+    onSearch(searchQuery, category, location, filters)
+  }
+
+  const clearSearch = () => {
     setQuery('')
     setCategory('')
     setLocation('')
@@ -118,7 +143,7 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
       rating: '',
       datePosted: ''
     })
-    localStorage.removeItem('searchFilters')
+    onSearch('', '', '', {})
   }
 
   const categories = [
@@ -210,117 +235,183 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
     filters.rating || filters.datePosted
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-        {/* Main Search Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                     {/* Search Input */}
-           <div className="md:col-span-2">
-             <input
-               type="text"
-               placeholder="Какво търсите? (напр. почистване, ремонт, доставка)"
-               value={query}
-               onChange={(e) => setQuery(e.target.value)}
-               className="input dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-             />
-           </div>
-
-          {/* Category Filter */}
-          <div>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="input appearance-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              {categories.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.icon ? `${cat.icon} ${cat.label}` : cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Location Filter */}
-          <div>
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="input appearance-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              {locations.map((loc) => (
-                <option key={loc.value} value={loc.value}>
-                  {loc.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Quick Filters */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {quickFilters.map((filter) => {
-            const IconComponent = filter.icon
-            return (
-              <button
-                key={filter.key}
-                type="button"
-                onClick={() => handleQuickFilter(filter.key)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filter.active
-                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                }`}
-              >
-                <IconComponent size={16} />
-                {filter.label}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Advanced Filters Toggle */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-            >
-              <SlidersHorizontal size={16} />
-              {showAdvancedFilters ? 'Скрий' : 'Покажи'} разширени филтри
-            </button>
-            
-            {hasActiveFilters && (
+    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-40">
+      <div className="max-w-6xl mx-auto px-4 py-4">
+        {/* Main Search Form - Mobile Optimized */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Search Input - Full Width Mobile */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Търси задачи, услуги, умения..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full pl-10 pr-12 py-3 sm:py-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-base sm:text-lg"
+            />
+            {query && (
               <button
                 type="button"
-                onClick={() => setShowSaveSearchModal(true)}
-                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                onClick={() => setQuery('')}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                <Bookmark size={16} />
-                Запази търсене
+                <X size={20} />
               </button>
             )}
           </div>
-          
-          {hasActiveFilters && (
+
+          {/* Filter Chips - Mobile Optimized */}
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={clearFilters}
-              className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              onClick={() => handleQuickFilter('urgent')}
+              className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-colors min-h-[40px] touch-manipulation ${
+                filters.urgent
+                  ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
             >
-              <X size={16} />
-              Изчисти филтри
+              <Zap size={14} />
+              Спешно
             </button>
-          )}
-        </div>
+            
+            <button
+              type="button"
+              onClick={() => handleQuickFilter('today')}
+              className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-colors min-h-[40px] touch-manipulation ${
+                filters.datePosted === 'today'
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Clock size={14} />
+              Днес
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleQuickFilter('week')}
+              className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-colors min-h-[40px] touch-manipulation ${
+                filters.datePosted === 'week'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Calendar size={14} />
+              Тази седмица
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleQuickFilter('highRating')}
+              className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-colors min-h-[40px] touch-manipulation ${
+                filters.rating === '4'
+                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Star size={14} />
+              4+ звезди
+            </button>
+            
+            {(filters.urgent || filters.datePosted || filters.rating) && (
+              <button
+                type="button"
+                onClick={() => handleQuickFilter('clear')}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500 transition-colors min-h-[40px] touch-manipulation"
+              >
+                <X size={14} />
+                Изчисти
+              </button>
+            )}
+          </div>
 
-        {/* Advanced Filters */}
-        {showAdvancedFilters && (
-          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Recent Searches - Mobile Optimized */}
+          {recentSearches.length > 0 && !query && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Последни търсения:</h4>
+              <div className="flex flex-wrap gap-2">
+                {recentSearches.map((search, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handleRecentSearchClick(search)}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors min-h-[40px] touch-manipulation"
+                  >
+                    <Search size={14} />
+                    {search}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Advanced Filters Toggle - Mobile Optimized */}
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors min-h-[44px] touch-manipulation"
+            >
+              <SlidersHorizontal size={16} />
+              Разширени филтри
+            </button>
+            
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors min-h-[44px] px-3 touch-manipulation"
+            >
+              Изчисти всичко
+            </button>
+          </div>
+
+          {/* Advanced Filters - Mobile Optimized */}
+          {showAdvancedFilters && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              {/* Category Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Категория
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white text-sm"
+                >
+                  <option value="">Всички категории</option>
+                  <option value="cleaning">Почистване</option>
+                  <option value="handyman">Майсторски услуги</option>
+                  <option value="transport">Транспорт</option>
+                  <option value="design">Дизайн</option>
+                  <option value="education">Обучение</option>
+                  <option value="it">IT услуги</option>
+                  <option value="gardening">Градинарство</option>
+                </select>
+              </div>
+
+              {/* Location Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Локация
+                </label>
+                <select
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white text-sm"
+                >
+                  <option value="">Всички локации</option>
+                  <option value="sofia">София</option>
+                  <option value="plovdiv">Пловдив</option>
+                  <option value="varna">Варна</option>
+                  <option value="burgas">Бургас</option>
+                  <option value="ruse">Русе</option>
+                </select>
+              </div>
+
               {/* Price Range */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Цена (лв)
                 </label>
                 <div className="flex gap-2">
@@ -328,141 +419,73 @@ export default function SearchSection({ onSearch }: SearchSectionProps) {
                     type="number"
                     placeholder="От"
                     value={filters.priceMin}
-                    onChange={(e) => setFilters({...filters, priceMin: e.target.value})}
-                    className="input text-sm dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                    onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white text-sm"
                   />
                   <input
                     type="number"
                     placeholder="До"
                     value={filters.priceMax}
-                    onChange={(e) => setFilters({...filters, priceMax: e.target.value})}
-                    className="input text-sm dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                    onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white text-sm"
                   />
                 </div>
               </div>
 
-              {/* Rating */}
+              {/* Rating Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Минимален рейтинг
                 </label>
                 <select
                   value={filters.rating}
-                  onChange={(e) => setFilters({...filters, rating: e.target.value})}
-                  className="input text-sm dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                  onChange={(e) => setFilters({ ...filters, rating: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white text-sm"
                 >
                   <option value="">Всички</option>
                   <option value="4">4+ звезди</option>
-                  <option value="3">3+ звезди</option>
-                  <option value="2">2+ звезди</option>
+                  <option value="4.5">4.5+ звезди</option>
+                  <option value="5">5 звезди</option>
                 </select>
-              </div>
-
-              {/* Date Posted */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Публикувана
-                </label>
-                <select
-                  value={filters.datePosted}
-                  onChange={(e) => setFilters({...filters, datePosted: e.target.value})}
-                  className="input text-sm dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                >
-                  <option value="">Всички</option>
-                  <option value="today">Днес</option>
-                  <option value="week">Тази седмица</option>
-                  <option value="month">Този месец</option>
-                </select>
-              </div>
-
-              {/* Urgent Only */}
-              <div className="flex items-end">
-                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={filters.urgent}
-                    onChange={(e) => setFilters({...filters, urgent: e.target.checked})}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:bg-gray-600 dark:border-gray-500"
-                  />
-                  Само спешни
-                </label>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Search Button */}
-        <div className="mt-6">
+          {/* Search Button - Mobile Optimized */}
           <button
             type="submit"
-            className="w-full btn btn-primary text-lg py-3"
+            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 sm:py-4 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md min-h-[48px] touch-manipulation"
           >
-            <Search size={20} className="inline mr-2" />
             Търси задачи
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
 
       {/* Save Search Modal */}
       {showSaveSearchModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                  Запази търсене
-                </h3>
-                <button
-                  onClick={() => setShowSaveSearchModal(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <X size={20} className="text-gray-600 dark:text-gray-400" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Име на търсене
-                  </label>
-                  <input
-                    type="text"
-                    value={searchName}
-                    onChange={(e) => setSearchName(e.target.value)}
-                    placeholder="Напр. Спешни задачи в София"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    autoFocus
-                  />
-                </div>
-                
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                    Текущи филтри:
-                  </p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">
-                    {query && `"${query}"`} {category && `• ${category}`} {location && `• ${location}`}
-                    {filters.priceMin && filters.priceMax && ` • ${filters.priceMin}-${filters.priceMax} лв`}
-                    {filters.urgent && ' • Спешни'}
-                    {filters.rating && ` • ${filters.rating}+ звезди`}
-                  </p>
-                </div>
-                
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    onClick={() => setShowSaveSearchModal(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    Отказ
-                  </button>
-                  <button
-                    onClick={handleSaveSearch}
-                    disabled={!searchName.trim()}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Запази
-                  </button>
-                </div>
-              </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4">Запази търсене</h3>
+            <input
+              type="text"
+              placeholder="Име на търсенето"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveSearch}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                Запази
+              </button>
+              <button
+                onClick={() => setShowSaveSearchModal(false)}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                Отказ
+              </button>
             </div>
           </div>
         </div>

@@ -91,10 +91,10 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Main Actions */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4 sm:space-x-6">
             <button
               onClick={() => router.push('/')}
-              className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400"
+              className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400 min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               Rabotim.com
             </button>
@@ -227,7 +227,7 @@ export default function Header() {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => router.push('/notifications')}
-                  className="p-2 rounded relative"
+                  className="p-2 rounded relative min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <Bell size={20} className="text-gray-600 dark:text-gray-300" />
                   {notificationsCount > 0 && (
@@ -239,7 +239,7 @@ export default function Header() {
                 
                 <button
                   onClick={() => router.push('/favorites')}
-                  className="p-2 rounded relative"
+                  className="p-2 rounded relative min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -286,18 +286,18 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Enhanced */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded text-gray-600 dark:text-gray-300"
+              className="p-3 rounded text-gray-600 dark:text-gray-300 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Enhanced Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             {/* Prominent mobile post task button */}
@@ -307,63 +307,66 @@ export default function Header() {
                   router.push('/post-task')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition-colors duration-200 shadow-sm"
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full font-medium transition-colors duration-200 shadow-sm min-h-[56px] touch-manipulation"
               >
                 Пусни обява
               </button>
             </div>
             
-            {/* Mobile Navigation */}
-            <nav className="px-4 space-y-1 mb-6">
+            {/* Mobile Navigation - Enhanced */}
+            <nav className="px-4 space-y-2 mb-6">
               <button
                 onClick={() => {
                   setIsCategoriesDropdownOpen(true)
                   setIsMobileMenuOpen(false)
                 }}
-                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
               >
                 <span className="font-medium">Категории</span>
                 <ChevronDown size={16} />
               </button>
-                                <button
-                    onClick={() => {
-                      router.push('/tasks')
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <span className="font-medium">Разгледай задачи</span>
-                    <ArrowRight size={16} />
-                  </button>
-                  
-                  {isLoggedIn && (
-                    <button
-                      onClick={() => {
-                        router.push('/my-tasks')
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    >
-                      <span className="font-medium">Моите задачи</span>
-                      <ArrowRight size={16} />
-                    </button>
-                  )}
+              
+              <button
+                onClick={() => {
+                  router.push('/tasks')
+                  setIsMobileMenuOpen(false)
+                }}
+                className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
+              >
+                <span className="font-medium">Разгледай задачи</span>
+                <ArrowRight size={16} />
+              </button>
+              
+              {isLoggedIn && (
+                <button
+                  onClick={() => {
+                    router.push('/my-tasks')
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
+                >
+                  <span className="font-medium">Моите задачи</span>
+                  <ArrowRight size={16} />
+                </button>
+              )}
+              
               <button
                 onClick={() => {
                   router.push('/how-it-works')
                   setIsMobileMenuOpen(false)
                 }}
-                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
               >
                 <span className="font-medium">Как работи</span>
                 <ArrowRight size={16} />
               </button>
+              
               <button
                 onClick={() => {
                   router.push('/favorites')
                   setIsMobileMenuOpen(false)
                 }}
-                className="flex items-center justify-between w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
               >
                 <span className="font-medium">Любими задачи</span>
                 {favoritesCount > 0 && (
@@ -374,12 +377,12 @@ export default function Header() {
               </button>
             </nav>
             
-            {/* Mobile User Menu */}
+            {/* Mobile User Menu - Enhanced */}
             {isLoggedIn ? (
               <div className="px-4 space-y-2">
-                <div className="flex items-center px-3 py-3 text-gray-700 dark:text-gray-300">
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
-                    <User size={16} className="text-blue-600 dark:text-blue-400" />
+                <div className="flex items-center px-4 py-4 text-gray-700 dark:text-gray-300">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
+                    <User size={20} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <span className="font-medium">
                     {user?.firstName || 'User'} {user?.lastName || ''}
@@ -390,7 +393,7 @@ export default function Header() {
                     router.push('/profile')
                     setIsMobileMenuOpen(false)
                   }}
-                  className="w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
                 >
                   Профил
                 </button>
@@ -399,7 +402,7 @@ export default function Header() {
                     router.push('/notifications')
                     setIsMobileMenuOpen(false)
                   }}
-                  className="w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
                 >
                   Уведомления
                   {notificationsCount > 0 && (
@@ -413,7 +416,7 @@ export default function Header() {
                     handleLogout()
                     setIsMobileMenuOpen(false)
                   }}
-                  className="w-full text-left px-3 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  className="w-full text-left px-4 py-4 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors min-h-[56px] touch-manipulation"
                 >
                   Излез
                 </button>
@@ -425,7 +428,7 @@ export default function Header() {
                     handleLogin()
                     setIsMobileMenuOpen(false)
                   }}
-                  className="w-full text-left px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
                 >
                   Вход
                 </button>
@@ -434,7 +437,7 @@ export default function Header() {
                     handleRegister()
                     setIsMobileMenuOpen(false)
                   }}
-                  className="w-full text-left px-3 py-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                  className="w-full text-left px-4 py-4 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors min-h-[56px] touch-manipulation"
                 >
                   Стани изпълнител
                 </button>

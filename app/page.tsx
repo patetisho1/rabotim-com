@@ -21,7 +21,6 @@ export default function HomePage() {
     completed: 0
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
-  const [registeredUsers, setRegisteredUsers] = useState(301)
 
   // Refs for scrolling animation
   const containerRef = useRef<HTMLDivElement>(null)
@@ -30,7 +29,6 @@ export default function HomePage() {
 
   // Dynamic hero text animation
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
-  const [currentTaskExampleIndex, setCurrentTaskExampleIndex] = useState(0)
   const tasks = [
     "да разходи кучето",
     "да боядиса оградата", 
@@ -56,190 +54,6 @@ export default function HomePage() {
     "да посади дървета",
     "да направи торта"
   ]
-
-  // Real-time task examples with user profiles and images
-  const taskExamples = [
-    {
-      name: "Иван Петров",
-      task: "Прие оферта за разходка на куче",
-      amount: "30 лв/час",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Геновева Стоянова", 
-      task: "Приела оферта за кетъринг услуги",
-      amount: "15 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Стефан Димитров",
-      task: "Приел оферта за бъркане на бетон",
-      amount: "120 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Елена Василева",
-      task: "Приела оферта за пролетно почистване",
-      amount: "220 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Николай Георгиев",
-      task: "Приел оферта за монтаж на мебели",
-      amount: "350 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Анна Тодорова",
-      task: "Приела оферта за грижа за възрастен",
-      amount: "25 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Димитър Иванов",
-      task: "Приел оферта за ремонт на компютър",
-      amount: "80 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Виктория Петрова",
-      task: "Приела оферта за готвене за сватба",
-      amount: "500 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Мартин Стоянов",
-      task: "Приел оферта за транспорт на мебели",
-      amount: "150 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Ралица Димитрова",
-      task: "Приела оферта за масаж на къщи",
-      amount: "60 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Петър Василев",
-      task: "Приел оферта за посадка на дървета",
-      amount: "200 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Силвия Георгиева",
-      task: "Приела оферта за уроци по математика",
-      amount: "20 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Александър Тодоров",
-      task: "Приел оферта за ремонт на велосипед",
-      amount: "45 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Дария Иванова",
-      task: "Приела оферта за организиране на гардероб",
-      amount: "180 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Борис Петров",
-      task: "Приел оферта за монтаж на климатик",
-      amount: "400 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Надежда Стоянова",
-      task: "Приела оферта за печене на торта",
-      amount: "120 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Васил Димитров",
-      task: "Приел оферта за ремонт на уреди",
-      amount: "90 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Кристина Георгиева",
-      task: "Приела оферта за грижа за растения",
-      amount: "35 лв/час",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Златина Василева",
-      task: "Приела оферта за доставка на храна",
-      amount: "25 лв",
-      type: "Приела работа",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=500&fit=crop"
-    },
-    {
-      name: "Георги Тодоров",
-      task: "Приел оферта за шиене на дрехи",
-      amount: "150 лв",
-      type: "Приел работа",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop"
-    }
-  ];
 
   // Service cards data for scrolling
   const serviceCards = [
@@ -435,17 +249,6 @@ export default function HomePage() {
     return () => clearInterval(textInterval)
   }, [tasks.length])
 
-  // Rotating task examples animation
-  useEffect(() => {
-    const taskExampleInterval = setInterval(() => {
-      setCurrentTaskExampleIndex((prevIndex) => (prevIndex + 1) % taskExamples.length)
-    }, 8000) // Change task example every 8 seconds
-
-    return () => clearInterval(taskExampleInterval)
-  }, [])
-
-
-
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
     setSearchQuery(query)
     setSelectedCategory(category)
@@ -567,10 +370,10 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       {/* Main Content */}
       <main>
-                {/* Hero Section */}
+                {/* Hero Section - Mobile Optimized */}
         <section 
           ref={heroRef} 
-          className="relative text-white py-16 md:py-24 overflow-hidden min-h-screen"
+          className="relative text-white py-12 md:py-24 overflow-hidden min-h-screen"
           style={{
             backgroundImage: `url('/hero-image-dark.png')`,
             backgroundSize: 'contain',
@@ -584,42 +387,42 @@ export default function HomePage() {
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               
-              {/* Main Title */}
-              <h1 className={`text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              {/* Main Title - Mobile Optimized */}
+              <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4 md:mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Търся някой...
               </h1>
               
-              {/* Rotating Task Text */}
-              <div className={`text-2xl md:text-3xl text-blue-200 mb-6 h-12 flex items-center justify-center transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                <span className="transition-all duration-500">
+              {/* Rotating Task Text - Mobile Optimized */}
+              <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl text-blue-200 mb-4 md:mb-6 h-10 sm:h-12 flex items-center justify-center transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <span className="transition-all duration-500 px-2">
                   {tasks[currentTaskIndex]}
                 </span>
               </div>
               
-              {/* Subtitle */}
-              <p className={`text-xl md:text-2xl text-gray-300 mb-12 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              {/* Subtitle - Mobile Optimized */}
+              <p className={`text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 md:mb-12 px-4 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Намери точния човек за твоята задача.
               </p>
               
-              {/* Airtasker-style Buttons - positioned below the characters */}
-              <div className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              {/* Airtasker-style Buttons - Mobile Optimized with better touch targets */}
+              <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full max-w-sm sm:max-w-none transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <button
                   onClick={handlePostTask}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg"
+                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg min-h-[56px] touch-manipulation"
                 >
-                                      Публикувай обява безплатно
-                  <ArrowRight size={20} />
+                  <span className="whitespace-nowrap">Публикувай обява безплатно</span>
+                  <ArrowRight size={18} className="sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={handleBecomeTasker}
-                  className="bg-white hover:bg-gray-100 text-blue-700 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg"
+                  className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 shadow-lg min-h-[56px] touch-manipulation"
                 >
                   Стани изпълнител
                 </button>
               </div>
               
-              {/* Stats */}
-              <div className={`mt-12 flex flex-wrap justify-center gap-8 text-lg transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              {/* Stats - Mobile Optimized */}
+              <div className={`mt-8 md:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 text-sm sm:text-lg transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 {isLoadingStats ? (
                   <>
                     <span className="animate-pulse">Зареждане...</span>
@@ -628,9 +431,18 @@ export default function HomePage() {
                   </>
                 ) : (
                   <>
-                    <span>{stats.users}+ клиенти</span>
-                    <span>{stats.completed}+ свършени задачи</span>
-                    <span>4.8★ рейтинг</span>
+                    <span className="flex items-center gap-1">
+                      <Users size={16} className="sm:w-5 sm:h-5" />
+                      {stats.users}+ клиенти
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle size={16} className="sm:w-5 sm:h-5" />
+                      {stats.completed}+ свършени задачи
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Star size={16} className="sm:w-5 sm:h-5 fill-current" />
+                      4.8★ рейтинг
+                    </span>
                   </>
                 )}
               </div>
@@ -638,7 +450,123 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Post Your First Task Section */}
+        <section className="py-20 px-4 bg-gray-50">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+              
+              {/* Left Column - How it works */}
+              <div className="flex flex-col justify-center">
+                <div className="max-w-md">
+                  <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                    Публикувайте първата си задача за секунди
+                  </h2>
+                  <p className="text-xl text-gray-600 mb-8">
+                    Спестете си часове и изпълнете списъка си със задачи
+                  </p>
+                  
+                  {/* Steps */}
+                  <div className="space-y-6 mb-8">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        1
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          Опишете какво ви е необходимо
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Детайлно описание на задачата, която искате да бъде изпълнена
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        2
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          Определете бюджета си
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Задайте бюджет и срок за изпълнение на задачата
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                        3
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          Получете оферти и изберете най-добрия изпълнител
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Сравнете предложенията и изберете най-подходящия изпълнител
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* CTA Button */}
+                  <button 
+                    onClick={handlePostTask}
+                    className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg"
+                  >
+                    Публикувайте задачата си
+                  </button>
+                </div>
+              </div>
 
+              {/* Right Column - Service Categories Grid with Auto-scroll */}
+              <div className="w-full">
+                <div className="bg-blue-50 rounded-xl p-8 h-[600px] overflow-hidden relative shadow-sm">
+                  <div
+                    ref={containerRef}
+                    className="absolute inset-0 w-full h-full grid grid-cols-2 gap-6 p-8"
+                    style={{ 
+                      transform: `translateY(${-scrollPosition}px)`
+                    }}
+                  >
+                    {serviceCards.concat(serviceCards).map((service, index) => (
+                      <div key={index} className="relative h-52 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-6">
+                        {/* Background Image */}
+                        <img 
+                          src={service.image} 
+                          alt={service.name}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Dark Overlay */}
+                        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                        
+                        {/* Content */}
+                        <div className="absolute inset-0 p-5 flex flex-col justify-between">
+                          {/* Avatar */}
+                          <div className="flex justify-start">
+                            <img 
+                              src={service.avatar} 
+                              alt="Profile" 
+                              className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
+                            />
+                          </div>
+                          
+                          {/* Text */}
+                          <div className="text-white">
+                            <h3 className="font-bold text-lg mb-2">{service.name}</h3>
+                            <p className="text-sm opacity-90 leading-relaxed">{service.subtitle}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
 
 
@@ -650,7 +578,7 @@ export default function HomePage() {
               {/* Left - Value Proposition */}
               <div>
                 <h2 className={`text-4xl font-bold text-gray-900 mb-6 transition-all duration-1000 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                                      Печели допълнително с уменията си – по твой график
+                  Бъдете собственик на себе си
                 </h2>
                 <p className={`text-xl text-gray-600 mb-8 transition-all duration-1000 delay-300 ${taskersInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   Независимо дали сте гений в електронните таблици или усърден дърводелец, намерете следващата си работа в Rabotim.
@@ -683,42 +611,31 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Right - Real-time Task Examples with User Profiles */}
+              {/* Right - Earnings & Mobile Interface */}
               <div className="relative">
                 <div className="relative">
                   <img 
-                    src={taskExamples[currentTaskExampleIndex].image}
-                    alt={taskExamples[currentTaskExampleIndex].task} 
-                    className="w-full h-96 object-cover rounded-2xl transition-all duration-500"
+                    src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop" 
+                    alt="Gardener" 
+                    className="w-full h-96 object-cover rounded-2xl"
                   />
                   
                   {/* Blue splash effects */}
                   <div className="absolute -top-4 -left-4 w-32 h-32 bg-blue-200 rounded-full opacity-50"></div>
                   <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-300 rounded-full opacity-60"></div>
                   
-                  {/* User Profile - Top Left */}
-                  <div className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src={taskExamples[currentTaskExampleIndex].avatar} 
-                        alt={taskExamples[currentTaskExampleIndex].name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                      <div className="text-xs">
-                        <div className="font-semibold text-gray-900">{taskExamples[currentTaskExampleIndex].name}</div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                          <span className="text-gray-600">{taskExamples[currentTaskExampleIndex].rating}</span>
-                        </div>
-                      </div>
-                    </div>
+                  {/* Mobile phone overlay */}
+                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-lg">
+                    <div className="text-xs text-gray-600 mb-1">Плащането получено</div>
+                    <div className="font-semibold">"Боядисване на столове"</div>
+                    <div className="text-green-600 font-bold">179 лв</div>
                   </div>
                   
-                  {/* Task Notification - Top Right */}
-                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-lg transition-all duration-500 max-w-xs">
-                    <div className="text-xs text-gray-600 mb-1">{taskExamples[currentTaskExampleIndex].type}</div>
-                    <div className="font-semibold text-sm mb-1">"{taskExamples[currentTaskExampleIndex].task}"</div>
-                    <div className="text-green-600 font-bold">{taskExamples[currentTaskExampleIndex].amount}</div>
+                  {/* Earnings graph */}
+                  <div className="absolute -bottom-4 left-4 bg-white rounded-lg p-3 shadow-lg">
+                    <div className="text-xs text-gray-600 mb-1">Общи приходи</div>
+                    <div className="font-bold text-lg">13,066 лв</div>
+                    <div className="text-green-600 text-sm">+20% миналия месец</div>
                   </div>
                 </div>
               </div>
@@ -727,56 +644,11 @@ export default function HomePage() {
             {/* Statistics */}
             <div className={`text-center mt-16 transition-all duration-1000 delay-700 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                {registeredUsers} регистрирани потребители печелят допълнителен или основен доход в Rabotim.com
+                160,000 изпълнители са спечелили доход в Rabotim
               </h3>
-              <p className="text-xl text-gray-600 mb-8">
-                Станете част от нашата общност. Поемайте задачи съответсващи на вашите възможности. Можете да заварявате - някой има нужда от вас. Можете да боядисвате - някой има стена за боядисване. Можете да направите сайт - някой ще плати за това. Искате просто да се разходите - Чудесно, защо не разходите кучето на някой, който е зает. Разгледайте активните обяви и кандидатствайте с един клик. Толкова е лесно.
+              <p className="text-xl text-gray-600">
+                Започнете да печелите с доверената местна пазарна платформа за услуги в България
               </p>
-              
-              {/* Benefits Checklist */}
-              <div className="max-w-2xl mx-auto mb-8">
-                <div className="space-y-4 text-left">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="text-lg text-gray-900">Безплатен достъп до хиляди възможности за работа</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="text-lg text-gray-900">Без абонамент или кредитни такси</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="text-lg text-gray-900">Печелете допълнителен доход с гъвкав график</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="text-lg text-gray-900">Развийте бизнеса и клиентската база</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Link 
-                href="/tasks" 
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                Разгледайте активните обяви
-              </Link>
             </div>
           </div>
         </section>
@@ -913,21 +785,10 @@ export default function HomePage() {
             <div className={`text-center transition-all duration-1000 delay-700 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <button 
                 onClick={handlePostTask}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 mb-6"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
               >
                 Публикувайте задачата си безплатно
               </button>
-              
-              {/* Learn How It Works Link */}
-              <div className="text-center">
-                <Link 
-                  href="/how-it-works" 
-                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-lg"
-                >
-                  Научете как работи
-                  <ArrowRight size={16} />
-                </Link>
-              </div>
             </div>
           </div>
         </section>
