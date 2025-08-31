@@ -410,7 +410,7 @@ export default function HomePage() {
                   onClick={handlePostTask}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg"
                 >
-                  Публикувай задача безплатно
+                  Публикувай обява безплатно
                   <ArrowRight size={20} />
                 </button>
                 <button
