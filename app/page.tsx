@@ -569,7 +569,7 @@ export default function HomePage() {
               {/* Left - Value Proposition */}
               <div>
                 <h2 className={`text-4xl font-bold text-gray-900 mb-6 transition-all duration-1000 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Бъдете собственик на себе си
+                  Печели допълнително с уменията си – по твой график
                 </h2>
                 <p className={`text-xl text-gray-600 mb-8 transition-all duration-1000 delay-300 ${taskersInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   Независимо дали сте гений в електронните таблици или усърден дърводелец, намерете следващата си работа в Rabotim.
