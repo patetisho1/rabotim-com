@@ -59,7 +59,6 @@ export default function TaskForm({
   const [showLocationPicker, setShowLocationPicker] = useState(false)
   const [newTag, setNewTag] = useState('')
   const [currentStep, setCurrentStep] = useState(1)
-  const fileUploadRef = useRef<any>(null)
 
   const categories = [
     { value: 'cleaning', label: 'Почистване', icon: '🧹' },
@@ -536,7 +535,6 @@ export default function TaskForm({
                 Снимки (опционално)
               </label>
               <FileUpload
-                ref={fileUploadRef}
                 onFilesSelected={handleFilesSelected}
                 maxFiles={5}
                 maxFileSize={5}
