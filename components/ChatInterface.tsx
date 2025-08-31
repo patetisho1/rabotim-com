@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Paperclip, Image, Smile, MoreVertical, Phone, Video, User, Clock, Check, CheckCheck, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
-import FileUpload from './FileUpload'
 
 interface Message {
   id: string
@@ -50,7 +49,7 @@ export default function ChatInterface({
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const fileUploadRef = useRef<any>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -338,34 +337,34 @@ export default function ChatInterface({
           )}
         </div>
 
-        {/* Attachment Options */}
-        {showAttachments && (
-          <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={() => fileUploadRef.current?.openFileDialog()}
-                className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
-              >
-                <Image size={24} className="text-blue-600" />
-                <span className="text-xs text-gray-600 dark:text-gray-300">Снимка</span>
-              </button>
-              <button
-                onClick={() => fileUploadRef.current?.openFileDialog()}
-                className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
-              >
-                <Paperclip size={24} className="text-green-600" />
-                <span className="text-xs text-gray-600 dark:text-gray-300">Файл</span>
-              </button>
-              <button
-                onClick={startRecording}
-                className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
-              >
-                <Mic size={24} className="text-purple-600" />
-                <span className="text-xs text-gray-600 dark:text-gray-300">Аудио</span>
-              </button>
-            </div>
-          </div>
-        )}
+                 {/* Attachment Options */}
+         {showAttachments && (
+           <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+             <div className="grid grid-cols-3 gap-3">
+               <button
+                 onClick={() => fileInputRef.current?.click()}
+                 className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
+               >
+                 <Image size={24} className="text-blue-600" />
+                 <span className="text-xs text-gray-600 dark:text-gray-300">Снимка</span>
+               </button>
+               <button
+                 onClick={() => fileInputRef.current?.click()}
+                 className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
+               >
+                 <Paperclip size={24} className="text-green-600" />
+                 <span className="text-xs text-gray-600 dark:text-gray-300">Файл</span>
+               </button>
+               <button
+                 onClick={startRecording}
+                 className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
+               >
+                 <Mic size={24} className="text-purple-600" />
+                 <span className="text-xs text-gray-600 dark:text-gray-300">Аудио</span>
+               </button>
+             </div>
+           </div>
+         )}
 
         {/* Audio Controls */}
         {isRecording && (
@@ -394,17 +393,20 @@ export default function ChatInterface({
         )}
       </div>
 
-      {/* Hidden File Upload */}
-      <FileUpload
-        ref={fileUploadRef}
-        onFilesSelected={handleFileUpload}
-        maxFiles={5}
-        maxFileSize={10}
-        acceptedTypes={['image/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
-        showPreview={false}
-        multiple={true}
-        className="hidden"
-      />
+             {/* Hidden File Input */}
+       <input
+         ref={fileInputRef}
+         type="file"
+         multiple
+         accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+         onChange={(e) => {
+           const files = Array.from(e.target.files || [])
+           if (files.length > 0) {
+             handleFileUpload(files)
+           }
+         }}
+         className="hidden"
+       />
     </div>
   )
 }
