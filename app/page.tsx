@@ -846,7 +846,7 @@ export default function HomePage() {
                 {registeredUsers} регистрирани потребители печелят допълнителен или основен доход в Rabotim.com
               </h3>
               <p className="text-xl text-gray-600 mb-8">
-                Независимо дали сте опитен електротехник, квалифициран майстор или усърден дърводелец, намерете следващата си работа в Rabotim.
+                Станете част от нашата общност. Поемайте задачи съответсващи на вашите възможности. Можете да заварявате - някой има нужда от вас. Можете да боядисвате - някой има стена за боядисване. Можете да направите сайт - някой ще плати за това. Искате просто да се разходите - Чудесно, защо не разходите кучето на някой, който е зает. Разгледайте активните обяви и кандидатствайте с един клик. Толкова е лесно.
               </p>
               
               {/* Benefits Checklist */}
@@ -888,10 +888,10 @@ export default function HomePage() {
               </div>
               
               <Link 
-                href="/register" 
+                href="/tasks" 
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                Печелете пари като изпълнител
+                Разгледайте активните обяви
               </Link>
             </div>
           </div>
