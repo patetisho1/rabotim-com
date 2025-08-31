@@ -21,6 +21,7 @@ export default function HomePage() {
     completed: 0
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [registeredUsers, setRegisteredUsers] = useState(301)
 
   // Refs for scrolling animation
   const containerRef = useRef<HTMLDivElement>(null)
@@ -443,6 +444,15 @@ export default function HomePage() {
     return () => clearInterval(taskExampleInterval)
   }, [])
 
+  // Simulate user registration counter (for demo purposes)
+  useEffect(() => {
+    const userCounterInterval = setInterval(() => {
+      setRegisteredUsers(prev => prev + Math.floor(Math.random() * 3) + 1) // Add 1-3 users randomly
+    }, 30000) // Update every 30 seconds
+
+    return () => clearInterval(userCounterInterval)
+  }, [])
+
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
     setSearchQuery(query)
     setSelectedCategory(category)
@@ -840,11 +850,18 @@ export default function HomePage() {
             {/* Statistics */}
             <div className={`text-center mt-16 transition-all duration-1000 delay-700 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                160,000 изпълнители са спечелили доход в Rabotim
+                {registeredUsers} регистрирани потребители печелят допълнителен или основен доход в Rabotim.com
               </h3>
-              <p className="text-xl text-gray-600">
-                Започнете да печелите с доверената местна пазарна платформа за услуги в България
+              <p className="text-xl text-gray-600 mb-6">
+                Станете част от нашата общност. Поемайте задачи съответсващи на вашите възможности. Можете да заварявате - някой има нужда от вас. Можете да боядисвате - някой има стена за боядисване. Можете да направите сайт - някой ще плати за това. Искате просто да се разходите - Чудесно, защо не разходите кучето на някой, който е зает.
               </p>
+              <Link 
+                href="/tasks" 
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200"
+              >
+                Разгледайте активните обяви
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </section>
