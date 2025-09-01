@@ -562,5 +562,4 @@ export default function NotificationManager({
     </div>
   )
 }
-}
 
