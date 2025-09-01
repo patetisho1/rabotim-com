@@ -99,7 +99,7 @@ export default function NotificationManager({
         title: 'Напомняне за задача',
         message: 'Задачата "Доставка на пакет" изтича след 2 часа',
         icon: 'clock',
-        priority: 'high' as const,
+          priority: 'high' as const,
         category: 'reminder' as const
       },
       {
@@ -112,7 +112,7 @@ export default function NotificationManager({
       },
       {
         type: 'info' as const,
-        title: 'Нов рейтинг',
+          title: 'Нов рейтинг',
         message: 'Получихте 5 звезди за задачата "Почистване на офис"',
         icon: 'star',
         priority: 'low' as const,
@@ -510,8 +510,8 @@ export default function NotificationManager({
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+        </div>
+      ))}
                 </div>
               )}
             </div>
@@ -561,4 +561,6 @@ export default function NotificationManager({
       )}
     </div>
   )
-} 
+}
+}
+
