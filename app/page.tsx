@@ -648,7 +648,6 @@ export default function HomePage() {
                 <div className="bg-white rounded-2xl p-6 shadow-lg h-96 overflow-hidden">
                   <div className="text-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Примери за задачи</h3>
-                    <p className="text-sm text-gray-600">Сменят се на всеки 8 секунди</p>
                   </div>
                   
                   <div className="space-y-4">
@@ -678,30 +677,30 @@ export default function HomePage() {
                       const currentExample = examples[currentExampleIndex]
                       
                       return (
-                        <div key={currentExampleIndex} className="bg-gray-50 rounded-lg overflow-hidden">
-                          <div className="relative h-24">
-                            <img 
-                              src={currentExample.image} 
-                              alt={currentExample.task} 
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                          </div>
-                          <div className="p-3 flex items-center gap-3">
-                            <img 
-                              src={currentExample.avatar} 
-                              alt={currentExample.name} 
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                            <div className="flex-1">
-                              <div className="font-medium text-gray-900">{currentExample.name}</div>
-                              <div className="text-sm text-gray-600">{currentExample.task}</div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-semibold text-green-600">{currentExample.amount}</div>
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                <span className="text-sm text-gray-600">{currentExample.rating}</span>
+                        <div key={currentExampleIndex} className="relative rounded-lg overflow-hidden h-80">
+                          <img 
+                            src={currentExample.image} 
+                            alt={currentExample.task} 
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                            <div className="flex items-center gap-3 mb-3">
+                              <img 
+                                src={currentExample.avatar} 
+                                alt={currentExample.name} 
+                                className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                              />
+                              <div className="flex-1">
+                                <div className="font-semibold text-lg">{currentExample.name}</div>
+                                <div className="text-sm opacity-90">{currentExample.task}</div>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-bold text-green-400 text-lg">{currentExample.amount}</div>
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                  <span className="text-sm">{currentExample.rating}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
