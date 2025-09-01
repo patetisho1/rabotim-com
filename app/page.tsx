@@ -515,7 +515,7 @@ export default function HomePage() {
                     onClick={handlePostTask}
                     className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg"
                   >
-                    Публикувайте задачата си
+                    Публикувай обява безплатно
                   </button>
                   
                   {/* Learn How It Works Link */}
