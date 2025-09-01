@@ -253,7 +253,7 @@ export default function HomePage() {
   // Rotating examples animation
   useEffect(() => {
     const exampleInterval = setInterval(() => {
-      setCurrentExampleIndex((prevIndex) => (prevIndex + 1) % 6) // 6 examples
+      setCurrentExampleIndex((prevIndex) => (prevIndex + 1) % 20) // 20 examples
     }, 8000) // Change example every 8 seconds
 
     return () => clearInterval(exampleInterval)
@@ -380,13 +380,13 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       {/* Main Content */}
       <main>
-                {/* Hero Section - Mobile Optimized */}
+        {/* Hero Section - Mobile Optimized */}
         <section 
           ref={heroRef} 
           className="relative text-white py-12 md:py-24 overflow-hidden min-h-screen"
           style={{
             backgroundImage: `url('/hero-image-dark.png')`,
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
           }}
@@ -397,65 +397,65 @@ export default function HomePage() {
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               
-                             {/* Main Title - Mobile Optimized */}
-               <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4 md:mb-6 transition-all duration-1000 font-display ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 Търся някой...
-               </h1>
+              {/* Main Title - Mobile Optimized */}
+              <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4 md:mb-6 transition-all duration-1000 ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                Търся някой...
+              </h1>
               
-                             {/* Rotating Task Text - Mobile Optimized */}
-               <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl text-blue-200 mb-4 md:mb-6 h-10 sm:h-12 flex items-center justify-center transition-all duration-500 font-accent ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 <span className="transition-all duration-500 px-2">
-                   {tasks[currentTaskIndex]}
-                 </span>
-               </div>
+              {/* Rotating Task Text - Mobile Optimized */}
+              <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl text-blue-200 mb-4 md:mb-6 h-10 sm:h-12 flex items-center justify-center transition-all duration-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <span className="transition-all duration-500 px-2">
+                  {tasks[currentTaskIndex]}
+                </span>
+              </div>
               
-                             {/* Subtitle - Mobile Optimized */}
-               <p className={`text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 md:mb-12 px-4 transition-all duration-1000 delay-300 font-readable ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 Намери точния човек за твоята задача.
-               </p>
+              {/* Subtitle - Mobile Optimized */}
+              <p className={`text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 md:mb-12 px-4 transition-all duration-1000 delay-300 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                Намери точния човек за твоята задача.
+              </p>
               
               {/* Airtasker-style Buttons - Mobile Optimized with better touch targets */}
               <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full max-w-sm sm:max-w-none transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                                 <button
-                   onClick={handlePostTask}
-                   className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg min-h-[56px] touch-manipulation font-heading"
-                 >
-                   <span className="whitespace-nowrap">Публикувай обява безплатно</span>
-                   <ArrowRight size={18} className="sm:w-5 sm:h-5" />
-                 </button>
-                 <button
-                   onClick={handleBecomeTasker}
-                   className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 shadow-lg min-h-[56px] touch-manipulation font-heading"
-                 >
-                   Стани изпълнител
-                 </button>
+                <button
+                  onClick={handlePostTask}
+                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg min-h-[56px] touch-manipulation"
+                >
+                  <span className="whitespace-nowrap">Публикувай обява безплатно</span>
+                  <ArrowRight size={18} className="sm:w-5 sm:h-5" />
+                </button>
+                <button
+                  onClick={handleBecomeTasker}
+                  className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 shadow-lg min-h-[56px] touch-manipulation"
+                >
+                  Стани изпълнител
+                </button>
               </div>
               
-                             {/* Stats - Mobile Optimized */}
-               <div className={`mt-8 md:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 text-sm sm:text-lg transition-all duration-1000 delay-700 font-body ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 {isLoadingStats ? (
-                   <>
-                     <span className="animate-pulse">Зареждане...</span>
-                     <span className="animate-pulse">Зареждане...</span>
-                     <span className="animate-pulse">Зареждане...</span>
-                   </>
-                 ) : (
-                   <>
-                     <span className="flex items-center gap-1">
-                       <Users size={16} className="sm:w-5 sm:h-5" />
-                       {stats.users}+ клиенти
-                     </span>
-                     <span className="flex items-center gap-1">
-                       <CheckCircle size={16} className="sm:w-5 sm:h-5" />
-                       {stats.completed}+ свършени задачи
-                     </span>
-                     <span className="flex items-center gap-1">
-                       <Star size={16} className="sm:w-5 sm:h-5 fill-current" />
-                       4.8★ рейтинг
-                     </span>
-                   </>
-                 )}
-               </div>
+              {/* Stats - Mobile Optimized */}
+              <div className={`mt-8 md:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 text-sm sm:text-lg transition-all duration-1000 delay-700 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                {isLoadingStats ? (
+                  <>
+                    <span className="animate-pulse">Зареждане...</span>
+                    <span className="animate-pulse">Зареждане...</span>
+                    <span className="animate-pulse">Зареждане...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex items-center gap-1">
+                      <Users size={16} className="sm:w-5 sm:h-5" />
+                      {stats.users}+ клиенти
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle size={16} className="sm:w-5 sm:h-5" />
+                      {stats.completed}+ свършени задачи
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Star size={16} className="sm:w-5 sm:h-5 fill-current" />
+                      4.8★ рейтинг
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -645,75 +645,62 @@ export default function HomePage() {
 
               {/* Right - Rotating Task Examples */}
               <div className="relative">
-                <div className="bg-white rounded-2xl shadow-lg h-96 overflow-hidden">
-                  <div className="h-full">
+                <div className="bg-white rounded-2xl p-6 shadow-lg h-96 overflow-hidden">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Примери за задачи</h3>
+                    <p className="text-sm text-gray-600">Сменят се на всеки 8 секунди</p>
+                  </div>
+                  
+                  <div className="space-y-4">
                     {(() => {
                       const examples = [
-                        { name: "Дарина", task: "Грижа за домашни любимци", amount: "25 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=320&fit=crop", description: "Търся някой да се грижи за моя златен ретривър 2 пъти дневно. Разходка в парка и игри." },
-                        { name: "Мария", task: "Почистване на апартамент", amount: "220 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=320&fit=crop", description: "Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса. След ремонт." },
-                        { name: "Иван", task: "Строителство", amount: "120 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=320&fit=crop", description: "Нужен е майстор за изливане на бетон за основа. 20 кв/м площ. Спешно." },
-                        { name: "Петър", task: "Градинарство", amount: "45 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=320&fit=crop", description: "Търся градинар за подреждане на градината. Плевене, подрязване на дървета и цветя." },
-                        { name: "Анна", task: "Фотография", amount: "200 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=320&fit=crop", description: "Нужен е фотограф за сватбена снимка. 4 часа работа. Централна София." },
-                        { name: "Владимир", task: "Боядисване", amount: "40 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=320&fit=crop", description: "Боядисване на 3 стаи и коридор. 80 кв/м общо. Бяла боя. Спешно." }
-                      ]
-                      const currentExample = examples[currentExampleIndex]
-                      
-                      return (
-                        <div key={currentExampleIndex} className="relative w-full h-full rounded-2xl overflow-hidden">
-                          <img 
-                            src={currentExample.image} 
-                            alt={currentExample.task} 
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                          
-                          {/* Top section - Name and task acceptance */}
-                          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={currentExample.avatar} 
-                                alt={currentExample.name} 
-                                className="w-10 h-10 rounded-full object-cover border-2 border-white"
-                              />
-                              <div>
-                                <div className="font-semibold text-white text-sm">{currentExample.name}</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs text-green-300 bg-green-800/50 px-2 py-1 rounded-full">
-                                Прие задача
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Bottom section - Task details and rating */}
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <div className="text-white mb-3">
-                              <div className="font-semibold text-lg mb-1">{currentExample.task}</div>
-                              <div className="text-xs opacity-90 mb-2 leading-relaxed">{currentExample.description}</div>
-                              <div className="font-bold text-green-400 text-lg">{currentExample.amount}</div>
-                            </div>
-                            
-                            {/* Rating stars */}
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i} 
-                                  className={`w-4 h-4 ${
-                                    i < Math.floor(currentExample.rating) 
-                                      ? 'text-yellow-400 fill-current' 
-                                      : 'text-gray-400'
-                                  }`} 
-                                />
-                              ))}
-                              <span className="text-white text-sm ml-1">{currentExample.rating}</span>
-                            </div>
+                        { name: "Ивайло", task: "Разходка с кучето", amount: "30 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Геновева", task: "Кетъринг", amount: "15 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Иван", task: "Бъркане на бетон", amount: "120 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Мария", task: "Почистване на апартамент", amount: "220 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Стефан", task: "Ремонт на баня", amount: "1500 лв", rating: 4.9, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Елена", task: "Уроци по математика", amount: "30 лв/час", rating: 4.6, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Димитър", task: "Сглобяване на мебели", amount: "80 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Анна", task: "Фотографии", amount: "200 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Петър", task: "Градинарство", amount: "45 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Виктория", task: "Масаж", amount: "60 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Георги", task: "IT поддръжка", amount: "50 лв/час", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Силвия", task: "Готвене", amount: "25 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Николай", task: "Доставки", amount: "20 лв/час", rating: 4.6, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Радостина", task: "Организиране на събития", amount: "100 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Борис", task: "Ремонт на кола", amount: "80 лв/час", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Зорница", task: "Частни уроци", amount: "35 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Владимир", task: "Боядисване", amount: "40 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Дарина", task: "Грижа за домашни любимци", amount: "25 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Мартин", task: "Уеб разработка", amount: "80 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                        { name: "Ралица", task: "Измиване на автомобили", amount: "30 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" }
+                    ]
+                    const currentExample = examples[currentExampleIndex]
+                    
+                    return (
+                      <div key={currentExampleIndex} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <img 
+                          src={currentExample.avatar} 
+                          alt={currentExample.name} 
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{currentExample.name}</div>
+                          <div className="text-sm text-gray-600">{currentExample.task}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">{currentExample.amount}</div>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-sm text-gray-600">{currentExample.rating}</span>
                           </div>
                         </div>
-                      )
+                      </div>
+                    )
                     })()}
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>

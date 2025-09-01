@@ -13,6 +13,27 @@
   --danger-600: #dc2626;
 }
 
+/* Custom Font Classes */
+.font-display {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-heading {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.font-body {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-accent {
+  font-family: 'Roboto', sans-serif;
+}
+
+.font-readable {
+  font-family: 'Open Sans', sans-serif;
+}
+
 /* Base Styles */
 body {
   @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
