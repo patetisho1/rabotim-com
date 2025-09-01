@@ -517,6 +517,17 @@ export default function HomePage() {
                   >
                     Публикувайте задачата си
                   </button>
+                  
+                  {/* Learn How It Works Link */}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <Link 
+                      href="/how-it-works"
+                      className="text-gray-600 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                    >
+                      Научете как работи
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
