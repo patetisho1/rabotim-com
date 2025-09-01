@@ -684,24 +684,46 @@ export default function HomePage() {
                             className="w-full h-full object-cover"
                           />
                           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                            <div className="flex items-center gap-3 mb-3">
+                          
+                          {/* Top section - Name and task acceptance */}
+                          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
                               <img 
                                 src={currentExample.avatar} 
                                 alt={currentExample.name} 
-                                className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                                className="w-10 h-10 rounded-full object-cover border-2 border-white"
                               />
-                              <div className="flex-1">
-                                <div className="font-semibold text-lg">{currentExample.name}</div>
-                                <div className="text-sm opacity-90">{currentExample.task}</div>
+                              <div>
+                                <div className="font-semibold text-white text-sm">{currentExample.name}</div>
                               </div>
-                              <div className="text-right">
-                                <div className="font-bold text-green-400 text-lg">{currentExample.amount}</div>
-                                <div className="flex items-center gap-1">
-                                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                  <span className="text-sm">{currentExample.rating}</span>
-                                </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-green-300 bg-green-800/50 px-2 py-1 rounded-full">
+                                Прие задача
                               </div>
+                            </div>
+                          </div>
+                          
+                          {/* Bottom section - Task details and rating */}
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <div className="text-white mb-3">
+                              <div className="font-semibold text-lg mb-1">{currentExample.task}</div>
+                              <div className="font-bold text-green-400 text-lg">{currentExample.amount}</div>
+                            </div>
+                            
+                            {/* Rating stars */}
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`w-4 h-4 ${
+                                    i < Math.floor(currentExample.rating) 
+                                      ? 'text-yellow-400 fill-current' 
+                                      : 'text-gray-400'
+                                  }`} 
+                                />
+                              ))}
+                              <span className="text-white text-sm ml-1">{currentExample.rating}</span>
                             </div>
                           </div>
                         </div>
