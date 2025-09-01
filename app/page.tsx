@@ -29,6 +29,7 @@ export default function HomePage() {
 
   // Dynamic hero text animation
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(0)
   const tasks = [
     "да разходи кучето",
     "да боядиса оградата", 
@@ -248,6 +249,15 @@ export default function HomePage() {
 
     return () => clearInterval(textInterval)
   }, [tasks.length])
+
+  // Rotating examples animation
+  useEffect(() => {
+    const exampleInterval = setInterval(() => {
+      setCurrentExampleIndex((prevIndex) => (prevIndex + 1) % 20) // 20 examples
+    }, 8000) // Change example every 8 seconds
+
+    return () => clearInterval(exampleInterval)
+  }, [])
 
   const handleSearch = (query: string, category: string, location: string, filters: any) => {
     setSearchQuery(query)
@@ -633,15 +643,64 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Right - User Counter */}
+              {/* Right - Rotating Task Examples */}
               <div className="relative">
-                <div className="bg-white rounded-2xl p-8 shadow-lg">
-                  <div className="text-center">
-                    <div className="text-6xl font-bold text-blue-600 mb-4">301</div>
-                    <div className="text-xl text-gray-700 mb-2">регистрирани потребители</div>
-                    <div className="text-lg text-gray-600">печелят допълнителен или основен доход в Rabotim.com</div>
+                <div className="bg-white rounded-2xl p-6 shadow-lg h-96 overflow-hidden">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Примери за задачи</h3>
+                    <p className="text-sm text-gray-600">Сменят се на всеки 8 секунди</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {(() => {
+                      const examples = [
+                        { name: "Ивайло", task: "Разходка с кучето", amount: "30 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Геновева", task: "Кетъринг", amount: "15 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Иван", task: "Бъркане на бетон", amount: "120 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Мария", task: "Почистване на апартамент", amount: "220 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Стефан", task: "Ремонт на баня", amount: "1500 лв", rating: 4.9, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Елена", task: "Уроци по математика", amount: "30 лв/час", rating: 4.6, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Димитър", task: "Сглобяване на мебели", amount: "80 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Анна", task: "Фотографии", amount: "200 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Петър", task: "Градинарство", amount: "45 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Виктория", task: "Масаж", amount: "60 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Георги", task: "IT поддръжка", amount: "50 лв/час", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Силвия", task: "Готвене", amount: "25 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Николай", task: "Доставки", amount: "20 лв/час", rating: 4.6, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Радостина", task: "Организиране на събития", amount: "100 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Борис", task: "Ремонт на кола", amount: "80 лв/час", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Зорница", task: "Частни уроци", amount: "35 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Владимир", task: "Боядисване", amount: "40 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Дарина", task: "Грижа за домашни любимци", amount: "25 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Мартин", task: "Уеб разработка", amount: "80 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" },
+                      { name: "Ралица", task: "Измиване на автомобили", amount: "30 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" }
+                    ]
+                    const currentExample = examples[currentExampleIndex]
+                    
+                    return (
+                      <div key={currentExampleIndex} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <img 
+                          src={currentExample.avatar} 
+                          alt={currentExample.name} 
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{currentExample.name}</div>
+                          <div className="text-sm text-gray-600">{currentExample.task}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">{currentExample.amount}</div>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-sm text-gray-600">{currentExample.rating}</span>
+                          </div>
+                        </div>
+                      </div>
+                                         )
+                    })()}
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
