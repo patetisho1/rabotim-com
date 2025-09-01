@@ -579,7 +579,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Be Your Own Boss Section */}
+        {/* Earn Extra with Your Skills Section */}
         <section ref={taskersRef} className="py-20 px-4 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -587,77 +587,62 @@ export default function HomePage() {
               {/* Left - Value Proposition */}
               <div>
                 <h2 className={`text-4xl font-bold text-gray-900 mb-6 transition-all duration-1000 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Бъдете собственик на себе си
+                  Печели допълнително с уменията си – по твой график
                 </h2>
                 <p className={`text-xl text-gray-600 mb-8 transition-all duration-1000 delay-300 ${taskersInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  Независимо дали сте гений в електронните таблици или усърден дърводелец, намерете следващата си работа в Rabotim.
+                  Станете част от нашата общност. Поемайте задачи съответсващи на вашите възможности.
                 </p>
                 
                 <div className={`space-y-4 mb-8 transition-all duration-1000 delay-500 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Безплатен достъп до хиляди възможности за работа</span>
+                    <span className="text-gray-700">Можете да заварявате - някой има нужда от вас</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Без абонамент или кредитни такси</span>
+                    <span className="text-gray-700">Можете да боядисвате - някой има стена за боядисване</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Печелете допълнителен доход с гъвкав график</span>
+                    <span className="text-gray-700">Можете да направите сайт - някой ще плати за това</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Развийте бизнеса и клиентската база</span>
+                    <span className="text-gray-700">Искате просто да се разходите - разходете кучето на някой</span>
                   </div>
+                </div>
+                
+                <div className={`mb-8 transition-all duration-1000 delay-600 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                  <p className="text-lg text-gray-700 mb-4">
+                    Разгледайте активните обяви и кандидатсвайте с един клик. Толкова е лесно.
+                  </p>
+                  <Link 
+                    href="/tasks"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    Вижте всички обяви
+                    <ArrowRight size={16} />
+                  </Link>
                 </div>
                 
                 <button 
                   onClick={handleBecomeTasker}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
                 >
-                  Печелете пари като изпълнител
+                  Станете изпълнител
                 </button>
               </div>
 
-              {/* Right - Earnings & Mobile Interface */}
+              {/* Right - User Counter */}
               <div className="relative">
-                <div className="relative">
-                  <img 
-                    src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=500&fit=crop" 
-                    alt="Gardener" 
-                    className="w-full h-96 object-cover rounded-2xl"
-                  />
-                  
-                  {/* Blue splash effects */}
-                  <div className="absolute -top-4 -left-4 w-32 h-32 bg-blue-200 rounded-full opacity-50"></div>
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-300 rounded-full opacity-60"></div>
-                  
-                  {/* Mobile phone overlay */}
-                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-lg">
-                    <div className="text-xs text-gray-600 mb-1">Плащането получено</div>
-                    <div className="font-semibold">"Боядисване на столове"</div>
-                    <div className="text-green-600 font-bold">179 лв</div>
-                  </div>
-                  
-                  {/* Earnings graph */}
-                  <div className="absolute -bottom-4 left-4 bg-white rounded-lg p-3 shadow-lg">
-                    <div className="text-xs text-gray-600 mb-1">Общи приходи</div>
-                    <div className="font-bold text-lg">13,066 лв</div>
-                    <div className="text-green-600 text-sm">+20% миналия месец</div>
+                <div className="bg-white rounded-2xl p-8 shadow-lg">
+                  <div className="text-center">
+                    <div className="text-6xl font-bold text-blue-600 mb-4">301</div>
+                    <div className="text-xl text-gray-700 mb-2">регистрирани потребители</div>
+                    <div className="text-lg text-gray-600">печелят допълнителен или основен доход в Rabotim.com</div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Statistics */}
-            <div className={`text-center mt-16 transition-all duration-1000 delay-700 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                160,000 изпълнители са спечелили доход в Rabotim
-              </h3>
-              <p className="text-xl text-gray-600">
-                Започнете да печелите с доверената местна пазарна платформа за услуги в България
-              </p>
             </div>
           </div>
         </section>
