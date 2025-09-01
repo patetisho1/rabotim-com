@@ -645,12 +645,8 @@ export default function HomePage() {
 
               {/* Right - Rotating Task Examples */}
               <div className="relative">
-                <div className="bg-white rounded-2xl p-6 shadow-lg h-96 overflow-hidden">
-                  <div className="text-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Примери за задачи</h3>
-                  </div>
-                  
-                  <div className="space-y-4">
+                <div className="bg-white rounded-2xl shadow-lg h-96 overflow-hidden">
+                  <div className="h-full">
                     {(() => {
                       const examples = [
                         { name: "Ивайло", task: "Разходка с кучето", amount: "30 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=320&fit=crop" },
@@ -677,7 +673,7 @@ export default function HomePage() {
                       const currentExample = examples[currentExampleIndex]
                       
                       return (
-                        <div key={currentExampleIndex} className="relative rounded-lg overflow-hidden h-80">
+                        <div key={currentExampleIndex} className="relative w-full h-full rounded-2xl overflow-hidden">
                           <img 
                             src={currentExample.image} 
                             alt={currentExample.task} 
