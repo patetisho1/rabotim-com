@@ -451,7 +451,7 @@ export default function HomePage() {
         </section>
 
         {/* Post Your First Task Section */}
-        <section className="py-20 px-4 bg-gray-50">
+        <section className="py-20 px-4 bg-white">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
               
@@ -578,8 +578,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-
 
         {/* Be Your Own Boss Section */}
         <section ref={taskersRef} className="py-20 px-4 bg-gray-50">
