@@ -253,7 +253,7 @@ export default function HomePage() {
   // Rotating examples animation
   useEffect(() => {
     const exampleInterval = setInterval(() => {
-      setCurrentExampleIndex((prevIndex) => (prevIndex + 1) % 20) // 20 examples
+      setCurrentExampleIndex((prevIndex) => (prevIndex + 1) % 6) // 6 examples
     }, 8000) // Change example every 8 seconds
 
     return () => clearInterval(exampleInterval)
