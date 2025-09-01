@@ -386,7 +386,7 @@ export default function HomePage() {
           className="relative text-white py-12 md:py-24 overflow-hidden min-h-screen"
           style={{
             backgroundImage: `url('/hero-image-dark.png')`,
-            backgroundSize: 'contain',
+            backgroundSize: 'cover',
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
           }}
