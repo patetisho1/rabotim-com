@@ -4,27 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Font Classes */
-.font-display {
-  font-family: 'Poppins', sans-serif;
-}
-
-.font-heading {
-  font-family: 'Montserrat', sans-serif;
-}
-
-.font-body {
-  font-family: 'Inter', sans-serif;
-}
-
-.font-accent {
-  font-family: 'Roboto', sans-serif;
-}
-
-.font-readable {
-  font-family: 'Open Sans', sans-serif;
-}
-
 /* Custom CSS Variables */
 :root {
   --primary-50: #eff6ff;
