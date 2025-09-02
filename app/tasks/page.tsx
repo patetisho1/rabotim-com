@@ -52,13 +52,11 @@ interface Task {
 
 const categories = [
   { name: 'Всички категории', icon: Briefcase, value: '' },
-  { name: 'Домакински услуги', icon: Home, value: 'home' },
-  { name: 'Ремонт', icon: Wrench, value: 'repair' },
-  { name: 'Транспорт', icon: Car, value: 'transport' },
-  { name: 'Дизайн', icon: Palette, value: 'design' },
-  { name: 'Обучение', icon: BookOpen, value: 'education' },
-  { name: 'IT услуги', icon: Smartphone, value: 'it' },
-  { name: 'Градинарство', icon: Leaf, value: 'gardening' }
+  { name: 'Почистване', icon: Home, value: 'Почистване' },
+  { name: 'Ремонт', icon: Wrench, value: 'Ремонт' },
+  { name: 'Доставка', icon: Car, value: 'Доставка' },
+  { name: 'Градинарство', icon: Leaf, value: 'Градинарство' },
+  { name: 'Обучение', icon: BookOpen, value: 'Обучение' }
 ]
 
 const locations = [
@@ -92,18 +90,18 @@ const sortOptions = [
   'Най-популярни'
 ]
 
-// Mock данни за задачи
+// Реални обяви за задачи
 const mockTasks: Task[] = [
   {
     id: 1,
-    title: 'Трябва ми майстор за ремонт на баня',
-    description: 'Имам нужда от квалифициран майстор за пълен ремонт на баня. Площ 6 кв.м.',
-    category: 'Ремонт',
-    price: 2500,
-    priceType: 'fixed',
-    location: 'София, Лозенец',
+    title: 'Почистване на апартамент',
+    description: 'Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса, нужна е генерална почистка.',
+    category: 'Почистване',
+    price: 25,
+    priceType: 'hourly',
+    location: 'София, Кв. Бояна',
     deadline: '2024-02-15',
-    urgent: true,
+    urgent: false,
     remote: false,
     offers: 8,
     views: 45,
@@ -111,61 +109,61 @@ const mockTasks: Task[] = [
     userId: 1,
     status: 'active',
     user: {
-      name: 'Иван Петров',
+      name: 'Мария Петрова',
       rating: 4.8,
-      avatar: ''
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
     id: 2,
-    title: 'Дизайн на уеб сайт за ресторант',
-    description: 'Търся дизайнер за създаване на модерен уеб сайт за италиански ресторант.',
-    category: 'Дизайн',
-    price: 150,
-    priceType: 'hourly',
-    location: 'Пловдив',
+    title: 'Ремонт на баня',
+    description: 'Нужен е майстор за ремонт на баня. Замяна на плочки, ремонт на душ кабина и монтаж на ново санитари.',
+    category: 'Ремонт',
+    price: 1500,
+    priceType: 'fixed',
+    location: 'Пловдив, Център',
     deadline: '2024-02-10',
-    urgent: false,
-    remote: true,
+    urgent: true,
+    remote: false,
     offers: 12,
     views: 67,
     createdAt: '2024-01-19',
     userId: 2,
     status: 'active',
     user: {
-      name: 'Мария Георгиева',
+      name: 'Иван Димитров',
       rating: 4.9,
-      avatar: ''
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
     id: 3,
-    title: 'Преместване на апартамент',
-    description: 'Трябва ми помощ за преместване на 2-стаен апартамент от 3-ти на 1-ви етаж.',
-    category: 'Транспорт',
-    price: 300,
-    priceType: 'fixed',
-    location: 'Варна',
+    title: 'Разходка с кучето',
+    description: 'Търся някой да разходи кучето ми два пъти дневно. Кучето е спокойно и послушно, нужни са 30 мин разходка.',
+    category: 'Доставка',
+    price: 20,
+    priceType: 'hourly',
+    location: 'Варна, Морска градина',
     deadline: '2024-01-25',
-    urgent: true,
+    urgent: false,
     remote: false,
     offers: 5,
     views: 23,
     createdAt: '2024-01-18',
     userId: 3,
-    status: 'assigned',
+    status: 'active',
     user: {
-      name: 'Стефан Димитров',
+      name: 'Елена Стоянова',
       rating: 4.7,
-      avatar: ''
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
     id: 4,
-    title: 'Уроци по математика за 8-ми клас',
-    description: 'Търся преподавател по математика за подготовка на дъщеря ми за изпитите.',
+    title: 'Уроци по математика',
+    description: 'Нужен е учител по математика за ученик в 8 клас. Уроците да са 2 пъти седмично по 90 минути.',
     category: 'Обучение',
-    price: 25,
+    price: 30,
     priceType: 'hourly',
     location: 'София, Младост',
     deadline: '2024-02-20',
@@ -177,19 +175,19 @@ const mockTasks: Task[] = [
     userId: 4,
     status: 'active',
     user: {
-      name: 'Елена Василева',
-      rating: 5.0,
-      avatar: ''
+      name: 'Стефан Георгиев',
+      rating: 4.6,
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
     id: 5,
-    title: 'Поддръжка на компютър',
-    description: 'Компютърът ми работи бавно и има нужда от чистене и оптимизация.',
-    category: 'IT услуги',
-    price: 80,
-    priceType: 'fixed',
-    location: 'Бургас',
+    title: 'Градинарски услуги',
+    description: 'Нужен е градинар за подреждане на градината. Плевене, подрязване на живи плетове и посаждане на цветя.',
+    category: 'Градинарство',
+    price: 35,
+    priceType: 'hourly',
+    location: 'София, Драгалевци',
     deadline: '2024-01-30',
     urgent: false,
     remote: false,
@@ -199,19 +197,19 @@ const mockTasks: Task[] = [
     userId: 5,
     status: 'active',
     user: {
-      name: 'Николай Тодоров',
-      rating: 4.6,
-      avatar: ''
+      name: 'Петър Иванов',
+      rating: 4.8,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
     id: 6,
-    title: 'Подреждане на градина',
-    description: 'Имам нужда от помощ за подреждане на градината - косане, подрязване на храсти.',
-    category: 'Градинарство',
-    price: 120,
+    title: 'Сглобяване на мебели',
+    description: 'Нужен е майстор за сглобяване на кухненски шкафове и маса. Мебелите са от IKEA.',
+    category: 'Ремонт',
+    price: 200,
     priceType: 'fixed',
-    location: 'София, Драгалевци',
+    location: 'София, Лозенец',
     deadline: '2024-02-05',
     urgent: false,
     remote: false,
@@ -221,9 +219,207 @@ const mockTasks: Task[] = [
     userId: 6,
     status: 'active',
     user: {
-      name: 'Анна Стоянова',
+      name: 'Анна Георгиева',
+      rating: 4.7,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 7,
+    title: 'Доставка на храни',
+    description: 'Нужна е доставка на храни от магазин до дома. Списъкът ще бъде предоставен предварително.',
+    category: 'Доставка',
+    price: 15,
+    priceType: 'fixed',
+    location: 'София, Център',
+    deadline: '2024-01-28',
+    urgent: true,
+    remote: false,
+    offers: 4,
+    views: 22,
+    createdAt: '2024-01-14',
+    userId: 7,
+    status: 'active',
+    user: {
+      name: 'Николай Петров',
       rating: 4.5,
-      avatar: ''
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 8,
+    title: 'Почистване след ремонт',
+    description: 'Нужна е генерална почистка след ремонт на апартамент. Включва почистване на прах и отпадъци.',
+    category: 'Почистване',
+    price: 300,
+    priceType: 'fixed',
+    location: 'София, Изток',
+    deadline: '2024-02-01',
+    urgent: false,
+    remote: false,
+    offers: 6,
+    views: 31,
+    createdAt: '2024-01-13',
+    userId: 8,
+    status: 'active',
+    user: {
+      name: 'Георги Стоянов',
+      rating: 4.9,
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 9,
+    title: 'Уроци по английски',
+    description: 'Търся учител по английски за начинаещи. Уроците да са онлайн, 2 пъти седмично по 60 минути.',
+    category: 'Обучение',
+    price: 25,
+    priceType: 'hourly',
+    location: 'Онлайн',
+    deadline: '2024-02-12',
+    urgent: false,
+    remote: true,
+    offers: 9,
+    views: 56,
+    createdAt: '2024-01-12',
+    userId: 9,
+    status: 'active',
+    user: {
+      name: 'Мария Иванова',
+      rating: 4.8,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 10,
+    title: 'Поддръжка на градина',
+    description: 'Нужна е редовна поддръжка на градината - плевене, поливане, подрязване на растения.',
+    category: 'Градинарство',
+    price: 40,
+    priceType: 'hourly',
+    location: 'София, Бояна',
+    deadline: '2024-01-29',
+    urgent: false,
+    remote: false,
+    offers: 5,
+    views: 28,
+    createdAt: '2024-01-11',
+    userId: 10,
+    status: 'active',
+    user: {
+      name: 'Иван Петров',
+      rating: 4.6,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 11,
+    title: 'Ремонт на електрически уреди',
+    description: 'Нужен е електротехник за ремонт на пералня и хладилник. Проблемът е с електрическата част.',
+    category: 'Ремонт',
+    price: 120,
+    priceType: 'fixed',
+    location: 'София, Младост',
+    deadline: '2024-01-27',
+    urgent: true,
+    remote: false,
+    offers: 7,
+    views: 35,
+    createdAt: '2024-01-10',
+    userId: 11,
+    status: 'active',
+    user: {
+      name: 'Петър Георгиев',
+      rating: 4.7,
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 12,
+    title: 'Почистване на офис',
+    description: 'Нужна е почистка на офис пространство 200 кв/м. Включва почистване на работни места и общи зони.',
+    category: 'Почистване',
+    price: 400,
+    priceType: 'fixed',
+    location: 'София, Център',
+    deadline: '2024-01-26',
+    urgent: false,
+    remote: false,
+    offers: 8,
+    views: 42,
+    createdAt: '2024-01-09',
+    userId: 12,
+    status: 'active',
+    user: {
+      name: 'Анна Петрова',
+      rating: 4.8,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 13,
+    title: 'Доставка на мебели',
+    description: 'Нужна е доставка на диван и маса от магазин до дома. Разстояние около 5 км.',
+    category: 'Доставка',
+    price: 80,
+    priceType: 'fixed',
+    location: 'София, Лозенец',
+    deadline: '2024-01-25',
+    urgent: false,
+    remote: false,
+    offers: 4,
+    views: 19,
+    createdAt: '2024-01-08',
+    userId: 13,
+    status: 'active',
+    user: {
+      name: 'Николай Иванов',
+      rating: 4.5,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 14,
+    title: 'Уроци по музика',
+    description: 'Търся учител по пиано за дете 8 години. Уроците да са в дома ни, веднъж седмично по 45 минути.',
+    category: 'Обучение',
+    price: 35,
+    priceType: 'hourly',
+    location: 'София, Драгалевци',
+    deadline: '2024-02-08',
+    urgent: false,
+    remote: false,
+    offers: 6,
+    views: 33,
+    createdAt: '2024-01-07',
+    userId: 14,
+    status: 'active',
+    user: {
+      name: 'Елена Петрова',
+      rating: 4.9,
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    }
+  },
+  {
+    id: 15,
+    title: 'Посаждане на дървета',
+    description: 'Нужен е градинар за посаждане на 10 плодни дървета. Включва копаене на ями и посаждане.',
+    category: 'Градинарство',
+    price: 250,
+    priceType: 'fixed',
+    location: 'София, Бояна',
+    deadline: '2024-01-24',
+    urgent: false,
+    remote: false,
+    offers: 3,
+    views: 16,
+    createdAt: '2024-01-06',
+    userId: 15,
+    status: 'active',
+    user: {
+      name: 'Георги Иванов',
+      rating: 4.7,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   }
 ]
@@ -240,6 +436,24 @@ export default function TasksPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Функция за получаване на икона според категорията
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Почистване':
+        return Home
+      case 'Ремонт':
+        return Wrench
+      case 'Доставка':
+        return Car
+      case 'Градинарство':
+        return Leaf
+      case 'Обучение':
+        return BookOpen
+      default:
+        return Briefcase
+    }
+  }
 
   useEffect(() => {
     // Зареждане на задачи от localStorage
@@ -359,10 +573,7 @@ export default function TasksPage() {
     }
   }
 
-  const getCategoryIcon = (categoryName: string) => {
-    const category = categories.find(cat => cat.name === categoryName)
-    return category ? category.icon : Briefcase
-  }
+
 
   const formatPrice = (price: number, priceType: string) => {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
@@ -383,6 +594,53 @@ export default function TasksPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Разгледайте активните обяви за работа
+            </h1>
+            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
+              Намерете задачата, която отговаря на вашите умения и започнете да печелите
+            </p>
+            
+            {/* Category Pills */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {categories.slice(1).map((category) => {
+                const IconComponent = category.icon
+                return (
+                  <button
+                    key={category.value}
+                    onClick={() => setSelectedCategory(category.value)}
+                    className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-full text-white font-medium transition-all duration-200 backdrop-blur-sm"
+                  >
+                    <IconComponent size={20} />
+                    {category.name}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">{tasks.length}+</div>
+                <div className="text-blue-200">Активни обяви</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">15+</div>
+                <div className="text-blue-200">Категории</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">4.8★</div>
+                <div className="text-blue-200">Среден рейтинг</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

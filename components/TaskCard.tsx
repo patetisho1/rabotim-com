@@ -61,6 +61,24 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
 
+  // Функция за получаване на снимка според категорията
+  const getCategoryImage = (category: string) => {
+    switch (category) {
+      case 'Почистване':
+        return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=250&fit=crop'
+      case 'Ремонт':
+        return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=250&fit=crop'
+      case 'Доставка':
+        return 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=250&fit=crop'
+      case 'Градинарство':
+        return 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop'
+      case 'Обучение':
+        return 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=250&fit=crop'
+      default:
+        return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=250&fit=crop'
+    }
+  }
+
   useEffect(() => {
     // Проверка дали задачата е в любими
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
@@ -222,6 +240,29 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
       onTouchEnd={handleTouchEnd}
       onClick={() => router.push(`/task/${task.id}`)}
     >
+      {/* Category Image */}
+      <div className="relative h-48 overflow-hidden">
+        <img 
+          src={getCategoryImage(task.category)} 
+          alt={task.category}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        {/* Category overlay */}
+        <div className="absolute top-3 left-3">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-600 text-white shadow-lg">
+            {task.category}
+          </span>
+        </div>
+        {/* Urgent badge overlay */}
+        {task.urgent && (
+          <div className="absolute top-3 right-3">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-600 text-white shadow-lg">
+              Спешно
+            </span>
+          </div>
+        )}
+      </div>
+
       {/* Mobile-optimized card layout */}
       <div className="p-4 sm:p-6">
         {/* Header with title and badges */}
