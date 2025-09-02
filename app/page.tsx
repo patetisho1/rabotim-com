@@ -315,7 +315,7 @@ export default function HomePage() {
       category: "Ремонт",
       postedBy: "Иван Димитров",
       rating: 4.9,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -328,7 +328,7 @@ export default function HomePage() {
       category: "Доставка",
       postedBy: "Елена Стоянова",
       rating: 4.7,
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -341,7 +341,7 @@ export default function HomePage() {
       category: "Обучение",
       postedBy: "Стефан Георгиев",
       rating: 4.6,
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -354,7 +354,7 @@ export default function HomePage() {
       category: "Градинарство",
       postedBy: "Петър Иванов",
       rating: 4.8,
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -367,7 +367,7 @@ export default function HomePage() {
       category: "Ремонт",
       postedBy: "Анна Георгиева",
       rating: 4.7,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -380,7 +380,7 @@ export default function HomePage() {
       category: "Доставка",
       postedBy: "Николай Петров",
       rating: 4.5,
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -406,7 +406,7 @@ export default function HomePage() {
       category: "Обучение",
       postedBy: "Мария Иванова",
       rating: 4.8,
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -419,7 +419,7 @@ export default function HomePage() {
       category: "Градинарство",
       postedBy: "Иван Петров",
       rating: 4.6,
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -432,7 +432,7 @@ export default function HomePage() {
       category: "Ремонт",
       postedBy: "Петър Георгиев",
       rating: 4.7,
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
     },
     {
@@ -471,7 +471,7 @@ export default function HomePage() {
       category: "Обучение",
       postedBy: "Елена Петрова",
       rating: 4.9,
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
     },
     {
