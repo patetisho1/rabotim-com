@@ -843,6 +843,11 @@ export default function HomePage() {
                         {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
                       </div>
                     </div>
+                    
+                    <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
+                      <MapPin className="w-4 h-4" />
+                      <span>{task.location}</span>
+                    </div>
                   </div>
                 </Link>
               ))}
