@@ -43,6 +43,7 @@ interface Task {
   createdAt: string
   userId: number
   status: 'active' | 'assigned' | 'completed'
+  image: string
   user: {
     name: string
     rating: number
@@ -108,6 +109,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-20',
     userId: 1,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
       name: 'Мария Петрова',
       rating: 4.8,
@@ -130,6 +132,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-19',
     userId: 2,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop',
     user: {
       name: 'Иван Димитров',
       rating: 4.9,
@@ -152,6 +155,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-18',
     userId: 3,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=300&fit=crop',
     user: {
       name: 'Елена Стоянова',
       rating: 4.7,
@@ -174,6 +178,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-17',
     userId: 4,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
     user: {
       name: 'Стефан Георгиев',
       rating: 4.6,
@@ -196,6 +201,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-16',
     userId: 5,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
     user: {
       name: 'Петър Иванов',
       rating: 4.8,
@@ -218,6 +224,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-15',
     userId: 6,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     user: {
       name: 'Анна Георгиева',
       rating: 4.7,
@@ -240,6 +247,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-14',
     userId: 7,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop',
     user: {
       name: 'Николай Петров',
       rating: 4.5,
@@ -262,6 +270,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-13',
     userId: 8,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
       name: 'Георги Стоянов',
       rating: 4.9,
@@ -284,6 +293,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-12',
     userId: 9,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
     user: {
       name: 'Мария Иванова',
       rating: 4.8,
@@ -306,6 +316,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-11',
     userId: 10,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
     user: {
       name: 'Иван Петров',
       rating: 4.6,
@@ -328,6 +339,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-10',
     userId: 11,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     user: {
       name: 'Петър Георгиев',
       rating: 4.7,
@@ -350,6 +362,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-09',
     userId: 12,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
       name: 'Анна Петрова',
       rating: 4.8,
@@ -372,6 +385,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-08',
     userId: 13,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop',
     user: {
       name: 'Николай Иванов',
       rating: 4.5,
@@ -394,6 +408,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-07',
     userId: 14,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
     user: {
       name: 'Елена Петрова',
       rating: 4.9,
@@ -416,6 +431,7 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-06',
     userId: 15,
     status: 'active',
+    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop',
     user: {
       name: 'Георги Иванов',
       rating: 4.7,
@@ -492,6 +508,38 @@ export default function TasksPage() {
     const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]')
     setFavorites(savedFavorites)
   }, [])
+
+  // Скролиране към конкретна обява, ако е подаден jobId в URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const jobId = urlParams.get('jobId')
+      const category = urlParams.get('category')
+      
+      if (jobId) {
+        // Задаваме категорията, ако е подадена
+        if (category) {
+          setSelectedCategory(category)
+        }
+        
+        // Скролираме към обявата след кратко забавяне
+        setTimeout(() => {
+          const taskElement = document.getElementById(`task-${jobId}`)
+          if (taskElement) {
+            taskElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            })
+            // Добавяме визуален ефект
+            taskElement.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50')
+            setTimeout(() => {
+              taskElement.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50')
+            }, 3000)
+          }
+        }, 500)
+      }
+    }
+  }, [filteredTasks])
 
   useEffect(() => {
     filterTasks()
@@ -750,83 +798,108 @@ export default function TasksPage() {
                 </div>
               ) : (
                 filteredTasks.map(task => (
-                  <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-                          {task.urgent && (
-                            <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                  <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300">
+                    <div className="flex">
+                      {/* Image Section */}
+                      <div className="w-48 h-48 flex-shrink-0 relative">
+                        <img 
+                          src={task.image} 
+                          alt={task.title} 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            {task.category}
+                          </span>
+                        </div>
+                        {task.urgent && (
+                          <div className="absolute top-3 right-3">
+                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                               Спешно
                             </span>
-                          )}
-                          {task.remote && (
-                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                          </div>
+                        )}
+                        {task.remote && (
+                          <div className="absolute bottom-3 left-3">
+                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
                               Дистанционно
                             </span>
-                          )}
-                        </div>
-                        <p className="text-gray-600 text-sm mb-3">{task.description}</p>
-                        
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            {React.createElement(getCategoryIcon(task.category), { className: "h-4 w-4" })}
-                            {task.category}
                           </div>
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {task.location}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {formatDate(task.deadline)}
-                          </div>
-                        </div>
+                        )}
                       </div>
                       
-                      <div className="text-right ml-4">
-                        <div className="text-2xl font-bold text-blue-600 mb-1">
-                          {formatPrice(task.price, task.priceType)}
+                      {/* Content Section */}
+                      <div className="flex-1 p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{task.title}</h3>
+                            <p className="text-gray-600 text-sm mb-4 leading-relaxed">{task.description}</p>
+                            
+                            <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
+                              <div className="flex items-center gap-2">
+                                {React.createElement(getCategoryIcon(task.category), { className: "h-4 w-4 text-blue-500" })}
+                                <span className="font-medium">{task.category}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-gray-400" />
+                                <span>{task.location}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-gray-400" />
+                                <span>{formatDate(task.deadline)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right ml-4">
+                            <div className="text-3xl font-bold text-blue-600 mb-1">
+                              {formatPrice(task.price, task.priceType)}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {task.offers} оферти
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {task.offers} оферти
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <User className="h-4 w-4" />
-                          {task.user.name}
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          {task.user.rating}
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Eye className="h-4 w-4" />
-                          {task.views}
-                        </div>
-                      </div>
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <img 
+                                src={task.user.avatar} 
+                                alt={task.user.name} 
+                                className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                              />
+                              <span className="font-medium">{task.user.name}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-gray-600">
+                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                              <span className="font-medium">{task.user.rating}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                              <Eye className="h-4 w-4" />
+                              <span>{task.views} прегледа</span>
+                            </div>
+                          </div>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleFavoriteToggle(task.id)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            favorites.includes(task.id)
-                              ? 'text-red-500 bg-red-50'
-                              : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                          }`}
-                        >
-                          <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
-                        </button>
-                        <button 
-                          onClick={() => router.push(`/submit-offer/${task.id}`)}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          Подай оферта
-                        </button>
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleFavoriteToggle(task.id)}
+                              className={`p-2 rounded-lg transition-colors ${
+                                favorites.includes(task.id)
+                                  ? 'text-red-500 bg-red-50'
+                                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                              }`}
+                            >
+                              <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
+                            </button>
+                            <button 
+                              onClick={() => router.push(`/submit-offer/${task.id}`)}
+                              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            >
+                              Подай оферта
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
