@@ -1169,7 +1169,7 @@ export default function HomePage() {
                       const examples = [
                         { name: "Дарина", task: "Грижа за домашни любимци", amount: "25 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=320&fit=crop", description: "Търся някой да се грижи за моя златен ретривър 2 пъти дневно. Разходка в парка и игри." },
                         { name: "Мария", task: "Почистване на апартамент", amount: "220 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=320&fit=crop", description: "Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса. След ремонт." },
-                        { name: "Иван", task: "Строителство", amount: "120 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=320&fit=crop", description: "Нужен е майстор за изливане на бетон за основа. 20 кв/м площ. Спешно." },
+                                                 { name: "Иван", task: "Строителство", amount: "120 лв", rating: 4.7, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=320&fit=crop", description: "Нужен е майстор за изливане на бетон за основа. 20 кв/м площ. Спешно." },
                         { name: "Петър", task: "Градинарство", amount: "45 лв/час", rating: 4.9, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=320&fit=crop", description: "Търся градинар за подреждане на градината. Плевене, подрязване на дървета и цветя." },
                         { name: "Анна", task: "Фотография", amount: "200 лв", rating: 4.8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=320&fit=crop", description: "Нужен е фотограф за сватбена снимка. 4 часа работа. Централна София." },
                         { name: "Владимир", task: "Боядисване", amount: "40 лв/час", rating: 4.8, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=320&fit=crop", description: "Боядисване на 3 стаи и коридор. 80 кв/м общо. Бяла боя. Спешно." }
@@ -1277,27 +1277,34 @@ export default function HomePage() {
                    {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
                      <Link 
                        key={`${job.id}-${index}`} 
-                       href={`/tasks?category=${encodeURIComponent(job.category)}`}
-                       className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
+                       href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
+                       className="flex-shrink-0 w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
                      >
-                       <div className="h-24 overflow-hidden">
+                       <div className="h-32 overflow-hidden relative">
                          <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                       </div>
-                       <div className="p-3">
-                         <div className="flex items-center gap-2 mb-2">
-                           <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 rounded-full object-cover" />
-                           <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">{job.category}</div>
+                         <div className="absolute top-2 right-2">
+                           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                             {job.category}
+                           </span>
                          </div>
-                         <div className="font-semibold text-gray-900 text-xs group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">{job.title}</div>
-                         <p className="text-gray-600 text-xs mb-2 line-clamp-2">{job.description}</p>
-                         <div className="flex items-center justify-between">
+                       </div>
+                       <div className="p-4">
+                         <div className="flex items-center gap-2 mb-3">
+                           <img src={job.avatar} alt={job.postedBy} className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
+                           <div className="flex-1">
+                             <div className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">{job.title}</div>
+                             <div className="text-xs text-gray-500">{job.postedBy}</div>
+                           </div>
+                         </div>
+                         <p className="text-gray-600 text-xs mb-3 line-clamp-2 leading-relaxed">{job.description}</p>
+                         <div className="flex items-center justify-between mb-2">
                            <div className="flex items-center gap-1">
                              <Star className="w-3 h-3 text-yellow-400 fill-current" />
                              <span className="text-xs font-medium">{job.rating}</span>
                            </div>
                            <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
                          </div>
-                         <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                         <div className="flex items-center gap-1 text-xs text-gray-500">
                            <MapPin className="w-3 h-3" />
                            <span className="truncate">{job.location}</span>
                          </div>
@@ -1314,27 +1321,34 @@ export default function HomePage() {
                   {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
                     <Link 
                       key={`${job.id}-${index + 20}`} 
-                      href={`/tasks?category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
+                      href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
+                      className="flex-shrink-0 w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
                     >
-                      <div className="h-24 overflow-hidden">
+                      <div className="h-32 overflow-hidden relative">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      </div>
-                      <div className="p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 rounded-full object-cover" />
-                          <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">{job.category}</div>
+                        <div className="absolute top-2 right-2">
+                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            {job.category}
+                          </span>
                         </div>
-                        <div className="font-semibold text-gray-900 text-xs group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">{job.title}</div>
-                        <p className="text-gray-600 text-xs mb-2 line-clamp-2">{job.description}</p>
-                        <div className="flex items-center justify-between">
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <img src={job.avatar} alt={job.postedBy} className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">{job.title}</div>
+                            <div className="text-xs text-gray-500">{job.postedBy}</div>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 text-xs mb-3 line-clamp-2 leading-relaxed">{job.description}</p>
+                        <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1">
                             <Star className="w-3 h-3 text-yellow-400 fill-current" />
                             <span className="text-xs font-medium">{job.rating}</span>
                           </div>
                           <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
                         </div>
-                        <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
                           <MapPin className="w-3 h-3" />
                           <span className="truncate">{job.location}</span>
                         </div>
@@ -1389,29 +1403,39 @@ export default function HomePage() {
               {recentTasks.map((task) => (
                 <Link
                   key={task.id}
-                  href={`/task/${task.id}`}
+                  href={`/tasks?jobId=${task.id}&category=${task.category}`}
                   className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group"
                 >
+                  <div className="h-32 overflow-hidden relative">
+                    <img 
+                      src={task.avatar} 
+                      alt={task.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        {task.category === 'cleaning' ? 'Почистване' :
+                         task.category === 'handyman' ? 'Ремонт' :
+                         task.category === 'delivery' ? 'Доставка' :
+                         task.category === 'gardening' ? 'Градинарство' :
+                         task.category === 'tutoring' ? 'Обучение' :
+                         task.category === 'dog-care' ? 'Грижа за кучета' :
+                         task.category === 'care' ? 'Грижа' : 'Друго'}
+                      </span>
+                    </div>
+                  </div>
                   <div className="p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <img 
                         src={task.avatar} 
                         alt={task.postedBy} 
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                       />
                       <div className="flex-1">
-                        <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
-                          {task.category === 'cleaning' ? 'Почистване' :
-                           task.category === 'handyman' ? 'Ремонт' :
-                           task.category === 'delivery' ? 'Доставка' :
-                           task.category === 'gardening' ? 'Градинарство' :
-                           task.category === 'tutoring' ? 'Обучение' :
-                           task.category === 'dog-care' ? 'Грижа за кучета' :
-                           task.category === 'care' ? 'Грижа' : 'Друго'}
-                        </div>
-                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
                           {task.title}
                         </div>
+                        <div className="text-xs text-gray-500">{task.postedBy}</div>
                       </div>
                     </div>
                     
