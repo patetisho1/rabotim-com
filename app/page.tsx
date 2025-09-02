@@ -1253,8 +1253,8 @@ export default function HomePage() {
             <div className="mb-8">
               {/* Mobile: Horizontal scrollable tabs */}
               <div className="block md:hidden">
-                <div className="overflow-x-auto scrollbar-hide">
-                  <div className="flex space-x-2 px-4 pb-2 min-w-max">
+                <div className="overflow-x-auto scrollbar-hide mobile-tabs-container -mx-4 px-4 relative">
+                  <div className="flex space-x-2 pb-2 min-w-max">
                     {['Всички', 'Почистване', 'Ремонт', 'Доставка', 'Градинарство', 'Обучение'].map((tab) => (
                       <button
                         key={tab}
@@ -1269,6 +1269,9 @@ export default function HomePage() {
                       </button>
                     ))}
                   </div>
+                  {/* Scroll indicators */}
+                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
                 </div>
               </div>
               
@@ -1408,8 +1411,8 @@ export default function HomePage() {
             <div className={`mb-6 md:mb-8 transition-all duration-1000 delay-300 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               {/* Mobile: Horizontal scrollable tabs */}
               <div className="block md:hidden">
-                <div className="overflow-x-auto scrollbar-hide">
-                  <div className="flex space-x-2 px-4 pb-2 min-w-max">
+                <div className="overflow-x-auto scrollbar-hide mobile-tabs-container -mx-4 px-4 relative">
+                  <div className="flex space-x-2 pb-2 min-w-max">
                     {['Преместване', 'Поддръжка на дома', 'Стартиране на бизнес', 'Партита', 'Нещо различно'].map((tab, index) => (
                       <button
                         key={tab}
@@ -1423,6 +1426,9 @@ export default function HomePage() {
                       </button>
                     ))}
                   </div>
+                  {/* Scroll indicators */}
+                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
                 </div>
               </div>
               

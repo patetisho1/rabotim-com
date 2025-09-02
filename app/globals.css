@@ -502,4 +502,27 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Safari and Chrome */
+}
+
+/* Mobile tab improvements */
+.mobile-tabs-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-tabs-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.mobile-tabs-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-tabs-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+
+.mobile-tabs-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 } 
