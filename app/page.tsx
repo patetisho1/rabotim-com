@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
 
-import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle, X, ChevronLeft } from 'lucide-react'
+import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -187,10 +187,7 @@ export default function HomePage() {
   const [categoriesRef, categoriesInView] = useInView({ threshold: 0.2, triggerOnce: true })
   const [tasksRef, tasksInView] = useInView({ threshold: 0.2, triggerOnce: true })
 
-  // Modal state for job details
-  const [selectedJob, setSelectedJob] = useState<any>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
 
   useEffect(() => {
     // Зареждане на статистики от localStorage
@@ -294,32 +291,7 @@ export default function HomePage() {
     router.push('/register')
   }
 
-  // Modal handlers for job details
-  const openJobModal = (job: any) => {
-    setSelectedJob(job)
-    setSelectedImageIndex(0)
-    setIsModalOpen(true)
-  }
 
-  const closeJobModal = () => {
-    setIsModalOpen(false)
-    setSelectedJob(null)
-    setSelectedImageIndex(0)
-  }
-
-  const nextImage = () => {
-    if (selectedJob && selectedJob.images) {
-      setSelectedImageIndex((prev) => (prev + 1) % selectedJob.images.length)
-    }
-  }
-
-  const prevImage = () => {
-    if (selectedJob && selectedJob.images) {
-      setSelectedImageIndex((prev) => 
-        prev === 0 ? selectedJob.images.length - 1 : prev - 1
-      )
-    }
-  }
 
 
 
@@ -943,65 +915,65 @@ export default function HomePage() {
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               
-                             {/* Main Title - Mobile Optimized */}
+              {/* Main Title - Mobile Optimized */}
                <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4 md:mb-6 transition-all duration-1000 font-display ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 Търся някой...
-               </h1>
+                Търся някой...
+              </h1>
               
-                             {/* Rotating Task Text - Mobile Optimized */}
+              {/* Rotating Task Text - Mobile Optimized */}
                <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl text-blue-200 mb-4 md:mb-6 h-10 sm:h-12 flex items-center justify-center transition-all duration-500 font-accent ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 <span className="transition-all duration-500 px-2">
-                   {tasks[currentTaskIndex]}
-                 </span>
-               </div>
+                <span className="transition-all duration-500 px-2">
+                  {tasks[currentTaskIndex]}
+                </span>
+              </div>
               
-                             {/* Subtitle - Mobile Optimized */}
+              {/* Subtitle - Mobile Optimized */}
                <p className={`text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 md:mb-12 px-4 transition-all duration-1000 delay-300 font-readable ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 Намери точния човек за твоята задача.
-               </p>
+                Намери точния човек за твоята задача.
+              </p>
               
               {/* Airtasker-style Buttons - Mobile Optimized with better touch targets */}
               <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full max-w-sm sm:max-w-none transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                                 <button
-                   onClick={handlePostTask}
+                <button
+                  onClick={handlePostTask}
                    className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg min-h-[56px] touch-manipulation font-heading"
-                 >
-                   <span className="whitespace-nowrap">Публикувай обява безплатно</span>
-                   <ArrowRight size={18} className="sm:w-5 sm:h-5" />
-                 </button>
-                 <button
-                   onClick={handleBecomeTasker}
+                >
+                  <span className="whitespace-nowrap">Публикувай обява безплатно</span>
+                  <ArrowRight size={18} className="sm:w-5 sm:h-5" />
+                </button>
+                <button
+                  onClick={handleBecomeTasker}
                    className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 shadow-lg min-h-[56px] touch-manipulation font-heading"
-                 >
-                   Стани изпълнител
-                 </button>
+                >
+                  Стани изпълнител
+                </button>
               </div>
               
-                             {/* Stats - Mobile Optimized */}
+              {/* Stats - Mobile Optimized */}
                <div className={`mt-8 md:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 text-sm sm:text-lg transition-all duration-1000 delay-700 font-body ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                 {isLoadingStats ? (
-                   <>
-                     <span className="animate-pulse">Зареждане...</span>
-                     <span className="animate-pulse">Зареждане...</span>
-                     <span className="animate-pulse">Зареждане...</span>
-                   </>
-                 ) : (
-                   <>
-                     <span className="flex items-center gap-1">
-                       <Users size={16} className="sm:w-5 sm:h-5" />
-                       {stats.users}+ клиенти
-                     </span>
-                     <span className="flex items-center gap-1">
-                       <CheckCircle size={16} className="sm:w-5 sm:h-5" />
-                       {stats.completed}+ свършени задачи
-                     </span>
-                     <span className="flex items-center gap-1">
-                       <Star size={16} className="sm:w-5 sm:h-5 fill-current" />
-                       4.8★ рейтинг
-                     </span>
-                   </>
-                 )}
-               </div>
+                {isLoadingStats ? (
+                  <>
+                    <span className="animate-pulse">Зареждане...</span>
+                    <span className="animate-pulse">Зареждане...</span>
+                    <span className="animate-pulse">Зареждане...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex items-center gap-1">
+                      <Users size={16} className="sm:w-5 sm:h-5" />
+                      {stats.users}+ клиенти
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle size={16} className="sm:w-5 sm:h-5" />
+                      {stats.completed}+ свършени задачи
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Star size={16} className="sm:w-5 sm:h-5 fill-current" />
+                      4.8★ рейтинг
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -1224,13 +1196,13 @@ export default function HomePage() {
                               <div>
                                 <div className="font-semibold text-white text-sm">{currentExample.name}</div>
                               </div>
-                            </div>
-                            <div className="text-right">
+                              </div>
+                              <div className="text-right">
                               <div className="text-xs text-green-300 bg-green-800/50 px-2 py-1 rounded-full">
                                 Прие задача
+                                </div>
                               </div>
                             </div>
-                          </div>
                           
                           {/* Bottom section - Task details and rating */}
                           <div className="absolute bottom-4 left-4 right-4">
@@ -1301,48 +1273,48 @@ export default function HomePage() {
               {/* Top Row - Moving Left */}
               <div className="relative overflow-hidden">
                 <div className="flex space-x-6 animate-scroll-left">
-                  {/* Duplicate the filtered jobs for seamless loop */}
-                  {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
-                    <button 
-                      key={`${job.id}-${index}`} 
-                      onClick={() => openJobModal(job)}
-                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
-                    >
-                      <div className="h-24 overflow-hidden">
-                        <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      </div>
-                      <div className="p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 rounded-full object-cover" />
-                          <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">{job.category}</div>
-                        </div>
-                        <div className="font-semibold text-gray-900 text-xs group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">{job.title}</div>
-                        <p className="text-gray-600 text-xs mb-2 line-clamp-2">{job.description}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-xs font-medium">{job.rating}</span>
-                          </div>
-                          <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
-                        </div>
-                        <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-                          <MapPin className="w-3 h-3" />
-                          <span className="truncate">{job.location}</span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
+                                     {/* Duplicate the filtered jobs for seamless loop */}
+                   {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
+                     <Link 
+                       key={`${job.id}-${index}`} 
+                       href={`/tasks?category=${encodeURIComponent(job.category)}`}
+                       className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
+                     >
+                       <div className="h-24 overflow-hidden">
+                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                       </div>
+                       <div className="p-3">
+                         <div className="flex items-center gap-2 mb-2">
+                           <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 rounded-full object-cover" />
+                           <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">{job.category}</div>
+                         </div>
+                         <div className="font-semibold text-gray-900 text-xs group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">{job.title}</div>
+                         <p className="text-gray-600 text-xs mb-2 line-clamp-2">{job.description}</p>
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-1">
+                             <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                             <span className="text-xs font-medium">{job.rating}</span>
+                           </div>
+                           <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
+                         </div>
+                         <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                           <MapPin className="w-3 h-3" />
+                           <span className="truncate">{job.location}</span>
+                         </div>
+                       </div>
+                     </Link>
+                   ))}
+                    </div>
+                  </div>
+                  
               {/* Bottom Row - Moving Right */}
               <div className="relative overflow-hidden">
                 <div className="flex space-x-6 animate-scroll-right">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
-                    <button 
+                    <Link 
                       key={`${job.id}-${index + 20}`} 
-                      onClick={() => openJobModal(job)}
+                      href={`/tasks?category=${encodeURIComponent(job.category)}`}
                       className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
                     >
                       <div className="h-24 overflow-hidden">
@@ -1367,7 +1339,7 @@ export default function HomePage() {
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -1469,152 +1441,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Job Details Modal */}
-      {isModalOpen && selectedJob && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
-              <button
-                onClick={closeJobModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
 
-            {/* Modal Content */}
-            <div className="p-6">
-              {/* Image Gallery */}
-              <div className="mb-6">
-                <div className="relative h-80 rounded-xl overflow-hidden mb-4">
-                  <img
-                    src={selectedJob.images[selectedImageIndex]}
-                    alt={selectedJob.title}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Navigation Arrows */}
-                  {selectedJob.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
-                      >
-                        <ChevronLeft size={20} />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
-                      >
-                        <ChevronLeft size={20} className="rotate-180" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Thumbnail Navigation */}
-                {selectedJob.images.length > 1 && (
-                  <div className="flex gap-2 justify-center">
-                    {selectedJob.images.map((image: string, index: number) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedImageIndex(index)}
-                        className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                          index === selectedImageIndex
-                            ? 'border-blue-500 scale-110'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <img
-                          src={image}
-                          alt={`${selectedJob.title} ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Job Details */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column - Main Info */}
-                <div className="lg:col-span-2">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Описание</h3>
-                      <p className="text-gray-600 leading-relaxed">{selectedJob.description}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Категория</h3>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                        {selectedJob.category}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Локация</h3>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin size={16} />
-                        <span>{selectedJob.location}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column - Sidebar */}
-                <div className="space-y-4">
-                  {/* Price */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="text-sm text-gray-600 mb-1">Цена</div>
-                    <div className="text-2xl font-bold text-green-600">
-                      {selectedJob.priceType === 'hourly' ? `${selectedJob.price} лв/час` : `${selectedJob.price} лв`}
-                    </div>
-                  </div>
-
-                  {/* Posted By */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="text-sm text-gray-600 mb-2">Публикувано от</div>
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={selectedJob.avatar}
-                        alt={selectedJob.postedBy}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                      <div>
-                        <div className="font-semibold text-gray-900">{selectedJob.postedBy}</div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm text-gray-600">{selectedJob.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-3">
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors">
-                      Кандидатствай за задачата
-                    </button>
-                    <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold transition-colors">
-                      Запази обявата
-                    </button>
-                    <Link
-                      href={`/tasks?category=${encodeURIComponent(selectedJob.category)}`}
-                      className="w-full bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 px-4 rounded-lg font-semibold transition-colors text-center block"
-                    >
-                      Виж подобни обяви
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 } 
