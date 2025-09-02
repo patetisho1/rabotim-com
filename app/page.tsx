@@ -376,6 +376,270 @@ export default function HomePage() {
     }
   ]
 
+  // Active Job Listings data
+  const activeJobListings = [
+    {
+      id: "1",
+      title: "Почистване на апартамент",
+      description: "Търся някой да почисти апартамент след ремонт. 120 кв/м, 2 стаи, кухня, баня.",
+      price: 220,
+      priceType: "fixed",
+      location: "София, Лозенец",
+      category: "Почистване",
+      postedBy: "Мария П.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "2",
+      title: "Ремонт на баня",
+      description: "Нужен е майстор за пълна реконструкция на баня. 8 кв/м, нова електроника.",
+      price: 1500,
+      priceType: "fixed",
+      location: "Пловдив, Център",
+      category: "Ремонт",
+      postedBy: "Иван Д.",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "3",
+      title: "Разходка с кучето",
+      description: "Търся някой да разходи моя златен ретривър 2 пъти дневно. Парк близо до нас.",
+      price: 25,
+      priceType: "hourly",
+      location: "Варна, Морска градина",
+      category: "Грижа за животни",
+      postedBy: "Елена С.",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "4",
+      title: "Уроци по математика",
+      description: "Нужен е учител по математика за 8-ми клас. 2 пъти седмично, 90 мин.",
+      price: 30,
+      priceType: "hourly",
+      location: "София, Младост",
+      category: "Обучение",
+      postedBy: "Стефан Г.",
+      rating: 4.6,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "5",
+      title: "Боядисване на стая",
+      description: "Боядисване на 2 стаи и коридор. 60 кв/м общо. Бяла боя, готови стени.",
+      price: 400,
+      priceType: "fixed",
+      location: "София, Надежда",
+      category: "Ремонт",
+      postedBy: "Петър К.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "6",
+      title: "Сглобяване на мебели",
+      description: "Нужен е майстор за сглобяване на кухненски шкафове. 5 броя, плоски мебели.",
+      price: 150,
+      priceType: "fixed",
+      location: "София, Изток",
+      category: "Монтаж",
+      postedBy: "Анна В.",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "7",
+      title: "Доставка на мебели",
+      description: "Доставка на диван от ИКЕА до апартамент в центъра. 3-ти етаж, асансьор.",
+      price: 120,
+      priceType: "fixed",
+      location: "София, Център",
+      category: "Доставка",
+      postedBy: "Владимир Т.",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "8",
+      title: "Градинарски услуги",
+      description: "Търся градинар за подреждане на градината. Плевене, подрязване, насаждане.",
+      price: 45,
+      priceType: "hourly",
+      location: "София, Бояна",
+      category: "Градинарство",
+      postedBy: "Георги М.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "9",
+      title: "Фотограф за сватба",
+      description: "Нужен е фотограф за сватбена снимка. 6 часа работа, 2 локации, 200+ снимки.",
+      price: 800,
+      priceType: "fixed",
+      location: "София, Банкя",
+      category: "Фотография",
+      postedBy: "Дарина Л.",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "10",
+      title: "Ремонт на компютър",
+      description: "Нужен е IT специалист за ремонт на лаптоп. Проблем с батерията и вентилатора.",
+      price: 80,
+      priceType: "fixed",
+      location: "София, Люлин",
+      category: "IT услуги",
+      postedBy: "Николай С.",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "11",
+      title: "Почистване на офис",
+      description: "Почистване на офис 200 кв/м. 5 стаи, кухня, 2 бани. След ремонт.",
+      price: 350,
+      priceType: "fixed",
+      location: "София, Бизнес парк",
+      category: "Почистване",
+      postedBy: "Светлана К.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "12",
+      title: "Монтаж на климатик",
+      description: "Монтаж на сплит климатик. 2-ри етаж, балкон, готови тръби за фреон.",
+      price: 200,
+      priceType: "fixed",
+      location: "София, Младост",
+      category: "Монтаж",
+      postedBy: "Димитър П.",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "13",
+      title: "Грижа за дете",
+      description: "Търся бавачка за 3-годишно дете. 4 часа дневно, игри, разходка в парка.",
+      price: 35,
+      priceType: "hourly",
+      location: "София, Лозенец",
+      category: "Грижа за деца",
+      postedBy: "Елена М.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "14",
+      title: "Ремонт на кола",
+      description: "Нужен е механик за смяна на спирачките. Форд Фокус, предни и задни.",
+      price: 300,
+      priceType: "fixed",
+      location: "София, Надежда",
+      category: "Автосервиз",
+      postedBy: "Стоян В.",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "15",
+      title: "Организиране на парти",
+      description: "Организиране на 30-ти рожден ден. 50 гости, ресторант, декор, забавления.",
+      price: 500,
+      priceType: "fixed",
+      location: "София, Център",
+      category: "Организация",
+      postedBy: "Анна К.",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "16",
+      title: "Превод на документи",
+      description: "Превод на 20 страници от английски на български. Юридически документи.",
+      price: 25,
+      priceType: "page",
+      location: "София, Център",
+      category: "Преводи",
+      postedBy: "Мария Г.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "17",
+      title: "Монтаж на завеси",
+      description: "Монтаж на 4 завеси в хола. Готови релси, нужен само монтаж.",
+      price: 80,
+      priceType: "fixed",
+      location: "София, Изток",
+      category: "Монтаж",
+      postedBy: "Петър Д.",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "18",
+      title: "Грижа за растения",
+      description: "Търся някой да се грижи за стайните растения. Поливане, подрязване, пресаждане.",
+      price: 40,
+      priceType: "hourly",
+      location: "София, Бояна",
+      category: "Градинарство",
+      postedBy: "Георги С.",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "19",
+      title: "Ремонт на телевизор",
+      description: "Нужен е техник за ремонт на LED телевизор. Проблем с изображението.",
+      price: 150,
+      priceType: "fixed",
+      location: "София, Младост",
+      category: "Ремонт",
+      postedBy: "Николай К.",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "20",
+      title: "Уроци по пиано",
+      description: "Нужен е учител по пиано за начинаещ. 1 път седмично, 60 мин, у дома.",
+      price: 50,
+      priceType: "hourly",
+      location: "София, Лозенец",
+      category: "Музика",
+      postedBy: "Елена В.",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-white">
       {/* Main Content */}
@@ -719,57 +983,154 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Taskers */}
+        {/* Active Job Listings */}
         <section className="py-20 px-4 bg-white">
           <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8">
-              {featuredTaskers.map((tasker, index) => (
-                <div key={index} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-300">
-                  <div className="flex items-start gap-6 mb-6">
-                    <img 
-                      src={tasker.avatar} 
-                      alt={tasker.name} 
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{tasker.name}</h3>
-                      <div className="flex items-center gap-4 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                          <span className="font-semibold">{tasker.rating} ★ Общ рейтинг</span>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Разгледайте активните обяви за работа
+              </h2>
+              <p className="text-xl text-gray-600">
+                Намерете задачата, която отговаря на вашите умения
+              </p>
+            </div>
+            
+            {/* Category Tabs */}
+            <div className="flex justify-center mb-8">
+              <div className="flex space-x-1 bg-white rounded-full p-1 shadow-sm border border-gray-200">
+                {['Всички', 'Почистване', 'Ремонт', 'Доставка', 'Градинарство', 'Обучение'].map((tab, index) => (
+                  <button
+                    key={tab}
+                    className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
+                      index === 0 
+                        ? 'bg-blue-500 text-white' 
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Rotating Job Cards - Two Rows */}
+            <div className="space-y-8">
+              {/* Top Row - Moving Left */}
+              <div className="relative overflow-hidden">
+                <div className="flex space-x-6 animate-scroll-left">
+                  {activeJobListings.slice(0, 10).map((job) => (
+                    <div key={job.id} className="flex-shrink-0 w-80 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                      <div className="h-48 overflow-hidden">
+                        <img 
+                          src={job.image} 
+                          alt={job.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <img 
+                            src={job.avatar} 
+                            alt={job.postedBy} 
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                              {job.category}
+                            </div>
+                            <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                              {job.title}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-gray-600">{tasker.completionRate}% Процент на завършване</div>
+                        
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          {job.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-sm font-medium">{job.rating}</span>
+                          </div>
+                          <div className="text-lg font-bold text-green-600">
+                            {job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
+                          <MapPin className="w-4 h-4" />
+                          <span>{job.location}</span>
+                        </div>
                       </div>
-                      <div className="bg-blue-50 text-blue-800 px-3 py-2 rounded-lg text-sm font-medium">
-                        Специалности: {tasker.specialties}
-                      </div>
                     </div>
-                  </div>
-                  
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {tasker.bio}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <DollarSign className="w-4 h-4" />
-                      <span className="text-sm">Метод на плащане</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Smartphone className="w-4 h-4" />
-                      <span className="text-sm">Мобилен</span>
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-gray-200 pt-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Какво казват отзивите</h4>
-                    <blockquote className="text-gray-600 italic">
-                      "{tasker.review}"
-                    </blockquote>
-                    <div className="text-sm text-gray-500 mt-2">{tasker.reviewer}</div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+              
+              {/* Bottom Row - Moving Right */}
+              <div className="relative overflow-hidden">
+                <div className="flex space-x-6 animate-scroll-right">
+                  {activeJobListings.slice(10, 20).map((job) => (
+                    <div key={job.id} className="flex-shrink-0 w-80 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                      <div className="h-48 overflow-hidden">
+                        <img 
+                          src={job.image} 
+                          alt={job.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <img 
+                            src={job.avatar} 
+                            alt={job.postedBy} 
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                              {job.category}
+                            </div>
+                            <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                              {job.title}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          {job.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-sm font-medium">{job.rating}</span>
+                          </div>
+                          <div className="text-lg font-bold text-green-600">
+                            {job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
+                          <MapPin className="w-4 h-4" />
+                          <span>{job.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* View All Button */}
+            <div className="text-center mt-12">
+              <Link 
+                href="/tasks"
+                className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
+              >
+                Вижте всички обяви
+                <ArrowRight size={20} />
+              </Link>
             </div>
           </div>
         </section>
@@ -842,11 +1203,6 @@ export default function HomePage() {
                       <div className="text-lg font-bold text-green-600">
                         {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
-                      <MapPin className="w-4 h-4" />
-                      <span>{task.location}</span>
                     </div>
                   </div>
                 </Link>
