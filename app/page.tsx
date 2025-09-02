@@ -551,6 +551,136 @@ export default function HomePage() {
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "21",
+      title: "Почистване на вила",
+      description: "Нужна е почистка на вила 300 кв/м. Включва почистване на всички стаи, баня и кухня.",
+      price: 500,
+      priceType: "fixed",
+      location: "София, Бояна",
+      category: "Почистване",
+      postedBy: "Иван Петров",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "22",
+      title: "Ремонт на кухня",
+      description: "Нужен е майстор за ремонт на кухненски шкафове и монтаж на ново оборудване.",
+      price: 1200,
+      priceType: "fixed",
+      location: "София, Младост",
+      category: "Ремонт",
+      postedBy: "Анна Георгиева",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "23",
+      title: "Доставка на пица",
+      description: "Нужна е доставка на пица от ресторант до дома. Разстояние около 2 км.",
+      price: 8,
+      priceType: "fixed",
+      location: "София, Център",
+      category: "Доставка",
+      postedBy: "Петър Стоянов",
+      rating: 4.6,
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "24",
+      title: "Уроци по програмиране",
+      description: "Търся учител по Python за начинаещи. Уроците да са онлайн, веднъж седмично по 90 мин.",
+      price: 40,
+      priceType: "hourly",
+      location: "Онлайн",
+      category: "Обучение",
+      postedBy: "Стефан Петров",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "25",
+      title: "Почистване на офис",
+      description: "Нужна е почистка на офис пространство 150 кв/м. Включва почистване на работни места.",
+      price: 300,
+      priceType: "fixed",
+      location: "София, Изток",
+      category: "Почистване",
+      postedBy: "Георги Иванов",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "26",
+      title: "Ремонт на електрическа инсталация",
+      description: "Нужен е електротехник за ремонт на електрическата инсталация в апартамента.",
+      price: 250,
+      priceType: "fixed",
+      location: "София, Лозенец",
+      category: "Ремонт",
+      postedBy: "Николай Петров",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "27",
+      title: "Доставка на цветя",
+      description: "Нужна е доставка на букет цветя за сватба. Разстояние около 10 км.",
+      price: 35,
+      priceType: "fixed",
+      location: "София, Бояна",
+      category: "Доставка",
+      postedBy: "Елена Стоянова",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "28",
+      title: "Уроци по английски за деца",
+      description: "Търся учител по английски за дете 6 години. Уроците да са в дома ни, 2 пъти седмично.",
+      price: 25,
+      priceType: "hourly",
+      location: "София, Драгалевци",
+      category: "Обучение",
+      postedBy: "Мария Иванова",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "29",
+      title: "Поддръжка на паркова зона",
+      description: "Нужен е градинар за поддръжка на паркова зона. Включва плевене, поливане и подрязване.",
+      price: 50,
+      priceType: "hourly",
+      location: "София, Център",
+      category: "Градинарство",
+      postedBy: "Иван Стоянов",
+      rating: 4.6,
+      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      id: "30",
+      title: "Почистване на автомобил",
+      description: "Нужна е пълна почистка на автомобил - вътре и отвън. Включва пълнене и полиране.",
+      price: 60,
+      priceType: "fixed",
+      location: "София, Младост",
+      category: "Почистване",
+      postedBy: "Петър Георгиев",
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
     }
   ]
 
@@ -1006,7 +1136,11 @@ export default function HomePage() {
                 <div className="flex space-x-6 animate-scroll-left">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
-                    <div key={`${job.id}-${index}`} className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                    <Link 
+                      key={`${job.id}-${index}`} 
+                      href={`/tasks?category=${encodeURIComponent(job.category)}`}
+                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer"
+                    >
                       <div className="h-24 overflow-hidden">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
@@ -1029,7 +1163,7 @@ export default function HomePage() {
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -1039,7 +1173,11 @@ export default function HomePage() {
                 <div className="flex space-x-6 animate-scroll-right">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
-                    <div key={`${job.id}-${index + 20}`} className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                    <Link 
+                      key={`${job.id}-${index + 20}`} 
+                      href={`/tasks?category=${encodeURIComponent(job.category)}`}
+                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer"
+                    >
                       <div className="h-24 overflow-hidden">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
@@ -1062,7 +1200,7 @@ export default function HomePage() {
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
