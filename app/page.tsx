@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
 
-import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
+import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle, X, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -187,6 +187,11 @@ export default function HomePage() {
   const [categoriesRef, categoriesInView] = useInView({ threshold: 0.2, triggerOnce: true })
   const [tasksRef, tasksInView] = useInView({ threshold: 0.2, triggerOnce: true })
 
+  // Modal state for job details
+  const [selectedJob, setSelectedJob] = useState<any>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
   useEffect(() => {
     // Зареждане на статистики от localStorage
     const loadStats = async () => {
@@ -289,6 +294,33 @@ export default function HomePage() {
     router.push('/register')
   }
 
+  // Modal handlers for job details
+  const openJobModal = (job: any) => {
+    setSelectedJob(job)
+    setSelectedImageIndex(0)
+    setIsModalOpen(true)
+  }
+
+  const closeJobModal = () => {
+    setIsModalOpen(false)
+    setSelectedJob(null)
+    setSelectedImageIndex(0)
+  }
+
+  const nextImage = () => {
+    if (selectedJob && selectedJob.images) {
+      setSelectedImageIndex((prev) => (prev + 1) % selectedJob.images.length)
+    }
+  }
+
+  const prevImage = () => {
+    if (selectedJob && selectedJob.images) {
+      setSelectedImageIndex((prev) => 
+        prev === 0 ? selectedJob.images.length - 1 : prev - 1
+      )
+    }
+  }
+
 
 
   const activeJobListings = [
@@ -303,7 +335,12 @@ export default function HomePage() {
       postedBy: "Мария Петрова",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "2",
@@ -316,7 +353,12 @@ export default function HomePage() {
       postedBy: "Иван Димитров",
       rating: 4.9,
       image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "3",
@@ -329,7 +371,12 @@ export default function HomePage() {
       postedBy: "Елена Стоянова",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "4",
@@ -342,7 +389,12 @@ export default function HomePage() {
       postedBy: "Стефан Георгиев",
       rating: 4.6,
       image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "5",
@@ -368,7 +420,12 @@ export default function HomePage() {
       postedBy: "Анна Георгиева",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "7",
@@ -381,7 +438,12 @@ export default function HomePage() {
       postedBy: "Николай Петров",
       rating: 4.5,
       image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "8",
@@ -394,7 +456,12 @@ export default function HomePage() {
       postedBy: "Георги Стоянов",
       rating: 4.9,
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "9",
@@ -407,7 +474,12 @@ export default function HomePage() {
       postedBy: "Мария Иванова",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "10",
@@ -420,7 +492,12 @@ export default function HomePage() {
       postedBy: "Иван Петров",
       rating: 4.6,
       image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "11",
@@ -433,7 +510,12 @@ export default function HomePage() {
       postedBy: "Петър Георгиев",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "12",
@@ -446,7 +528,12 @@ export default function HomePage() {
       postedBy: "Анна Петрова",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "13",
@@ -459,7 +546,12 @@ export default function HomePage() {
       postedBy: "Николай Иванов",
       rating: 4.5,
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "14",
@@ -472,7 +564,12 @@ export default function HomePage() {
       postedBy: "Елена Петрова",
       rating: 4.9,
       image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "15",
@@ -485,7 +582,12 @@ export default function HomePage() {
       postedBy: "Георги Иванов",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "16",
@@ -498,7 +600,12 @@ export default function HomePage() {
       postedBy: "Иван Стоянов",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "17",
@@ -511,7 +618,12 @@ export default function HomePage() {
       postedBy: "Петър Стоянов",
       rating: 4.6,
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "18",
@@ -524,7 +636,12 @@ export default function HomePage() {
       postedBy: "Анна Георгиева",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "19",
@@ -537,7 +654,12 @@ export default function HomePage() {
       postedBy: "Стефан Петров",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "20",
@@ -576,7 +698,12 @@ export default function HomePage() {
       postedBy: "Анна Георгиева",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "23",
@@ -589,7 +716,12 @@ export default function HomePage() {
       postedBy: "Петър Стоянов",
       rating: 4.6,
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "24",
@@ -602,7 +734,12 @@ export default function HomePage() {
       postedBy: "Стефан Петров",
       rating: 4.9,
       image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "25",
@@ -615,7 +752,12 @@ export default function HomePage() {
       postedBy: "Георги Иванов",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "26",
@@ -628,7 +770,12 @@ export default function HomePage() {
       postedBy: "Николай Петров",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "27",
@@ -641,7 +788,12 @@ export default function HomePage() {
       postedBy: "Елена Стоянова",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "28",
@@ -654,7 +806,12 @@ export default function HomePage() {
       postedBy: "Мария Иванова",
       rating: 4.8,
       image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "29",
@@ -667,7 +824,12 @@ export default function HomePage() {
       postedBy: "Иван Стоянов",
       rating: 4.6,
       image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop"
+      ]
     },
     {
       id: "30",
@@ -680,7 +842,12 @@ export default function HomePage() {
       postedBy: "Петър Георгиев",
       rating: 4.7,
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+      images: [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop"
+      ]
     }
   ]
 
@@ -1136,10 +1303,10 @@ export default function HomePage() {
                 <div className="flex space-x-6 animate-scroll-left">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
-                    <Link 
+                    <button 
                       key={`${job.id}-${index}`} 
-                      href={`/tasks?category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer"
+                      onClick={() => openJobModal(job)}
+                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
                     >
                       <div className="h-24 overflow-hidden">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -1163,7 +1330,7 @@ export default function HomePage() {
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1173,10 +1340,10 @@ export default function HomePage() {
                 <div className="flex space-x-6 animate-scroll-right">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
-                    <Link 
+                    <button 
                       key={`${job.id}-${index + 20}`} 
-                      href={`/tasks?category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer"
+                      onClick={() => openJobModal(job)}
+                      className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
                     >
                       <div className="h-24 overflow-hidden">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -1195,12 +1362,12 @@ export default function HomePage() {
                           </div>
                           <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
                         </div>
-                        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
                           <MapPin className="w-3 h-3" />
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1301,6 +1468,153 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* Job Details Modal */}
+      {isModalOpen && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
+              <button
+                onClick={closeJobModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {/* Image Gallery */}
+              <div className="mb-6">
+                <div className="relative h-80 rounded-xl overflow-hidden mb-4">
+                  <img
+                    src={selectedJob.images[selectedImageIndex]}
+                    alt={selectedJob.title}
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  {selectedJob.images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
+                      >
+                        <ChevronLeft size={20} className="rotate-180" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Thumbnail Navigation */}
+                {selectedJob.images.length > 1 && (
+                  <div className="flex gap-2 justify-center">
+                    {selectedJob.images.map((image: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                          index === selectedImageIndex
+                            ? 'border-blue-500 scale-110'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`${selectedJob.title} ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Job Details */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column - Main Info */}
+                <div className="lg:col-span-2">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Описание</h3>
+                      <p className="text-gray-600 leading-relaxed">{selectedJob.description}</p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Категория</h3>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        {selectedJob.category}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Локация</h3>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MapPin size={16} />
+                        <span>{selectedJob.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Sidebar */}
+                <div className="space-y-4">
+                  {/* Price */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="text-sm text-gray-600 mb-1">Цена</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {selectedJob.priceType === 'hourly' ? `${selectedJob.price} лв/час` : `${selectedJob.price} лв`}
+                    </div>
+                  </div>
+
+                  {/* Posted By */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="text-sm text-gray-600 mb-2">Публикувано от</div>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={selectedJob.avatar}
+                        alt={selectedJob.postedBy}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div>
+                        <div className="font-semibold text-gray-900">{selectedJob.postedBy}</div>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                          <span className="text-sm text-gray-600">{selectedJob.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors">
+                      Кандидатствай за задачата
+                    </button>
+                    <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold transition-colors">
+                      Запази обявата
+                    </button>
+                    <Link
+                      href={`/tasks?category=${encodeURIComponent(selectedJob.category)}`}
+                      className="w-full bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 px-4 rounded-lg font-semibold transition-colors text-center block"
+                    >
+                      Виж подобни обяви
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
