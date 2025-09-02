@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
@@ -617,6 +617,14 @@ export default function HomePage() {
     }
   ]
 
+  // Filter jobs based on selected category
+  const filteredJobs = useMemo(() => {
+    if (selectedJobCategory === 'Всички') {
+      return activeJobListings;
+    }
+    return activeJobListings.filter(job => job.category === selectedJobCategory);
+  }, [selectedJobCategory, activeJobListings]);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Main Content */}
@@ -996,8 +1004,9 @@ export default function HomePage() {
               {/* Top Row - Moving Left */}
               <div className="relative overflow-hidden">
                 <div className="flex space-x-6 animate-scroll-left">
-                  {activeJobListings.slice(0, 10).map((job) => (
-                    <div key={job.id} className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                  {/* Duplicate the filtered jobs for seamless loop */}
+                  {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
+                    <div key={`${job.id}-${index}`} className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
                       <div className="h-24 overflow-hidden">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
@@ -1028,8 +1037,9 @@ export default function HomePage() {
               {/* Bottom Row - Moving Right */}
               <div className="relative overflow-hidden">
                 <div className="flex space-x-6 animate-scroll-right">
-                  {activeJobListings.slice(10, 20).map((job) => (
-                    <div key={job.id} className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                  {/* Duplicate the filtered jobs for seamless loop */}
+                  {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
+                    <div key={`${job.id}-${index + 20}`} className="flex-shrink-0 w-40 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
                       <div className="h-24 overflow-hidden">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
