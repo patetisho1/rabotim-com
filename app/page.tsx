@@ -1272,81 +1272,81 @@ export default function HomePage() {
             <div className="space-y-8">
               {/* Top Row - Moving Left */}
               <div className="relative overflow-hidden">
-                <div className="flex space-x-6 animate-scroll-left">
-                                     {/* Duplicate the filtered jobs for seamless loop */}
-                   {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
-                     <Link 
-                       key={`${job.id}-${index}`} 
-                       href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
-                       className="flex-shrink-0 w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
-                     >
-                       <div className="h-32 overflow-hidden relative">
-                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                         <div className="absolute top-2 right-2">
-                           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                             {job.category}
-                           </span>
-                         </div>
-                       </div>
-                       <div className="p-4">
-                         <div className="flex items-center gap-2 mb-3">
-                           <img src={job.avatar} alt={job.postedBy} className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
-                           <div className="flex-1">
-                             <div className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">{job.title}</div>
-                             <div className="text-xs text-gray-500">{job.postedBy}</div>
-                           </div>
-                         </div>
-                         <p className="text-gray-600 text-xs mb-3 line-clamp-2 leading-relaxed">{job.description}</p>
-                         <div className="flex items-center justify-between mb-2">
-                           <div className="flex items-center gap-1">
-                             <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                             <span className="text-xs font-medium">{job.rating}</span>
-                           </div>
-                           <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
-                         </div>
-                         <div className="flex items-center gap-1 text-xs text-gray-500">
-                           <MapPin className="w-3 h-3" />
-                           <span className="truncate">{job.location}</span>
-                         </div>
-                       </div>
-                     </Link>
-                   ))}
-                    </div>
-                  </div>
-                  
-              {/* Bottom Row - Moving Right */}
-              <div className="relative overflow-hidden">
-                <div className="flex space-x-6 animate-scroll-right">
+                <div className="flex space-x-4 md:space-x-6 animate-scroll-left">
                   {/* Duplicate the filtered jobs for seamless loop */}
-                  {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
+                  {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
                     <Link 
-                      key={`${job.id}-${index + 20}`} 
+                      key={`${job.id}-${index}`} 
                       href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer text-left"
+                      className="flex-shrink-0 w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
                     >
-                      <div className="h-32 overflow-hidden relative">
-                        <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <div className="h-24 md:h-32 overflow-hidden relative">
+                        <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         <div className="absolute top-2 right-2">
                           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                             {job.category}
                           </span>
                         </div>
                       </div>
-                      <div className="p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <img src={job.avatar} alt={job.postedBy} className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
+                      <div className="p-3 md:p-4">
+                        <div className="flex items-center gap-2 mb-2 md:mb-3">
+                          <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
                           <div className="flex-1">
-                            <div className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">{job.title}</div>
+                            <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
                             <div className="text-xs text-gray-500">{job.postedBy}</div>
                           </div>
                         </div>
-                        <p className="text-gray-600 text-xs mb-3 line-clamp-2 leading-relaxed">{job.description}</p>
+                        <p className="text-gray-600 text-xs mb-2 md:mb-3 line-clamp-2 leading-relaxed group-hover:line-clamp-none">{job.description}</p>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1">
                             <Star className="w-3 h-3 text-yellow-400 fill-current" />
                             <span className="text-xs font-medium">{job.rating}</span>
                           </div>
-                          <div className="text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
+                          <div className="text-xs md:text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <MapPin className="w-3 h-3" />
+                          <span className="truncate">{job.location}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Bottom Row - Moving Right */}
+              <div className="relative overflow-hidden">
+                <div className="flex space-x-4 md:space-x-6 animate-scroll-right">
+                  {/* Duplicate the filtered jobs for seamless loop */}
+                  {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
+                    <Link 
+                      key={`${job.id}-${index + 20}`} 
+                      href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
+                      className="flex-shrink-0 w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+                    >
+                      <div className="h-24 md:h-32 overflow-hidden relative">
+                        <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <div className="absolute top-2 right-2">
+                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            {job.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-3 md:p-4">
+                        <div className="flex items-center gap-2 mb-2 md:mb-3">
+                          <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
+                            <div className="text-xs text-gray-500">{job.postedBy}</div>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 text-xs mb-2 md:mb-3 line-clamp-2 leading-relaxed group-hover:line-clamp-none">{job.description}</p>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                            <span className="text-xs font-medium">{job.rating}</span>
+                          </div>
+                          <div className="text-xs md:text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500">
                           <MapPin className="w-3 h-3" />
@@ -1399,18 +1399,18 @@ export default function HomePage() {
             </div>
             
             {/* Task Cards Grid */}
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 transition-all duration-1000 delay-500 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 transition-all duration-1000 delay-500 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               {recentTasks.map((task) => (
                 <Link
                   key={task.id}
                   href={`/tasks?jobId=${task.id}&category=${task.category}`}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group"
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group transform hover:-translate-y-1"
                 >
-                  <div className="h-32 overflow-hidden relative">
+                  <div className="h-24 sm:h-32 overflow-hidden relative">
                     <img 
                       src={task.avatar} 
                       alt={task.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute top-2 right-2">
                       <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -1424,15 +1424,15 @@ export default function HomePage() {
                       </span>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                       <img 
                         src={task.avatar} 
                         alt={task.postedBy} 
-                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                        className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-200"
                       />
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 group-hover:line-clamp-none text-sm">
                           {task.title}
                         </div>
                         <div className="text-xs text-gray-500">{task.postedBy}</div>
@@ -1441,10 +1441,10 @@ export default function HomePage() {
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm font-medium">{task.rating}</span>
+                        <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-current" />
+                        <span className="text-xs md:text-sm font-medium">{task.rating}</span>
                       </div>
-                      <div className="text-lg font-bold text-green-600">
+                      <div className="text-sm md:text-lg font-bold text-green-600">
                         {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
                       </div>
                     </div>

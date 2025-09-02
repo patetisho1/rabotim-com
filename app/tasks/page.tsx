@@ -536,10 +536,10 @@ export default function TasksPage() {
               taskElement.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50')
             }, 3000)
           }
-        }, 500)
+        }, 1000) // Увеличаваме забавянето
       }
     }
-  }, [filteredTasks])
+  }, [tasks]) // Променяме зависимостта от filteredTasks на tasks
 
   useEffect(() => {
     filterTasks()
@@ -799,7 +799,102 @@ export default function TasksPage() {
               ) : (
                 filteredTasks.map(task => (
                   <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300">
-                    <div className="flex">
+                    {/* Mobile Layout */}
+                    <div className="block lg:hidden">
+                      <div className="h-48 relative">
+                        <img 
+                          src={task.image} 
+                          alt={task.title} 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            {task.category}
+                          </span>
+                        </div>
+                        {task.urgent && (
+                          <div className="absolute top-3 right-3">
+                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                              Спешно
+                            </span>
+                          </div>
+                        )}
+                        {task.remote && (
+                          <div className="absolute bottom-3 left-3">
+                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                              Дистанционно
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-4">
+                        <div className="mb-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h3>
+                          <p className="text-gray-600 text-sm mb-3 leading-relaxed line-clamp-3">{task.description}</p>
+                          
+                          <div className="space-y-2 text-sm text-gray-500 mb-4">
+                            <div className="flex items-center gap-2">
+                              {React.createElement(getCategoryIcon(task.category), { className: "h-4 w-4 text-blue-500" })}
+                              <span className="font-medium">{task.category}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-gray-400" />
+                              <span>{task.location}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              <span>{formatDate(task.deadline)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="text-center mb-4">
+                          <div className="text-2xl font-bold text-blue-600 mb-1">
+                            {formatPrice(task.price, task.priceType)}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {task.offers} оферти
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={task.user.avatar} 
+                              alt={task.user.name} 
+                              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                            />
+                            <div className="flex items-center gap-1 text-sm text-gray-600">
+                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                              <span className="font-medium">{task.user.rating}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleFavoriteToggle(task.id)}
+                              className={`p-2 rounded-lg transition-colors ${
+                                favorites.includes(task.id)
+                                  ? 'text-red-500 bg-red-50'
+                                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                              }`}
+                            >
+                              <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
+                            </button>
+                            <button 
+                              onClick={() => router.push(`/submit-offer/${task.id}`)}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                            >
+                              Подай оферта
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden lg:flex">
                       {/* Image Section */}
                       <div className="w-48 h-48 flex-shrink-0 relative">
                         <img 
