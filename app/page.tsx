@@ -901,7 +901,7 @@ export default function HomePage() {
                 {/* Hero Section - Mobile Optimized */}
         <section 
           ref={heroRef} 
-          className="relative text-white py-12 md:py-24 overflow-hidden min-h-screen"
+          className="relative text-white py-8 sm:py-12 md:py-24 overflow-hidden min-h-[80vh] sm:min-h-screen"
           style={{
             backgroundImage: `url('/hero-image-dark.png')`,
             backgroundSize: 'cover',
@@ -912,23 +912,23 @@ export default function HomePage() {
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/40"></div>
           
-          <div className="container mx-auto px-4 md:px-6 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10">
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               
               {/* Main Title - Mobile Optimized */}
-               <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4 md:mb-6 transition-all duration-1000 font-display ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+               <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-3 sm:mb-4 md:mb-6 transition-all duration-1000 font-display ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Търся някой...
               </h1>
               
               {/* Rotating Task Text - Mobile Optimized */}
-               <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl text-blue-200 mb-4 md:mb-6 h-10 sm:h-12 flex items-center justify-center transition-all duration-500 font-accent ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+               <div className={`text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-blue-200 mb-3 sm:mb-4 md:mb-6 h-8 sm:h-10 md:h-12 flex items-center justify-center transition-all duration-500 font-accent ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <span className="transition-all duration-500 px-2">
                   {tasks[currentTaskIndex]}
                 </span>
               </div>
               
               {/* Subtitle - Mobile Optimized */}
-               <p className={`text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 md:mb-12 px-4 transition-all duration-1000 delay-300 font-readable ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+               <p className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 mb-6 sm:mb-8 md:mb-12 px-2 sm:px-4 transition-all duration-1000 delay-300 font-readable ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 Намери точния човек за твоята задача.
               </p>
               
@@ -936,21 +936,21 @@ export default function HomePage() {
               <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full max-w-sm sm:max-w-none transition-all duration-1000 delay-500 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <button
                   onClick={handlePostTask}
-                   className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg min-h-[56px] touch-manipulation font-heading"
+                   className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base md:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg min-h-[48px] sm:min-h-[56px] touch-manipulation font-heading w-full sm:w-auto"
                 >
                   <span className="whitespace-nowrap">Публикувай обява безплатно</span>
-                  <ArrowRight size={18} className="sm:w-5 sm:h-5" />
+                  <ArrowRight size={16} className="sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={handleBecomeTasker}
-                   className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-6 sm:px-8 py-4 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 shadow-lg min-h-[56px] touch-manipulation font-heading"
+                   className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base md:text-lg transition-all duration-200 shadow-lg min-h-[48px] sm:min-h-[56px] touch-manipulation font-heading w-full sm:w-auto"
                 >
                   Стани изпълнител
                 </button>
               </div>
               
               {/* Stats - Mobile Optimized */}
-               <div className={`mt-8 md:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 text-sm sm:text-lg transition-all duration-1000 delay-700 font-body ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+               <div className={`mt-6 sm:mt-8 md:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-8 text-xs sm:text-sm md:text-lg transition-all duration-1000 delay-700 font-body ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 {isLoadingStats ? (
                   <>
                     <span className="animate-pulse">Зареждане...</span>
@@ -960,15 +960,15 @@ export default function HomePage() {
                 ) : (
                   <>
                     <span className="flex items-center gap-1">
-                      <Users size={16} className="sm:w-5 sm:h-5" />
+                      <Users size={14} className="sm:w-4 md:w-5" />
                       {stats.users}+ клиенти
                     </span>
                     <span className="flex items-center gap-1">
-                      <CheckCircle size={16} className="sm:w-5 sm:h-5" />
+                      <CheckCircle size={14} className="sm:w-4 md:w-5" />
                       {stats.completed}+ свършени задачи
                     </span>
                     <span className="flex items-center gap-1">
-                      <Star size={16} className="sm:w-5 sm:h-5 fill-current" />
+                      <Star size={14} className="sm:w-4 md:w-5 fill-current" />
                       4.8★ рейтинг
                     </span>
                   </>
@@ -979,59 +979,59 @@ export default function HomePage() {
         </section>
 
         {/* Post Your First Task Section */}
-        <section className="py-20 px-4 bg-white">
+        <section className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-white">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16">
               
               {/* Left Column - How it works */}
               <div className="flex flex-col justify-center">
                 <div className="max-w-md">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
                     Публикувайте първата си задача за секунди
                   </h2>
-                  <p className="text-xl text-gray-600 mb-8">
+                  <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                     Спестете си часове и изпълнете списъка си със задачи
                   </p>
                   
                   {/* Steps */}
-                  <div className="space-y-6 mb-8">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm">
                         1
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                           Опишете какво ви е необходимо
                         </h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-600 text-xs sm:text-sm">
                           Детайлно описание на задачата, която искате да бъде изпълнена
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm">
                         2
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                           Определете бюджета си
                         </h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-600 text-xs sm:text-sm">
                           Задайте бюджет и срок за изпълнение на задачата
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm">
                         3
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                           Получете оферти и изберете най-добрия изпълнител
                         </h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-600 text-xs sm:text-sm">
                           Сравнете предложенията и изберете най-подходящия изпълнител
                         </p>
                       </div>
@@ -1041,19 +1041,19 @@ export default function HomePage() {
                   {/* CTA Button */}
                   <button 
                     onClick={handlePostTask}
-                    className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-lg"
+                    className="w-full bg-blue-600 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-base sm:text-lg"
                   >
                     Публикувай обява безплатно
                   </button>
                   
                   {/* Learn How It Works Link */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                     <Link 
                       href="/how-it-works"
-                      className="text-gray-600 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                      className="text-gray-600 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
                     >
                       Научете как работи
-                      <ArrowRight size={16} />
+                      <ArrowRight size={14} className="sm:w-4 sm:h-4" />
                     </Link>
                   </div>
                 </div>
@@ -1061,16 +1061,16 @@ export default function HomePage() {
 
               {/* Right Column - Service Categories Grid with Auto-scroll */}
               <div className="w-full">
-                <div className="bg-blue-50 rounded-xl p-8 h-[600px] overflow-hidden relative shadow-sm">
+                <div className="bg-blue-50 rounded-xl p-4 sm:p-6 md:p-8 h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden relative shadow-sm">
                   <div
                     ref={containerRef}
-                    className="absolute inset-0 w-full h-full grid grid-cols-2 gap-6 p-8"
+                    className="absolute inset-0 w-full h-full grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 p-4 sm:p-6 md:p-8"
                     style={{ 
                       transform: `translateY(${-scrollPosition}px)`
                     }}
                   >
                     {serviceCards.concat(serviceCards).map((service, index) => (
-                      <div key={index} className="relative h-52 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-6">
+                      <div key={index} className="relative h-32 sm:h-40 md:h-52 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200 mb-3 sm:mb-4 md:mb-6">
                         {/* Background Image */}
                         <img 
                           src={service.image} 
@@ -1082,20 +1082,20 @@ export default function HomePage() {
                         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
                         
                         {/* Content */}
-                        <div className="absolute inset-0 p-5 flex flex-col justify-between">
+                        <div className="absolute inset-0 p-3 sm:p-4 md:p-5 flex flex-col justify-between">
                           {/* Avatar */}
                           <div className="flex justify-start">
                             <img 
                               src={service.avatar} 
                               alt="Profile" 
-                              className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
+                              className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-sm"
                             />
                           </div>
                           
                           {/* Text */}
                           <div className="text-white">
-                            <h3 className="font-bold text-lg mb-2">{service.name}</h3>
-                            <p className="text-sm opacity-90 leading-relaxed">{service.subtitle}</p>
+                            <h3 className="font-bold text-sm sm:text-base md:text-lg mb-1 sm:mb-2">{service.name}</h3>
+                            <p className="text-xs sm:text-sm opacity-90 leading-relaxed">{service.subtitle}</p>
                           </div>
                         </div>
                       </div>
@@ -1108,62 +1108,62 @@ export default function HomePage() {
         </section>
 
         {/* Earn Extra with Your Skills Section */}
-        <section ref={taskersRef} className="py-20 px-4 bg-gray-50">
+        <section ref={taskersRef} className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
           <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
               
               {/* Left - Value Proposition */}
               <div>
-                <h2 className={`text-4xl font-bold text-gray-900 mb-6 transition-all duration-1000 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 md:mb-6 transition-all duration-1000 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   Печели допълнително с уменията си – по твой график
                 </h2>
-                <p className={`text-xl text-gray-600 mb-8 transition-all duration-1000 delay-300 ${taskersInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <p className={`text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8 transition-all duration-1000 delay-300 ${taskersInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                   Станете част от нашата общност. Поемайте задачи съответсващи на вашите възможности.
                 </p>
                 
-                <div className={`space-y-4 mb-8 transition-all duration-1000 delay-500 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Можете да заварявате - някой има нужда от вас</span>
+                <div className={`space-y-3 md:space-y-4 mb-6 md:mb-8 transition-all duration-1000 delay-500 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base text-gray-700">Можете да заварявате - някой има нужда от вас</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Можете да боядисвате - някой има стена за боядисване</span>
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base text-gray-700">Можете да боядисвате - някой има стена за боядисване</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Можете да направите сайт - някой ще плати за това</span>
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base text-gray-700">Можете да направите сайт - някой ще плати за това</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-500" />
-                    <span className="text-gray-700">Искате просто да се разходите - разходете кучето на някой</span>
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base text-gray-700">Искате просто да се разходите - разходете кучето на някой</span>
                   </div>
                 </div>
                 
-                <div className={`mb-8 transition-all duration-1000 delay-600 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <p className="text-lg text-gray-700 mb-4">
+                <div className={`mb-6 md:mb-8 transition-all duration-1000 delay-600 ${taskersInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                  <p className="text-base md:text-lg text-gray-700 mb-3 md:mb-4">
                     Разгледайте активните обяви и кандидатсвайте с един клик. Толкова е лесно.
                   </p>
                   <Link 
                     href="/tasks"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm md:text-base"
                   >
                     Вижте всички обяви
-                    <ArrowRight size={16} />
+                    <ArrowRight size={14} className="md:w-4 md:h-4" />
                   </Link>
                 </div>
                 
                 <button 
                   onClick={handleBecomeTasker}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base md:text-lg transition-all duration-200 w-full sm:w-auto"
                 >
                   Станете изпълнител
                 </button>
               </div>
 
-              {/* Right - Rotating Task Examples */}
+                            {/* Right - Rotating Task Examples */}
               <div className="relative">
-                <div className="bg-white rounded-2xl shadow-lg h-96 overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-lg h-64 sm:h-80 md:h-96 overflow-hidden">
                   <div className="h-full">
                     {(() => {
                       const examples = [
@@ -1186,30 +1186,30 @@ export default function HomePage() {
                           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
                           
                           {/* Top section - Name and task acceptance */}
-                          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                          <div className="absolute top-2 sm:top-4 left-2 sm:left-4 right-2 sm:right-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <img 
                                 src={currentExample.avatar} 
                                 alt={currentExample.name} 
-                                className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white"
                               />
                               <div>
-                                <div className="font-semibold text-white text-sm">{currentExample.name}</div>
-                              </div>
-                              </div>
-                              <div className="text-right">
-                              <div className="text-xs text-green-300 bg-green-800/50 px-2 py-1 rounded-full">
-                                Прие задача
-                                </div>
+                                <div className="font-semibold text-white text-xs sm:text-sm">{currentExample.name}</div>
                               </div>
                             </div>
-                          
+                            <div className="text-right">
+                              <div className="text-xs text-green-300 bg-green-800/50 px-2 py-1 rounded-full">
+                                Прие задача
+                              </div>
+                            </div>
+                          </div>
+                           
                           {/* Bottom section - Task details and rating */}
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <div className="text-white mb-3">
-                              <div className="font-semibold text-lg mb-1">{currentExample.task}</div>
-                              <div className="text-xs opacity-90 mb-2 leading-relaxed">{currentExample.description}</div>
-                              <div className="font-bold text-green-400 text-lg">{currentExample.amount}</div>
+                          <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
+                            <div className="text-white mb-2 sm:mb-3">
+                              <div className="font-semibold text-sm sm:text-base md:text-lg mb-1">{currentExample.task}</div>
+                              <div className="text-xs opacity-90 mb-1 sm:mb-2 leading-relaxed line-clamp-2">{currentExample.description}</div>
+                              <div className="font-bold text-green-400 text-sm sm:text-base md:text-lg">{currentExample.amount}</div>
                             </div>
                             
                             {/* Rating stars */}
@@ -1217,14 +1217,14 @@ export default function HomePage() {
                               {[...Array(5)].map((_, i) => (
                                 <Star 
                                   key={i} 
-                                  className={`w-4 h-4 ${
+                                  className={`w-3 h-3 sm:w-4 sm:h-4 ${
                                     i < Math.floor(currentExample.rating) 
                                       ? 'text-yellow-400 fill-current' 
                                       : 'text-gray-400'
                                   }`} 
                                 />
                               ))}
-                              <span className="text-white text-sm ml-1">{currentExample.rating}</span>
+                              <span className="text-white text-xs sm:text-sm ml-1">{currentExample.rating}</span>
                             </div>
                           </div>
                         </div>
@@ -1238,49 +1238,73 @@ export default function HomePage() {
         </section>
 
         {/* Active Job Listings */}
-        <section className="py-20 px-4 bg-white">
+        <section className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-white">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4 px-4">
                 Разгледайте активните обяви за работа
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 px-4">
                 Намерете задачата, която отговаря на вашите умения
               </p>
             </div>
             
-            {/* Category Tabs */}
-            <div className="flex justify-center mb-8">
-              <div className="flex space-x-1 bg-white rounded-full p-1 shadow-sm border border-gray-200">
-                {['Всички', 'Почистване', 'Ремонт', 'Доставка', 'Градинарство', 'Обучение'].map((tab) => (
-                  <button
-                    key={tab}
-                    className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
-                      tab === selectedJobCategory
-                        ? 'bg-blue-500 text-white'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                    onClick={() => setSelectedJobCategory(tab)}
-                  >
-                    {tab}
-                  </button>
-                ))}
+            {/* Category Tabs - Mobile Optimized */}
+            <div className="mb-8">
+              {/* Mobile: Horizontal scrollable tabs */}
+              <div className="block md:hidden">
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="flex space-x-2 px-4 pb-2 min-w-max">
+                    {['Всички', 'Почистване', 'Ремонт', 'Доставка', 'Градинарство', 'Обучение'].map((tab) => (
+                      <button
+                        key={tab}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                          tab === selectedJobCategory
+                            ? 'bg-blue-500 text-white shadow-lg'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        onClick={() => setSelectedJobCategory(tab)}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Desktop: Centered tabs */}
+              <div className="hidden md:flex justify-center">
+                <div className="flex space-x-1 bg-white rounded-full p-1 shadow-sm border border-gray-200">
+                  {['Всички', 'Почистване', 'Ремонт', 'Доставка', 'Градинарство', 'Обучение'].map((tab) => (
+                    <button
+                      key={tab}
+                      className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
+                        tab === selectedJobCategory
+                          ? 'bg-blue-500 text-white'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                      onClick={() => setSelectedJobCategory(tab)}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             
-            {/* Rotating Job Cards - Two Rows */}
-            <div className="space-y-8">
+            {/* Rotating Job Cards - Two Rows - Mobile Optimized */}
+            <div className="space-y-6 md:space-y-8">
               {/* Top Row - Moving Left */}
               <div className="relative overflow-hidden">
-                <div className="flex space-x-4 md:space-x-6 animate-scroll-left">
+                <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-left">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
                     <Link 
                       key={`${job.id}-${index}`} 
                       href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+                      className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
                     >
-                      <div className="h-24 md:h-32 overflow-hidden relative">
+                      <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         <div className="absolute top-2 right-2">
                           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -1288,9 +1312,9 @@ export default function HomePage() {
                           </span>
                         </div>
                       </div>
-                      <div className="p-3 md:p-4">
+                      <div className="p-2 sm:p-3 md:p-4">
                         <div className="flex items-center gap-2 mb-2 md:mb-3">
-                          <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
+                          <img src={job.avatar} alt={job.postedBy} className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
                           <div className="flex-1">
                             <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
                             <div className="text-xs text-gray-500">{job.postedBy}</div>
@@ -1316,15 +1340,15 @@ export default function HomePage() {
               
               {/* Bottom Row - Moving Right */}
               <div className="relative overflow-hidden">
-                <div className="flex space-x-4 md:space-x-6 animate-scroll-right">
+                <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-right">
                   {/* Duplicate the filtered jobs for seamless loop */}
                   {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
                     <Link 
                       key={`${job.id}-${index + 20}`} 
                       href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+                      className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
                     >
-                      <div className="h-24 md:h-32 overflow-hidden relative">
+                      <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
                         <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         <div className="absolute top-2 right-2">
                           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -1332,9 +1356,9 @@ export default function HomePage() {
                           </span>
                         </div>
                       </div>
-                      <div className="p-3 md:p-4">
+                      <div className="p-2 sm:p-3 md:p-4">
                         <div className="flex items-center gap-2 mb-2 md:mb-3">
-                          <img src={job.avatar} alt={job.postedBy} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
+                          <img src={job.avatar} alt={job.postedBy} className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
                           <div className="flex-1">
                             <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
                             <div className="text-xs text-gray-500">{job.postedBy}</div>
@@ -1360,10 +1384,10 @@ export default function HomePage() {
             </div>
             
             {/* View All Button */}
-            <div className="text-center mt-12">
-              <Link href="/tasks" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200">
+            <div className="text-center mt-8 md:mt-12 px-4">
+              <Link href="/tasks" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-200 w-full sm:w-auto justify-center">
                 Вижте всички обяви
-                <ArrowRight size={20} />
+                <ArrowRight size={18} className="sm:w-5 sm:h-5" />
               </Link>
             </div>
           </div>
@@ -1372,41 +1396,64 @@ export default function HomePage() {
 
 
         {/* Recent Tasks */}
-        <section ref={tasksRef} className="py-20 px-4 bg-gray-50">
+        <section ref={tasksRef} className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
           <div className="max-w-6xl mx-auto">
-            <div className={`text-center mb-12 transition-all duration-1000 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <div className={`text-center mb-8 md:mb-12 transition-all duration-1000 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
                 Вижте какво другите свършват
               </h2>
             </div>
             
-            {/* Category Tabs */}
-            <div className={`flex justify-center mb-8 transition-all duration-1000 delay-300 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <div className="flex space-x-1 bg-white rounded-full p-1 shadow-sm">
-                {['Преместване', 'Поддръжка на дома', 'Стартиране на бизнес', 'Партита', 'Нещо различно'].map((tab, index) => (
-                  <button
-                    key={tab}
-                    className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
-                      index === 0 
-                        ? 'bg-blue-500 text-white' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
+            {/* Category Tabs - Mobile Optimized */}
+            <div className={`mb-6 md:mb-8 transition-all duration-1000 delay-300 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              {/* Mobile: Horizontal scrollable tabs */}
+              <div className="block md:hidden">
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="flex space-x-2 px-4 pb-2 min-w-max">
+                    {['Преместване', 'Поддръжка на дома', 'Стартиране на бизнес', 'Партита', 'Нещо различно'].map((tab, index) => (
+                      <button
+                        key={tab}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                          index === 0 
+                            ? 'bg-blue-500 text-white shadow-lg' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Desktop: Centered tabs */}
+              <div className="hidden md:flex justify-center">
+                <div className="flex space-x-1 bg-white rounded-full p-1 shadow-sm">
+                  {['Преместване', 'Поддръжка на дома', 'Стартиране на бизнес', 'Партита', 'Нещо различно'].map((tab, index) => (
+                    <button
+                      key={tab}
+                      className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
+                        index === 0 
+                          ? 'bg-blue-500 text-white' 
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             
-            {/* Task Cards Grid */}
-            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 transition-all duration-1000 delay-500 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            {/* Task Cards Grid - Mobile Optimized */}
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 transition-all duration-1000 delay-500 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               {recentTasks.map((task) => (
                 <Link
                   key={task.id}
                   href={`/tasks?jobId=${task.id}&category=${task.category}`}
                   className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group transform hover:-translate-y-1"
                 >
-                  <div className="h-24 sm:h-32 overflow-hidden relative">
+                  <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
                     <img 
                       src={task.avatar} 
                       alt={task.title} 
@@ -1424,15 +1471,15 @@ export default function HomePage() {
                       </span>
                     </div>
                   </div>
-                  <div className="p-3 md:p-4">
+                  <div className="p-2 sm:p-3 md:p-4">
                     <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                       <img 
                         src={task.avatar} 
                         alt={task.postedBy} 
-                        className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-200"
+                        className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-200"
                       />
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 group-hover:line-clamp-none text-sm">
+                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 group-hover:line-clamp-none text-xs sm:text-sm">
                           {task.title}
                         </div>
                         <div className="text-xs text-gray-500">{task.postedBy}</div>
@@ -1444,7 +1491,7 @@ export default function HomePage() {
                         <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-current" />
                         <span className="text-xs md:text-sm font-medium">{task.rating}</span>
                       </div>
-                      <div className="text-sm md:text-lg font-bold text-green-600">
+                      <div className="text-xs sm:text-sm md:text-lg font-bold text-green-600">
                         {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
                       </div>
                     </div>
@@ -1456,7 +1503,7 @@ export default function HomePage() {
             <div className={`text-center transition-all duration-1000 delay-700 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <button 
                 onClick={handlePostTask}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base md:text-lg transition-all duration-200 w-full sm:w-auto"
               >
                 Публикувайте задачата си безплатно
               </button>
