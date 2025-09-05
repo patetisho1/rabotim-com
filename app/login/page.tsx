@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, getSession } from 'next-auth/react'
 import { ArrowLeft, Mail, Eye, EyeOff, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { signIn, signInWithGoogle, signInWithFacebook, loading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -58,36 +59,15 @@ export default function LoginPage() {
         return
       }
 
-      // Симулация на вход
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Real authentication with Supabase
+      const { data, error } = await signIn(formData.email, formData.password)
 
-      // Проверка дали потребителят съществува в демо данните
-      const user = demoUsers.find(u => u.email === formData.email && u.password === formData.password)
-      
-      if (!user) {
-        toast.error('Невалиден имейл или парола')
-        return
-      }
-
-      // Запазване на състоянието за вход
-      const userData = {
-        id: Date.now(),
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        createdAt: new Date().toISOString()
-      }
-
-      localStorage.setItem('isLoggedIn', 'true')
-      localStorage.setItem('user', JSON.stringify(userData))
-
-      toast.success(`Добре дошли, ${user.firstName}!`)
-      
-      // Пренасочване към началната страница
-      setTimeout(() => {
+      if (error) {
+        toast.error(error.message || 'Невалиден имейл или парола')
+      } else if (data.user) {
+        toast.success('Успешно влизане!')
         router.push('/')
-      }, 1000)
+      }
 
     } catch (error) {
       toast.error('Възникна грешка при входа')
@@ -103,20 +83,31 @@ export default function LoginPage() {
     }))
   }
 
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  const handleGoogleLogin = async () => {
     try {
       setIsSubmitting(true)
-      const result = await signIn(provider, {
-        callbackUrl: '/',
-        redirect: false,
-      })
+      const { data, error } = await signInWithGoogle()
       
-      if (result?.error) {
-        toast.error(`Грешка при вход с ${provider === 'google' ? 'Google' : 'Facebook'}`)
-      } else {
-        toast.success(`Успешен вход с ${provider === 'google' ? 'Google' : 'Facebook'}!`)
-        router.push('/')
+      if (error) {
+        toast.error('Грешка при вход с Google')
       }
+      // OAuth redirect will handle the rest
+    } catch (error) {
+      toast.error('Възникна грешка при входа')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleFacebookLogin = async () => {
+    try {
+      setIsSubmitting(true)
+      const { data, error } = await signInWithFacebook()
+      
+      if (error) {
+        toast.error('Грешка при вход с Facebook')
+      }
+      // OAuth redirect will handle the rest
     } catch (error) {
       toast.error('Възникна грешка при входа')
     } finally {
@@ -178,7 +169,7 @@ export default function LoginPage() {
         {/* Social Login Buttons */}
         <div className="space-y-3">
           <button
-            onClick={() => handleSocialLogin('google')}
+            onClick={handleGoogleLogin}
             disabled={isSubmitting}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
@@ -192,7 +183,7 @@ export default function LoginPage() {
           </button>
 
           <button
-            onClick={() => handleSocialLogin('facebook')}
+            onClick={handleFacebookLogin}
             disabled={isSubmitting}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >

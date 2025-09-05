@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, Briefcase, Wrench } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { signUp, loading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -53,14 +55,6 @@ export default function RegisterPage() {
         return
       }
 
-      // Проверка дали email вече съществува
-      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]')
-      const userExists = existingUsers.find((user: any) => user.email === formData.email)
-      if (userExists) {
-        toast.error('Този имейл адрес вече е регистриран')
-        return
-      }
-
       // Валидация на паролата
       if (formData.password.length < 6) {
         toast.error('Паролата трябва да е поне 6 символа')
@@ -70,6 +64,26 @@ export default function RegisterPage() {
       if (formData.password !== formData.confirmPassword) {
         toast.error('Паролите не съвпадат')
         return
+      }
+
+      // Real registration with Supabase
+      const { data, error } = await signUp(
+        formData.email, 
+        formData.password, 
+        {
+          full_name: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone
+        }
+      )
+
+      if (error) {
+        toast.error(error.message || 'Грешка при регистрацията')
+        return
+      }
+
+      if (data.user) {
+        toast.success('Регистрацията е успешна! Моля, проверете имейла си за потвърждение.')
+        router.push('/login')
       }
 
       // Валидация на телефон (ако е въведен)
