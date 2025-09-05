@@ -10,18 +10,11 @@ import { Notification, NotificationCategory, NotificationPriority } from '@/type
 const NotificationsPage: React.FC = () => {
   const {
     notifications,
-    preferences,
-    stats,
-    isSubscribed,
+    loading,
     error,
     markAsRead,
-    markAllAsRead,
-    deleteNotification,
-    togglePin,
-    updatePreferences,
-    subscribeToPush,
-    unsubscribeFromPush
-  } = useNotifications()
+    createNotification
+  } = useNotifications('user1') // Mock user ID for now
 
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'pinned' | 'settings'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -34,9 +27,9 @@ const NotificationsPage: React.FC = () => {
 
     // Filter by tab
     if (activeTab === 'unread') {
-      filtered = filtered.filter(n => !n.isRead)
+      filtered = filtered.filter(n => !n.read)
     } else if (activeTab === 'pinned') {
-      filtered = filtered.filter(n => n.isPinned)
+      filtered = filtered.filter(n => false) // No pinned property in our schema
     }
 
     // Filter by search query
@@ -47,15 +40,15 @@ const NotificationsPage: React.FC = () => {
       )
     }
 
-    // Filter by category
+    // Filter by category (using type instead)
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(n => n.category === selectedCategory)
+      filtered = filtered.filter(n => n.type === selectedCategory)
     }
 
-    // Filter by priority
-    if (selectedPriority !== 'all') {
-      filtered = filtered.filter(n => n.priority === selectedPriority)
-    }
+    // Filter by priority (not available in our schema)
+    // if (selectedPriority !== 'all') {
+    //   filtered = filtered.filter(n => n.priority === selectedPriority)
+    // }
 
     return filtered
   }, [notifications, activeTab, searchQuery, selectedCategory, selectedPriority])
@@ -84,8 +77,8 @@ const NotificationsPage: React.FC = () => {
 
   const tabs = [
     { id: 'all', label: 'Всички', count: notifications.length, icon: Bell },
-    { id: 'unread', label: 'Непрочетени', count: stats.unread, icon: Check },
-    { id: 'pinned', label: 'Закачени', count: notifications.filter(n => n.isPinned).length, icon: Pin },
+    { id: 'unread', label: 'Непрочетени', count: notifications.filter(n => !n.read).length, icon: Check },
+    { id: 'pinned', label: 'Закачени', count: 0, icon: Pin },
     { id: 'settings', label: 'Настройки', count: null, icon: Settings }
   ]
 
@@ -103,11 +96,31 @@ const NotificationsPage: React.FC = () => {
           </div>
 
           <NotificationSettings
-            preferences={preferences}
-            onUpdatePreferences={updatePreferences}
-            isSubscribed={isSubscribed}
-            onSubscribe={subscribeToPush}
-            onUnsubscribe={unsubscribeFromPush}
+            preferences={{
+              userId: 'user1',
+              email: true,
+              push: false,
+              inApp: true,
+              categories: {
+                communication: { email: true, push: false, inApp: true },
+                tasks: { email: true, push: false, inApp: true },
+                payments: { email: true, push: false, inApp: true },
+                system: { email: false, push: false, inApp: true },
+                security: { email: true, push: true, inApp: true },
+                achievements: { email: false, push: false, inApp: true }
+              },
+              quietHours: {
+                enabled: false,
+                start: '22:00',
+                end: '08:00',
+                timezone: 'Europe/Sofia'
+              },
+              frequency: 'immediate'
+            }}
+            onUpdatePreferences={() => {}}
+            isSubscribed={false}
+            onSubscribe={() => {}}
+            onUnsubscribe={() => {}}
             error={error}
           />
         </div>

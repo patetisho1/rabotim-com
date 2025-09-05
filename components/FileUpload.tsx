@@ -2,15 +2,19 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { Upload, X, Image, File, Video, Music, FileText, Camera, Trash2, Eye, Download } from 'lucide-react'
+import { useFileUpload } from '@/hooks/useFileUpload'
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void
+  onFilesUploaded?: (uploadedFiles: any[]) => void
   maxFiles?: number
   maxFileSize?: number // in MB
   acceptedTypes?: string[]
   showPreview?: boolean
   multiple?: boolean
   className?: string
+  autoUpload?: boolean
+  folder?: string
 }
 
 interface FileWithPreview extends File {
@@ -22,17 +26,30 @@ interface FileWithPreview extends File {
 
 export default function FileUpload({
   onFilesSelected,
+  onFilesUploaded,
   maxFiles = 5,
   maxFileSize = 10, // 10MB
   acceptedTypes = ['image/*', 'video/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   showPreview = true,
   multiple = true,
-  className = ''
+  className = '',
+  autoUpload = false,
+  folder = 'uploads'
 }: FileUploadProps) {
   const [files, setFiles] = useState<FileWithPreview[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const { uploadFiles, uploading, uploadProgress } = useFileUpload({
+    folder,
+    onUploadComplete: (uploadedFiles) => {
+      onFilesUploaded?.(uploadedFiles)
+    },
+    onUploadError: (error) => {
+      console.error('Upload error:', error)
+    }
+  })
 
   const getFileIcon = (file: File) => {
     if (file.type.startsWith('image/')) return <Image size={20} className="text-blue-600" />
@@ -152,6 +169,17 @@ export default function FileUpload({
     const updatedFiles = files.filter(file => file.id !== fileId)
     setFiles(updatedFiles)
     onFilesSelected(updatedFiles)
+  }
+
+  const handleUpload = async () => {
+    if (files.length === 0) return
+    
+    setIsUploading(true)
+    try {
+      await uploadFiles(files)
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const openFilePreview = (file: FileWithPreview) => {
@@ -301,24 +329,38 @@ export default function FileUpload({
           </div>
 
           {/* Upload Progress */}
-          {isUploading && (
+          {(isUploading || uploading) && (
             <div className="space-y-2">
               {files.map((file) => (
                 <div key={file.id} className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-700 dark:text-gray-300">{file.name}</span>
                     <span className="text-gray-500 dark:text-gray-400">
-                      {file.uploadProgress}%
+                      {uploadProgress[`${file.name}-${files.indexOf(file)}`] || 0}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                     <div
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${file.uploadProgress || 0}%` }}
+                      style={{ width: `${uploadProgress[`${file.name}-${files.indexOf(file)}`] || 0}%` }}
                     />
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Upload Button */}
+          {files.length > 0 && !autoUpload && (
+            <div className="flex justify-center">
+              <button
+                onClick={handleUpload}
+                disabled={isUploading || uploading}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
+              >
+                <Upload size={18} />
+                {isUploading || uploading ? 'Качване...' : 'Качи файлове'}
+              </button>
             </div>
           )}
         </div>

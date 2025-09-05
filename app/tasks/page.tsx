@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTasks } from '@/hooks/useTasks'
 import { 
   Search, 
   MapPin, 
@@ -471,40 +472,48 @@ export default function TasksPage() {
     }
   }
 
-  useEffect(() => {
-    // Зареждане на задачи от localStorage
-    const loadTasks = () => {
-      try {
-        const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-        const allTasks = [...mockTasks, ...savedTasks] // Комбинираме mock и реални задачи
-        
-        // Добавяме липсващи полета за mock задачите
-        const processedTasks = allTasks.map(task => ({
-          ...task,
-          offers: task.offers || 0,
-          views: task.views || 0,
-          status: task.status || 'active',
-          user: task.user || {
-            name: 'Потребител',
-            rating: 4.5,
-            avatar: ''
-          }
-        }))
-        
-        setTasks(processedTasks)
-        setFilteredTasks(processedTasks)
-        setLoading(false)
-      } catch (error) {
-        console.error('Грешка при зареждането на задачите:', error)
-        setTasks(mockTasks)
-        setFilteredTasks(mockTasks)
-        setLoading(false)
-      }
-    }
+  // Use the new tasks hook
+  const { tasks: apiTasks, loading: tasksLoading, error: tasksError } = useTasks({
+    category: selectedCategory,
+    location: selectedLocation,
+    search: searchQuery
+  })
 
-    loadTasks()
-    
-    // Зареждане на любими задачи от localStorage
+  useEffect(() => {
+    if (apiTasks) {
+      // Convert API tasks to local Task format
+      const processedTasks = apiTasks.map(task => ({
+        id: parseInt(task.id),
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        price: task.price,
+        priceType: task.price_type,
+        location: task.location,
+        deadline: task.deadline || '',
+        urgent: task.urgent,
+        remote: false, // Default value
+        offers: task.applications_count || 0,
+        views: task.views_count || 0,
+        createdAt: task.created_at,
+        userId: parseInt(task.user_id),
+        status: task.status as 'active' | 'assigned' | 'completed',
+        image: task.attachments?.[0] || '',
+        user: {
+          name: 'Потребител',
+          rating: 4.5,
+          avatar: ''
+        }
+      }))
+      
+      setTasks(processedTasks)
+      setFilteredTasks(processedTasks)
+    }
+    setLoading(tasksLoading)
+  }, [apiTasks, tasksLoading])
+
+  // Load favorites from localStorage
+  useEffect(() => {
     const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]')
     setFavorites(savedFavorites)
   }, [])
