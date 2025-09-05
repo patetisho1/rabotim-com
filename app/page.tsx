@@ -1517,8 +1517,6 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-
-
     </div>
   )
-} 
+}
