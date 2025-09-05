@@ -1519,4 +1519,4 @@ export default function HomePage() {
       </main>
     </div>
   )
-Рта
+}
