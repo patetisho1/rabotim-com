@@ -140,7 +140,7 @@ export default function SubmitOfferPage() {
 
         const mockTask = mockTasks.find(t => t.id.toString() === taskId)
         if (mockTask) {
-          setTask(mockTask)
+          setTask(mockTask as Task)
         } else {
           toast.error('Задачата не е намерена')
           router.push('/tasks')
