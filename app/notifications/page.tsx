@@ -119,8 +119,8 @@ const NotificationsPage: React.FC = () => {
             }}
             onUpdatePreferences={() => {}}
             isSubscribed={false}
-            onSubscribe={() => {}}
-            onUnsubscribe={() => {}}
+            onSubscribe={async () => true}
+            onUnsubscribe={async () => true}
             error={error}
           />
         </div>
@@ -145,7 +145,7 @@ const NotificationsPage: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <BarChart3 size={16} />
-                <span>{stats.unread} непрочетени</span>
+                <span>{notifications.filter(n => !n.read).length} непрочетени</span>
               </div>
               <button
                 onClick={() => setActiveTab('settings')}
@@ -164,14 +164,14 @@ const NotificationsPage: React.FC = () => {
                 <Bell className="text-blue-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Общо</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.length}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
                 <Check className="text-green-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Непрочетени</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.unread}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => !n.read).length}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
@@ -187,7 +187,7 @@ const NotificationsPage: React.FC = () => {
                 <BarChart3 className="text-purple-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Днес</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.recentActivity.last24h}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => new Date(n.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}</p>
             </div>
           </div>
         </div>
@@ -271,7 +271,7 @@ const NotificationsPage: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={markAllAsRead}
-                disabled={stats.unread === 0}
+                disabled={notifications.filter(n => !n.read).length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Check size={16} />
