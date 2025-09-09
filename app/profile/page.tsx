@@ -28,7 +28,8 @@ import {
   Users,
   ThumbsUp,
   Bell,
-  Eye
+  Eye,
+  Search
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -74,7 +75,7 @@ export default function ProfilePage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const [user, setUser] = useState<UserData | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -291,6 +292,16 @@ export default function ProfilePage() {
               <div className="border-b border-gray-200">
                 <nav className="flex space-x-8 px-6">
                   <button
+                    onClick={() => setActiveTab('dashboard')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === 'dashboard'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Табло
+                  </button>
+                  <button
                     onClick={() => setActiveTab('overview')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
                       activeTab === 'overview'
@@ -339,6 +350,129 @@ export default function ProfilePage() {
 
               {/* Tab Content */}
               <div className="p-6">
+                {activeTab === 'dashboard' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Моето табло</h3>
+                      <p className="text-gray-600">
+                        Преглед на всички ваши активности, задачи и статистики.
+                      </p>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <Briefcase className="h-8 w-8 text-blue-600" />
+                          <div>
+                            <p className="text-sm text-blue-700">Публикувани задачи</p>
+                            <p className="text-2xl font-bold text-blue-900">{user.taskGiver.totalTasksPosted}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-8 w-8 text-green-600" />
+                          <div>
+                            <p className="text-sm text-green-700">Завършени задачи</p>
+                            <p className="text-2xl font-bold text-green-900">{user.taskExecutor.completedTasks}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <Star className="h-8 w-8 text-yellow-600" />
+                          <div>
+                            <p className="text-sm text-yellow-700">Рейтинг</p>
+                            <p className="text-2xl font-bold text-yellow-900">{user.taskExecutor.rating}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <DollarSign className="h-8 w-8 text-purple-600" />
+                          <div>
+                            <p className="text-sm text-purple-700">Общо изкарани</p>
+                            <p className="text-2xl font-bold text-purple-900">{user.taskExecutor.totalEarnings} лв</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Tasks */}
+                    <div className="bg-white border rounded-lg">
+                      <div className="p-4 border-b">
+                        <h4 className="text-lg font-medium text-gray-900">Последни задачи</h4>
+                      </div>
+                      <div className="p-4">
+                        {(() => {
+                          const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+                          const userTasks = allTasks.filter((task: any) => task.postedByEmail === authUser?.email).slice(0, 5)
+                          
+                          if (userTasks.length === 0) {
+                            return (
+                              <div className="text-center py-8 text-gray-500">
+                                <Briefcase className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                                <p>Все още нямате публикувани задачи</p>
+                                <button
+                                  onClick={() => router.push('/post-task')}
+                                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                  Публикувай първата задача
+                                </button>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <div className="space-y-3">
+                              {userTasks.map((task: any) => (
+                                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                     onClick={() => router.push(`/task/${task.id}`)}>
+                                  <div className="flex-1">
+                                    <h5 className="font-medium text-gray-900">{task.title}</h5>
+                                    <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="text-sm text-gray-500">{task.status}</p>
+                                  </div>
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => router.push('/my-tasks')}
+                                className="w-full mt-4 text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                Виж всички задачи →
+                              </button>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <button
+                        onClick={() => router.push('/post-task')}
+                        className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+                      >
+                        <Plus className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Публикувай нова задача</h4>
+                        <p className="text-sm text-blue-100">Намери квалифициран изпълнител</p>
+                      </button>
+                      <button
+                        onClick={() => router.push('/tasks')}
+                        className="p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-left"
+                      >
+                        <Search className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Търси задачи</h4>
+                        <p className="text-sm text-green-100">Намери работа за себе си</p>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === 'overview' && (
                   <div className="space-y-6">
                     <div>

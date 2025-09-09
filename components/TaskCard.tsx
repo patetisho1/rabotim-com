@@ -333,10 +333,13 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
             <Calendar size={16} className="flex-shrink-0" />
             <span>{formatDate(task.postedDate)}</span>
           </div>
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+          <button
+            onClick={() => router.push(`/user/${task.userId || 1}`)}
+            className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors"
+          >
             <User size={16} className="flex-shrink-0" />
             <span className="truncate">{task.postedBy}</span>
-          </div>
+          </button>
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
             <Eye size={16} className="flex-shrink-0" />
             <span>{task.views}</span>

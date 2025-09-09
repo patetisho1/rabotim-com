@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, MapPin, Clock, DollarSign, User, Star, Calendar, Phone, Mail, MessageSquare, AlertCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, Clock, DollarSign, User, Star, Calendar, Phone, Mail, MessageSquare, AlertCircle, Heart, Share2, Bookmark, Eye, Users, TrendingUp, Award, Shield, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ImageGallery from '../../../components/ImageGallery'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Attachment {
   name: string
@@ -42,19 +43,31 @@ export default function TaskDetailPage() {
   const router = useRouter()
   const params = useParams()
   const taskId = params.id as string
+  const { user: authUser, loading: authLoading } = useAuth()
   
   const [task, setTask] = useState<Task | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
   const [showContactInfo, setShowContactInfo] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
+  const [userStats, setUserStats] = useState({
+    completedTasks: 0,
+    rating: 0,
+    responseRate: 0,
+    isVerified: false
+  })
   const [hasApplied, setHasApplied] = useState(false)
   const [applicationMessage, setApplicationMessage] = useState('')
 
   useEffect(() => {
     loadTask()
     checkLoginStatus()
-  }, [taskId])
+    checkFavoriteStatus()
+    checkSavedStatus()
+    loadUserStats()
+  }, [taskId, authUser])
 
   const loadTask = () => {
     try {
@@ -211,8 +224,64 @@ export default function TaskDetailPage() {
   }
 
   const checkLoginStatus = () => {
-    const loginStatus = localStorage.getItem('isLoggedIn')
-    setIsLoggedIn(loginStatus === 'true')
+    setIsLoggedIn(!!authUser)
+  }
+
+  const checkFavoriteStatus = () => {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+    setIsFavorite(favorites.includes(taskId))
+  }
+
+  const checkSavedStatus = () => {
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
+    setIsSaved(saved.includes(taskId))
+  }
+
+  const loadUserStats = () => {
+    if (task) {
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const taskUser = users.find((user: any) => user.name === task.postedBy)
+      if (taskUser) {
+        setUserStats({
+          completedTasks: taskUser.completedTasks || 0,
+          rating: taskUser.rating || 0,
+          responseRate: taskUser.responseRate || 0,
+          isVerified: taskUser.verified || false
+        })
+      }
+    }
+  }
+
+  const toggleFavorite = () => {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+    if (isFavorite) {
+      const index = favorites.indexOf(taskId)
+      if (index > -1) {
+        favorites.splice(index, 1)
+        toast.success('Задачата е премахната от любими')
+      }
+    } else {
+      favorites.push(taskId)
+      toast.success('Задачата е добавена в любими')
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites))
+    setIsFavorite(!isFavorite)
+  }
+
+  const toggleSaved = () => {
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
+    if (isSaved) {
+      const index = saved.indexOf(taskId)
+      if (index > -1) {
+        saved.splice(index, 1)
+        toast.success('Задачата е премахната от запазени')
+      }
+    } else {
+      saved.push(taskId)
+      toast.success('Задачата е запазена')
+    }
+    localStorage.setItem('savedTasks', JSON.stringify(saved))
+    setIsSaved(!isSaved)
   }
 
   const checkIfApplied = (taskId: string) => {
@@ -492,6 +561,82 @@ export default function TaskDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Action Buttons */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={toggleFavorite}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isFavorite 
+                      ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <Heart size={16} className={isFavorite ? 'fill-current' : ''} />
+                  {isFavorite ? 'Любима' : 'Любима'}
+                </button>
+                <button
+                  onClick={toggleSaved}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isSaved 
+                      ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <Bookmark size={16} className={isSaved ? 'fill-current' : ''} />
+                  {isSaved ? 'Запазена' : 'Запази'}
+                </button>
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: task.title,
+                        text: task.description,
+                        url: window.location.href
+                      })
+                    } else {
+                      navigator.clipboard.writeText(window.location.href)
+                      toast.success('Линкът е копиран в клипборда')
+                    }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  <Share2 size={16} />
+                  Сподели
+                </button>
+              </div>
+            </div>
+
+            {/* User Stats */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                За {task.postedBy}
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Завършени задачи</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userStats.completedTasks}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Рейтинг</span>
+                  <div className="flex items-center gap-1">
+                    <Star size={14} className="text-yellow-500 fill-current" />
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{userStats.rating}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Скорост на отговор</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userStats.responseRate}%</span>
+                </div>
+                {userStats.isVerified && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <Shield size={16} />
+                    <span className="text-sm font-medium">Потвърден потребител</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Apply Section */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">

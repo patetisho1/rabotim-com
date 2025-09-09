@@ -223,14 +223,17 @@ export default function Header() {
                 </button>
                 
                 <ThemeToggle />
-                <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors"
+                >
                   <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                     <User size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {authUser?.user_metadata?.full_name || 'Потребител'}
                   </span>
-                </div>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
