@@ -19,6 +19,7 @@ import {
   Star
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 interface TaskFormData {
   title: string
@@ -58,6 +59,7 @@ const steps = [
 
 export default function PostTaskPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<TaskFormData>({
@@ -75,12 +77,13 @@ export default function PostTaskPage() {
 
   // Проверка дали потребителят е влязъл
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn')
-    if (!isLoggedIn) {
+    if (authLoading) return
+    
+    if (!authUser) {
       toast.error('Трябва да влезете в акаунта си, за да публикувате задача')
       router.push('/login')
     }
-  }, [router])
+  }, [authUser, authLoading, router])
 
   const handleInputChange = (field: keyof TaskFormData, value: any) => {
     setFormData(prev => ({

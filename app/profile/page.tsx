@@ -72,7 +72,7 @@ interface UserData {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user: authUser, loading: authLoading } = useAuth()
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
   const [user, setUser] = useState<UserData | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings'>('overview')
   const [isEditing, setIsEditing] = useState(false)
@@ -140,7 +140,6 @@ export default function ProfilePage() {
   }
 
   const handleLogout = async () => {
-    const { signOut } = useAuth()
     await signOut()
     router.push('/')
     toast.success('Успешно излязохте от акаунта')
