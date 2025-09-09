@@ -68,9 +68,13 @@ export default function LoginPage() {
       }
 
       if (data.user) {
+        console.log('Login successful, user:', data.user)
+        console.log('Session:', data.session)
         toast.success('Успешно влизане!')
-        // Пренасочване към профила след логин
-        router.push('/profile')
+        // Малко забавяне за да се синхронизира сесията
+        setTimeout(() => {
+          router.push('/profile')
+        }, 1000)
       }
 
 
