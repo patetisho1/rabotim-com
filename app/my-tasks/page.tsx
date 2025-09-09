@@ -18,6 +18,7 @@ import {
   Search
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Task {
   id: number
@@ -36,6 +37,7 @@ interface Task {
   userId: number
   status: 'active' | 'assigned' | 'completed' | 'cancelled'
   applications?: any[]
+  postedByEmail?: string
 }
 
 const statusColors = {
@@ -54,37 +56,29 @@ const statusLabels = {
 
 export default function MyTasksPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const [tasks, setTasks] = useState<Task[]>([])
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [selectedStatus, setSelectedStatus] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    // Проверка дали потребителят е влязъл
-    const loginStatus = localStorage.getItem('isLoggedIn')
-    if (loginStatus !== 'true') {
+    if (authLoading) return
+    
+    if (!authUser) {
       toast.error('Трябва да сте влезли в акаунта си')
       router.push('/login')
       return
     }
-
-    // Зареждане на потребителските данни
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const userObj = JSON.parse(userData)
-      setUser(userObj)
-      
-      // Зареждане на задачите на потребителя
-      const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const userTasks = allTasks.filter((task: Task) => task.userId === userObj.id)
-      setTasks(userTasks)
-      setFilteredTasks(userTasks)
-    }
     
+    // Зареждане на задачите на потребителя
+    const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+    const userTasks = allTasks.filter((task: Task) => task.postedByEmail === authUser.email)
+    setTasks(userTasks)
+    setFilteredTasks(userTasks)
     setLoading(false)
-  }, [router])
+  }, [authUser, authLoading, router])
 
   useEffect(() => {
     filterTasks()

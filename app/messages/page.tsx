@@ -1,11 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useMessages } from '@/hooks/useMessages'
+import { useAuth } from '@/hooks/useAuth'
 import ConversationList from '@/components/ConversationList'
 import ChatWindow from '@/components/ChatWindow'
+import toast from 'react-hot-toast'
 
 export default function MessagesPage() {
+  const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const {
     conversations,
     messages,
@@ -23,13 +28,21 @@ export default function MessagesPage() {
   const [showChat, setShowChat] = useState(false)
 
   useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+    
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [authUser, authLoading, router])
 
   const handleSelectConversation = async (conversation: any) => {
     setCurrentConversation(conversation)

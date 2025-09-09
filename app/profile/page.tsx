@@ -105,23 +105,26 @@ export default function ProfilePage() {
             taskExecutor: true
           },
           taskGiver: {
-            totalTasksPosted: 0,
+            totalTasksPosted: (() => {
+              const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+              return tasks.filter((task: any) => task.postedByEmail === authUser.email).length
+            })(),
             completedTasks: 0,
             totalSpent: 0,
-            rating: 0,
+            rating: 4.5,
             reviews: []
           },
           taskExecutor: {
             completedTasks: 0,
             totalEarnings: 0,
-            rating: 0,
+            rating: 4.2,
             totalReviews: 0,
-            skills: [],
+            skills: ['Почистване', 'Ремонт', 'Градинарство'],
             portfolio: [],
-            responseRate: 0,
-            avgResponseTime: '0 мин',
-            isVerified: false,
-            badges: []
+            responseRate: 95,
+            avgResponseTime: '2 часа',
+            isVerified: true,
+            badges: ['Бърз отговор', 'Висок рейтинг']
           },
           profile: {
             bio: '',

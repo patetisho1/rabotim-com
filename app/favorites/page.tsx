@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Heart, ArrowLeft, Trash2, Filter, Grid, List } from 'lucide-react'
 import TaskCard from '@/components/TaskCard'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Task {
   id: string
@@ -26,6 +27,7 @@ interface Task {
 
 export default function FavoritesPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const [favorites, setFavorites] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -33,8 +35,16 @@ export default function FavoritesPage() {
   const [sortBy, setSortBy] = useState('newest')
 
   useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+    
     loadFavorites()
-  }, [])
+  }, [authUser, authLoading, router])
 
   const loadFavorites = () => {
     setLoading(true)
