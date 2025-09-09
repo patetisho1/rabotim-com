@@ -476,20 +476,25 @@ export default function TasksPage() {
     const loadTasks = () => {
       try {
         const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-        const allTasks = [...mockTasks, ...savedTasks] // Комбинираме mock и реални задачи
+        console.log('Заредени задачи от localStorage:', savedTasks)
         
-        // Добавяме липсващи полета за mock задачите
+        // Използваме само реалните задачи от localStorage, не mockTasks
+        const allTasks = savedTasks.length > 0 ? savedTasks : mockTasks
+        
+        // Добавяме липсващи полета за задачите
         const processedTasks = allTasks.map(task => ({
           ...task,
-          offers: task.offers || 0,
+          offers: task.offers || task.applications || 0,
           views: task.views || 0,
           status: task.status || 'active',
           user: task.user || {
-            name: 'Потребител',
-            rating: 4.5,
-            avatar: ''
+            name: task.postedBy || 'Потребител',
+            rating: task.rating || 4.5,
+            avatar: task.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
           }
         }))
+        
+        console.log('Обработени задачи:', processedTasks)
         
         setTasks(processedTasks)
         setFilteredTasks(processedTasks)

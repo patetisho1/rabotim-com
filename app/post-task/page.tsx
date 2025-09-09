@@ -177,7 +177,7 @@ export default function PostTaskPage() {
       const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
       
       const newTask = {
-        id: Date.now(),
+        id: Date.now().toString(), // Променяме на string за съвместимост
         ...formData,
         price: parseFloat(formData.price),
         postedBy: authUser?.user_metadata?.full_name || 'Потребител',
@@ -187,12 +187,19 @@ export default function PostTaskPage() {
         applications: 0,
         views: 0,
         rating: 0,
+        reviewCount: 0,
+        urgent: formData.urgent || false,
+        remote: formData.remote || false,
+        userId: 1, // Добавяме userId за съвместимост
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
         image: formData.photos.length > 0 ? URL.createObjectURL(formData.photos[0]) : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop'
       }
 
       tasks.unshift(newTask)
       localStorage.setItem('tasks', JSON.stringify(tasks))
+
+      console.log('Нова задача запазена:', newTask)
+      console.log('Всички задачи в localStorage:', tasks)
 
       toast.success('Задачата е публикувана успешно!')
       

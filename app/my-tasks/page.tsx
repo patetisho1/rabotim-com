@@ -74,7 +74,12 @@ export default function MyTasksPage() {
     
     // Зареждане на задачите на потребителя
     const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+    console.log('Всички задачи в localStorage:', allTasks)
+    console.log('Текущ потребител email:', authUser.email)
+    
     const userTasks = allTasks.filter((task: Task) => task.postedByEmail === authUser.email)
+    console.log('Задачи на потребителя:', userTasks)
+    
     setTasks(userTasks)
     setFilteredTasks(userTasks)
     setLoading(false)
