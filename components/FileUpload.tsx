@@ -2,15 +2,19 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { Upload, X, Image, File, Video, Music, FileText, Camera, Trash2, Eye, Download } from 'lucide-react'
+import { useFileUpload } from '@/hooks/useFileUpload'
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void
+  onFilesUploaded?: (uploadedFiles: any[]) => void
   maxFiles?: number
   maxFileSize?: number // in MB
   acceptedTypes?: string[]
   showPreview?: boolean
   multiple?: boolean
   className?: string
+  autoUpload?: boolean
+  folder?: string
 }
 
 interface FileWithPreview extends File {
@@ -22,17 +26,30 @@ interface FileWithPreview extends File {
 
 export default function FileUpload({
   onFilesSelected,
+  onFilesUploaded,
   maxFiles = 5,
   maxFileSize = 10, // 10MB
   acceptedTypes = ['image/*', 'video/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   showPreview = true,
   multiple = true,
-  className = ''
+  className = '',
+  autoUpload = false,
+  folder = 'uploads'
 }: FileUploadProps) {
   const [files, setFiles] = useState<FileWithPreview[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const { uploadFiles, uploading, uploadProgress } = useFileUpload({
+    folder,
+    onUploadComplete: (uploadedFiles) => {
+      onFilesUploaded?.(uploadedFiles)
+    },
+    onUploadError: (error) => {
+      console.error('Upload error:', error)
+    }
+  })
 
   const getFileIcon = (file: File) => {
     if (file.type.startsWith('image/')) return <Image size={20} className="text-blue-600" />

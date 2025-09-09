@@ -49,3 +49,4 @@ Write-Host "===============================================" -ForegroundColor Gr
 
 Write-Host ""
 Write-Host "🎉 Готово! Следвайте стъпките в браузъра." -ForegroundColor Green
+

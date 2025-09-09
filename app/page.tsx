@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
+import { LazyWrapper } from '@/components/LazyComponents'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'

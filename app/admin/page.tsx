@@ -23,9 +23,12 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import AdminStats from '../../components/AdminStats'
-import BoostSystem from '../../components/BoostSystem'
-import AnalyticsDashboard from '../../components/AnalyticsDashboard'
-import PaymentSystem from '../../components/PaymentSystem'
+import { 
+  LazyBoostSystem, 
+  LazyAnalyticsDashboard, 
+  LazyPaymentSystem,
+  LazyWrapper 
+} from '../../components/LazyComponents'
 
 interface Stats {
   totalUsers: number
@@ -242,12 +245,16 @@ export default function AdminPage() {
         <AdminStats />
 
         {/* Boost System */}
-                          <div className="mb-8">
-                    <BoostSystem />
-                  </div>
-                  <div className="mb-8">
-                    <PaymentSystem />
-                  </div>
+        <div className="mb-8">
+          <LazyWrapper>
+            <LazyBoostSystem />
+          </LazyWrapper>
+        </div>
+        <div className="mb-8">
+          <LazyWrapper>
+            <LazyPaymentSystem />
+          </LazyWrapper>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Activity */}
@@ -344,7 +351,9 @@ export default function AdminPage() {
 
         {/* Analytics Dashboard */}
         <div className="mt-8">
-          <AnalyticsDashboard />
+          <LazyWrapper>
+            <LazyAnalyticsDashboard />
+          </LazyWrapper>
         </div>
       </div>
     </div>
