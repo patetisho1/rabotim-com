@@ -42,7 +42,7 @@ export default function Header() {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('favoritesUpdated', loadFavoritesCount)
     }
-  }, [session])
+  }, [authUser])
 
   const handleLogout = async () => {
     await signOut()
@@ -228,7 +228,7 @@ export default function Header() {
                     <User size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {user?.firstName || 'User'} {user?.lastName || ''}
+                    {authUser?.user_metadata?.full_name || 'Потребител'}
                   </span>
                 </div>
                 <button
@@ -356,7 +356,7 @@ export default function Header() {
                     <User size={20} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <span className="font-medium">
-                    {user?.firstName || 'User'} {user?.lastName || ''}
+                    {authUser?.user_metadata?.full_name || 'Потребител'}
                   </span>
                 </div>
                 <button
