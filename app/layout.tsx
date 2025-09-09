@@ -69,6 +69,8 @@ export default function RootLayout({
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
+        {/* Демо данни за тестване */}
+        <script src="/demo-data.js" />
         <Toaster
           position="top-center"
           toastOptions={{

@@ -44,6 +44,7 @@ interface Task {
   views: number
   applications: number
   attachments?: Attachment[]
+  userId?: number
 }
 
 interface TaskCardProps {
@@ -60,6 +61,12 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
   const [isBoosted, setIsBoosted] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
+  const [userData, setUserData] = useState({
+    name: 'Потребител',
+    rating: 4.5,
+    avatar: '/default-avatar.png',
+    verified: false
+  })
 
   // Функция за получаване на снимка според категорията
   const getCategoryImage = (category: string) => {
@@ -91,7 +98,19 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     // Проверка дали задачата е boost-ната
     const boosted = JSON.parse(localStorage.getItem('boostedTasks') || '[]')
     setIsBoosted(boosted.includes(task.id))
-  }, [task.id])
+
+    // Зареждане на реални данни за потребителя
+    const users = JSON.parse(localStorage.getItem('users') || '[]')
+    const taskUser = users.find((user: any) => user.id === task.userId)
+    if (taskUser) {
+      setUserData({
+        name: taskUser.name || 'Потребител',
+        rating: taskUser.rating || 4.5,
+        avatar: taskUser.avatar || '/default-avatar.png',
+        verified: taskUser.verified || false
+      })
+    }
+  }, [task.id, task.userId])
 
   const handleFavoriteToggle = () => {
     const newFavoriteState = !isFavorite
