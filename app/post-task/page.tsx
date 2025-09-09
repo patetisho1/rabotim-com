@@ -30,6 +30,7 @@ interface TaskFormData {
   priceType: 'fixed' | 'hourly'
   deadline: string
   urgent: boolean
+  remote: boolean
   photos: File[]
   conditions: string
 }
@@ -71,6 +72,7 @@ export default function PostTaskPage() {
     priceType: 'fixed',
     deadline: '',
     urgent: false,
+    remote: false,
     photos: [],
     conditions: ''
   })

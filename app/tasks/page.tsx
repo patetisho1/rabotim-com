@@ -482,7 +482,7 @@ export default function TasksPage() {
         const allTasks = savedTasks.length > 0 ? savedTasks : mockTasks
         
         // Добавяме липсващи полета за задачите
-        const processedTasks = allTasks.map(task => ({
+        const processedTasks = allTasks.map((task: any) => ({
           ...task,
           offers: task.offers || task.applications || 0,
           views: task.views || 0,
