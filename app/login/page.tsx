@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, getSession } from 'next-auth/react'
 import { ArrowLeft, Mail, Eye, EyeOff, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { signIn, signInWithGoogle, signInWithFacebook, loading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -58,36 +59,24 @@ export default function LoginPage() {
         return
       }
 
-      // Симулация на вход
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // Проверка дали потребителят съществува в демо данните
-      const user = demoUsers.find(u => u.email === formData.email && u.password === formData.password)
+      // Реален вход с Supabase
+      const { data, error } = await signIn(formData.email, formData.password)
       
-      if (!user) {
-        toast.error('Невалиден имейл или парола')
+      if (error) {
+        toast.error(error.message || 'Невалиден имейл или парола')
         return
       }
 
-      // Запазване на състоянието за вход
-      const userData = {
-        id: Date.now(),
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        createdAt: new Date().toISOString()
+      if (data.user) {
+        console.log('Login successful, user:', data.user)
+        console.log('Session:', data.session)
+        toast.success('Успешно влизане!')
+        // Малко забавяне за да се синхронизира сесията
+        setTimeout(() => {
+          router.push('/profile')
+        }, 1000)
       }
 
-      localStorage.setItem('isLoggedIn', 'true')
-      localStorage.setItem('user', JSON.stringify(userData))
-
-      toast.success(`Добре дошли, ${user.firstName}!`)
-      
-      // Пренасочване към началната страница
-      setTimeout(() => {
-        router.push('/')
-      }, 1000)
 
     } catch (error) {
       toast.error('Възникна грешка при входа')
@@ -106,16 +95,20 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setIsSubmitting(true)
-      const result = await signIn(provider, {
-        callbackUrl: '/',
-        redirect: false,
-      })
+      let result
+      
+      if (provider === 'google') {
+        result = await signInWithGoogle()
+      } else {
+        result = await signInWithFacebook()
+      }
       
       if (result?.error) {
         toast.error(`Грешка при вход с ${provider === 'google' ? 'Google' : 'Facebook'}`)
       } else {
         toast.success(`Успешен вход с ${provider === 'google' ? 'Google' : 'Facebook'}!`)
-        router.push('/')
+        // Пренасочване към профила след OAuth логин
+        router.push('/profile')
       }
     } catch (error) {
       toast.error('Възникна грешка при входа')

@@ -31,6 +31,7 @@ import {
   Eye
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 interface UserData {
   id: number
@@ -71,38 +72,75 @@ interface UserData {
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
   const [user, setUser] = useState<UserData | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings'>('overview')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+
     loadUserData()
-  }, [])
+  }, [authUser, authLoading])
 
   const loadUserData = () => {
     try {
-      const loginStatus = localStorage.getItem('isLoggedIn')
-      const userData = localStorage.getItem('user')
-      
-      if (loginStatus !== 'true' || !userData) {
-        toast.error('Трябва да сте влезли в акаунта си')
-        router.push('/login')
-        return
+      // Използваме данните от Supabase Auth
+      if (authUser) {
+        const userData: UserData = {
+          id: 1, // Временно ID
+          firstName: authUser.user_metadata?.full_name?.split(' ')[0] || 'Потребител',
+          lastName: authUser.user_metadata?.full_name?.split(' ')[1] || '',
+          email: authUser.email || '',
+          phone: authUser.user_metadata?.phone || '',
+          roles: {
+            taskGiver: true,
+            taskExecutor: true
+          },
+          taskGiver: {
+            totalTasksPosted: 0,
+            completedTasks: 0,
+            totalSpent: 0,
+            rating: 0,
+            reviews: []
+          },
+          taskExecutor: {
+            completedTasks: 0,
+            totalEarnings: 0,
+            rating: 0,
+            totalReviews: 0,
+            skills: [],
+            portfolio: [],
+            responseRate: 0,
+            avgResponseTime: '0 мин',
+            isVerified: false,
+            badges: []
+          },
+          profile: {
+            bio: '',
+            location: '',
+            avatar: '',
+            joinDate: new Date(authUser.created_at).toLocaleDateString('bg-BG')
+          }
+        }
+        setUser(userData)
+        setLoading(false)
       }
-
-      const user = JSON.parse(userData)
-      setUser(user)
-      setLoading(false)
     } catch (error) {
       toast.error('Грешка при зареждането на профила')
       router.push('/login')
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('user')
+  const handleLogout = async () => {
+    await signOut()
     router.push('/')
     toast.success('Успешно излязохте от акаунта')
   }
