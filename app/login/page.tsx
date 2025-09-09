@@ -69,7 +69,8 @@ export default function LoginPage() {
 
       if (data.user) {
         toast.success('Успешно влизане!')
-        router.push('/')
+        // Пренасочване към профила след логин
+        router.push('/profile')
       }
 
 
@@ -102,7 +103,8 @@ export default function LoginPage() {
         toast.error(`Грешка при вход с ${provider === 'google' ? 'Google' : 'Facebook'}`)
       } else {
         toast.success(`Успешен вход с ${provider === 'google' ? 'Google' : 'Facebook'}!`)
-        router.push('/')
+        // Пренасочване към профила след OAuth логин
+        router.push('/profile')
       }
     } catch (error) {
       toast.error('Възникна грешка при входа')
