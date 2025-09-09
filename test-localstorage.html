@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на localStorage</title>
+</head>
+<body>
+    <h1>Тест на localStorage</h1>
+    <button onclick="testLocalStorage()">Тест на localStorage</button>
+    <button onclick="clearLocalStorage()">Изчисти localStorage</button>
+    <div id="result"></div>
+
+    <script>
+        function testLocalStorage() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Тест 1: Записване
+                const testData = [
+                    {
+                        id: '1',
+                        title: 'Тест задача',
+                        description: 'Това е тест задача',
+                        category: 'Почистване',
+                        price: 50,
+                        postedBy: 'Тест потребител',
+                        postedByEmail: 'test@example.com',
+                        postedDate: new Date().toISOString(),
+                        status: 'active'
+                    }
+                ];
+                
+                localStorage.setItem('tasks', JSON.stringify(testData));
+                resultDiv.innerHTML += '<p>✅ Записването в localStorage е успешно</p>';
+                
+                // Тест 2: Четене
+                const savedData = JSON.parse(localStorage.getItem('tasks') || '[]');
+                resultDiv.innerHTML += `<p>✅ Четенето от localStorage е успешно: ${savedData.length} задачи</p>`;
+                resultDiv.innerHTML += `<p>Данни: ${JSON.stringify(savedData, null, 2)}</p>`;
+                
+                // Тест 3: Добавяне на нова задача
+                const newTask = {
+                    id: '2',
+                    title: 'Нова тест задача',
+                    description: 'Това е нова тест задача',
+                    category: 'Ремонт',
+                    price: 100,
+                    postedBy: 'Друг потребител',
+                    postedByEmail: 'test2@example.com',
+                    postedDate: new Date().toISOString(),
+                    status: 'active'
+                };
+                
+                savedData.push(newTask);
+                localStorage.setItem('tasks', JSON.stringify(savedData));
+                
+                const finalData = JSON.parse(localStorage.getItem('tasks') || '[]');
+                resultDiv.innerHTML += `<p>✅ Добавянето на нова задача е успешно: ${finalData.length} задачи</p>`;
+                
+            } catch (error) {
+                resultDiv.innerHTML += `<p>❌ Грешка: ${error.message}</p>`;
+            }
+        }
+        
+        function clearLocalStorage() {
+            localStorage.removeItem('tasks');
+            document.getElementById('result').innerHTML = '<p>localStorage е изчистен</p>';
+        }
+        
+        // Автоматично тестване при зареждане
+        window.onload = function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>localStorage поддръжка: ' + (typeof(Storage) !== "undefined" ? '✅ Да' : '❌ Не') + '</p>';
+        };
+    </script>
+</body>
+</html>

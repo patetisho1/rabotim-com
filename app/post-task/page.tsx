@@ -161,16 +161,25 @@ export default function PostTaskPage() {
   }
 
   const handleSubmit = async () => {
+    console.log('=== DEBUG: Започва публикуване ===')
+    console.log('FormData преди валидация:', formData)
+    console.log('AuthUser:', authUser)
+    
     setIsSubmitting(true)
     
     try {
       // Валидация на всички стъпки
       for (let i = 1; i <= 4; i++) {
+        console.log(`Валидация на стъпка ${i}:`, validateStep(i))
         if (!validateStep(i)) {
+          console.log(`Валидацията на стъпка ${i} е неуспешна`)
           setCurrentStep(i)
+          setIsSubmitting(false)
           return
         }
       }
+      
+      console.log('Всички валидации са успешни')
 
       // Симулация на публикуване
       await new Promise(resolve => setTimeout(resolve, 2000))
@@ -200,8 +209,12 @@ export default function PostTaskPage() {
       tasks.unshift(newTask)
       localStorage.setItem('tasks', JSON.stringify(tasks))
 
+      console.log('=== DEBUG: Публикуване на задача ===')
+      console.log('FormData:', formData)
+      console.log('AuthUser:', authUser)
       console.log('Нова задача запазена:', newTask)
       console.log('Всички задачи в localStorage:', tasks)
+      console.log('localStorage tasks string:', localStorage.getItem('tasks'))
 
       toast.success('Задачата е публикувана успешно!')
       
@@ -210,6 +223,7 @@ export default function PostTaskPage() {
       }, 1000)
 
     } catch (error) {
+      console.error('=== DEBUG: Грешка при публикуване ===', error)
       toast.error('Възникна грешка при публикуването')
     } finally {
       setIsSubmitting(false)

@@ -476,7 +476,10 @@ export default function TasksPage() {
     const loadTasks = () => {
       try {
         const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+        console.log('=== DEBUG: Зареждане на задачи ===')
+        console.log('localStorage tasks string:', localStorage.getItem('tasks'))
         console.log('Заредени задачи от localStorage:', savedTasks)
+        console.log('Mock tasks:', mockTasks)
         
         // Използваме само реалните задачи от localStorage, не mockTasks
         const allTasks = savedTasks.length > 0 ? savedTasks : mockTasks
