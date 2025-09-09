@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { useTasksAPI, CreateTaskData } from '@/hooks/useTasksAPI'
 
 interface TaskFormData {
   title: string
@@ -61,6 +62,7 @@ const steps = [
 export default function PostTaskPage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading } = useAuth()
+  const { createTask } = useTasksAPI()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<TaskFormData>({
@@ -181,40 +183,27 @@ export default function PostTaskPage() {
       
       console.log('Всички валидации са успешни')
 
-      // Симулация на публикуване
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Запазване в localStorage
-      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      
-      const newTask = {
-        id: Date.now().toString(), // Променяме на string за съвместимост
-        ...formData,
+      // Подготовка на данните за API
+      const taskData: CreateTaskData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        location: formData.location,
         price: parseFloat(formData.price),
-        postedBy: authUser?.user_metadata?.full_name || 'Потребител',
-        postedByEmail: authUser?.email || '',
-        postedDate: new Date().toISOString(),
-        status: 'active',
-        applications: 0,
-        views: 0,
-        rating: 0,
-        reviewCount: 0,
-        urgent: formData.urgent || false,
-        remote: formData.remote || false,
-        userId: 1, // Добавяме userId за съвместимост
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-        image: formData.photos.length > 0 ? URL.createObjectURL(formData.photos[0]) : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop'
+        priceType: formData.priceType,
+        deadline: formData.deadline || undefined,
+        urgent: formData.urgent,
+        remote: formData.remote,
+        conditions: formData.conditions
       }
 
-      tasks.unshift(newTask)
-      localStorage.setItem('tasks', JSON.stringify(tasks))
+      console.log('Изпращане на данни към API:', taskData)
 
-      console.log('=== DEBUG: Публикуване на задача ===')
-      console.log('FormData:', formData)
-      console.log('AuthUser:', authUser)
-      console.log('Нова задача запазена:', newTask)
-      console.log('Всички задачи в localStorage:', tasks)
-      console.log('localStorage tasks string:', localStorage.getItem('tasks'))
+      // Публикуване на задачата чрез API
+      const newTask = await createTask(taskData)
+
+      console.log('=== DEBUG: Задача публикувана успешно ===')
+      console.log('Нова задача:', newTask)
 
       toast.success('Задачата е публикувана успешно!')
       
@@ -224,7 +213,7 @@ export default function PostTaskPage() {
 
     } catch (error) {
       console.error('=== DEBUG: Грешка при публикуване ===', error)
-      toast.error('Възникна грешка при публикуването')
+      toast.error(error instanceof Error ? error.message : 'Възникна грешка при публикуването')
     } finally {
       setIsSubmitting(false)
     }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTasksAPI } from '@/hooks/useTasksAPI'
 import { 
   Search, 
   MapPin, 
@@ -442,7 +443,7 @@ const mockTasks: Task[] = [
 
 export default function TasksPage() {
   const router = useRouter()
-  const [tasks, setTasks] = useState<Task[]>([])
+  const { tasks, loading, fetchTasks } = useTasksAPI()
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -451,7 +452,6 @@ export default function TasksPage() {
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
-  const [loading, setLoading] = useState(true)
 
   // Функция за получаване на икона според категорията
   const getCategoryIcon = (category: string) => {
@@ -472,50 +472,15 @@ export default function TasksPage() {
   }
 
   useEffect(() => {
-    // Зареждане на задачи от localStorage
-    const loadTasks = () => {
-      try {
-        const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-        console.log('=== DEBUG: Зареждане на задачи ===')
-        console.log('localStorage tasks string:', localStorage.getItem('tasks'))
-        console.log('Заредени задачи от localStorage:', savedTasks)
-        console.log('Mock tasks:', mockTasks)
-        
-        // Използваме само реалните задачи от localStorage, не mockTasks
-        const allTasks = savedTasks.length > 0 ? savedTasks : mockTasks
-        
-        // Добавяме липсващи полета за задачите
-        const processedTasks = allTasks.map((task: any) => ({
-          ...task,
-          offers: task.offers || task.applications || 0,
-          views: task.views || 0,
-          status: task.status || 'active',
-          user: task.user || {
-            name: task.postedBy || 'Потребител',
-            rating: task.rating || 4.5,
-            avatar: task.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
-          }
-        }))
-        
-        console.log('Обработени задачи:', processedTasks)
-        
-        setTasks(processedTasks)
-        setFilteredTasks(processedTasks)
-        setLoading(false)
-      } catch (error) {
-        console.error('Грешка при зареждането на задачите:', error)
-        setTasks(mockTasks)
-        setFilteredTasks(mockTasks)
-        setLoading(false)
-      }
-    }
-
-    loadTasks()
-    
     // Зареждане на любими задачи от localStorage
     const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]')
     setFavorites(savedFavorites)
   }, [])
+
+  // Обновяване на филтрираните задачи когато се променят задачите или филтрите
+  useEffect(() => {
+    setFilteredTasks(tasks)
+  }, [tasks])
 
   // Скролиране към конкретна обява, ако е подаден jobId в URL
   useEffect(() => {

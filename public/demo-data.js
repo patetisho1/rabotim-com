@@ -1,8 +1,13 @@
 
 // Демо данни за тестване
 if (typeof window !== 'undefined') {
-  // Потребители
-  localStorage.setItem('users', JSON.stringify([
+  // Проверяваме дали вече има данни
+  const existingUsers = localStorage.getItem('users')
+  const existingTasks = localStorage.getItem('tasks')
+  
+  // Зареждаме потребители само ако няма съществуващи
+  if (!existingUsers) {
+    localStorage.setItem('users', JSON.stringify([
   {
     "id": 1,
     "name": "Иван Петров",
@@ -37,9 +42,11 @@ if (typeof window !== 'undefined') {
     "totalEarnings": 950
   }
 ]))
+  }
   
-  // Задачи
-  localStorage.setItem('tasks', JSON.stringify([
+  // Зареждаме задачи само ако няма съществуващи
+  if (!existingTasks) {
+    localStorage.setItem('tasks', JSON.stringify([
   {
     "id": 1,
     "title": "Почистване на апартамент",
@@ -164,15 +171,22 @@ if (typeof window !== 'undefined') {
     "createdAt": "2024-01-03T12:30:00Z"
   }
 ]))
+  }
   
-  // Любими (празен масив)
-  localStorage.setItem('favorites', JSON.stringify([]))
+  // Любими (празен масив) - само ако няма съществуващи
+  if (!localStorage.getItem('favorites')) {
+    localStorage.setItem('favorites', JSON.stringify([]))
+  }
   
-  // Запазени задачи (празен масив)
-  localStorage.setItem('savedTasks', JSON.stringify([]))
+  // Запазени задачи (празен масив) - само ако няма съществуващи
+  if (!localStorage.getItem('savedTasks')) {
+    localStorage.setItem('savedTasks', JSON.stringify([]))
+  }
   
-  // Boost-нати задачи (празен масив)
-  localStorage.setItem('boostedTasks', JSON.stringify([]))
+  // Boost-нати задачи (празен масив) - само ако няма съществуващи
+  if (!localStorage.getItem('boostedTasks')) {
+    localStorage.setItem('boostedTasks', JSON.stringify([]))
+  }
   
-  console.log('✅ Демо данните са заредени успешно!')
+  console.log('✅ Демо данните са проверени/заредени успешно!')
 }
