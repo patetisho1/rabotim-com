@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     // Проверка дали задачата съществува и е активна
     const { data: task, error: taskError } = await supabase
       .from('tasks')
-      .select('id, status, posted_by')
+      .select('id, status, posted_by, title, applications')
       .eq('id', taskId)
       .single()
 

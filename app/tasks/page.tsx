@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTasksAPI } from '@/hooks/useTasksAPI'
+import { useTasksAPI, Task } from '@/hooks/useTasksAPI'
 import { 
   Search, 
   MapPin, 
@@ -28,29 +28,7 @@ import {
 import toast from 'react-hot-toast'
 import GoogleMap from '@/components/GoogleMap'
 
-interface Task {
-  id: number
-  title: string
-  description: string
-  category: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  location: string
-  deadline: string
-  urgent: boolean
-  remote: boolean
-  offers: number
-  views: number
-  createdAt: string
-  userId: number
-  status: 'active' | 'assigned' | 'completed'
-  image: string
-  user: {
-    name: string
-    rating: number
-    avatar: string
-  }
-}
+// Task interface is imported from useTasksAPI
 
 const categories = [
   { name: 'Всички категории', icon: Briefcase, value: '' },
@@ -100,15 +78,15 @@ const mockTasks: Task[] = [
     description: 'Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса, нужна е генерална почистка.',
     category: 'Почистване',
     price: 25,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Кв. Бояна',
     deadline: '2024-02-15',
     urgent: false,
     remote: false,
-    offers: 8,
+    applications: 8,
     views: 45,
-    createdAt: '2024-01-20',
-    userId: 1,
+    created_at: '2024-01-20',
+    posted_by: '1',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
@@ -123,15 +101,15 @@ const mockTasks: Task[] = [
     description: 'Нужен е майстор за ремонт на баня. Замяна на плочки, ремонт на душ кабина и монтаж на ново санитари.',
     category: 'Ремонт',
     price: 1500,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'Пловдив, Център',
     deadline: '2024-02-10',
     urgent: true,
     remote: false,
-    offers: 12,
+    applications: 12,
     views: 67,
-    createdAt: '2024-01-19',
-    userId: 2,
+    created_at: '2024-01-19',
+    posted_by: '2',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop',
     user: {
@@ -146,15 +124,15 @@ const mockTasks: Task[] = [
     description: 'Търся някой да разходи кучето ми два пъти дневно. Кучето е спокойно и послушно, нужни са 30 мин разходка.',
     category: 'Доставка',
     price: 20,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'Варна, Морска градина',
     deadline: '2024-01-25',
     urgent: false,
     remote: false,
-    offers: 5,
+    applications: 5,
     views: 23,
-    createdAt: '2024-01-18',
-    userId: 3,
+    created_at: '2024-01-18',
+    posted_by: '3',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=300&fit=crop',
     user: {
@@ -169,15 +147,15 @@ const mockTasks: Task[] = [
     description: 'Нужен е учител по математика за ученик в 8 клас. Уроците да са 2 пъти седмично по 90 минути.',
     category: 'Обучение',
     price: 30,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Младост',
     deadline: '2024-02-20',
     urgent: false,
     remote: true,
-    offers: 15,
+    applications: 15,
     views: 89,
-    createdAt: '2024-01-17',
-    userId: 4,
+    created_at: '2024-01-17',
+    posted_by: '4',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
     user: {
@@ -192,15 +170,15 @@ const mockTasks: Task[] = [
     description: 'Нужен е градинар за подреждане на градината. Плевене, подрязване на живи плетове и посаждане на цветя.',
     category: 'Градинарство',
     price: 35,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Драгалевци',
     deadline: '2024-01-30',
     urgent: false,
     remote: false,
-    offers: 7,
+    applications: 7,
     views: 34,
-    createdAt: '2024-01-16',
-    userId: 5,
+    created_at: '2024-01-16',
+    posted_by: '5',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
     user: {
@@ -215,15 +193,15 @@ const mockTasks: Task[] = [
     description: 'Нужен е майстор за сглобяване на кухненски шкафове и маса. Мебелите са от IKEA.',
     category: 'Ремонт',
     price: 200,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Лозенец',
     deadline: '2024-02-05',
     urgent: false,
     remote: false,
-    offers: 3,
+    applications: 3,
     views: 18,
-    createdAt: '2024-01-15',
-    userId: 6,
+    created_at: '2024-01-15',
+    posted_by: '6',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     user: {
@@ -238,15 +216,15 @@ const mockTasks: Task[] = [
     description: 'Нужна е доставка на храни от магазин до дома. Списъкът ще бъде предоставен предварително.',
     category: 'Доставка',
     price: 15,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Център',
     deadline: '2024-01-28',
     urgent: true,
     remote: false,
-    offers: 4,
+    applications: 4,
     views: 22,
-    createdAt: '2024-01-14',
-    userId: 7,
+    created_at: '2024-01-14',
+    posted_by: '7',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop',
     user: {
@@ -261,15 +239,15 @@ const mockTasks: Task[] = [
     description: 'Нужна е генерална почистка след ремонт на апартамент. Включва почистване на прах и отпадъци.',
     category: 'Почистване',
     price: 300,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Изток',
     deadline: '2024-02-01',
     urgent: false,
     remote: false,
-    offers: 6,
+    applications: 6,
     views: 31,
-    createdAt: '2024-01-13',
-    userId: 8,
+    created_at: '2024-01-13',
+    posted_by: '8',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
@@ -284,15 +262,15 @@ const mockTasks: Task[] = [
     description: 'Търся учител по английски за начинаещи. Уроците да са онлайн, 2 пъти седмично по 60 минути.',
     category: 'Обучение',
     price: 25,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'Онлайн',
     deadline: '2024-02-12',
     urgent: false,
     remote: true,
-    offers: 9,
+    applications: 9,
     views: 56,
-    createdAt: '2024-01-12',
-    userId: 9,
+    created_at: '2024-01-12',
+    posted_by: '9',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
     user: {
@@ -307,15 +285,15 @@ const mockTasks: Task[] = [
     description: 'Нужна е редовна поддръжка на градината - плевене, поливане, подрязване на растения.',
     category: 'Градинарство',
     price: 40,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Бояна',
     deadline: '2024-01-29',
     urgent: false,
     remote: false,
-    offers: 5,
+    applications: 5,
     views: 28,
-    createdAt: '2024-01-11',
-    userId: 10,
+    created_at: '2024-01-11',
+    posted_by: '10',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
     user: {
@@ -330,15 +308,15 @@ const mockTasks: Task[] = [
     description: 'Нужен е електротехник за ремонт на пералня и хладилник. Проблемът е с електрическата част.',
     category: 'Ремонт',
     price: 120,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Младост',
     deadline: '2024-01-27',
     urgent: true,
     remote: false,
-    offers: 7,
+    applications: 7,
     views: 35,
-    createdAt: '2024-01-10',
-    userId: 11,
+    created_at: '2024-01-10',
+    posted_by: '11',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     user: {
@@ -353,15 +331,15 @@ const mockTasks: Task[] = [
     description: 'Нужна е почистка на офис пространство 200 кв/м. Включва почистване на работни места и общи зони.',
     category: 'Почистване',
     price: 400,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Център',
     deadline: '2024-01-26',
     urgent: false,
     remote: false,
-    offers: 8,
+    applications: 8,
     views: 42,
-    createdAt: '2024-01-09',
-    userId: 12,
+    created_at: '2024-01-09',
+    posted_by: '12',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
@@ -376,15 +354,15 @@ const mockTasks: Task[] = [
     description: 'Нужна е доставка на диван и маса от магазин до дома. Разстояние около 5 км.',
     category: 'Доставка',
     price: 80,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Лозенец',
     deadline: '2024-01-25',
     urgent: false,
     remote: false,
-    offers: 4,
+    applications: 4,
     views: 19,
-    createdAt: '2024-01-08',
-    userId: 13,
+    created_at: '2024-01-08',
+    posted_by: '13',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop',
     user: {
@@ -399,15 +377,15 @@ const mockTasks: Task[] = [
     description: 'Търся учител по пиано за дете 8 години. Уроците да са в дома ни, веднъж седмично по 45 минути.',
     category: 'Обучение',
     price: 35,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Драгалевци',
     deadline: '2024-02-08',
     urgent: false,
     remote: false,
-    offers: 6,
+    applications: 6,
     views: 33,
-    createdAt: '2024-01-07',
-    userId: 14,
+    created_at: '2024-01-07',
+    posted_by: '14',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
     user: {
@@ -422,15 +400,15 @@ const mockTasks: Task[] = [
     description: 'Нужен е градинар за посаждане на 10 плодни дървета. Включва копаене на ями и посаждане.',
     category: 'Градинарство',
     price: 250,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Бояна',
     deadline: '2024-01-24',
     urgent: false,
     remote: false,
-    offers: 3,
+    applications: 3,
     views: 16,
-    createdAt: '2024-01-06',
-    userId: 15,
+    created_at: '2024-01-06',
+    posted_by: '15',
     status: 'active',
     image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop',
     user: {
@@ -563,7 +541,7 @@ export default function TasksPage() {
     // Сортиране
     switch (selectedSort) {
       case 'Най-нови':
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         break
       case 'Най-висока цена':
         filtered.sort((a, b) => b.price - a.price)
@@ -824,10 +802,10 @@ export default function TasksPage() {
                         
                         <div className="text-center mb-4">
                           <div className="text-2xl font-bold text-blue-600 mb-1">
-                            {formatPrice(task.price, task.priceType)}
+                            {formatPrice(task.price, task.price_type)}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {task.offers} оферти
+                            {task.applications} оферти
                           </div>
                         </div>
 
@@ -921,10 +899,10 @@ export default function TasksPage() {
                           
                           <div className="text-right ml-4">
                             <div className="text-3xl font-bold text-blue-600 mb-1">
-                              {formatPrice(task.price, task.priceType)}
+                              {formatPrice(task.price, task.price_type)}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {task.offers} оферти
+                              {task.applications} оферти
                             </div>
                           </div>
                         </div>
