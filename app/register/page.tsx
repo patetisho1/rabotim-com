@@ -102,8 +102,14 @@ export default function RegisterPage() {
       }
 
       if (data.user) {
-        toast.success('Регистрацията е успешна! Моля, проверете имейла си за потвърждение.')
-        router.push('/login')
+        // Проверяваме дали потребителят е вече потвърден
+        if (data.user.email_confirmed_at) {
+          toast.success('Регистрацията е успешна! Добре дошли!')
+          router.push('/')
+        } else {
+          toast.success('Регистрацията е успешна! Моля, проверете имейла си за потвърждение.')
+          router.push('/login')
+        }
         return
       }
 

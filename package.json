@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "analyze": "node scripts/analyze-bundle.js",
-    "analyze:build": "npm run build && npm run analyze"
+    "analyze:build": "npm run build && npm run analyze",
+    "setup-email": "node scripts/setup-email.js"
   },
   "dependencies": {
     "@react-email/render": "^1.2.0",
