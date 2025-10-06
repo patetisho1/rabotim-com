@@ -814,7 +814,7 @@ export default function TasksPage() {
                     <div className="block lg:hidden">
                       <div className="h-48 relative">
                         <img 
-                          src={task.image} 
+                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
                           alt={task.title} 
                           className="w-full h-full object-cover"
                         />
@@ -909,7 +909,7 @@ export default function TasksPage() {
                       {/* Image Section */}
                       <div className="w-48 h-48 flex-shrink-0 relative">
                         <img 
-                          src={task.image} 
+                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
                           alt={task.title} 
                           className="w-full h-full object-cover"
                         />
