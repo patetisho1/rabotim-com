@@ -64,3 +64,4 @@ rl.question('Натиснете Enter когато сте готови да пр
   console.log('📱 Staging URL: https://rabotim-com-staging.vercel.app');
   rl.close();
 });
+

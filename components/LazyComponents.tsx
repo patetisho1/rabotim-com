@@ -46,3 +46,4 @@ export function LazyWrapper({ children }: { children: React.ReactNode }) {
     </Suspense>
   )
 }
+

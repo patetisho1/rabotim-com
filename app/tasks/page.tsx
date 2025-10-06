@@ -73,7 +73,7 @@ const sortOptions = [
 // Реални обяви за задачи
 const mockTasks: Task[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Почистване на апартамент',
     description: 'Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса, нужна е генерална почистка.',
     category: 'Почистване',
@@ -96,7 +96,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 2,
+    id: '2',
     title: 'Ремонт на баня',
     description: 'Нужен е майстор за ремонт на баня. Замяна на плочки, ремонт на душ кабина и монтаж на ново санитари.',
     category: 'Ремонт',
@@ -119,7 +119,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 3,
+    id: '3',
     title: 'Разходка с кучето',
     description: 'Търся някой да разходи кучето ми два пъти дневно. Кучето е спокойно и послушно, нужни са 30 мин разходка.',
     category: 'Доставка',
@@ -142,7 +142,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 4,
+    id: '4',
     title: 'Уроци по математика',
     description: 'Нужен е учител по математика за ученик в 8 клас. Уроците да са 2 пъти седмично по 90 минути.',
     category: 'Обучение',
@@ -165,7 +165,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 5,
+    id: '5',
     title: 'Градинарски услуги',
     description: 'Нужен е градинар за подреждане на градината. Плевене, подрязване на живи плетове и посаждане на цветя.',
     category: 'Градинарство',
@@ -188,7 +188,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 6,
+    id: '6',
     title: 'Сглобяване на мебели',
     description: 'Нужен е майстор за сглобяване на кухненски шкафове и маса. Мебелите са от IKEA.',
     category: 'Ремонт',
@@ -211,7 +211,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 7,
+    id: '7',
     title: 'Доставка на храни',
     description: 'Нужна е доставка на храни от магазин до дома. Списъкът ще бъде предоставен предварително.',
     category: 'Доставка',
@@ -234,7 +234,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 8,
+    id: '8',
     title: 'Почистване след ремонт',
     description: 'Нужна е генерална почистка след ремонт на апартамент. Включва почистване на прах и отпадъци.',
     category: 'Почистване',
@@ -257,7 +257,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 9,
+    id: '9',
     title: 'Уроци по английски',
     description: 'Търся учител по английски за начинаещи. Уроците да са онлайн, 2 пъти седмично по 60 минути.',
     category: 'Обучение',
@@ -280,7 +280,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 10,
+    id: '10',
     title: 'Поддръжка на градина',
     description: 'Нужна е редовна поддръжка на градината - плевене, поливане, подрязване на растения.',
     category: 'Градинарство',
@@ -303,7 +303,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 11,
+    id: '11',
     title: 'Ремонт на електрически уреди',
     description: 'Нужен е електротехник за ремонт на пералня и хладилник. Проблемът е с електрическата част.',
     category: 'Ремонт',
@@ -326,7 +326,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 12,
+    id: '12',
     title: 'Почистване на офис',
     description: 'Нужна е почистка на офис пространство 200 кв/м. Включва почистване на работни места и общи зони.',
     category: 'Почистване',
@@ -349,7 +349,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 13,
+    id: '13',
     title: 'Доставка на мебели',
     description: 'Нужна е доставка на диван и маса от магазин до дома. Разстояние около 5 км.',
     category: 'Доставка',
@@ -372,7 +372,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 14,
+    id: '14',
     title: 'Уроци по музика',
     description: 'Търся учител по пиано за дете 8 години. Уроците да са в дома ни, веднъж седмично по 45 минути.',
     category: 'Обучение',
@@ -395,7 +395,7 @@ const mockTasks: Task[] = [
     }
   },
   {
-    id: 15,
+    id: '15',
     title: 'Посаждане на дървета',
     description: 'Нужен е градинар за посаждане на 10 плодни дървета. Включва копаене на ями и посаждане.',
     category: 'Градинарство',
@@ -429,7 +429,7 @@ export default function TasksPage() {
   const [selectedPriceRange, setSelectedPriceRange] = useState('')
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
-  const [favorites, setFavorites] = useState<number[]>([])
+  const [favorites, setFavorites] = useState<string[]>([])
 
   // Функция за получаване на икона според категорията
   const getCategoryIcon = (category: string) => {
@@ -557,7 +557,7 @@ export default function TasksPage() {
     setFilteredTasks(filtered)
   }
 
-  const handleFavoriteToggle = (taskId: number) => {
+  const handleFavoriteToggle = (taskId: string) => {
     const newFavorites = favorites.includes(taskId)
       ? favorites.filter(id => id !== taskId)
       : [...favorites, taskId]
