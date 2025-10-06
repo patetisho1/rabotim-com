@@ -120,6 +120,7 @@ const mockTasks: Task[] = [
     posted_by: '2',
     status: 'active',
     profiles: {
+      id: '2',
       full_name: 'Иван Димитров',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
@@ -146,6 +147,7 @@ const mockTasks: Task[] = [
     posted_by: '3',
     status: 'active',
     profiles: {
+      id: '3',
       full_name: 'Елена Стоянова',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
@@ -172,6 +174,7 @@ const mockTasks: Task[] = [
     posted_by: '4',
     status: 'active',
     profiles: {
+      id: '4',
       full_name: 'Стефан Георгиев',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
@@ -198,6 +201,7 @@ const mockTasks: Task[] = [
     posted_by: '5',
     status: 'active',
     profiles: {
+      id: '5',
       full_name: 'Петър Иванов',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
@@ -224,6 +228,7 @@ const mockTasks: Task[] = [
     posted_by: '6',
     status: 'active',
     profiles: {
+      id: '6',
       full_name: 'Анна Георгиева',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
@@ -250,6 +255,7 @@ const mockTasks: Task[] = [
     posted_by: '7',
     status: 'active',
     profiles: {
+      id: '7',
       full_name: 'Николай Петров',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
@@ -276,6 +282,7 @@ const mockTasks: Task[] = [
     posted_by: '8',
     status: 'active',
     profiles: {
+      id: '8',
       full_name: 'Георги Стоянов',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
@@ -302,6 +309,7 @@ const mockTasks: Task[] = [
     posted_by: '9',
     status: 'active',
     profiles: {
+      id: '9',
       full_name: 'Мария Иванова',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
@@ -328,6 +336,7 @@ const mockTasks: Task[] = [
     posted_by: '10',
     status: 'active',
     profiles: {
+      id: '10',
       full_name: 'Иван Петров',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
@@ -354,6 +363,7 @@ const mockTasks: Task[] = [
     posted_by: '11',
     status: 'active',
     profiles: {
+      id: '11',
       full_name: 'Петър Георгиев',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
@@ -380,6 +390,7 @@ const mockTasks: Task[] = [
     posted_by: '12',
     status: 'active',
     profiles: {
+      id: '12',
       full_name: 'Анна Петрова',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
@@ -406,6 +417,7 @@ const mockTasks: Task[] = [
     posted_by: '13',
     status: 'active',
     profiles: {
+      id: '13',
       full_name: 'Николай Иванов',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
@@ -432,6 +444,7 @@ const mockTasks: Task[] = [
     posted_by: '14',
     status: 'active',
     profiles: {
+      id: '14',
       full_name: 'Елена Петрова',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
@@ -458,6 +471,7 @@ const mockTasks: Task[] = [
     posted_by: '15',
     status: 'active',
     profiles: {
+      id: '15',
       full_name: 'Георги Иванов',
       is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
