@@ -91,7 +91,7 @@ const mockTasks: Task[] = [
     profiles: {
       id: '1',
       full_name: 'Мария Петрова',
-      rating: 4.8,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -113,7 +113,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Иван Димитров',
-      rating: 4.9,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -135,7 +135,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Елена Стоянова',
-      rating: 4.7,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -157,7 +157,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Стефан Георгиев',
-      rating: 4.6,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -179,7 +179,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Петър Иванов',
-      rating: 4.8,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -201,7 +201,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Анна Георгиева',
-      rating: 4.7,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -245,7 +245,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Георги Стоянов',
-      rating: 4.9,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -267,7 +267,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Мария Иванова',
-      rating: 4.8,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -289,7 +289,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Иван Петров',
-      rating: 4.6,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -311,7 +311,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Петър Георгиев',
-      rating: 4.7,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -333,7 +333,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Анна Петрова',
-      rating: 4.8,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -377,7 +377,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Елена Петрова',
-      rating: 4.9,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
@@ -399,7 +399,7 @@ const mockTasks: Task[] = [
     status: 'active',
     profiles: {
       full_name: 'Георги Иванов',
-      rating: 4.7,
+      is_verified: true,
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   }
@@ -804,7 +804,7 @@ export default function TasksPage() {
                             />
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.profiles?.rating}</span>
+                              <span className="font-medium">{"4.8"}</span>
                             </div>
                           </div>
 
@@ -905,7 +905,7 @@ export default function TasksPage() {
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.profiles?.rating}</span>
+                              <span className="font-medium">{"4.8"}</span>
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                               <Eye className="h-4 w-4" />
