@@ -88,7 +88,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-20',
     posted_by: '1',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
       name: 'Мария Петрова',
       rating: 4.8,
@@ -111,7 +110,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-19',
     posted_by: '2',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop',
     user: {
       name: 'Иван Димитров',
       rating: 4.9,
@@ -134,7 +132,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-18',
     posted_by: '3',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=300&fit=crop',
     user: {
       name: 'Елена Стоянова',
       rating: 4.7,
@@ -157,7 +154,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-17',
     posted_by: '4',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
     user: {
       name: 'Стефан Георгиев',
       rating: 4.6,
@@ -180,7 +176,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-16',
     posted_by: '5',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
     user: {
       name: 'Петър Иванов',
       rating: 4.8,
@@ -203,7 +198,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-15',
     posted_by: '6',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     user: {
       name: 'Анна Георгиева',
       rating: 4.7,
@@ -226,7 +220,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-14',
     posted_by: '7',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop',
     user: {
       name: 'Николай Петров',
       rating: 4.5,
@@ -249,7 +242,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-13',
     posted_by: '8',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
       name: 'Георги Стоянов',
       rating: 4.9,
@@ -272,7 +264,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-12',
     posted_by: '9',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
     user: {
       name: 'Мария Иванова',
       rating: 4.8,
@@ -295,7 +286,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-11',
     posted_by: '10',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
     user: {
       name: 'Иван Петров',
       rating: 4.6,
@@ -318,7 +308,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-10',
     posted_by: '11',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     user: {
       name: 'Петър Георгиев',
       rating: 4.7,
@@ -341,7 +330,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-09',
     posted_by: '12',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     user: {
       name: 'Анна Петрова',
       rating: 4.8,
@@ -364,7 +352,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-08',
     posted_by: '13',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop',
     user: {
       name: 'Николай Иванов',
       rating: 4.5,
@@ -387,7 +374,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-07',
     posted_by: '14',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
     user: {
       name: 'Елена Петрова',
       rating: 4.9,
@@ -410,7 +396,6 @@ const mockTasks: Task[] = [
     created_at: '2024-01-06',
     posted_by: '15',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop',
     user: {
       name: 'Георги Иванов',
       rating: 4.7,
