@@ -59,7 +59,14 @@ export default function HomePage() {
   ]
 
   // Service cards data for scrolling
-  const serviceCards = [
+  interface ServiceCard {
+    name: string
+    subtitle: string
+    image: string
+    avatar: string
+  }
+  
+  const serviceCards: ServiceCard[] = [
     {
       name: "Преместване",
       subtitle: "Пакетиране, опаковане, преместване и още!",
