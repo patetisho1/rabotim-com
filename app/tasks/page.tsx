@@ -88,10 +88,11 @@ const mockTasks: Task[] = [
     created_at: '2024-01-20',
     posted_by: '1',
     status: 'active',
-    user: {
-      name: 'Мария Петрова',
+    profiles: {
+      id: '1',
+      full_name: 'Мария Петрова',
       rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -110,10 +111,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-19',
     posted_by: '2',
     status: 'active',
-    user: {
-      name: 'Иван Димитров',
+    profiles: {
+      full_name: 'Иван Димитров',
       rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -132,10 +133,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-18',
     posted_by: '3',
     status: 'active',
-    user: {
-      name: 'Елена Стоянова',
+    profiles: {
+      full_name: 'Елена Стоянова',
       rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -154,10 +155,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-17',
     posted_by: '4',
     status: 'active',
-    user: {
-      name: 'Стефан Георгиев',
+    profiles: {
+      full_name: 'Стефан Георгиев',
       rating: 4.6,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -176,10 +177,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-16',
     posted_by: '5',
     status: 'active',
-    user: {
-      name: 'Петър Иванов',
+    profiles: {
+      full_name: 'Петър Иванов',
       rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -198,10 +199,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-15',
     posted_by: '6',
     status: 'active',
-    user: {
-      name: 'Анна Георгиева',
+    profiles: {
+      full_name: 'Анна Георгиева',
       rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -220,10 +221,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-14',
     posted_by: '7',
     status: 'active',
-    user: {
-      name: 'Николай Петров',
+    profiles: {
+      full_name: 'Николай Петров',
       rating: 4.5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -242,10 +243,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-13',
     posted_by: '8',
     status: 'active',
-    user: {
-      name: 'Георги Стоянов',
+    profiles: {
+      full_name: 'Георги Стоянов',
       rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -264,10 +265,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-12',
     posted_by: '9',
     status: 'active',
-    user: {
-      name: 'Мария Иванова',
+    profiles: {
+      full_name: 'Мария Иванова',
       rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -286,10 +287,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-11',
     posted_by: '10',
     status: 'active',
-    user: {
-      name: 'Иван Петров',
+    profiles: {
+      full_name: 'Иван Петров',
       rating: 4.6,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -308,10 +309,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-10',
     posted_by: '11',
     status: 'active',
-    user: {
-      name: 'Петър Георгиев',
+    profiles: {
+      full_name: 'Петър Георгиев',
       rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -330,10 +331,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-09',
     posted_by: '12',
     status: 'active',
-    user: {
-      name: 'Анна Петрова',
+    profiles: {
+      full_name: 'Анна Петрова',
       rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -352,10 +353,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-08',
     posted_by: '13',
     status: 'active',
-    user: {
-      name: 'Николай Иванов',
+    profiles: {
+      full_name: 'Николай Иванов',
       rating: 4.5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -374,10 +375,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-07',
     posted_by: '14',
     status: 'active',
-    user: {
-      name: 'Елена Петрова',
+    profiles: {
+      full_name: 'Елена Петрова',
       rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
@@ -396,10 +397,10 @@ const mockTasks: Task[] = [
     created_at: '2024-01-06',
     posted_by: '15',
     status: 'active',
-    user: {
-      name: 'Георги Иванов',
+    profiles: {
+      full_name: 'Георги Иванов',
       rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   }
 ]
@@ -797,13 +798,13 @@ export default function TasksPage() {
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <img 
-                              src={task.user.avatar} 
-                              alt={task.user.name} 
+                              src={task.profiles?.avatar_url} 
+                              alt={task.profiles?.full_name} 
                               className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                             />
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.user.rating}</span>
+                              <span className="font-medium">{task.profiles?.rating}</span>
                             </div>
                           </div>
 
@@ -896,15 +897,15 @@ export default function TasksPage() {
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <img 
-                                src={task.user.avatar} 
-                                alt={task.user.name} 
+                                src={task.profiles?.avatar_url} 
+                                alt={task.profiles?.full_name} 
                                 className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                               />
-                              <span className="font-medium">{task.user.name}</span>
+                              <span className="font-medium">{task.profiles?.full_name}</span>
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.user.rating}</span>
+                              <span className="font-medium">{task.profiles?.rating}</span>
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                               <Eye className="h-4 w-4" />
