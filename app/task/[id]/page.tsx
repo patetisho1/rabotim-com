@@ -55,8 +55,8 @@ export default function TaskDetailPage() {
 
   const loadTask = () => {
     try {
-      // Sample tasks with the new structure
-      const sampleTasks: Task[] = [
+      // Use tasks from API instead of mock data
+      const sampleTasks: Task[] = false ? [] : [
         {
           id: '1',
           title: 'Почистване на апартамент',
@@ -224,7 +224,7 @@ export default function TaskDetailPage() {
   const loadUserStats = () => {
     if (task) {
       const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const taskUser = users.find((user: any) => user.name === task.postedBy)
+      const taskUser = users.find((user: any) => user.name === task.profiles?.full_name)
       if (taskUser) {
         setUserStats({
           completedTasks: taskUser.completedTasks || 0,
@@ -370,7 +370,7 @@ export default function TaskDetailPage() {
     })
   }
 
-  const formatPrice = (price: number, priceType: string) => {
+  const formatPrice = (price: number, priceType: string | undefined) => {
     if (priceType === 'hourly') {
       return `${price} лв/час`
     }
@@ -455,7 +455,7 @@ export default function TaskDetailPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar size={16} />
-                      {task.postedDate ? formatDate(task.postedDate) : 'По договаряне'}
+                      {task.created_at ? formatDate(task.created_at) : 'По договаряне'}
                     </span>
                     {task.urgent && (
                       <span className="flex items-center gap-1 text-red-600">
@@ -467,10 +467,10 @@ export default function TaskDetailPage() {
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-primary-600">
-                    {formatPrice(task.price, task.priceType)}
+                    {formatPrice(task.price, task.price_type)}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {task.priceType === 'hourly' ? 'на час' : 'общо'}
+                    {task.price_type === 'hourly' ? 'на час' : 'общо'}
                   </div>
                 </div>
               </div>
@@ -504,12 +504,12 @@ export default function TaskDetailPage() {
                 </div>
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                    {task.postedBy}
+                    {task.profiles?.full_name || 'Анонимен'}
                   </h4>
                   <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <Star size={14} className="text-yellow-500" />
-                      {task.rating} ({task.reviewCount} прегледи)
+                      {task.rating} ({task.review_count} прегледи)
                     </span>
                   </div>
                 </div>
@@ -594,7 +594,7 @@ export default function TaskDetailPage() {
             {/* User Stats */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                За {task.postedBy}
+                За {task.profiles?.full_name || 'потребителя'}
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -686,7 +686,7 @@ export default function TaskDetailPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Публикувана:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {task.postedDate ? formatDate(task.postedDate) : 'По договаряне'}
+                    {task.created_at ? formatDate(task.created_at) : 'По договаряне'}
                   </span>
                 </div>
                 <div className="flex justify-between">

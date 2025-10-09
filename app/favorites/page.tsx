@@ -85,10 +85,10 @@ export default function FavoritesPage() {
     // Сортиране
     switch (sortBy) {
       case 'newest':
-        filtered.sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime())
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         break
       case 'oldest':
-        filtered.sort((a, b) => new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime())
+        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
         break
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price)
