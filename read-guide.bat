@@ -30,3 +30,4 @@ powershell -ExecutionPolicy Bypass -File "read-guide.ps1"
 echo.
 echo Натиснете Enter за да затворите...
 pause >nul
+

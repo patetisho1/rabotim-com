@@ -89,3 +89,4 @@ Write-Host "  git status" -ForegroundColor White
 Write-Host "  git add ." -ForegroundColor White
 Write-Host "  git commit -m 'описание'" -ForegroundColor White
 Write-Host "  git push origin staging" -ForegroundColor White
+

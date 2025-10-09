@@ -322,3 +322,4 @@ Get-Content .env.local
 **Последна актуализация:** $(Get-Date -Format "yyyy-MM-dd HH:mm")
 **Версия:** 1.0
 **Автор:** AI Assistant + Tihomir Todorov
+

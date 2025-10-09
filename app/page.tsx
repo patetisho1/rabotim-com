@@ -925,7 +925,7 @@ export default function HomePage() {
               
               {/* Main Title - Mobile Optimized */}
                <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-3 sm:mb-4 md:mb-6 transition-all duration-1000 font-display ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                Търся някой...
+                Търся някой... 🚀
               </h1>
               
               {/* Rotating Task Text - Mobile Optimized */}

@@ -316,3 +316,4 @@ Get-Content .env.local
 **Последна актуализация:** 2025-01-10
 **Версия:** 1.0
 **Автор:** AI Assistant + Tihomir Todorov
+
