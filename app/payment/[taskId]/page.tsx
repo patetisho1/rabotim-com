@@ -4,16 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, CreditCard, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Task {
-  id: number
-  title: string
-  price: string
-  priceType: string
-  user: {
-    name: string
-  }
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface PaymentMethod {
   id: string

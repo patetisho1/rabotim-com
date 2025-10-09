@@ -16,30 +16,7 @@ import {
   Send
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Task {
-  id: number
-  title: string
-  description: string
-  category: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  location: string
-  deadline: string
-  urgent: boolean
-  remote: boolean
-  offers: number
-  views: number
-  createdAt: string
-  userId: number
-  status: 'active' | 'assigned' | 'completed'
-  image: string
-  user: {
-    name: string
-    rating: number
-    avatar: string
-  }
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface OfferFormData {
   proposedPrice: string

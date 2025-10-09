@@ -19,26 +19,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
-
-interface Task {
-  id: number
-  title: string
-  description: string
-  category: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  location: string
-  deadline: string
-  urgent: boolean
-  remote: boolean
-  offers: number
-  views: number
-  createdAt: string
-  userId: number
-  status: 'active' | 'assigned' | 'completed' | 'cancelled'
-  applications?: any[]
-  postedByEmail?: string
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 const statusColors = {
   active: 'bg-green-100 text-green-800',
@@ -338,14 +319,14 @@ export default function MyTasksPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4" />
-                        {formatPrice(task.price, task.priceType)}
+                        {formatPrice(task.price, task.price_type)}
                       </div>
                     </div>
                   </div>
                   
                   <div className="text-right ml-4">
                     <div className="text-sm text-gray-500 mb-1">
-                      {task.offers} оферти
+                      {task.applications} оферти
                     </div>
                     <div className="text-sm text-gray-500">
                       {task.views} прегледа
@@ -357,7 +338,7 @@ export default function MyTasksPage() {
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      Публикувана на {formatDate(task.createdAt)}
+                      Публикувана на {formatDate(task.created_at)}
                     </div>
                   </div>
 
@@ -380,7 +361,7 @@ export default function MyTasksPage() {
                        onClick={() => router.push(`/task-offers/${task.id}`)}
                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                      >
-                       Оферти ({task.offers || 0})
+                       Оферти ({task.applications || 0})
                      </button>
                   </div>
                 </div>

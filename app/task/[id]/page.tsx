@@ -7,29 +7,13 @@ import toast from 'react-hot-toast'
 import ImageGallery from '../../../components/ImageGallery'
 import { useAuth } from '@/hooks/useAuth'
 
+import { Task } from '@/hooks/useTasksAPI'
+
 interface Attachment {
   name: string
   size: number
   type: string
   url: string
-}
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  rating: number
-  reviewCount: number
-  postedBy: string
-  postedDate: string
-  views: number
-  applications: number
-  attachments?: Attachment[]
 }
 
 interface Application {

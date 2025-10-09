@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { Task } from '@/hooks/useTasksAPI'
 
 interface UserProfile {
   id: number
@@ -38,21 +39,6 @@ interface UserProfile {
   badges: string[]
   bio?: string
   location?: string
-}
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  status: 'active' | 'assigned' | 'completed'
-  createdAt: string
-  views: number
-  applications: number
 }
 
 export default function UserProfilePage() {
