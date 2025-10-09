@@ -80,3 +80,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 2. Проверете Network tab за неуспешни заявки
 3. Проверете Supabase Auth logs
 4. Уверете се, че Facebook App е в "Live" режим
+
