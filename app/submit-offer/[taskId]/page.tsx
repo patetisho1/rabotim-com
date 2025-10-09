@@ -198,7 +198,7 @@ export default function SubmitOfferPage() {
     }
   }
 
-  const formatPrice = (price: number, priceType: string) => {
+  const formatPrice = (price: number, priceType: string | undefined) => {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
   }
 
@@ -282,7 +282,7 @@ export default function SubmitOfferPage() {
                   <div className="flex items-center gap-3 text-sm">
                     <DollarSign className="h-4 w-4 text-green-600" />
                     <span className="font-medium">Бюджет:</span>
-                    <span className="text-gray-600">{formatPrice(task.price, task.priceType)}</span>
+                    <span className="text-gray-600">{formatPrice(task.price, task.price_type)}</span>
                   </div>
                   
                   <div className="flex items-center gap-3 text-sm">
@@ -358,11 +358,11 @@ export default function SubmitOfferPage() {
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-600 flex items-center">
-                      {task.priceType === 'hourly' ? 'лв/час' : 'лв'}
+                      {task.price_type === 'hourly' ? 'лв/час' : 'лв'}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Оригиналният бюджет е {formatPrice(task.price, task.priceType)}
+                    Оригиналният бюджет е {formatPrice(task.price, task.price_type)}
                   </p>
                 </div>
 

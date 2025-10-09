@@ -237,7 +237,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Сума:</span>
                   <span className="font-semibold text-lg text-primary-600">
-                    {task.price} {task.priceType === 'hourly' ? 'лв/час' : 'лв'}
+                    {task.price} {task.price_type === 'hourly' ? 'лв/час' : 'лв'}
                   </span>
                 </div>
               </div>
@@ -355,7 +355,7 @@ export default function PaymentPage() {
                   Обработка на плащането...
                 </>
               ) : (
-                `Плати ${task.price} ${task.priceType === 'hourly' ? 'лв/час' : 'лв'}`
+                `Плати ${task.price} ${task.price_type === 'hourly' ? 'лв/час' : 'лв'}`
               )}
             </button>
           </div>
