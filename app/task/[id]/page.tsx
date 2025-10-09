@@ -55,143 +55,9 @@ export default function TaskDetailPage() {
 
   const loadTask = () => {
     try {
-      // Use tasks from API instead of mock data
-      const sampleTasks: Task[] = false ? [] : [
-        {
-          id: '1',
-          title: 'Почистване на апартамент',
-          description: 'Търся надежден човек за почистване на 3-стаен апартамент. Работата включва почистване на всички стаи, баня и кухня. Имам домашни любимци.',
-          category: 'cleaning',
-          location: 'София, Лозенец',
-          price: 25,
-          priceType: 'hourly',
-          urgent: true,
-          rating: 4.8,
-          reviewCount: 127,
-          postedBy: 'Мария Петрова',
-          postedDate: '2024-01-15T10:30:00Z',
-          views: 45,
-          applications: 8,
-          attachments: [
-            {
-              name: 'apartment1.jpg',
-              size: 1024000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'
-            },
-            {
-              name: 'apartment2.jpg',
-              size: 980000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'
-            }
-          ]
-        },
-        {
-          id: '2',
-          title: 'Ремонт на баня',
-          description: 'Нужен е опитен майстор за пълна реконструкция на баня. Включва замяна на плочки, санитария и инсталации.',
-          category: 'repair',
-          location: 'Пловдив, Център',
-          price: 1500,
-          priceType: 'fixed',
-          urgent: false,
-          rating: 4.9,
-          reviewCount: 89,
-          postedBy: 'Иван Димитров',
-          postedDate: '2024-01-14T14:20:00Z',
-          views: 32,
-          applications: 5,
-          attachments: [
-            {
-              name: 'bathroom1.jpg',
-              size: 1200000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&h=600&fit=crop'
-            }
-          ]
-        },
-        {
-          id: '3',
-          title: 'Разходка с кучето ми',
-          description: 'Търся човек за ежедневна разходка с моя лабрадор. Кучето е спокойно и послушно. Работата е за 1 час дневно.',
-          category: 'dog-care',
-          location: 'Варна, Морска градина',
-          price: 20,
-          priceType: 'hourly',
-          urgent: false,
-          rating: 4.7,
-          reviewCount: 156,
-          postedBy: 'Елена Стоянова',
-          postedDate: '2024-01-13T09:15:00Z',
-          views: 28,
-          applications: 12,
-          attachments: [
-            {
-              name: 'dog1.jpg',
-              size: 850000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&h=600&fit=crop'
-            },
-            {
-              name: 'dog2.jpg',
-              size: 920000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop'
-            }
-          ]
-        },
-        {
-          id: '4',
-          title: 'Уроци по математика',
-          description: 'Търся преподавател по математика за ученик в 8 клас. Нужна е помощ с алгебра и геометрия. Уроците ще са 2 пъти седмично.',
-          category: 'tutoring',
-          location: 'София, Младост',
-          price: 30,
-          priceType: 'hourly',
-          urgent: false,
-          rating: 4.6,
-          reviewCount: 78,
-          postedBy: 'Стефан Георгиев',
-          postedDate: '2024-01-12T16:45:00Z',
-          views: 35,
-          applications: 6,
-          attachments: [
-            {
-              name: 'math1.jpg',
-              size: 750000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=600&fit=crop'
-            }
-          ]
-        },
-        {
-          id: '5',
-          title: 'Грижа за възрастен човек',
-          description: 'Търся отговорен човек за грижа за моя 85-годишен баща. Нужна е помощ с ежедневните дейности и придружаване.',
-          category: 'care',
-          location: 'Бургас, Център',
-          price: 35,
-          priceType: 'hourly',
-          urgent: true,
-          rating: 4.9,
-          reviewCount: 203,
-          postedBy: 'Анна Димитрова',
-          postedDate: '2024-01-11T11:20:00Z',
-          views: 52,
-          applications: 15,
-          attachments: [
-            {
-              name: 'care1.jpg',
-              size: 680000,
-              type: 'image/jpeg',
-              url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop'
-            }
-          ]
-        }
-      ]
-
-      const foundTask = sampleTasks.find(t => t.id === taskId)
+      // Load tasks from localStorage
+      const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+      const foundTask = savedTasks.find((t: Task) => t.id === taskId)
       
       if (foundTask) {
         setTask(foundTask)
@@ -427,8 +293,8 @@ export default function TaskDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Image Gallery */}
-            {task.attachments && task.attachments.length > 0 && (
+            {/* Image Gallery - TODO: Add attachments support to Task interface */}
+            {/* {task.attachments && task.attachments.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <ImageGallery 
                   images={task.attachments.map(attachment => ({
@@ -439,7 +305,7 @@ export default function TaskDetailPage() {
                   }))} 
                 />
               </div>
-            )}
+            )} */}
 
             {/* Task Header */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">

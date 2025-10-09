@@ -72,17 +72,13 @@ export default function PaymentPage() {
   }
 
   const loadTask = () => {
-    // Симулация на зареждане на задача
-    const sampleTask: Task = {
-      id: taskId,
-      title: 'Помощ при преместване',
-      price: '45',
-      priceType: 'fixed',
-      user: {
-        name: 'Иван Петров'
-      }
+    // Load task from localStorage or API
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+    const foundTask = tasks.find((t: Task) => t.id === taskId.toString())
+    
+    if (foundTask) {
+      setTask(foundTask)
     }
-    setTask(sampleTask)
     setIsLoading(false)
   }
 
@@ -232,7 +228,7 @@ export default function PaymentPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Изпълнител:</span>
-                  <span className="font-medium">{task.user.name}</span>
+                  <span className="font-medium">{task.profiles?.full_name || 'Анонимен'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Сума:</span>

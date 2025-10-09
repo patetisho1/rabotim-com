@@ -76,7 +76,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
 
     // Зареждане на реални данни за потребителя
     const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const taskUser = users.find((user: any) => user.id === task.userId)
+    const taskUser = users.find((user: any) => user.id === task.posted_by)
     if (taskUser) {
       setUserData({
         name: taskUser.name || 'Потребител',
@@ -85,7 +85,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
         verified: taskUser.verified || false
       })
     }
-  }, [task.id, task.userId])
+  }, [task.id, task.posted_by])
 
   const handleFavoriteToggle = () => {
     const newFavoriteState = !isFavorite
@@ -309,7 +309,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
             <span>{formatDate(task.created_at)}</span>
           </div>
           <button
-            onClick={() => router.push(`/user/${task.userId || 1}`)}
+            onClick={() => router.push(`/user/${task.posted_by || 1}`)}
             className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors"
           >
             <User size={16} className="flex-shrink-0" />
