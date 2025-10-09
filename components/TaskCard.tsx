@@ -20,32 +20,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Attachment {
-  name: string
-  size: number
-  type: string
-  url: string
-}
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  rating: number
-  reviewCount: number
-  postedBy: string
-  postedDate: string
-  views: number
-  applications: number
-  attachments?: Attachment[]
-  userId?: number
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface TaskCardProps {
   task: Task
@@ -310,7 +285,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
           {/* Price - Mobile optimized */}
           <div className="text-right ml-3 flex-shrink-0">
             <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {formatPrice(task.price, task.priceType)}
+              {formatPrice(task.price, task.price_type)}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               {task.applications} оферти
@@ -331,14 +306,14 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
           </div>
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
             <Calendar size={16} className="flex-shrink-0" />
-            <span>{formatDate(task.postedDate)}</span>
+            <span>{formatDate(task.created_at)}</span>
           </div>
           <button
             onClick={() => router.push(`/user/${task.userId || 1}`)}
             className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors"
           >
             <User size={16} className="flex-shrink-0" />
-            <span className="truncate">{task.postedBy}</span>
+            <span className="truncate">{task.profiles?.full_name || 'Анонимен'}</span>
           </button>
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
             <Eye size={16} className="flex-shrink-0" />
@@ -356,7 +331,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
               </span>
             </div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({task.reviewCount} отзива)
+              ({task.review_count} отзива)
             </span>
           </div>
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">

@@ -2,31 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import TaskCard from '@/components/TaskCard'
-
-interface Attachment {
-  name: string
-  size: number
-  type: string
-  url: string
-}
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  rating: number
-  reviewCount: number
-  postedBy: string
-  postedDate: string
-  views: number
-  applications: number
-  attachments?: Attachment[]
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface TaskGridProps {
   tasks?: Task[]
@@ -47,8 +23,8 @@ export default function TaskGrid({ tasks: propTasks }: TaskGridProps = {}) {
     try {
       const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
       
-      // If no tasks in localStorage, use sample data
-      if (savedTasks.length === 0) {
+      // Use tasks from API or props instead of sample data
+      if (savedTasks.length === 0 && false) {
         const sampleTasks: Task[] = [
           {
             id: '1',
