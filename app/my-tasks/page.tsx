@@ -89,7 +89,7 @@ export default function MyTasksPage() {
     setFilteredTasks(filtered)
   }
 
-  const handleDeleteTask = (taskId: number) => {
+  const handleDeleteTask = (taskId: string) => {
     if (window.confirm('Сигурни ли сте, че искате да изтриете тази задача?')) {
       const updatedTasks = tasks.filter(task => task.id !== taskId)
       setTasks(updatedTasks)
@@ -103,7 +103,7 @@ export default function MyTasksPage() {
     }
   }
 
-  const handleEditTask = (taskId: number) => {
+  const handleEditTask = (taskId: string) => {
     // За сега просто показваме съобщение
     toast('Редактирането на задачи ще бъде добавено скоро', {
       icon: 'ℹ️',
