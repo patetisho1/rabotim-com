@@ -47,3 +47,4 @@ Write-Host "3. Look at the footer - you should see 'Велико Търново'
 Write-Host "4. If happy, run: .\create-pr.ps1 to push to production" -ForegroundColor White
 Write-Host ""
 
+
