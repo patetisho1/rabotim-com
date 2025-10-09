@@ -111,7 +111,8 @@ export default function MyTasksPage() {
     })
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Няма срок'
     const date = new Date(dateString)
     return date.toLocaleDateString('bg-BG')
   }
