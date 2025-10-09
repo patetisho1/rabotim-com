@@ -73,7 +73,7 @@ const sortOptions = [
 // Реални обяви за задачи
 const mockTasks: Task[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Почистване на апартамент',
     description: 'Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса, нужна е генерална почистка.',
     category: 'Почистване',
@@ -85,18 +85,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 8,
     views: 45,
+    rating: 4.8,
+    review_count: 12,
+    posted_by_email: 'maria@example.com',
     created_at: '2024-01-20',
+    updated_at: '2024-01-20',
     posted_by: '1',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    user: {
-      name: 'Мария Петрова',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '1',
+      full_name: 'Мария Петрова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 2,
+    id: '2',
     title: 'Ремонт на баня',
     description: 'Нужен е майстор за ремонт на баня. Замяна на плочки, ремонт на душ кабина и монтаж на ново санитари.',
     category: 'Ремонт',
@@ -108,18 +112,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 12,
     views: 67,
+    rating: 4.9,
+    review_count: 8,
+    posted_by_email: 'ivan@example.com',
     created_at: '2024-01-19',
+    updated_at: '2024-01-19',
     posted_by: '2',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop',
-    user: {
-      name: 'Иван Димитров',
-      rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '2',
+      full_name: 'Иван Димитров',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 3,
+    id: '3',
     title: 'Разходка с кучето',
     description: 'Търся някой да разходи кучето ми два пъти дневно. Кучето е спокойно и послушно, нужни са 30 мин разходка.',
     category: 'Доставка',
@@ -131,18 +139,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 5,
     views: 23,
+    rating: 4.7,
+    review_count: 15,
+    posted_by_email: 'elena@example.com',
     created_at: '2024-01-18',
+    updated_at: '2024-01-18',
     posted_by: '3',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=300&fit=crop',
-    user: {
-      name: 'Елена Стоянова',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '3',
+      full_name: 'Елена Стоянова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 4,
+    id: '4',
     title: 'Уроци по математика',
     description: 'Нужен е учител по математика за ученик в 8 клас. Уроците да са 2 пъти седмично по 90 минути.',
     category: 'Обучение',
@@ -154,18 +166,22 @@ const mockTasks: Task[] = [
     remote: true,
     applications: 15,
     views: 89,
+    rating: 4.6,
+    review_count: 6,
+    posted_by_email: 'stefan@example.com',
     created_at: '2024-01-17',
+    updated_at: '2024-01-17',
     posted_by: '4',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
-    user: {
-      name: 'Стефан Георгиев',
-      rating: 4.6,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '4',
+      full_name: 'Стефан Георгиев',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 5,
+    id: '5',
     title: 'Градинарски услуги',
     description: 'Нужен е градинар за подреждане на градината. Плевене, подрязване на живи плетове и посаждане на цветя.',
     category: 'Градинарство',
@@ -177,18 +193,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 7,
     views: 34,
+    rating: 4.8,
+    review_count: 9,
+    posted_by_email: 'petar@example.com',
     created_at: '2024-01-16',
+    updated_at: '2024-01-16',
     posted_by: '5',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-    user: {
-      name: 'Петър Иванов',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '5',
+      full_name: 'Петър Иванов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 6,
+    id: '6',
     title: 'Сглобяване на мебели',
     description: 'Нужен е майстор за сглобяване на кухненски шкафове и маса. Мебелите са от IKEA.',
     category: 'Ремонт',
@@ -200,18 +220,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 3,
     views: 18,
+    rating: 4.9,
+    review_count: 4,
+    posted_by_email: 'anna@example.com',
     created_at: '2024-01-15',
+    updated_at: '2024-01-15',
     posted_by: '6',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    user: {
-      name: 'Анна Георгиева',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '6',
+      full_name: 'Анна Георгиева',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 7,
+    id: '7',
     title: 'Доставка на храни',
     description: 'Нужна е доставка на храни от магазин до дома. Списъкът ще бъде предоставен предварително.',
     category: 'Доставка',
@@ -223,18 +247,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 4,
     views: 22,
+    rating: 4.7,
+    review_count: 11,
+    posted_by_email: 'nikolai@example.com',
     created_at: '2024-01-14',
+    updated_at: '2024-01-14',
     posted_by: '7',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop',
-    user: {
-      name: 'Николай Петров',
-      rating: 4.5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '7',
+      full_name: 'Николай Петров',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 8,
+    id: '8',
     title: 'Почистване след ремонт',
     description: 'Нужна е генерална почистка след ремонт на апартамент. Включва почистване на прах и отпадъци.',
     category: 'Почистване',
@@ -246,18 +274,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 6,
     views: 31,
+    rating: 4.8,
+    review_count: 7,
+    posted_by_email: 'georgi@example.com',
     created_at: '2024-01-13',
+    updated_at: '2024-01-13',
     posted_by: '8',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    user: {
-      name: 'Георги Стоянов',
-      rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '8',
+      full_name: 'Георги Стоянов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 9,
+    id: '9',
     title: 'Уроци по английски',
     description: 'Търся учител по английски за начинаещи. Уроците да са онлайн, 2 пъти седмично по 60 минути.',
     category: 'Обучение',
@@ -269,18 +301,22 @@ const mockTasks: Task[] = [
     remote: true,
     applications: 9,
     views: 56,
+    rating: 4.9,
+    review_count: 3,
+    posted_by_email: 'maria2@example.com',
     created_at: '2024-01-12',
+    updated_at: '2024-01-12',
     posted_by: '9',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
-    user: {
-      name: 'Мария Иванова',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '9',
+      full_name: 'Мария Иванова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 10,
+    id: '10',
     title: 'Поддръжка на градина',
     description: 'Нужна е редовна поддръжка на градината - плевене, поливане, подрязване на растения.',
     category: 'Градинарство',
@@ -292,18 +328,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 5,
     views: 28,
+    rating: 4.7,
+    review_count: 13,
+    posted_by_email: 'ivan2@example.com',
     created_at: '2024-01-11',
+    updated_at: '2024-01-11',
     posted_by: '10',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-    user: {
-      name: 'Иван Петров',
-      rating: 4.6,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '10',
+      full_name: 'Иван Петров',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 11,
+    id: '11',
     title: 'Ремонт на електрически уреди',
     description: 'Нужен е електротехник за ремонт на пералня и хладилник. Проблемът е с електрическата част.',
     category: 'Ремонт',
@@ -315,18 +355,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 7,
     views: 35,
+    rating: 4.8,
+    review_count: 5,
+    posted_by_email: 'petar2@example.com',
     created_at: '2024-01-10',
+    updated_at: '2024-01-10',
     posted_by: '11',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    user: {
-      name: 'Петър Георгиев',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '11',
+      full_name: 'Петър Георгиев',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 12,
+    id: '12',
     title: 'Почистване на офис',
     description: 'Нужна е почистка на офис пространство 200 кв/м. Включва почистване на работни места и общи зони.',
     category: 'Почистване',
@@ -338,18 +382,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 8,
     views: 42,
+    rating: 4.9,
+    review_count: 8,
+    posted_by_email: 'anna2@example.com',
     created_at: '2024-01-09',
+    updated_at: '2024-01-09',
     posted_by: '12',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    user: {
-      name: 'Анна Петрова',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '12',
+      full_name: 'Анна Петрова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 13,
+    id: '13',
     title: 'Доставка на мебели',
     description: 'Нужна е доставка на диван и маса от магазин до дома. Разстояние около 5 км.',
     category: 'Доставка',
@@ -361,18 +409,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 4,
     views: 19,
+    rating: 4.6,
+    review_count: 12,
+    posted_by_email: 'nikolai2@example.com',
     created_at: '2024-01-08',
+    updated_at: '2024-01-08',
     posted_by: '13',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop',
-    user: {
-      name: 'Николай Иванов',
-      rating: 4.5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '13',
+      full_name: 'Николай Иванов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 14,
+    id: '14',
     title: 'Уроци по музика',
     description: 'Търся учител по пиано за дете 8 години. Уроците да са в дома ни, веднъж седмично по 45 минути.',
     category: 'Обучение',
@@ -384,18 +436,22 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 6,
     views: 33,
+    rating: 4.7,
+    review_count: 6,
+    posted_by_email: 'elena2@example.com',
     created_at: '2024-01-07',
+    updated_at: '2024-01-07',
     posted_by: '14',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
-    user: {
-      name: 'Елена Петрова',
-      rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '14',
+      full_name: 'Елена Петрова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 15,
+    id: '15',
     title: 'Посаждане на дървета',
     description: 'Нужен е градинар за посаждане на 10 плодни дървета. Включва копаене на ями и посаждане.',
     category: 'Градинарство',
@@ -407,14 +463,18 @@ const mockTasks: Task[] = [
     remote: false,
     applications: 3,
     views: 16,
+    rating: 4.8,
+    review_count: 9,
+    posted_by_email: 'georgi2@example.com',
     created_at: '2024-01-06',
+    updated_at: '2024-01-06',
     posted_by: '15',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop',
-    user: {
-      name: 'Георги Иванов',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '15',
+      full_name: 'Георги Иванов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   }
 ]
@@ -429,7 +489,7 @@ export default function TasksPage() {
   const [selectedPriceRange, setSelectedPriceRange] = useState('')
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
-  const [favorites, setFavorites] = useState<number[]>([])
+  const [favorites, setFavorites] = useState<string[]>([])
 
   // Функция за получаване на икона според категорията
   const getCategoryIcon = (category: string) => {
@@ -557,7 +617,7 @@ export default function TasksPage() {
     setFilteredTasks(filtered)
   }
 
-  const handleFavoriteToggle = (taskId: number) => {
+  const handleFavoriteToggle = (taskId: string) => {
     const newFavorites = favorites.includes(taskId)
       ? favorites.filter(id => id !== taskId)
       : [...favorites, taskId]
@@ -754,7 +814,7 @@ export default function TasksPage() {
                     <div className="block lg:hidden">
                       <div className="h-48 relative">
                         <img 
-                          src={task.image} 
+                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
                           alt={task.title} 
                           className="w-full h-full object-cover"
                         />
@@ -812,13 +872,13 @@ export default function TasksPage() {
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <img 
-                              src={task.user.avatar} 
-                              alt={task.user.name} 
+                              src={task.profiles?.avatar_url} 
+                              alt={task.profiles?.full_name} 
                               className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                             />
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.user.rating}</span>
+                              <span className="font-medium">{"4.8"}</span>
                             </div>
                           </div>
 
@@ -849,7 +909,7 @@ export default function TasksPage() {
                       {/* Image Section */}
                       <div className="w-48 h-48 flex-shrink-0 relative">
                         <img 
-                          src={task.image} 
+                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
                           alt={task.title} 
                           className="w-full h-full object-cover"
                         />
@@ -911,15 +971,15 @@ export default function TasksPage() {
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <img 
-                                src={task.user.avatar} 
-                                alt={task.user.name} 
+                                src={task.profiles?.avatar_url} 
+                                alt={task.profiles?.full_name} 
                                 className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                               />
-                              <span className="font-medium">{task.user.name}</span>
+                              <span className="font-medium">{task.profiles?.full_name}</span>
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.user.rating}</span>
+                              <span className="font-medium">{"4.8"}</span>
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                               <Eye className="h-4 w-4" />
