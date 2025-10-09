@@ -638,7 +638,8 @@ export default function TasksPage() {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Няма краен срок'
     const date = new Date(dateString)
     const now = new Date()
     const diffTime = date.getTime() - now.getTime()

@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+// Create Supabase client only if env vars are available
+let supabase: any = null
+try {
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+  }
+} catch (error) {
+  console.warn('Supabase client not initialized:', error)
+}
 
 export interface Task {
   id: string
@@ -62,6 +70,16 @@ export function useTasksAPI() {
     try {
       setLoading(true)
       setError(null)
+
+      // If no Supabase client, use localStorage
+      if (!supabase) {
+        if (typeof window !== 'undefined') {
+          const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+          setTasks(localTasks)
+        }
+        setLoading(false)
+        return
+      }
 
       const params = new URLSearchParams()
       if (filters?.category && filters.category !== 'all') {

@@ -1,4 +1,4 @@
-# ПЪЛЕН ГАЙД ЗА НАСТРОЙКА И WORKFLOW - RABOTIM.COM
+# ЛОКАЛЕН ГАЙД ЗА НАСТРОЙКА - RABOTIM.COM
 
 ## 📋 СИСТЕМНИ ИЗИСКВАНИЯ
 ```
@@ -33,7 +33,6 @@
 - **ESLint** - код проверка
 - **Auto Rename Tag** - автоматично преименуване
 - **Bracket Pair Colorizer** - цветни скоби
-- **Live Share** - съвместна работа (опционално)
 
 ## 📁 ПРОЕКТНА СТРУКТУРА
 ```
@@ -76,31 +75,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ## 🚀 НАЧАЛНА НАСТРОЙКА (PowerShell)
 
-### 1. Клониране на проекта:
+### 1. Копиране на проекта:
 ```powershell
-git clone https://github.com/patetisho1/rabotim-com.git
+# Копирай цялата папка rabotim-com на новия компютър
+# След това:
 cd rabotim-com
 ```
 
-### 2. Настройка на branch:
-```powershell
-git checkout staging
-git status
-```
-
-### 3. Инсталиране на dependencies:
+### 2. Инсталиране на dependencies:
 ```powershell
 npm install
 ```
 
-### 4. Създаване на .env.local:
+### 3. Създаване на .env.local:
 ```powershell
 # Създай .env.local файл с твоите Supabase credentials
 echo "NEXT_PUBLIC_SUPABASE_URL=your-url" > .env.local
 echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key" >> .env.local
 ```
 
-### 5. Тестване на настройката:
+### 4. Тестване на настройката:
 ```powershell
 npm run dev
 # Отвори http://localhost:3000
@@ -319,7 +313,7 @@ Get-Content .env.local
 
 ---
 
-**Последна актуализация:** $(Get-Date -Format "yyyy-MM-dd HH:mm")
+**Последна актуализация:** 2025-01-10
 **Версия:** 1.0
 **Автор:** AI Assistant + Tihomir Todorov
 

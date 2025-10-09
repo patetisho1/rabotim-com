@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { Task } from '@/hooks/useTasksAPI'
 
 interface UserProfile {
   id: number
@@ -38,21 +39,6 @@ interface UserProfile {
   badges: string[]
   bio?: string
   location?: string
-}
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  status: 'active' | 'assigned' | 'completed'
-  createdAt: string
-  views: number
-  applications: number
 }
 
 export default function UserProfilePage() {
@@ -108,7 +94,7 @@ export default function UserProfilePage() {
   const loadUserTasks = () => {
     try {
       const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const userTasks = tasks.filter((task: any) => task.postedByEmail === userProfile?.email)
+      const userTasks = tasks.filter((task: any) => task.posted_by_email === userProfile?.email)
       setUserTasks(userTasks)
     } catch (error) {
       console.error('Error loading user tasks:', error)
@@ -411,7 +397,7 @@ export default function UserProfilePage() {
                             </div>
                             <div className="text-right ml-4">
                               <p className="font-semibold text-gray-900 dark:text-gray-100">{task.price} лв</p>
-                              <p className="text-sm text-gray-500">{task.priceType === 'hourly' ? 'на час' : 'общо'}</p>
+                              <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
                               <span className={`inline-block px-2 py-1 text-xs rounded-full mt-2 ${
                                 task.status === 'active' ? 'bg-green-100 text-green-800' :
                                 task.status === 'assigned' ? 'bg-blue-100 text-blue-800' :

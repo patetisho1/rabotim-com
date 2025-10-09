@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo    RABOTIM.COM SETUP GUIDE READER
+echo    RABOTIM.COM LOCAL SETUP GUIDE
 echo ========================================
 echo.
 
@@ -14,8 +14,8 @@ if %errorlevel% neq 0 (
 )
 
 REM Проверка дали файлът съществува
-if not exist "SETUP_GUIDE_COMPLETE.md" (
-    echo ❌ Файлът SETUP_GUIDE_COMPLETE.md не е намерен!
+if not exist "LOCAL_SETUP_GUIDE.md" (
+    echo ❌ Файлът LOCAL_SETUP_GUIDE.md не е намерен!
     echo Уверете се, че сте в правилната директория.
     pause
     exit /b 1
@@ -25,7 +25,7 @@ echo 📖 Стартиране на PowerShell скрипта...
 echo.
 
 REM Изпълнение на PowerShell скрипта
-powershell -ExecutionPolicy Bypass -File "read-guide.ps1"
+powershell -ExecutionPolicy Bypass -File "read-local-guide.ps1"
 
 echo.
 echo Натиснете Enter за да затворите...

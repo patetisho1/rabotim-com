@@ -1,12 +1,12 @@
-# PowerShell скрипт за четене на SETUP_GUIDE_COMPLETE.md
-# Използване: .\read-guide.ps1
+# PowerShell скрипт за четене на LOCAL_SETUP_GUIDE.md
+# Използване: .\read-local-guide.ps1
 
 param(
-    [string]$Path = "SETUP_GUIDE_COMPLETE.md"
+    [string]$Path = "LOCAL_SETUP_GUIDE.md"
 )
 
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "    RABOTIM.COM SETUP GUIDE READER" -ForegroundColor Green
+Write-Host "    RABOTIM.COM LOCAL SETUP GUIDE" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 

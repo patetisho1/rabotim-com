@@ -6,24 +6,7 @@ import { Heart, ArrowLeft, Trash2, Filter, Grid, List } from 'lucide-react'
 import TaskCard from '@/components/TaskCard'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  rating: number
-  reviewCount: number
-  postedBy: string
-  postedDate: string
-  views: number
-  applications: number
-  attachments?: any[]
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 export default function FavoritesPage() {
   const router = useRouter()
@@ -102,10 +85,10 @@ export default function FavoritesPage() {
     // Сортиране
     switch (sortBy) {
       case 'newest':
-        filtered.sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime())
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         break
       case 'oldest':
-        filtered.sort((a, b) => new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime())
+        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
         break
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price)
