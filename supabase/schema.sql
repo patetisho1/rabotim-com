@@ -21,6 +21,10 @@ CREATE TABLE public.users (
   rating decimal(3,2) DEFAULT 0.0,
   total_reviews integer DEFAULT 0,
   verified boolean DEFAULT false,
+  is_task_giver boolean DEFAULT true,
+  is_task_executor boolean DEFAULT false,
+  is_premium boolean DEFAULT false,
+  premium_expiry timestamp with time zone,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );

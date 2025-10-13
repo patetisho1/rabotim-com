@@ -22,14 +22,17 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { Task } from '@/hooks/useTasksAPI'
+import ProfileContactInfo from '@/components/ProfileContactInfo'
 
 interface UserProfile {
   id: number
   name: string
   email: string
+  phone?: string
   rating: number
   avatar: string
   verified: boolean
+  is_premium?: boolean
   joinDate: string
   completedTasks: number
   totalEarnings: number
@@ -67,9 +70,11 @@ export default function UserProfilePage() {
           id: foundUser.id,
           name: foundUser.name,
           email: foundUser.email,
+          phone: foundUser.phone || '+359888123456',
           rating: foundUser.rating || 4.5,
           avatar: foundUser.avatar || '/default-avatar.png',
           verified: foundUser.verified || false,
+          is_premium: foundUser.is_premium || false,
           joinDate: foundUser.joinDate || '2023-01-01',
           completedTasks: foundUser.completedTasks || 0,
           totalEarnings: foundUser.totalEarnings || 0,
@@ -195,12 +200,6 @@ export default function UserProfilePage() {
                   )}
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile.name}</h2>
-                {userProfile.location && (
-                  <p className="text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1 mt-1">
-                    <MapPin size={14} />
-                    {userProfile.location}
-                  </p>
-                )}
                 <div className="flex items-center justify-center gap-1 mt-2">
                   <Star size={16} className="text-yellow-500 fill-current" />
                   <span className="font-semibold text-gray-900 dark:text-gray-100">{userProfile.rating}</span>
@@ -266,6 +265,28 @@ export default function UserProfilePage() {
                   </div>
                 </div>
               )}
+
+              {/* Contact Information */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Контакти</h3>
+                <ProfileContactInfo
+                  profile={{
+                    id: userProfile.id.toString(),
+                    full_name: userProfile.name,
+                    email: userProfile.email,
+                    phone: userProfile.phone,
+                    avatar_url: userProfile.avatar,
+                    location: userProfile.location,
+                    rating: userProfile.rating,
+                    total_reviews: userProfile.completedTasks,
+                    verified: userProfile.verified,
+                    is_premium: userProfile.is_premium
+                  }}
+                  currentUserId={authUser?.id || null}
+                  hasAppliedToTask={false}
+                  showVisibilityHint={true}
+                />
+              </div>
 
               {/* Action Buttons */}
               <div className="space-y-3">
