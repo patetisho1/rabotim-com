@@ -234,115 +234,75 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
       onTouchEnd={handleTouchEnd}
       onClick={() => router.push(`/task/${task.id}`)}
     >
-      {/* Category Image */}
-      <div className="relative h-48 overflow-hidden">
+      {/* Mobile-optimized Image - Compact height for 2-column layout */}
+      <div className="relative h-32 sm:h-48 overflow-hidden">
         <img 
           src={getCategoryImage(task.category)} 
           alt={task.category}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        {/* Category overlay */}
-        <div className="absolute top-3 left-3">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-600 text-white shadow-lg">
+        {/* Category overlay - smaller on mobile */}
+        <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+          <span className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-600 text-white shadow-lg">
             {task.category}
           </span>
         </div>
-        {/* Urgent badge overlay */}
+        {/* Urgent badge overlay - smaller on mobile */}
         {task.urgent && (
-          <div className="absolute top-3 right-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-600 text-white shadow-lg">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+            <span className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-red-600 text-white shadow-lg">
               Спешно
             </span>
           </div>
         )}
+        {/* Heart icon overlay for mobile */}
+        <div className="absolute bottom-2 right-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleFavoriteToggle()
+            }}
+            className={`p-2 rounded-full shadow-lg transition-all duration-200 ${
+              isFavorite
+                ? 'bg-red-500 text-white'
+                : 'bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white'
+            }`}
+          >
+            {isFavorite ? <Heart size={16} className="fill-current" /> : <HeartOff size={16} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile-optimized card layout */}
-      <div className="p-4 sm:p-6">
-        {/* Header with title and badges */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
-              {task.title}
-            </h3>
-            
-            {/* Badges row */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {task.urgent && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                  Спешно
-                </span>
-              )}
-              {isBoosted && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
-                  <TrendingUp size={12} className="mr-1" />
-                  Boost
-                </span>
-              )}
-            </div>
+      {/* Mobile-optimized card layout - Compact for 2-column */}
+      <div className="p-3 sm:p-4">
+        {/* Title - Mobile compact */}
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 leading-tight">
+          {task.title}
+        </h3>
+        
+        {/* Price and location row - Mobile optimized */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
+            {formatPrice(task.price, task.price_type)}
           </div>
-          
-          {/* Price - Mobile optimized */}
-          <div className="text-right ml-3 flex-shrink-0">
-            <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {formatPrice(task.price, task.price_type)}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {task.applications} оферти
-            </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <MapPin size={12} />
+            <span className="truncate max-w-[80px]">{task.location}</span>
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-4 line-clamp-3">
-          {task.description}
-        </p>
-
-        {/* Task details grid - Mobile optimized */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <MapPin size={16} className="flex-shrink-0" />
-            <span className="truncate">{task.location}</span>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <Calendar size={16} className="flex-shrink-0" />
-            <span>{formatDate(task.created_at)}</span>
-          </div>
-          <button
-            onClick={() => router.push(`/user/${task.posted_by || 1}`)}
-            className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors"
-          >
-            <User size={16} className="flex-shrink-0" />
-            <span className="truncate">{task.profiles?.full_name || 'Анонимен'}</span>
-          </button>
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <Eye size={16} className="flex-shrink-0" />
-            <span>{task.views}</span>
+        {/* Bottom row - Date and rating - Mobile compact */}
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <span>{formatDate(task.created_at)}</span>
+          <div className="flex items-center gap-1">
+            <Star size={12} className="text-yellow-400 fill-current" />
+            <span>{task.rating}</span>
           </div>
         </div>
 
-        {/* Rating and category */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Star size={16} className="text-yellow-400 fill-current" />
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {task.rating}
-              </span>
-            </div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({task.review_count} отзива)
-            </span>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <Tag size={16} />
-            <span>{task.category}</span>
-          </div>
-        </div>
-
-        {/* Action buttons - Mobile optimized with larger touch targets */}
+        {/* Action buttons - Hidden on mobile, shown on desktop */}
         {showActions && (
-          <div className="flex gap-2 sm:gap-3">
+          <div className="hidden sm:flex gap-2 sm:gap-3 mt-3">
             <button
               onClick={(e) => {
                 e.stopPropagation()
@@ -355,7 +315,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
               }`}
             >
               {isFavorite ? <Heart size={18} className="fill-current" /> : <HeartOff size={18} />}
-              <span className="hidden sm:inline">Любима</span>
+              <span>Любима</span>
             </button>
             
             <button
@@ -365,8 +325,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
               }}
               className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 min-h-[48px] touch-manipulation"
             >
-              <span className="hidden sm:inline">Подай оферта</span>
-              <span className="sm:hidden">Оферта</span>
+              Подай оферта
             </button>
             
             <button
