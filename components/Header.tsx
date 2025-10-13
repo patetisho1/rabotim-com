@@ -174,12 +174,20 @@ export default function Header() {
               
               {/* Моите задачи линк - само за влезли потребители */}
               {authUser && (
-                <button
-                  onClick={() => router.push('/my-tasks')}
-                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                >
-                  Моите задачи
-                </button>
+                <>
+                  <button
+                    onClick={() => router.push('/my-tasks')}
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  >
+                    Моите задачи
+                  </button>
+                  <button
+                    onClick={() => router.push('/my-applications')}
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  >
+                    Моите кандидатури
+                  </button>
+                </>
               )}
 
               {/* Как работи линк */}
@@ -312,16 +320,28 @@ export default function Header() {
               </button>
               
               {authUser && (
-                <button
-                  onClick={() => {
-                    router.push('/my-tasks')
-                    setIsMobileMenuOpen(false)
-                  }}
-                  className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
-                >
-                  <span className="font-medium">Моите задачи</span>
-                  <ArrowRight size={16} />
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      router.push('/my-tasks')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
+                  >
+                    <span className="font-medium">Моите задачи</span>
+                    <ArrowRight size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push('/my-applications')
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
+                  >
+                    <span className="font-medium">Моите кандидатури</span>
+                    <ArrowRight size={16} />
+                  </button>
+                </>
               )}
               
               <button
