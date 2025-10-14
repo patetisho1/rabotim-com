@@ -80,7 +80,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
         name: task.profiles.full_name || 'Потребител',
         rating: task.rating || 4.5,
         avatar: task.profiles.avatar_url || '/default-avatar.png',
-        verified: task.profiles.verified || false
+        verified: task.profiles.is_verified || false
       })
     }
   }, [task.id, task.profiles, task.rating])
