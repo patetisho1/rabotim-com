@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, 
   DollarSign,
-  CheckCircle
+  CheckCircle,
+  Upload,
+  X,
+  Image as ImageIcon
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -41,15 +44,58 @@ export default function PostTaskPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    location: '',
-    price: '',
+  title: '',
+  description: '',
+  category: '',
+  location: '',
+  price: '',
     priceType: 'fixed' as 'fixed' | 'hourly',
-    urgent: false,
+  urgent: false,
     deadline: ''
   })
+  
+  const [images, setImages] = useState<File[]>([])
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+
+  // File upload handlers
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length > 0) {
+      const validFiles = files.filter(file => {
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+          toast.error('Файлът е твърде голям. Максималният размер е 5MB.')
+          return false
+        }
+        if (!file.type.startsWith('image/')) {
+          toast.error('Моля, качете само изображения.')
+          return false
+        }
+        return true
+      })
+      
+      if (images.length + validFiles.length > 5) {
+        toast.error('Можете да качите максимум 5 снимки.')
+        return
+      }
+      
+      setImages(prev => [...prev, ...validFiles])
+      
+      // Create preview URLs
+      validFiles.forEach(file => {
+        const url = URL.createObjectURL(file)
+        setImageUrls(prev => [...prev, url])
+      })
+    }
+  }
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
+    setImageUrls(prev => {
+      const newUrls = prev.filter((_, i) => i !== index)
+      URL.revokeObjectURL(prev[index]) // Clean up memory
+      return newUrls
+    })
+  }
 
   useEffect(() => {
     if (authLoading) return
@@ -218,6 +264,58 @@ export default function PostTaskPage() {
             </p>
           </div>
 
+          {/* Снимки */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Снимки (по избор)
+            </label>
+            <div className="space-y-4">
+              {/* Upload Area */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  id="images"
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <label htmlFor="images" className="cursor-pointer">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    Кликнете за да качите снимки или ги плъзнете тук
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Максимум 5 снимки, до 5MB всяка
+                  </p>
+                </label>
+              </div>
+
+              {/* Image Previews */}
+              {imageUrls.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {imageUrls.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Категория и Локация */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -363,4 +461,4 @@ export default function PostTaskPage() {
       </div>
     </div>
   )
-}
+} 
