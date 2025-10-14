@@ -315,6 +315,27 @@ export default function MyTasksPage() {
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{task.description}</p>
                     
+                    {/* Images */}
+                    {task.images && task.images.length > 0 && (
+                      <div className="mb-3">
+                        <div className="flex gap-2 overflow-x-auto">
+                          {task.images.slice(0, 3).map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Снимка ${index + 1}`}
+                              className="w-16 h-16 object-cover rounded-lg border border-gray-200 flex-shrink-0"
+                            />
+                          ))}
+                          {task.images.length > 3 && (
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
+                              +{task.images.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />

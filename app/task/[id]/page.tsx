@@ -25,6 +25,7 @@ interface Task {
   status: string
   applications_count: number
   views_count: number
+  images?: string[]
   profiles?: {
     id: string
     full_name: string
@@ -318,6 +319,26 @@ export default function TaskDetailPage() {
                   {getCategoryLabel(task.category)}
                 </span>
               </div>
+
+              {/* Images */}
+              {task.images && task.images.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                    Снимки
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {task.images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={image}
+                          alt={`Снимка ${index + 1}`}
+                          className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600 group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Description */}
               <div>
