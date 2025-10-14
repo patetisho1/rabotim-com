@@ -159,7 +159,11 @@ export default function PostTaskPage() {
       if (images.length > 0) {
         for (let i = 0; i < images.length; i++) {
           const file = images[i]
-          const fileName = `${user.id}/${Date.now()}-${i}-${file.name}`
+          // Clean filename - remove special characters and use only ASCII
+          const cleanFileName = file.name
+            .replace(/[^a-zA-Z0-9.-]/g, '_') // Replace non-ASCII chars with underscore
+            .toLowerCase()
+          const fileName = `${user.id}/${Date.now()}-${i}-${cleanFileName}`
           
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('task-images')
