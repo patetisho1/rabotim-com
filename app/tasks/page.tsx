@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTasksAPI, Task } from '@/hooks/useTasksAPI'
+import TaskCard from '@/components/TaskCard'
 import { 
   Search, 
   MapPin, 
@@ -808,206 +809,14 @@ export default function TasksPage() {
                 <p className="text-gray-600">Опитайте да промените филтрите или търсенето</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                 {filteredTasks.map(task => (
-                  <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300">
-                    {/* Mobile Layout - Compact for 2-column grid */}
-                    <div className="block lg:hidden">
-                      <div className="h-32 sm:h-40 relative">
-                        <img 
-                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
-                          alt={task.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 left-2">
-                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                            {task.category}
-                          </span>
-                        </div>
-                        {task.urgent && (
-                          <div className="absolute top-2 right-2">
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Спешно
-                            </span>
-                          </div>
-                        )}
-                        {task.remote && (
-                          <div className="absolute bottom-2 left-2">
-                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium text-[10px]">
-                              Дистанционно
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="p-3">
-                        <div className="mb-3">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">{task.title}</h3>
-                          <p className="text-gray-600 text-xs mb-2 leading-relaxed line-clamp-2">{task.description}</p>
-                          
-                          <div className="space-y-1 text-xs text-gray-500 mb-2">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3 text-gray-400" />
-                              <span className="truncate">{task.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3 text-gray-400" />
-                              <span className="truncate">{formatDate(task.deadline)}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-2">
-                          <div className="text-lg font-bold text-blue-600">
-                            {formatPrice(task.price, task.price_type)}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {task.applications} оферти
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                          <div className="flex items-center gap-1">
-                            <img 
-                              src={task.profiles?.avatar_url} 
-                              alt={task.profiles?.full_name} 
-                              className="w-6 h-6 rounded-full object-cover border border-gray-200"
-                            />
-                            <div className="flex items-center gap-0.5 text-xs text-gray-600">
-                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                              <span className="font-medium">{"4.8"}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleFavoriteToggle(task.id)}
-                              className={`p-1.5 rounded-lg transition-colors ${
-                                favorites.includes(task.id)
-                                  ? 'text-red-500 bg-red-50'
-                                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                              }`}
-                            >
-                              <Heart className={`h-4 w-4 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
-                            </button>
-                            <button 
-                              onClick={() => router.push(`/submit-offer/${task.id}`)}
-                              className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs"
-                            >
-                              Оферта
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Desktop Layout */}
-                    <div className="hidden lg:flex">
-                      {/* Image Section */}
-                      <div className="w-48 h-48 flex-shrink-0 relative">
-                        <img 
-                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" 
-                          alt={task.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                            {task.category}
-                          </span>
-                        </div>
-                        {task.urgent && (
-                          <div className="absolute top-3 right-3">
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Спешно
-                            </span>
-                          </div>
-                        )}
-                        {task.remote && (
-                          <div className="absolute bottom-3 left-3">
-                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Дистанционно
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Content Section */}
-                      <div className="flex-1 p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{task.title}</h3>
-                            <p className="text-gray-600 text-sm mb-4 leading-relaxed">{task.description}</p>
-                            
-                            <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
-                              <div className="flex items-center gap-2">
-                                {React.createElement(getCategoryIcon(task.category), { className: "h-4 w-4 text-blue-500" })}
-                                <span className="font-medium">{task.category}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-gray-400" />
-                                <span>{task.location}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-gray-400" />
-                                <span>{formatDate(task.deadline)}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="text-right ml-4">
-                            <div className="text-3xl font-bold text-blue-600 mb-1">
-                              {formatPrice(task.price, task.price_type)}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {task.applications} оферти
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <img 
-                                src={task.profiles?.avatar_url} 
-                                alt={task.profiles?.full_name} 
-                                className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
-                              />
-                              <span className="font-medium">{task.profiles?.full_name}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{"4.8"}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
-                              <Eye className="h-4 w-4" />
-                              <span>{task.views} прегледа</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => handleFavoriteToggle(task.id)}
-                              className={`p-2 rounded-lg transition-colors ${
-                                favorites.includes(task.id)
-                                  ? 'text-red-500 bg-red-50'
-                                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                              }`}
-                            >
-                              <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
-                            </button>
-                            <button 
-                              onClick={() => router.push(`/submit-offer/${task.id}`)}
-                              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                            >
-                              Подай оферта
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-                }
+                  <TaskCard 
+                    key={task.id} 
+                    task={task}
+                    onFavoriteToggle={handleFavoriteToggle}
+                  />
+                ))}
               </div>
             )}
           </div>
