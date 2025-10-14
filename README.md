@@ -90,6 +90,19 @@ yarn dev
 http://localhost:3000
 ```
 
+### Тестове и качество
+- Unit тестове: `npm run test`
+- E2E (Playwright): `npm run test:e2e` (изисква билд: `npm run build`)
+- Lint: `npm run lint`
+- Форматиране: `npm run format`
+
+### CI/CD
+- GitHub Actions workflow: `.github/workflows/ci.yml` (build, lint, unit, e2e)
+
+### Docker
+- Dev: `docker compose -f compose.dev.yml up --build`
+- Prod image: `docker build -t rabotim-com .`
+
 ## 📁 Структура на проекта
 
 ```

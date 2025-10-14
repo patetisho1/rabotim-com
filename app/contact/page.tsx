@@ -332,7 +332,7 @@ export default function ContactPage() {
                   Rabotim.com
                 </h3>
                 <p className="text-gray-600">
-                  ул. "Граф Игнатиев" 15<br />
+                  ул. &quot;Граф Игнатиев&quot; 15<br />
                   София 1000, България
                 </p>
               </div>

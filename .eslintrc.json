@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/eslintrc",
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "parserOptions": {
+    "project": false
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/jsx-key": "warn"
+  }
+}
