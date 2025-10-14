@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       .from('tasks')
       .select(`
         *,
-        profiles:users!user_id (
+        profiles:users!tasks_user_id_fkey (
           id,
           full_name,
           avatar_url,
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       })
       .select(`
         *,
-        profiles:users!user_id (
+        profiles:users!tasks_user_id_fkey (
           id,
           full_name,
           avatar_url,
