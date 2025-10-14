@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
-import { Task } from '@/hooks/useTasksAPI'
+import { Task, useTasksAPI } from '@/hooks/useTasksAPI'
 
 const statusColors = {
   active: 'bg-green-100 text-green-800',
@@ -38,6 +38,7 @@ const statusLabels = {
 export default function MyTasksPage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading } = useAuth()
+  const { tasks: allTasks, loading: tasksLoading, getUserTasks } = useTasksAPI()
   const [tasks, setTasks] = useState<Task[]>([])
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [selectedStatus, setSelectedStatus] = useState('')
@@ -45,7 +46,7 @@ export default function MyTasksPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (authLoading) return
+    if (authLoading || tasksLoading) return
     
     if (!authUser) {
       toast.error('Трябва да сте влезли в акаунта си')
@@ -53,18 +54,23 @@ export default function MyTasksPage() {
       return
     }
     
-    // Зареждане на задачите на потребителя
-    const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    console.log('Всички задачи в localStorage:', allTasks)
-    console.log('Текущ потребител email:', authUser.email)
+    // Зареждане на задачите на потребителя от Supabase
+    const loadUserTasks = async () => {
+      try {
+        const userTasks = await getUserTasks(authUser.id)
+        console.log('Задачи на потребителя от Supabase:', userTasks)
+        setTasks(userTasks)
+        setFilteredTasks(userTasks)
+      } catch (error) {
+        console.error('Грешка при зареждане на задачи:', error)
+        toast.error('Грешка при зареждане на задачи')
+      } finally {
+        setLoading(false)
+      }
+    }
     
-    const userTasks = allTasks.filter((task: Task) => task.posted_by_email === authUser.email)
-    console.log('Задачи на потребителя:', userTasks)
-    
-    setTasks(userTasks)
-    setFilteredTasks(userTasks)
-    setLoading(false)
-  }, [authUser, authLoading, router])
+    loadUserTasks()
+  }, [authUser, authLoading, tasksLoading, getUserTasks, router])
 
   useEffect(() => {
     filterTasks()
