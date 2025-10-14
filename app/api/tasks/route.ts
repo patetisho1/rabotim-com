@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     const priceMin = searchParams.get('priceMin')
     const priceMax = searchParams.get('priceMax')
     const status = searchParams.get('status') || 'active'
+    const userId = searchParams.get('userId')
 
     let query = supabase
       .from('tasks')
@@ -52,6 +53,11 @@ export async function GET(request: NextRequest) {
 
     if (priceMax) {
       query = query.lte('price', parseFloat(priceMax))
+    }
+
+    // Филтър по userId (за "Моите задачи")
+    if (userId) {
+      query = query.eq('user_id', userId)
     }
 
     const { data, error } = await query
