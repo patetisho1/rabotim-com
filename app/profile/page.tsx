@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { useTasksAPI } from '@/hooks/useTasksAPI'
 
 interface UserData {
   id: number
@@ -74,7 +75,9 @@ interface UserData {
 export default function ProfilePage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
+  const { getUserTasks } = useTasksAPI()
   const [user, setUser] = useState<UserData | null>(null)
+  const [userTasks, setUserTasks] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -91,10 +94,14 @@ export default function ProfilePage() {
     loadUserData()
   }, [authUser, authLoading])
 
-  const loadUserData = () => {
+  const loadUserData = async () => {
     try {
       // Използваме данните от Supabase Auth
       if (authUser) {
+        // Зареждаме задачите на потребителя от Supabase
+        const tasks = await getUserTasks(authUser.id)
+        setUserTasks(tasks)
+        
         const userData: UserData = {
           id: 1, // Временно ID
           firstName: authUser.user_metadata?.full_name?.split(' ')[0] || 'Потребител',
@@ -106,12 +113,9 @@ export default function ProfilePage() {
             taskExecutor: true
           },
           taskGiver: {
-            totalTasksPosted: (() => {
-              const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-              return tasks.filter((task: any) => task.postedByEmail === authUser.email).length
-            })(),
-            completedTasks: 0,
-            totalSpent: 0,
+            totalTasksPosted: tasks.length,
+            completedTasks: tasks.filter((task: any) => task.status === 'completed').length,
+            totalSpent: tasks.reduce((sum: number, task: any) => sum + (task.price || 0), 0),
             rating: 4.5,
             reviews: []
           },
@@ -406,10 +410,9 @@ export default function ProfilePage() {
                       </div>
                       <div className="p-4">
                         {(() => {
-                          const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-                          const userTasks = allTasks.filter((task: any) => task.postedByEmail === authUser?.email).slice(0, 5)
+                          const recentTasks = userTasks.slice(0, 5)
                           
-                          if (userTasks.length === 0) {
+                          if (recentTasks.length === 0) {
                             return (
                               <div className="text-center py-8 text-gray-500">
                                 <Briefcase className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -426,7 +429,7 @@ export default function ProfilePage() {
 
                           return (
                             <div className="space-y-3">
-                              {userTasks.map((task: any) => (
+                              {recentTasks.map((task: any) => (
                                 <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                                      onClick={() => router.push(`/task/${task.id}`)}>
                                   <div className="flex-1">
