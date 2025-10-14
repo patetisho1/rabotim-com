@@ -155,3 +155,6 @@ Get-Content .env.local
 
 **Важно:** След копирането, винаги изпълни `npm install` за да инсталираш всички dependencies!
 
+
+
+

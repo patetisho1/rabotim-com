@@ -4,73 +4,363 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, 
-  ArrowRight, 
-  Plus, 
-  X, 
-  Upload, 
-  MapPin, 
-  Calendar, 
   DollarSign,
-  FileText,
-  Image,
-  CheckCircle,
-  AlertCircle
+  CheckCircle
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface TaskFormData {
-  title: '',
-  description: '',
-  category: '',
-  location: '',
-  price: '',
-  priceType: 'fixed' | 'hourly',
-  deadline: '',
-  urgent: false,
-  photos: File[],
-  conditions: ''
-}
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 
 const categories = [
-  'Електрически услуги',
-  'Водопроводни услуги',
-  'Почистване',
-  'Градинарство',
-  'Преместване',
-  'Ремонт',
-  'Доставка',
-  'Сглобяване',
-  'Авто услуги',
-  'IT услуги',
-  'Обучение',
-  'Друго'
+  { value: 'repair', label: 'Ремонт' },
+  { value: 'cleaning', label: 'Почистване' },
+  { value: 'delivery', label: 'Доставка' },
+  { value: 'tutoring', label: 'Обучение' },
+  { value: 'garden', label: 'Градинарство' },
+  { value: 'it-services', label: 'IT услуги' },
+  { value: 'moving', label: 'Преместване' },
+  { value: 'assembly', label: 'Сглобяване' },
+  { value: 'care', label: 'Грижа' },
+  { value: 'other', label: 'Друго' }
 ]
 
-const steps = [
-  { id: 1, title: 'Категория и детайли', description: 'Изберете категория и опишете задачата' },
-  { id: 2, title: 'Бюджет и срок', description: 'Задайте бюджет и срок за изпълнение' },
-  { id: 3, title: 'Локация', description: 'Укажете къде трябва да се изпълни задачата' },
-  { id: 4, title: 'Снимки и условия', description: 'Добавете снимки и специални условия' },
-  { id: 5, title: 'Преглед', description: 'Прегледайте и публикувайте задачата' }
+const locations = [
+  { value: 'София', label: 'София' },
+  { value: 'Пловдив', label: 'Пловдив' },
+  { value: 'Варна', label: 'Варна' },
+  { value: 'Бургас', label: 'Бургас' },
+  { value: 'Русе', label: 'Русе' },
+  { value: 'Стара Загора', label: 'Стара Загора' },
+  { value: 'Плевен', label: 'Плевен' },
+  { value: 'Друго', label: 'Друго' }
 ]
 
 export default function PostTaskPage() {
+  const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    location: '',
+    price: '',
+    priceType: 'fixed' as 'fixed' | 'hourly',
+    urgent: false,
+    deadline: ''
+  })
+
+  useEffect(() => {
+    if (authLoading) return
+    
+    if (!user) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+    }
+  }, [user, authLoading, router])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    const checked = (e.target as HTMLInputElement).checked
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!user) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+
+    // Валидация
+    if (!formData.title.trim() || formData.title.length < 5) {
+      toast.error('Заглавието трябва да е поне 5 символа')
+      return
+    }
+
+    if (!formData.description.trim() || formData.description.length < 20) {
+      toast.error('Описанието трябва да е поне 20 символа')
+      return
+    }
+
+    if (!formData.category) {
+      toast.error('Моля, изберете категория')
+      return
+    }
+
+    if (!formData.location) {
+      toast.error('Моля, изберете локация')
+      return
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error('Моля, въведете валидна цена')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      // Създаване на задачата в Supabase
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([{
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          category: formData.category,
+          location: formData.location,
+          price: parseFloat(formData.price),
+          price_type: formData.priceType,
+          urgent: formData.urgent,
+          user_id: user.id,
+          status: 'active',
+          deadline: formData.deadline || null,
+          applications_count: 0,
+          views_count: 0
+        }])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
+
+      toast.success('Задачата е публикувана успешно!')
+      router.push(`/task/${data.id}`)
+    } catch (error: any) {
+      console.error('Error creating task:', error)
+      toast.error(error.message || 'Грешка при публикуването на задачата')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Зареждане...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
-    <div className="min-h-screen bg-brand-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-ink-900 mb-4">
-          Публикуване на задача
-        </h1>
-        <p className="text-slate-600 mb-8">
-          Тук ще бъде формата за публикуване на нова задача.
-        </p>
-        <a 
-          href="/"
-          className="inline-flex items-center justify-center rounded-full bg-brand-500 px-5 py-3 text-white text-base font-semibold shadow-sm hover:bg-brand-600 transition"
+    <div className="min-h-screen bg-gray-50 py-8">
+      {/* Header */}
+      <div className="max-w-3xl mx-auto mb-8 px-4">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
         >
-          ← Назад към началната страница
-        </a>
+          <ArrowLeft size={20} />
+          Назад
+        </button>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Публикувай нова задача
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Попълнете формата за да публикувате вашата задача
+        </p>
+      </div>
+
+      {/* Form */}
+      <div className="max-w-3xl mx-auto px-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+          
+          {/* Заглавие */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              Заглавие на задачата *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Напр: Почистване на апартамент 80кв.м"
+              required
+            />
+          </div>
+
+          {/* Описание */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              Описание *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows={5}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Опишете подробно какво трябва да се направи..."
+              required
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              {formData.description.length} символа (минимум 20)
+            </p>
+          </div>
+
+          {/* Категория и Локация */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                Категория *
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Избери категория</option>
+                {categories.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                Локация *
+              </label>
+              <select
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Избери град</option>
+                {locations.map(loc => (
+                  <option key={loc.value} value={loc.value}>{loc.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Цена */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                Цена (лв) *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="100"
+                  required
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <DollarSign size={18} className="text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="priceType" className="block text-sm font-medium text-gray-700 mb-2">
+                Тип на цената *
+              </label>
+              <select
+                id="priceType"
+                name="priceType"
+                value={formData.priceType}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="fixed">Фиксирана цена</option>
+                <option value="hourly">Цена на час</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Срок */}
+          <div>
+            <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-2">
+              Краен срок (опционално)
+            </label>
+            <input
+              type="date"
+              id="deadline"
+              name="deadline"
+              value={formData.deadline}
+              onChange={handleInputChange}
+              min={new Date().toISOString().split('T')[0]}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Спешно */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="urgent"
+              name="urgent"
+              checked={formData.urgent}
+              onChange={handleInputChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="urgent" className="ml-2 block text-sm text-gray-900">
+              Това е спешна задача
+            </label>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Откажи
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Публикуване...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={18} />
+                  Публикувай задачата
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
-} 
+}

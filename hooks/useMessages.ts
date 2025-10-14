@@ -1,9 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Message, Conversation, ChatUser } from '@/types/message'
+import { Message, Conversation } from '@/types/message'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 
 export function useMessages() {
+  const { user } = useAuth()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -12,220 +15,244 @@ export function useMessages() {
 
   // Зареждане на разговорите
   const loadConversations = useCallback(async () => {
+    if (!user) return
+
     setIsLoading(true)
     setError(null)
     
     try {
-      // Зареждане от localStorage (засега)
-      const storedConversations = localStorage.getItem('conversations')
-      if (storedConversations) {
-        const parsed = JSON.parse(storedConversations)
-        setConversations(parsed.map((conv: any) => ({
-          ...conv,
-          createdAt: new Date(conv.createdAt),
-          updatedAt: new Date(conv.updatedAt),
-          lastMessage: conv.lastMessage ? {
-            ...conv.lastMessage,
-            timestamp: new Date(conv.lastMessage.timestamp)
-          } : undefined
-        })))
-      } else {
-        // Демо данни
-        const demoConversations: Conversation[] = [
-          {
-            id: '1',
-            participants: ['user1', 'user2'],
-            unreadCount: 2,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            lastMessage: {
-              id: 'msg1',
-              conversationId: '1',
-              senderId: 'user2',
-              receiverId: 'user1',
-              content: 'Здравейте! Интересувам се от вашата задача за почистване.',
-              timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 минути назад
-              isRead: false,
-              type: 'text'
-            }
-          },
-          {
-            id: '2',
-            participants: ['user1', 'user3'],
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          conversation_id,
+          sender_id,
+          receiver_id,
+          content,
+          created_at,
+          read_at,
+          sender:users!sender_id(id, full_name, avatar_url),
+          receiver:users!receiver_id(id, full_name, avatar_url)
+        `)
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      // Group messages by conversation_id
+      const conversationMap = new Map<string, Conversation>()
+      
+      data?.forEach((msg: any) => {
+        if (!conversationMap.has(msg.conversation_id)) {
+          const otherUser = msg.sender_id === user.id ? msg.receiver : msg.sender
+          
+          conversationMap.set(msg.conversation_id, {
+            id: msg.conversation_id,
+            participants: [msg.sender_id, msg.receiver_id],
             unreadCount: 0,
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 ден назад
-            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 часа назад
+            createdAt: new Date(msg.created_at),
+            updatedAt: new Date(msg.created_at),
             lastMessage: {
-              id: 'msg2',
-              conversationId: '2',
-              senderId: 'user1',
-              receiverId: 'user3',
-              content: 'Благодаря за работата! Много доволен съм.',
-              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-              isRead: true,
+              id: msg.id,
+              conversationId: msg.conversation_id,
+              senderId: msg.sender_id,
+              receiverId: msg.receiver_id,
+              content: msg.content,
+              timestamp: new Date(msg.created_at),
+              isRead: !!msg.read_at,
               type: 'text'
-            }
+            },
+            title: otherUser.full_name
+          })
+        }
+        
+        // Count unread messages
+        if (msg.receiver_id === user.id && !msg.read_at) {
+          const conv = conversationMap.get(msg.conversation_id)
+          if (conv) {
+            conv.unreadCount = (conv.unreadCount || 0) + 1
           }
-        ]
-        setConversations(demoConversations)
-        localStorage.setItem('conversations', JSON.stringify(demoConversations))
-      }
-    } catch (err) {
+        }
+      })
+
+      setConversations(Array.from(conversationMap.values()))
+    } catch (err: any) {
       setError('Грешка при зареждане на разговорите')
       console.error('Error loading conversations:', err)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [user])
 
   // Зареждане на съобщения за конкретен разговор
   const loadMessages = useCallback(async (conversationId: string) => {
+    if (!user) return
+
     setIsLoading(true)
     setError(null)
     
     try {
-      // Зареждане от localStorage
-      const storedMessages = localStorage.getItem(`messages_${conversationId}`)
-      if (storedMessages) {
-        const parsed = JSON.parse(storedMessages)
-        setMessages(parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        })))
-      } else {
-        // Демо съобщения
-        const demoMessages: Message[] = [
-          {
-            id: '1',
-            conversationId,
-            senderId: 'user2',
-            receiverId: 'user1',
-            content: 'Здравейте! Видях вашата обява за почистване.',
-            timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 час назад
-            isRead: true,
-            type: 'text'
-          },
-          {
-            id: '2',
-            conversationId,
-            senderId: 'user1',
-            receiverId: 'user2',
-            content: 'Здравейте! Да, задачата е все още активна.',
-            timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 минути назад
-            isRead: true,
-            type: 'text'
-          },
-          {
-            id: '3',
-            conversationId,
-            senderId: 'user2',
-            receiverId: 'user1',
-            content: 'Отлично! Кога бихте искали да се срещнем?',
-            timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 минути назад
-            isRead: false,
-            type: 'text'
-          }
-        ]
-        setMessages(demoMessages)
-        localStorage.setItem(`messages_${conversationId}`, JSON.stringify(demoMessages))
-      }
-    } catch (err) {
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`
+          *,
+          sender:users!sender_id(full_name, avatar_url)
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+
+      const formattedMessages: Message[] = (data || []).map((msg: any) => ({
+        id: msg.id,
+        conversationId: msg.conversation_id,
+        senderId: msg.sender_id,
+        receiverId: msg.receiver_id,
+        content: msg.content,
+        timestamp: new Date(msg.created_at),
+        isRead: !!msg.read_at,
+        type: 'text',
+        attachments: msg.attachments || []
+      }))
+
+      setMessages(formattedMessages)
+    } catch (err: any) {
       setError('Грешка при зареждане на съобщенията')
       console.error('Error loading messages:', err)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [user])
 
   // Изпращане на съобщение
-  const sendMessage = useCallback(async (content: string, receiverId: string) => {
-    if (!currentConversation) return
+  const sendMessage = useCallback(async (content: string, receiverId: string, conversationId?: string) => {
+    if (!user) return
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      conversationId: currentConversation.id,
-      senderId: 'user1', // Текущият потребител
-      receiverId,
-      content,
-      timestamp: new Date(),
-      isRead: false,
-      type: 'text'
-    }
+    try {
+      const newConversationId = conversationId || `${[user.id, receiverId].sort().join('_')}`
 
-    // Добавяне към съобщенията
-    setMessages(prev => [...prev, newMessage])
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([{
+          conversation_id: newConversationId,
+          sender_id: user.id,
+          receiver_id: receiverId,
+          content: content.trim()
+        }])
+        .select()
+        .single()
 
-    // Обновяване на разговора
-    setConversations(prev => prev.map(conv => 
-      conv.id === currentConversation.id 
-        ? {
-            ...conv,
-            lastMessage: newMessage,
-            updatedAt: new Date(),
-            unreadCount: 0
-          }
-        : conv
-    ))
+      if (error) throw error
 
-    // Запазване в localStorage
-    const updatedMessages = [...messages, newMessage]
-    localStorage.setItem(`messages_${currentConversation.id}`, JSON.stringify(updatedMessages))
-    localStorage.setItem('conversations', JSON.stringify(conversations))
-
-    // Симулация на отговор (за демо цели)
-    setTimeout(() => {
-      const replyMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        conversationId: currentConversation.id,
-        senderId: receiverId,
-        receiverId: 'user1',
-        content: 'Получих вашето съобщение! Ще отговоря скоро.',
-        timestamp: new Date(),
+      const newMessage: Message = {
+        id: data.id,
+        conversationId: newConversationId,
+        senderId: user.id,
+        receiverId: receiverId,
+        content: content.trim(),
+        timestamp: new Date(data.created_at),
         isRead: false,
         type: 'text'
       }
 
-      setMessages(prev => [...prev, replyMessage])
-      setConversations(prev => prev.map(conv => 
-        conv.id === currentConversation.id 
-          ? {
-              ...conv,
-              lastMessage: replyMessage,
-              updatedAt: new Date(),
-              unreadCount: conv.unreadCount + 1
-            }
-          : conv
-      ))
-    }, 2000)
-  }, [currentConversation, messages, conversations])
+      setMessages(prev => [...prev, newMessage])
+      
+      // Reload conversations to update last message
+      await loadConversations()
+    } catch (err: any) {
+      console.error('Error sending message:', err)
+      setError('Грешка при изпращане на съобщението')
+    }
+  }, [user, loadConversations])
 
   // Маркиране на съобщения като прочетени
-  const markAsRead = useCallback((conversationId: string) => {
-    setConversations(prev => prev.map(conv => 
-      conv.id === conversationId 
-        ? { ...conv, unreadCount: 0 }
-        : conv
-    ))
-  }, [])
+  const markAsRead = useCallback(async (conversationId: string) => {
+    if (!user) return
+
+    try {
+      await supabase
+        .from('messages')
+        .update({ read_at: new Date().toISOString() })
+        .eq('conversation_id', conversationId)
+        .eq('receiver_id', user.id)
+        .is('read_at', null)
+
+      setConversations(prev => prev.map(conv => 
+        conv.id === conversationId 
+          ? { ...conv, unreadCount: 0 }
+          : conv
+      ))
+    } catch (err) {
+      console.error('Error marking messages as read:', err)
+    }
+  }, [user])
 
   // Създаване на нов разговор
-  const createConversation = useCallback((participantId: string, taskId?: string) => {
-    const newConversation: Conversation = {
-      id: Date.now().toString(),
-      participants: ['user1', participantId],
+  const createConversation = useCallback(async (participantId: string, initialMessage?: string) => {
+    if (!user) return
+
+    const conversationId = `${[user.id, participantId].sort().join('_')}`
+    
+    setCurrentConversation({
+      id: conversationId,
+      participants: [user.id, participantId],
       unreadCount: 0,
       createdAt: new Date(),
-      updatedAt: new Date(),
-      taskId
-    }
+      updatedAt: new Date()
+    })
 
-    setConversations(prev => [...prev, newConversation])
-    setCurrentConversation(newConversation)
-    
-    // Запазване в localStorage
-    const updatedConversations = [...conversations, newConversation]
-    localStorage.setItem('conversations', JSON.stringify(updatedConversations))
-  }, [conversations])
+    if (initialMessage) {
+      await sendMessage(initialMessage, participantId, conversationId)
+    }
+  }, [user, sendMessage])
+
+  // Subscribe to real-time messages
+  useEffect(() => {
+    if (!user || !currentConversation) return
+
+    const channel = supabase
+      .channel(`messages:${currentConversation.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${currentConversation.id}`
+        },
+        async (payload: any) => {
+          const newMsg = payload.new
+          
+          // Fetch sender info
+          const { data: senderData } = await supabase
+            .from('users')
+            .select('full_name, avatar_url')
+            .eq('id', newMsg.sender_id)
+            .single()
+
+          const newMessage: Message = {
+            id: newMsg.id,
+            conversationId: newMsg.conversation_id,
+            senderId: newMsg.sender_id,
+            receiverId: newMsg.receiver_id,
+            content: newMsg.content,
+            timestamp: new Date(newMsg.created_at),
+            isRead: !!newMsg.read_at,
+            type: 'text'
+          }
+
+          // Only add if it's from the other user (avoid duplicates)
+          if (newMsg.sender_id !== user.id) {
+            setMessages(prev => [...prev, newMessage])
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user, currentConversation])
 
   useEffect(() => {
     loadConversations()
@@ -243,4 +270,4 @@ export function useMessages() {
     createConversation,
     setCurrentConversation
   }
-} 
+}

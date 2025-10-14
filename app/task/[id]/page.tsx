@@ -2,25 +2,37 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, MapPin, Clock, DollarSign, User, Star, Calendar, Phone, Mail, MessageSquare, AlertCircle, Heart, Share2, Bookmark, Eye, Users, TrendingUp, Award, Shield, CheckCircle } from 'lucide-react'
+import { 
+  ArrowLeft, MapPin, DollarSign, User, Star, Calendar, 
+  MessageSquare, AlertCircle, Heart, Share2, Shield
+} from 'lucide-react'
 import toast from 'react-hot-toast'
-import ImageGallery from '../../../components/ImageGallery'
 import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 
-import { Task } from '@/hooks/useTasksAPI'
-
-interface Attachment {
-  name: string
-  size: number
-  type: string
-  url: string
-}
-
-interface Application {
-  taskId: string
-  taskTitle: string
-  appliedAt: string
-  status: 'pending' | 'accepted' | 'rejected'
+interface Task {
+  id: string
+  title: string
+  description: string
+  category: string
+  location: string
+  price: number
+  price_type: 'fixed' | 'hourly'
+  urgent: boolean
+  deadline: string | null
+  created_at: string
+  user_id: string
+  status: string
+  applications_count: number
+  views_count: number
+  profiles?: {
+    id: string
+    full_name: string
+    avatar_url: string | null
+    rating: number
+    total_reviews: number
+    verified: boolean
+  }
 }
 
 export default function TaskDetailPage() {
@@ -32,116 +44,89 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState<Task | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
-  const [showContactInfo, setShowContactInfo] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
-  const [userStats, setUserStats] = useState({
-    completedTasks: 0,
-    rating: 0,
-    responseRate: 0,
-    isVerified: false
-  })
   const [hasApplied, setHasApplied] = useState(false)
   const [applicationMessage, setApplicationMessage] = useState('')
 
   useEffect(() => {
-    loadTask()
-    checkLoginStatus()
-    checkFavoriteStatus()
-    checkSavedStatus()
-    loadUserStats()
-  }, [taskId, authUser])
+    if (taskId) {
+      loadTask()
+      incrementViewCount()
+    }
+  }, [taskId])
 
-  const loadTask = () => {
+  useEffect(() => {
+    if (authUser && taskId) {
+      checkIfApplied()
+    }
+  }, [authUser, taskId])
+
+  const loadTask = async () => {
     try {
-      // Load tasks from localStorage
-      const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const foundTask = savedTasks.find((t: Task) => t.id === taskId)
-      
-      if (foundTask) {
-        setTask(foundTask)
-        checkIfApplied(foundTask.id)
-      } else {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(`
+          *,
+          profiles:users!user_id(
+            id,
+            full_name,
+            avatar_url,
+            rating,
+            total_reviews,
+            verified
+          )
+        `)
+        .eq('id', taskId)
+        .single()
+
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
+
+      if (!data) {
         toast.error('Задачата не е намерена')
         router.push('/tasks')
+        return
       }
-    } catch (error) {
+
+      setTask(data)
+    } catch (error: any) {
+      console.error('Error loading task:', error)
       toast.error('Грешка при зареждането на задачата')
+      router.push('/tasks')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const checkLoginStatus = () => {
-    setIsLoggedIn(!!authUser)
-  }
-
-  const checkFavoriteStatus = () => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-    setIsFavorite(favorites.includes(taskId))
-  }
-
-  const checkSavedStatus = () => {
-    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
-    setIsSaved(saved.includes(taskId))
-  }
-
-  const loadUserStats = () => {
-    if (task) {
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const taskUser = users.find((user: any) => user.name === task.profiles?.full_name)
-      if (taskUser) {
-        setUserStats({
-          completedTasks: taskUser.completedTasks || 0,
-          rating: taskUser.rating || 0,
-          responseRate: taskUser.responseRate || 0,
-          isVerified: taskUser.verified || false
-        })
-      }
+  const incrementViewCount = async () => {
+    try {
+      await supabase.rpc('increment_task_views', { task_id: taskId })
+    } catch (error) {
+      console.error('Error incrementing views:', error)
     }
   }
 
-  const toggleFavorite = () => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-    if (isFavorite) {
-      const index = favorites.indexOf(taskId)
-      if (index > -1) {
-        favorites.splice(index, 1)
-        toast.success('Задачата е премахната от любими')
-      }
-    } else {
-      favorites.push(taskId)
-      toast.success('Задачата е добавена в любими')
-    }
-    localStorage.setItem('favorites', JSON.stringify(favorites))
-    setIsFavorite(!isFavorite)
-  }
+  const checkIfApplied = async () => {
+    if (!authUser) return
 
-  const toggleSaved = () => {
-    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]')
-    if (isSaved) {
-      const index = saved.indexOf(taskId)
-      if (index > -1) {
-        saved.splice(index, 1)
-        toast.success('Задачата е премахната от запазени')
-      }
-    } else {
-      saved.push(taskId)
-      toast.success('Задачата е запазена')
-    }
-    localStorage.setItem('savedTasks', JSON.stringify(saved))
-    setIsSaved(!isSaved)
-  }
+    try {
+      const { data, error } = await supabase
+        .from('task_applications')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('user_id', authUser.id)
+        .single()
 
-  const checkIfApplied = (taskId: string) => {
-    const applications = JSON.parse(localStorage.getItem('applications') || '[]')
-    const hasAppliedToTask = applications.some((app: Application) => app.taskId === taskId)
-    setHasApplied(hasAppliedToTask)
+      setHasApplied(!!data)
+    } catch (error) {
+      // No application found is not an error
+      setHasApplied(false)
+    }
   }
 
   const handleApply = async () => {
-    if (!isLoggedIn) {
+    if (!authUser) {
       toast.error('Трябва да сте влезли в акаунта си за да кандидатствате')
       router.push('/login')
       return
@@ -152,71 +137,71 @@ export default function TaskDetailPage() {
       return
     }
 
+    if (task?.user_id === authUser.id) {
+      toast.error('Не можете да кандидатствате за собствената си задача')
+      return
+    }
+
     setIsApplying(true)
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const newApplication = {
-        taskId: task?.id,
-        taskTitle: task?.title,
-        appliedAt: new Date().toISOString(),
-        status: 'pending' as const
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          task_id: taskId,
+          user_id: authUser.id,
+          message: applicationMessage.trim()
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Грешка при изпращането на кандидатурата')
       }
-      
-      const applications = JSON.parse(localStorage.getItem('applications') || '[]')
-      applications.push(newApplication)
-      localStorage.setItem('applications', JSON.stringify(applications))
-      
+
       setHasApplied(true)
       setApplicationMessage('')
       toast.success('Кандидатурата е изпратена успешно!')
-    } catch (error) {
-      toast.error('Грешка при изпращането на кандидатурата')
+      
+      // Reload task to update applications count
+      loadTask()
+    } catch (error: any) {
+      console.error('Error applying:', error)
+      toast.error(error.message || 'Грешка при изпращането на кандидатурата')
     } finally {
       setIsApplying(false)
     }
   }
 
   const handleContact = () => {
-    if (!isLoggedIn) {
+    if (!authUser) {
       toast.error('Трябва да сте влезли в акаунта си за да се свържете')
       router.push('/login')
       return
     }
-    setShowContactInfo(true)
-  }
-
-  const getLocationLabel = (locationValue: string) => {
-    const locations = [
-      { value: 'sofia', label: 'София' },
-      { value: 'plovdiv', label: 'Пловдив' },
-      { value: 'varna', label: 'Варна' },
-      { value: 'burgas', label: 'Бургас' },
-      { value: 'ruse', label: 'Русе' },
-      { value: 'stara-zagora', label: 'Стара Загора' },
-      { value: 'pleven', label: 'Плевен' },
-    ]
-    const location = locations.find(loc => loc.value === locationValue)
-    return location ? location.label : locationValue
+    
+    // Navigate to messages with this user
+    router.push(`/messages?userId=${task?.user_id}`)
   }
 
   const getCategoryLabel = (categoryValue: string) => {
-    const categories = [
-      { value: 'repair', label: 'Ремонт' },
-      { value: 'cleaning', label: 'Почистване' },
-      { value: 'care', label: 'Грижа' },
-      { value: 'delivery', label: 'Доставка' },
-      { value: 'moving', label: 'Преместване' },
-      { value: 'garden', label: 'Градинарство' },
-      { value: 'dog-care', label: 'Разходка/грижа за куче' },
-      { value: 'tutoring', label: 'Обучение' },
-      { value: 'packaging', label: 'Опаковане' },
-      { value: 'other', label: 'Друго' },
-    ]
-    const category = categories.find(cat => cat.value === categoryValue)
-    return category ? category.label : categoryValue
+    const categories: Record<string, string> = {
+      'repair': 'Ремонт',
+      'cleaning': 'Почистване',
+      'care': 'Грижа',
+      'delivery': 'Доставка',
+      'moving': 'Преместване',
+      'garden': 'Градинарство',
+      'tutoring': 'Обучение',
+      'it-services': 'IT услуги',
+      'assembly': 'Сглобяване',
+      'other': 'Друго',
+    }
+    return categories[categoryValue] || categoryValue
   }
 
   const formatDate = (dateString: string) => {
@@ -236,18 +221,18 @@ export default function TaskDetailPage() {
     })
   }
 
-  const formatPrice = (price: number, priceType: string | undefined) => {
+  const formatPrice = (price: number, priceType: string) => {
     if (priceType === 'hourly') {
       return `${price} лв/час`
     }
     return `${price} лв`
   }
 
-  if (isLoading) {
+  if (isLoading || authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Зареждане на задачата...</p>
         </div>
       </div>
@@ -261,7 +246,7 @@ export default function TaskDetailPage() {
           <p className="text-gray-600 dark:text-gray-400">Задачата не е намерена</p>
           <button
             onClick={() => router.push('/tasks')}
-            className="btn btn-primary mt-4"
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Връщане към задачите
           </button>
@@ -293,20 +278,6 @@ export default function TaskDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Image Gallery - TODO: Add attachments support to Task interface */}
-            {/* {task.attachments && task.attachments.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <ImageGallery 
-                  images={task.attachments.map(attachment => ({
-                    id: attachment.name,
-                    src: attachment.url,
-                    alt: attachment.name,
-                    thumbnail: attachment.url
-                  }))} 
-                />
-              </div>
-            )} */}
-
             {/* Task Header */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-start justify-between mb-4">
@@ -321,7 +292,7 @@ export default function TaskDetailPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar size={16} />
-                      {task.created_at ? formatDate(task.created_at) : 'По договаряне'}
+                      {formatDate(task.created_at)}
                     </span>
                     {task.urgent && (
                       <span className="flex items-center gap-1 text-red-600">
@@ -332,7 +303,7 @@ export default function TaskDetailPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-primary-600">
+                  <div className="text-2xl font-bold text-blue-600">
                     {formatPrice(task.price, task.price_type)}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -343,7 +314,7 @@ export default function TaskDetailPage() {
 
               {/* Category */}
               <div className="mb-4">
-                <span className="inline-block bg-primary-100 text-primary-800 text-sm font-medium px-3 py-1 rounded-full">
+                <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                   {getCategoryLabel(task.category)}
                 </span>
               </div>
@@ -353,7 +324,7 @@ export default function TaskDetailPage() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
                   Описание
                 </h3>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                   {task.description}
                 </p>
               </div>
@@ -365,138 +336,55 @@ export default function TaskDetailPage() {
                 За потребителя
               </h3>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-primary-600 dark:text-primary-400" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <User size={24} className="text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                    {task.profiles?.full_name || 'Анонимен'}
+                    {task.profiles?.full_name || 'Потребител'}
+                    {task.profiles?.verified && (
+                      <Shield size={16} className="inline ml-2 text-green-600" />
+                    )}
                   </h4>
                   <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                     <span className="flex items-center gap-1">
-                      <Star size={14} className="text-yellow-500" />
-                      {task.rating} ({task.review_count} прегледи)
+                      <Star size={14} className="text-yellow-500 fill-current" />
+                      {task.profiles?.rating?.toFixed(1) || '0.0'} ({task.profiles?.total_reviews || 0} отзива)
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={handleContact}
-                  className="btn btn-outline flex items-center gap-2"
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
                 >
                   <MessageSquare size={16} />
                   Свържи се
                 </button>
               </div>
-
-              {/* Contact Info (Hidden by default) */}
-              {showContactInfo && (
-                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Контактна информация
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Phone size={14} className="text-gray-500" />
-                      <span className="text-gray-700 dark:text-gray-300">0888 123 456</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Mail size={14} className="text-gray-500" />
-                      <span className="text-gray-700 dark:text-gray-300">user@example.com</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Action Buttons */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <div className="flex gap-2">
-                <button
-                  onClick={toggleFavorite}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    isFavorite 
-                      ? 'bg-red-100 text-red-600 hover:bg-red-200' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Heart size={16} className={isFavorite ? 'fill-current' : ''} />
-                  {isFavorite ? 'Любима' : 'Любима'}
-                </button>
-                <button
-                  onClick={toggleSaved}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    isSaved 
-                      ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Bookmark size={16} className={isSaved ? 'fill-current' : ''} />
-                  {isSaved ? 'Запазена' : 'Запази'}
-                </button>
-                <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: task.title,
-                        text: task.description,
-                        url: window.location.href
-                      })
-                    } else {
-                      navigator.clipboard.writeText(window.location.href)
-                      toast.success('Линкът е копиран в клипборда')
-                    }
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-                >
-                  <Share2 size={16} />
-                  Сподели
-                </button>
-              </div>
-            </div>
-
-            {/* User Stats */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                За {task.profiles?.full_name || 'потребителя'}
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Завършени задачи</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userStats.completedTasks}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Рейтинг</span>
-                  <div className="flex items-center gap-1">
-                    <Star size={14} className="text-yellow-500 fill-current" />
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{userStats.rating}</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Скорост на отговор</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userStats.responseRate}%</span>
-                </div>
-                {userStats.isVerified && (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <Shield size={16} />
-                    <span className="text-sm font-medium">Потвърден потребител</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Apply Section */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Кандидатствай за тази задача
               </h3>
               
-              {hasApplied ? (
+              {task.user_id === authUser?.id ? (
                 <div className="text-center py-4">
-                  <div className="text-green-600 mb-2">
-                    ✓ Вече сте кандидатствали
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Това е ваша задача
+                  </p>
+                </div>
+              ) : hasApplied ? (
+                <div className="text-center py-4">
+                  <div className="text-green-600 mb-2 flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Вече сте кандидатствали
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Вашата кандидатура е в изчакване
@@ -506,13 +394,13 @@ export default function TaskDetailPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Съобщение към потребителя
+                      Съобщение към потребителя *
                     </label>
                     <textarea
                       value={applicationMessage}
                       onChange={(e) => setApplicationMessage(e.target.value)}
-                      placeholder="Напишете кратко съобщение защо искате да изпълните тази задача..."
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      placeholder="Напишете защо искате да изпълните тази задача..."
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       rows={4}
                     />
                   </div>
@@ -520,11 +408,11 @@ export default function TaskDetailPage() {
                   <button
                     onClick={handleApply}
                     disabled={isApplying || !applicationMessage.trim()}
-                    className="w-full btn btn-primary disabled:opacity-50"
+                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isApplying ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         Изпращане...
                       </>
                     ) : (
@@ -552,17 +440,25 @@ export default function TaskDetailPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Публикувана:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {task.created_at ? formatDate(task.created_at) : 'По договаряне'}
+                    {formatDate(task.created_at)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Прегледи:</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{task.views}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{task.views_count || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Кандидатури:</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{task.applications}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{task.applications_count || 0}</span>
                 </div>
+                {task.deadline && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Срок:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {new Date(task.deadline).toLocaleDateString('bg-BG')}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -570,4 +466,4 @@ export default function TaskDetailPage() {
       </div>
     </div>
   )
-} 
+}

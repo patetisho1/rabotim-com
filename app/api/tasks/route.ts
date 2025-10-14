@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
       .from('tasks')
       .select(`
         *,
-        profiles!tasks_posted_by_fkey (
+        profiles:users!user_id (
           id,
           full_name,
           avatar_url,
-          is_verified
+          verified
         )
       `)
       .eq('status', status)
@@ -121,17 +121,16 @@ export async function POST(request: NextRequest) {
         price_type: priceType,
         deadline: deadline ? new Date(deadline).toISOString() : null,
         urgent,
-        remote,
-        posted_by: user.id,
-        posted_by_email: user.email
+        user_id: user.id,
+        status: 'active'
       })
       .select(`
         *,
-        profiles!tasks_posted_by_fkey (
+        profiles:users!user_id (
           id,
           full_name,
           avatar_url,
-          is_verified
+          verified
         )
       `)
       .single()

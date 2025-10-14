@@ -31,3 +31,6 @@ echo.
 echo Натиснете Enter за да затворите...
 pause >nul
 
+
+
+

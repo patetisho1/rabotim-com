@@ -1,176 +1,134 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
-export async function GET(request: NextRequest) {
+// POST - Кандидатстване за задача
+export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) { return cookieStore.get(name)?.value },
-          set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }) },
-          remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }) },
-        },
-      }
-    )
+    const body = await request.json()
+    const { task_id, user_id, message, proposed_price } = body
 
-    // Проверка за автентикация
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!task_id || !user_id) {
+      return NextResponse.json(
+        { error: 'task_id и user_id са задължителни' },
+        { status: 400 }
+      )
     }
 
+    // Проверка дали потребителят вече е кандидатствал
+    const { data: existing, error: checkError } = await supabase
+      .from('task_applications')
+      .select('id')
+      .eq('task_id', task_id)
+      .eq('user_id', user_id)
+      .single()
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Вече сте кандидатствали за тази задача' },
+        { status: 400 }
+      )
+    }
+
+    // Създаване на кандидатура
+    const { data, error } = await supabase
+      .from('task_applications')
+      .insert([{
+        task_id,
+        user_id,
+        message: message || '',
+        proposed_price: proposed_price || null,
+        status: 'pending'
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+    // Създаване на нотификация за собственика на задачата
+    const { data: task } = await supabase
+      .from('tasks')
+      .select('user_id, title')
+      .eq('id', task_id)
+      .single()
+
+    if (task && task.user_id) {
+      const { data: applicant } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', user_id)
+        .single()
+
+      await supabase
+        .from('notifications')
+        .insert([{
+          user_id: task.user_id,
+          type: 'new_application',
+          title: 'Нова кандидатура',
+          message: `${applicant?.full_name || 'Потребител'} кандидатства за "${task.title}"`,
+          data: {
+            task_id,
+            application_id: data.id,
+            applicant_id: user_id
+          },
+          read: false
+        }])
+    }
+
+    return NextResponse.json(data, { status: 201 })
+  } catch (error: any) {
+    console.error('API error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Вътрешна грешка' },
+      { status: 500 }
+    )
+  }
+}
+
+// GET - Получаване на кандидатури (за потребител или за задача)
+export async function GET(request: NextRequest) {
+  try {
     const { searchParams } = new URL(request.url)
-    const taskId = searchParams.get('taskId')
+    const task_id = searchParams.get('task_id')
+    const user_id = searchParams.get('user_id')
 
     let query = supabase
-      .from('applications')
+      .from('task_applications')
       .select(`
         *,
-        tasks (
-          id,
-          title,
-          status
-        ),
-        profiles!applications_applicant_id_fkey (
-          id,
-          full_name,
-          avatar_url
-        )
+        task:tasks(id, title, price, price_type),
+        user:users(id, full_name, avatar_url, rating)
       `)
 
-    if (taskId) {
-      query = query.eq('task_id', taskId)
-    } else {
-      // Показваме само приложенията на текущия потребител
-      query = query.eq('applicant_id', user.id)
+    if (task_id) {
+      query = query.eq('task_id', task_id)
+    }
+
+    if (user_id) {
+      query = query.eq('user_id', user_id)
     }
 
     const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching applications:', error)
-      return NextResponse.json({ error: 'Failed to fetch applications' }, { status: 500 })
+      console.error('Supabase error:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ applications: data || [] })
-  } catch (error) {
-    console.error('Error in GET /api/applications:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const cookieStore = cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) { return cookieStore.get(name)?.value },
-          set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }) },
-          remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }) },
-        },
-      }
+    return NextResponse.json(data, { status: 200 })
+  } catch (error: any) {
+    console.error('API error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Вътрешна грешка' },
+      { status: 500 }
     )
-
-    // Проверка за автентикация
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { taskId, message } = body
-
-    if (!taskId) {
-      return NextResponse.json({ error: 'Task ID is required' }, { status: 400 })
-    }
-
-    // Проверка дали задачата съществува и е активна
-    const { data: task, error: taskError } = await supabase
-      .from('tasks')
-      .select('id, status, posted_by, title, applications')
-      .eq('id', taskId)
-      .single()
-
-    if (taskError || !task) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
-    }
-
-    if (task.status !== 'active') {
-      return NextResponse.json({ error: 'Task is not active' }, { status: 400 })
-    }
-
-    if (task.posted_by === user.id) {
-      return NextResponse.json({ error: 'Cannot apply to your own task' }, { status: 400 })
-    }
-
-    // Проверка дали вече е кандидатствал
-    const { data: existingApplication } = await supabase
-      .from('applications')
-      .select('id')
-      .eq('task_id', taskId)
-      .eq('applicant_id', user.id)
-      .single()
-
-    if (existingApplication) {
-      return NextResponse.json({ error: 'Already applied to this task' }, { status: 400 })
-    }
-
-    // Създаване на приложение
-    const { data: application, error: applicationError } = await supabase
-      .from('applications')
-      .insert({
-        task_id: taskId,
-        applicant_id: user.id,
-        message: message || ''
-      })
-      .select(`
-        *,
-        tasks (
-          id,
-          title,
-          status
-        ),
-        profiles!applications_applicant_id_fkey (
-          id,
-          full_name,
-          avatar_url
-        )
-      `)
-      .single()
-
-    if (applicationError) {
-      console.error('Error creating application:', applicationError)
-      return NextResponse.json({ error: 'Failed to create application' }, { status: 500 })
-    }
-
-    // Увеличаване на броя приложения за задачата
-    await supabase
-      .from('tasks')
-      .update({ applications: (task.applications || 0) + 1 })
-      .eq('id', taskId)
-
-    // Създаване на известие за собственика на задачата
-    await supabase
-      .from('notifications')
-      .insert({
-        user_id: task.posted_by,
-        title: 'Ново приложение',
-        message: `Получихте ново приложение за задача "${task.title}"`,
-        type: 'application'
-      })
-
-    return NextResponse.json({ application }, { status: 201 })
-  } catch (error) {
-    console.error('Error in POST /api/applications:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

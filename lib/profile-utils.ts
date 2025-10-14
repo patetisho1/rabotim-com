@@ -129,3 +129,4 @@ export function getContactVisibilityMessage(
   return 'Кандидатствайте за обява, за да видите пълните контакти'
 }
 
+
