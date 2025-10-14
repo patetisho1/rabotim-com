@@ -74,18 +74,16 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     const boosted = JSON.parse(localStorage.getItem('boostedTasks') || '[]')
     setIsBoosted(boosted.includes(task.id))
 
-    // Зареждане на реални данни за потребителя
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const taskUser = users.find((user: any) => user.id === task.posted_by)
-    if (taskUser) {
+    // Използваме данните от Supabase (task.profiles)
+    if (task.profiles) {
       setUserData({
-        name: taskUser.name || 'Потребител',
-        rating: taskUser.rating || 4.5,
-        avatar: taskUser.avatar || '/default-avatar.png',
-        verified: taskUser.verified || false
+        name: task.profiles.full_name || 'Потребител',
+        rating: task.rating || 4.5,
+        avatar: task.profiles.avatar_url || '/default-avatar.png',
+        verified: task.profiles.verified || false
       })
     }
-  }, [task.id, task.posted_by])
+  }, [task.id, task.profiles, task.rating])
 
   const handleFavoriteToggle = () => {
     const newFavoriteState = !isFavorite
@@ -226,16 +224,20 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     return date.toLocaleDateString('bg-BG')
   }
 
+  const handleCardClick = () => {
+    router.push(`/task/${task.id}`)
+  }
+
   return (
     <div 
       className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-200 group cursor-pointer touch-manipulation"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onClick={() => router.push(`/task/${task.id}`)}
+      onClick={handleCardClick}
     >
-      {/* Mobile-optimized Image - Compact height for 2-column layout */}
-      <div className="relative h-32 sm:h-48 overflow-hidden">
+      {/* Mobile-optimized Image - Better height for visibility */}
+      <div className="relative h-40 sm:h-56 overflow-hidden">
         <img 
           src={getCategoryImage(task.category)} 
           alt={task.category}
@@ -273,10 +275,10 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
         </div>
       </div>
 
-      {/* Mobile-optimized card layout - Compact for 2-column */}
-      <div className="p-3 sm:p-4">
-        {/* Title - Mobile compact */}
-        <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 leading-tight">
+      {/* Mobile-optimized card layout - Better padding */}
+      <div className="p-4 sm:p-6">
+        {/* Title - Better visibility */}
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 leading-tight">
           {task.title}
         </h3>
         
