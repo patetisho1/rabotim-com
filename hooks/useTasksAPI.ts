@@ -32,6 +32,7 @@ export interface Task {
   posted_by_email: string
   created_at: string
   updated_at: string
+  images?: string[]
   profiles?: {
     id: string
     full_name: string

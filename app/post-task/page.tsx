@@ -154,6 +154,32 @@ export default function PostTaskPage() {
     setIsSubmitting(true)
 
     try {
+      // Качване на снимки в Supabase Storage
+      let imageUrls: string[] = []
+      if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          const file = images[i]
+          const fileName = `${user.id}/${Date.now()}-${i}-${file.name}`
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('task-images')
+            .upload(fileName, file)
+          
+          if (uploadError) {
+            console.error('Upload error:', uploadError)
+            toast.error(`Грешка при качване на снимка ${i + 1}`)
+            continue
+          }
+          
+          // Получаване на public URL
+          const { data: urlData } = supabase.storage
+            .from('task-images')
+            .getPublicUrl(fileName)
+          
+          imageUrls.push(urlData.publicUrl)
+        }
+      }
+
       // Създаване на задачата в Supabase
       const { data, error } = await supabase
         .from('tasks')
@@ -169,7 +195,8 @@ export default function PostTaskPage() {
           status: 'active',
           deadline: formData.deadline || null,
           applications_count: 0,
-          views_count: 0
+          views_count: 0,
+          images: imageUrls // Добавяме снимките
         }])
         .select()
         .single()

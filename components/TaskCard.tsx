@@ -239,7 +239,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
       {/* Mobile-optimized Image - Better height for visibility */}
       <div className="relative h-40 sm:h-56 overflow-hidden">
         <img 
-          src={getCategoryImage(task.category)} 
+          src={task.images && task.images.length > 0 ? task.images[0] : getCategoryImage(task.category)} 
           alt={task.category}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />

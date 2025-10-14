@@ -45,6 +45,7 @@ CREATE TABLE public.tasks (
   views_count integer DEFAULT 0,
   deadline timestamp with time zone,
   attachments text[],
+  images text[],
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
