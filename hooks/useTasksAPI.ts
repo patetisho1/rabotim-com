@@ -56,6 +56,8 @@ export interface CreateTaskData {
 export function useTasksAPI() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
+  
+  console.log('useTasksAPI: Supabase client:', supabase ? 'initialized' : 'not initialized')
   const [error, setError] = useState<string | null>(null)
 
   const fetchTasks = async (filters?: {
