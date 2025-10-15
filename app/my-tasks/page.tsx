@@ -20,6 +20,7 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { Task, useTasksAPI } from '@/hooks/useTasksAPI'
+import { supabase } from '@/lib/supabase'
 
 const statusColors = {
   active: 'bg-green-100 text-green-800',
@@ -95,26 +96,31 @@ export default function MyTasksPage() {
     setFilteredTasks(filtered)
   }
 
-  const handleDeleteTask = (taskId: string) => {
-    if (window.confirm('Сигурни ли сте, че искате да изтриете тази задача?')) {
-      const updatedTasks = tasks.filter(task => task.id !== taskId)
-      setTasks(updatedTasks)
-      
-      // Обновяване на localStorage
-      const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const updatedAllTasks = allTasks.filter((task: Task) => task.id !== taskId)
-      localStorage.setItem('tasks', JSON.stringify(updatedAllTasks))
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Сигурни ли сте, че искате да изтриете тази задача? Това действие е необратимо.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      // Update local state
+      setTasks(prev => prev.filter(task => task.id !== taskId))
       
       toast.success('Задачата е изтрита успешно')
+    } catch (error: any) {
+      console.error('Error deleting task:', error)
+      toast.error('Грешка при изтриване на задачата')
     }
   }
 
   const handleEditTask = (taskId: string) => {
-    // За сега просто показваме съобщение
-    toast('Редактирането на задачи ще бъде добавено скоро', {
-      icon: 'ℹ️',
-      duration: 3000
-    })
+    router.push(`/task/${taskId}/edit`)
   }
 
   const formatDate = (dateString: string | undefined) => {
