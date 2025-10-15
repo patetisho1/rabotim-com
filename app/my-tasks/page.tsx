@@ -17,7 +17,8 @@ import {
   Filter,
   Search,
   Copy,
-  BarChart3
+  BarChart3,
+  Sparkles
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -380,7 +381,12 @@ export default function MyTasksPage() {
         ) : (
           <div className="space-y-4">
             {filteredTasks.map(task => (
-              <div key={task.id} className="bg-white rounded-lg shadow-sm border p-6">
+              <div key={task.id} className={`rounded-lg shadow-sm border p-6 ${
+                task.is_top ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-400' :
+                task.is_featured ? 'bg-purple-50 border-purple-400' :
+                task.is_promoted ? 'bg-blue-50 border-blue-400' :
+                'bg-white'
+              }`}>
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -398,6 +404,24 @@ export default function MyTasksPage() {
                       {task.urgent && (
                         <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
                           Спешно
+                        </span>
+                      )}
+                      {task.is_top && (
+                        <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Топ
+                        </span>
+                      )}
+                      {task.is_featured && !task.is_top && (
+                        <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Препоръчана
+                        </span>
+                      )}
+                      {task.is_promoted && !task.is_featured && !task.is_top && (
+                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Промотирана
                         </span>
                       )}
                     </div>
@@ -504,6 +528,13 @@ export default function MyTasksPage() {
                       title="Аналитика"
                     >
                       <BarChart3 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => router.push(`/task/${task.id}/promote`)}
+                      className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                      title="Промоция"
+                    >
+                      <Sparkles className="h-4 w-4" />
                     </button>
                     <button 
                       onClick={() => router.push(`/task/${task.id}/applicants`)}

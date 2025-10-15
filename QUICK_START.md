@@ -178,3 +178,4 @@ npm run dev
 - `STAGING_READY.md` - Обобщение на функционалности
 - `SETUP_SUPABASE.md` - Supabase setup детайли
 
+

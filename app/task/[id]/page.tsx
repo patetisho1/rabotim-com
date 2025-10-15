@@ -387,6 +387,22 @@ export default function TaskDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Complete Task Button - Show for poster or accepted worker when task is in_progress */}
+            {task.status === 'in_progress' && (task.user_id === authUser?.id || hasApplied) && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <button
+                  onClick={() => router.push(`/task/${taskId}/complete`)}
+                  className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-medium"
+                >
+                  <CheckCircle size={20} />
+                  Завърши задачата
+                </button>
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                  И двете страни трябва да потвърдят завършването
+                </p>
+              </div>
+            )}
+
             {/* Apply Section */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
