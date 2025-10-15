@@ -72,15 +72,10 @@ export function useTasksAPI() {
       setLoading(true)
       setError(null)
 
-      // If no Supabase client, try localStorage as fallback
+      // If no Supabase client, return empty array
       if (!supabase) {
-        console.warn('Supabase not configured - trying localStorage fallback')
-        if (typeof window !== 'undefined') {
-          const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-          setTasks(localTasks)
-        } else {
-          setTasks([])
-        }
+        console.warn('Supabase not configured - fetchTasks returning empty array')
+        setTasks([])
         setLoading(false)
         return
       }
@@ -208,16 +203,7 @@ export function useTasksAPI() {
 
       // Check if Supabase is configured
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.warn('Supabase not configured - trying localStorage fallback for getUserTasks')
-        if (typeof window !== 'undefined') {
-          const storedTasks = localStorage.getItem('tasks')
-          if (storedTasks) {
-            const allTasks = JSON.parse(storedTasks)
-            // Filter tasks by user ID - assuming user ID matches the posted_by field
-            const userTasks = allTasks.filter((task: any) => task.posted_by === userId)
-            return userTasks
-          }
-        }
+        console.warn('Supabase not configured - getUserTasks returning empty array')
         return []
       }
 
@@ -228,25 +214,12 @@ export function useTasksAPI() {
       }
 
       const data = await response.json()
+      console.log('getUserTasks API response:', { userId, data })
       return data.tasks || []
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
       console.error('Error fetching user tasks:', err)
-      
-      // Fallback to localStorage on error
-      try {
-        if (typeof window !== 'undefined') {
-          const storedTasks = localStorage.getItem('tasks')
-          if (storedTasks) {
-            const allTasks = JSON.parse(storedTasks)
-            const userTasks = allTasks.filter((task: any) => task.posted_by === userId)
-            return userTasks
-          }
-        }
-      } catch (fallbackErr) {
-        console.error('Fallback failed:', fallbackErr)
-      }
       
       return []
     }
