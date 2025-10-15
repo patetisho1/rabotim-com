@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import TasksMap from '@/components/TasksMap'
+import MobileFiltersSheet from '@/components/MobileFiltersSheet'
 
 // Task interface is imported from useTasksAPI
 
@@ -618,6 +619,15 @@ export default function TasksPage() {
     setFilteredTasks(filtered)
   }
 
+  const handleResetFilters = () => {
+    setSearchQuery('')
+    setSelectedCategory('')
+    setSelectedLocation('')
+    setSelectedPriceRange('')
+    setSelectedSort('Най-нови')
+    toast.success('Филтрите са изчистени')
+  }
+
   const handleFavoriteToggle = (taskId: string) => {
     const newFavorites = favorites.includes(taskId)
       ? favorites.filter(id => id !== taskId)
@@ -730,12 +740,12 @@ export default function TasksPage() {
               </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex gap-2">
+            {/* Filters - Desktop */}
+            <div className="hidden lg:flex gap-2">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {categories.map(category => (
                   <option key={category.value} value={category.name}>
@@ -747,7 +757,7 @@ export default function TasksPage() {
               <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {locations.map(location => (
                   <option key={location} value={location}>
@@ -759,7 +769,7 @@ export default function TasksPage() {
               <select
                 value={selectedPriceRange}
                 onChange={(e) => setSelectedPriceRange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {priceRanges.map(range => (
                   <option key={range} value={range}>
@@ -771,7 +781,7 @@ export default function TasksPage() {
               <select
                 value={selectedSort}
                 onChange={(e) => setSelectedSort(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {sortOptions.map(option => (
                   <option key={option} value={option}>
@@ -779,15 +789,21 @@ export default function TasksPage() {
                   </option>
                 ))}
               </select>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Filter className="h-4 w-4" />
-                Филтри
-              </button>
             </div>
+
+            {/* Filters Button - Mobile */}
+            <button
+              onClick={() => setShowFilters(true)}
+              className="lg:hidden px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 font-medium text-gray-700 dark:text-gray-300 min-h-[44px] touch-manipulation"
+            >
+              <Filter className="h-5 w-5" />
+              Филтри
+              {(selectedCategory || selectedLocation || selectedPriceRange || selectedSort !== 'Най-нови') && (
+                <span className="ml-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+                  •
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -840,6 +856,25 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Filters Sheet */}
+      <MobileFiltersSheet
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        categories={categories}
+        locations={locations}
+        priceRanges={priceRanges}
+        sortOptions={sortOptions}
+        selectedCategory={selectedCategory}
+        selectedLocation={selectedLocation}
+        selectedPriceRange={selectedPriceRange}
+        selectedSort={selectedSort}
+        onCategoryChange={setSelectedCategory}
+        onLocationChange={setSelectedLocation}
+        onPriceRangeChange={setSelectedPriceRange}
+        onSortChange={setSelectedSort}
+        onReset={handleResetFilters}
+      />
     </div>
   )
 }
