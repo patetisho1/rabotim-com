@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
+import TestimonialsSection from '@/components/TestimonialsSection'
 import { LazyWrapper } from '@/components/LazyComponents'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
@@ -1404,7 +1405,8 @@ export default function HomePage() {
           </div>
         </section>
 
-
+        {/* Testimonials Section */}
+        <TestimonialsSection />
 
         {/* Recent Tasks */}
         <section ref={tasksRef} className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
