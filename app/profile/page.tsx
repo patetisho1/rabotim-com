@@ -155,6 +155,30 @@ export default function ProfilePage() {
     toast.success('Успешно излязохте от акаунта')
   }
 
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Сигурни ли сте, че искате да изтриете тази задача?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task')
+      }
+
+      toast.success('Задачата е изтрита успешно')
+      
+      // Reload user data
+      await loadUserData()
+    } catch (error: any) {
+      console.error('Error deleting task:', error)
+      toast.error('Грешка при изтриване на задачата')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -612,16 +636,41 @@ export default function ProfilePage() {
                         <h4 className="text-lg font-medium text-gray-900">Последни задачи</h4>
                         <div className="space-y-3">
                           {userTasks.slice(0, 5).map((task: any) => (
-                            <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                                 onClick={() => router.push(`/task/${task.id}`)}>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-900">{task.title}</h5>
-                                <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
-                                <p className="text-xs text-gray-500 mt-1">Статус: {task.status}</p>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold text-gray-900">{task.price} лв</p>
-                                <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
+                            <div key={task.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 cursor-pointer" onClick={() => router.push(`/task/${task.id}`)}>
+                                  <h5 className="font-medium text-gray-900">{task.title}</h5>
+                                  <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
+                                  <p className="text-xs text-gray-500 mt-1">Статус: {task.status}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <div className="text-right">
+                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/task/${task.id}/edit`)
+                                      }}
+                                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                      title="Редактирай"
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDeleteTask(task.id)
+                                      }}
+                                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                      title="Изтрий"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           ))}
