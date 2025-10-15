@@ -18,7 +18,8 @@ import {
   Search,
   Copy,
   BarChart3,
-  Sparkles
+  Sparkles,
+  Archive
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -82,6 +83,9 @@ export default function MyTasksPage() {
 
   const filterTasks = () => {
     let filtered = [...tasks]
+
+    // Филтър за неархивирани задачи
+    filtered = filtered.filter(task => !task.is_archived)
 
     // Филтър по търсене
     if (searchQuery) {
@@ -184,6 +188,32 @@ export default function MyTasksPage() {
     toast.success('Данните са заредени за нова задача')
   }
 
+  const handleArchiveTask = async (taskId: string) => {
+    if (!window.confirm('Сигурни ли сте, че искате да архивирате тази задача? Ще можете да я възстановите по-късно.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          is_archived: true,
+          archived_at: new Date().toISOString()
+        })
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      // Update local state
+      setTasks(prev => prev.filter(task => task.id !== taskId))
+      
+      toast.success('Задачата е архивирана успешно')
+    } catch (error: any) {
+      console.error('Error archiving task:', error)
+      toast.error('Грешка при архивиране на задачата')
+    }
+  }
+
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return 'Няма срок'
     const date = new Date(dateString)
@@ -248,13 +278,22 @@ export default function MyTasksPage() {
                   Управлявайте задачите, които сте публикували
                 </p>
               </div>
-              <button
-                onClick={() => router.push('/post-task')}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Публикувай нова задача
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.push('/archived-tasks')}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                >
+                  <Archive className="h-4 w-4" />
+                  Архив
+                </button>
+                <button
+                  onClick={() => router.push('/post-task')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Публикувай нова задача
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -514,6 +553,13 @@ export default function MyTasksPage() {
                       title="Дублирай"
                     >
                       <Copy className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleArchiveTask(task.id)}
+                      className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                      title="Архивирай"
+                    >
+                      <Archive className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteTask(task.id)}

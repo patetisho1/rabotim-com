@@ -44,3 +44,11 @@ $$ LANGUAGE plpgsql;
 -- Note: This requires pg_cron extension which may need to be enabled separately
 -- For now, we'll just create the function and it can be called manually or via a cron job
 
+-- Add archive field to tasks table
+ALTER TABLE public.tasks 
+ADD COLUMN IF NOT EXISTS is_archived boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS archived_at timestamp with time zone;
+
+-- Create index for archived tasks
+CREATE INDEX IF NOT EXISTS idx_tasks_archived ON public.tasks(is_archived) WHERE is_archived = true;
+
