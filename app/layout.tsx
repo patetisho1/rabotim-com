@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 // import PWAInstall from '@/components/PWAInstall'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import BottomNav from '@/components/BottomNav'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import AuthProvider from '@/providers/AuthProvider'
 import SPANavigation from '@/components/SPANavigation'
@@ -61,10 +62,11 @@ export default function RootLayout({
         <AuthProvider>
           <SPANavigation>
             <Header />
-            <main>
+            <main className="pb-safe">
               {children}
             </main>
             <Footer />
+            <BottomNav />
           </SPANavigation>
         </AuthProvider>
         {/* <MobileNav /> */}
