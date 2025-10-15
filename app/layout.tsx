@@ -6,28 +6,59 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BottomNav from '@/components/BottomNav'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
 import AuthProvider from '@/providers/AuthProvider'
 import SPANavigation from '@/components/SPANavigation'
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'),
-  title: 'Rabotim.com - Почасова работа в България',
-  description: 'Намерете или предложете почасова работа в България. Ремонт, почистване, грижа, доставка и много други услуги.',
-  keywords: 'почасова работа, временна работа, България, услуги, ремонт, почистване',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://rabotim.com'),
+  title: {
+    default: 'Rabotim.com - Намери работа и изпълнители в България',
+    template: '%s | Rabotim.com'
+  },
+  description: 'Водещата платформа за намиране на почасова работа и професионални изпълнители в България. Повече от 10,000 завършени задачи. Регистрацията е безплатна!',
+  keywords: 'работа българия, почасова работа, изпълнители, freelance българия, временна работа, услуги българия, ремонт, почистване, доставка, rabotim',
   authors: [{ name: 'Rabotim.com' }],
+  creator: 'Rabotim.com',
+  publisher: 'Rabotim.com',
+  robots: 'index, follow',
   openGraph: {
-    title: 'Rabotim.com - Почасова работа в България',
-    description: 'Намерете или предложете почасова работа в България',
     type: 'website',
     locale: 'bg_BG',
+    url: 'https://rabotim.com',
+    siteName: 'Rabotim.com',
+    title: 'Rabotim.com - Намери работа и изпълнители в България',
+    description: 'Водещата платформа за намиране на почасова работа и професионални изпълнители в България',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Rabotim.com'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Rabotim.com - Намери работа и изпълнители в България',
+    description: 'Водещата платформа за намиране на почасова работа в България',
+    images: ['/og-image.png'],
+    creator: '@rabotim_bg'
   },
   themeColor: '#3b82f6',
-  viewport: 'width=device-width, initial-scale=1',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5
+  },
   formatDetection: {
     telephone: false,
   },
+  verification: {
+    google: 'verification_token_here', // TODO: Add real token
+  }
 }
 
 export default function RootLayout({
@@ -59,6 +90,8 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
+        <OrganizationStructuredData />
+        <WebSiteStructuredData />
         <AuthProvider>
           <SPANavigation>
             <Header />
