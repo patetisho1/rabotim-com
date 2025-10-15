@@ -341,3 +341,155 @@ BEGIN
   RETURN false;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Notification triggers
+-- 1. New application notification
+CREATE OR REPLACE FUNCTION public.notify_new_application()
+RETURNS TRIGGER AS $$
+DECLARE
+  task_owner_id uuid;
+  task_title text;
+  applicant_name text;
+BEGIN
+  -- Get task owner and title
+  SELECT user_id, title INTO task_owner_id, task_title
+  FROM public.tasks
+  WHERE id = NEW.task_id;
+  
+  -- Get applicant name
+  SELECT full_name INTO applicant_name
+  FROM public.users
+  WHERE id = NEW.user_id;
+  
+  -- Create notification for task owner
+  INSERT INTO public.notifications (user_id, type, title, message, data)
+  VALUES (
+    task_owner_id,
+    'new_application',
+    'Нова кандидатура',
+    applicant_name || ' кандидатства за "' || task_title || '"',
+    jsonb_build_object(
+      'task_id', NEW.task_id,
+      'application_id', NEW.id,
+      'applicant_id', NEW.user_id
+    )
+  );
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trigger_notify_new_application ON public.task_applications;
+CREATE TRIGGER trigger_notify_new_application
+  AFTER INSERT ON public.task_applications
+  FOR EACH ROW EXECUTE FUNCTION public.notify_new_application();
+
+-- 2. Application accepted notification
+CREATE OR REPLACE FUNCTION public.notify_application_status()
+RETURNS TRIGGER AS $$
+DECLARE
+  task_title text;
+  task_owner_name text;
+BEGIN
+  -- Only notify on status change
+  IF OLD.status = NEW.status THEN
+    RETURN NEW;
+  END IF;
+  
+  -- Get task title
+  SELECT title INTO task_title
+  FROM public.tasks
+  WHERE id = NEW.task_id;
+  
+  -- Get task owner name
+  SELECT u.full_name INTO task_owner_name
+  FROM public.tasks t
+  JOIN public.users u ON t.user_id = u.id
+  WHERE t.id = NEW.task_id;
+  
+  -- Notify applicant
+  IF NEW.status = 'accepted' THEN
+    INSERT INTO public.notifications (user_id, type, title, message, data)
+    VALUES (
+      NEW.user_id,
+      'application_accepted',
+      'Кандидатурата е приета! 🎉',
+      task_owner_name || ' прие вашата кандидатура за "' || task_title || '"',
+      jsonb_build_object(
+        'task_id', NEW.task_id,
+        'application_id', NEW.id
+      )
+    );
+  ELSIF NEW.status = 'rejected' THEN
+    INSERT INTO public.notifications (user_id, type, title, message, data)
+    VALUES (
+      NEW.user_id,
+      'application_rejected',
+      'Кандидатурата е отхвърлена',
+      'Вашата кандидатура за "' || task_title || '" беше отхвърлена',
+      jsonb_build_object(
+        'task_id', NEW.task_id,
+        'application_id', NEW.id
+      )
+    );
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trigger_notify_application_status ON public.task_applications;
+CREATE TRIGGER trigger_notify_application_status
+  AFTER UPDATE ON public.task_applications
+  FOR EACH ROW EXECUTE FUNCTION public.notify_application_status();
+
+-- 3. Task completion notification
+CREATE OR REPLACE FUNCTION public.notify_task_completion()
+RETURNS TRIGGER AS $$
+DECLARE
+  accepted_applicants uuid[];
+  applicant_id uuid;
+BEGIN
+  -- Only notify when task becomes completed
+  IF OLD.status = 'completed' OR NEW.status != 'completed' THEN
+    RETURN NEW;
+  END IF;
+  
+  -- Get all accepted applicants
+  SELECT array_agg(user_id) INTO accepted_applicants
+  FROM public.task_applications
+  WHERE task_id = NEW.id AND status = 'accepted';
+  
+  -- Notify task owner
+  INSERT INTO public.notifications (user_id, type, title, message, data)
+  VALUES (
+    NEW.user_id,
+    'task_completed',
+    'Задачата е завършена! ✅',
+    'Задачата "' || NEW.title || '" е маркирана като завършена. Можете да оставите отзив.',
+    jsonb_build_object('task_id', NEW.id)
+  );
+  
+  -- Notify all accepted applicants
+  IF accepted_applicants IS NOT NULL THEN
+    FOREACH applicant_id IN ARRAY accepted_applicants
+    LOOP
+      INSERT INTO public.notifications (user_id, type, title, message, data)
+      VALUES (
+        applicant_id,
+        'task_completed',
+        'Задачата е завършена! ✅',
+        'Задачата "' || NEW.title || '" е маркирана като завършена. Можете да оставите отзив.',
+        jsonb_build_object('task_id', NEW.id)
+      );
+    END LOOP;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trigger_notify_task_completion ON public.tasks;
+CREATE TRIGGER trigger_notify_task_completion
+  AFTER UPDATE ON public.tasks
+  FOR EACH ROW EXECUTE FUNCTION public.notify_task_completion();
