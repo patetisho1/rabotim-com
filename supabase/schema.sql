@@ -46,6 +46,10 @@ CREATE TABLE public.tasks (
   deadline timestamp with time zone,
   attachments text[],
   images text[],
+  completion_confirmed_by_poster boolean DEFAULT false,
+  completion_confirmed_by_worker boolean DEFAULT false,
+  completion_confirmed_by_poster_at timestamp with time zone,
+  completion_confirmed_by_worker_at timestamp with time zone,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -283,3 +287,57 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Function to check if task can be rated (7 days rule)
+CREATE OR REPLACE FUNCTION public.can_rate_task(
+  task_id_param uuid,
+  user_id_param uuid
+)
+RETURNS boolean AS $$
+DECLARE
+  task_record RECORD;
+  is_poster boolean;
+  days_since_confirmation integer;
+BEGIN
+  -- Get task details
+  SELECT * INTO task_record
+  FROM public.tasks
+  WHERE id = task_id_param;
+  
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+  
+  -- Check if user is poster or worker
+  is_poster := (task_record.user_id = user_id_param);
+  
+  -- If task is completed (both confirmed), allow rating
+  IF task_record.status = 'completed' THEN
+    RETURN true;
+  END IF;
+  
+  -- If task is in_progress, check 7-day rule
+  IF task_record.status = 'in_progress' THEN
+    -- If user confirmed but other party didn't
+    IF is_poster AND task_record.completion_confirmed_by_poster THEN
+      -- Check if 7 days passed since poster confirmation
+      IF task_record.completion_confirmed_by_poster_at IS NOT NULL THEN
+        days_since_confirmation := EXTRACT(DAY FROM (now() - task_record.completion_confirmed_by_poster_at));
+        IF days_since_confirmation >= 7 THEN
+          RETURN true;
+        END IF;
+      END IF;
+    ELSIF NOT is_poster AND task_record.completion_confirmed_by_worker THEN
+      -- Check if 7 days passed since worker confirmation
+      IF task_record.completion_confirmed_by_worker_at IS NOT NULL THEN
+        days_since_confirmation := EXTRACT(DAY FROM (now() - task_record.completion_confirmed_by_worker_at));
+        IF days_since_confirmation >= 7 THEN
+          RETURN true;
+        END IF;
+      END IF;
+    END IF;
+  END IF;
+  
+  RETURN false;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
