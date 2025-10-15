@@ -27,7 +27,7 @@ import {
   Leaf
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import GoogleMap from '@/components/GoogleMap'
+import TasksMap from '@/components/TasksMap'
 
 // Task interface is imported from useTasksAPI
 
@@ -824,9 +824,10 @@ export default function TasksPage() {
           {/* Map */}
           <div className="lg:col-span-1">
             <div className="sticky top-4">
-              <GoogleMap 
+              <TasksMap 
                 tasks={filteredTasks}
                 selectedLocation={selectedLocation}
+                height="600px"
                 onTaskClick={(taskId) => {
                   // Скролиране към задачата в списъка
                   const taskElement = document.getElementById(`task-${taskId}`)
