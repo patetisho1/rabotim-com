@@ -149,7 +149,7 @@ export default function TaskApplicantsPage() {
   }
 
   const handleAcceptApplicant = async (applicantId: string, userId: string) => {
-    if (!confirm('Сигурни ли сте, че искате да приемете този кандидат? Задачата ще бъде маркирана като "В процес".')) {
+    if (!confirm('Сигурни ли сте, че искате да приемете този кандидат?')) {
       return
     }
 
@@ -164,23 +164,15 @@ export default function TaskApplicantsPage() {
 
       if (updateError) throw updateError
 
-      // Update task status to in_progress
-      const { error: taskError } = await supabase
-        .from('tasks')
-        .update({ status: 'in_progress' })
-        .eq('id', taskId)
+      // Update task status to in_progress if not already
+      if (task?.status === 'active') {
+        const { error: taskError } = await supabase
+          .from('tasks')
+          .update({ status: 'in_progress' })
+          .eq('id', taskId)
 
-      if (taskError) throw taskError
-
-      // Reject all other pending applications
-      const { error: rejectError } = await supabase
-        .from('task_applications')
-        .update({ status: 'rejected' })
-        .eq('task_id', taskId)
-        .neq('id', applicantId)
-        .eq('status', 'pending')
-
-      if (rejectError) throw rejectError
+        if (taskError) throw taskError
+      }
 
       toast.success('Кандидатът е приет успешно!')
       
@@ -352,7 +344,7 @@ export default function TaskApplicantsPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleAcceptApplicant(applicant.id, applicant.user_id)}
-                          disabled={processingId === applicant.id || task.status === 'in_progress'}
+                          disabled={processingId === applicant.id}
                           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           <CheckCircle size={16} />
