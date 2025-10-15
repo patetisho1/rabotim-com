@@ -594,16 +594,46 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">Все още нямате публикувани задачи</p>
-                      <button
-                        onClick={() => router.push('/post-task')}
-                        className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        Публикувай първата си задача
-                      </button>
-                    </div>
+                    {userTasks.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600">Все още нямате публикувани задачи</p>
+                        <button
+                          onClick={() => router.push('/post-task')}
+                          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Публикувай първата си задача
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-medium text-gray-900">Последни задачи</h4>
+                        <div className="space-y-3">
+                          {userTasks.slice(0, 5).map((task: any) => (
+                            <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                 onClick={() => router.push(`/task/${task.id}`)}>
+                              <div className="flex-1">
+                                <h5 className="font-medium text-gray-900">{task.title}</h5>
+                                <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
+                                <p className="text-xs text-gray-500 mt-1">Статус: {task.status}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {userTasks.length > 5 && (
+                            <button
+                              onClick={() => router.push('/my-tasks')}
+                              className="w-full mt-4 text-blue-600 hover:text-blue-700 font-medium text-center"
+                            >
+                              Виж всички {userTasks.length} задачи →
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

@@ -203,6 +203,18 @@ export function useTasksAPI() {
     try {
       setError(null)
 
+      // Fallback to localStorage if Supabase is not configured
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        const storedTasks = localStorage.getItem('tasks')
+        if (storedTasks) {
+          const allTasks = JSON.parse(storedTasks)
+          // Filter tasks by user ID - assuming user ID matches the posted_by field
+          const userTasks = allTasks.filter((task: any) => task.posted_by === userId)
+          return userTasks
+        }
+        return []
+      }
+
       const response = await fetch(`/api/tasks?userId=${userId}`)
       
       if (!response.ok) {
@@ -214,7 +226,20 @@ export function useTasksAPI() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
-      throw err
+      
+      // Fallback to localStorage on error
+      try {
+        const storedTasks = localStorage.getItem('tasks')
+        if (storedTasks) {
+          const allTasks = JSON.parse(storedTasks)
+          const userTasks = allTasks.filter((task: any) => task.posted_by === userId)
+          return userTasks
+        }
+      } catch (fallbackErr) {
+        console.error('Fallback failed:', fallbackErr)
+      }
+      
+      return []
     }
   }
 
