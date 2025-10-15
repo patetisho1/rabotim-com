@@ -6,22 +6,25 @@ import { Task } from '@/hooks/useTasksAPI'
 import dynamic from 'next/dynamic'
 
 // Динамично зареждане на картата за да избегнем SSR проблеми
-const MapContainer = dynamic(
+const MapContainerDynamic = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }
-)
-const TileLayer = dynamic(
+) as any
+
+const TileLayerDynamic = dynamic(
   () => import('react-leaflet').then((mod) => mod.TileLayer),
   { ssr: false }
-)
-const Marker = dynamic(
+) as any
+
+const MarkerDynamic = dynamic(
   () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false }
-)
-const Popup = dynamic(
+) as any
+
+const PopupDynamic = dynamic(
   () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
-)
+) as any
 
 interface TasksMapProps {
   tasks: Task[]
@@ -132,13 +135,13 @@ export default function TasksMap({ tasks, selectedLocation, onTaskClick, height 
             integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
             crossOrigin=""
           />
-          <MapContainer
+          <MapContainerDynamic
             center={getMapCenter()}
             zoom={selectedLocation ? 12 : 7}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={false}
           >
-            <TileLayer
+            <TileLayerDynamic
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
@@ -152,8 +155,8 @@ export default function TasksMap({ tasks, selectedLocation, onTaskClick, height 
                 const position: [number, number] = [coords[0] + offset, coords[1] + offset]
 
                 return (
-                  <Marker key={task.id} position={position}>
-                    <Popup>
+                  <MarkerDynamic key={task.id} position={position}>
+                    <PopupDynamic>
                       <div className="p-2 min-w-[200px]">
                         <h4 className="font-semibold text-gray-900 mb-1 line-clamp-2">
                           {task.title}
@@ -179,12 +182,12 @@ export default function TasksMap({ tasks, selectedLocation, onTaskClick, height 
                           Виж детайли
                         </button>
                       </div>
-                    </Popup>
-                  </Marker>
+                    </PopupDynamic>
+                  </MarkerDynamic>
                 )
               })
             })}
-          </MapContainer>
+          </MapContainerDynamic>
         </div>
       ) : (
         /* List View */
