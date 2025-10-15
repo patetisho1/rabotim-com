@@ -99,7 +99,9 @@ export default function ProfilePage() {
       // Използваме данните от Supabase Auth
       if (authUser) {
         // Зареждаме задачите на потребителя от Supabase
+        console.log('Profile: authUser.id =', authUser.id)
         const tasks = await getUserTasks(authUser.id)
+        console.log('Profile: loaded tasks =', tasks)
         setUserTasks(tasks)
         
         const userData: UserData = {

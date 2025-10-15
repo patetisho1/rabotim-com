@@ -185,6 +185,7 @@ export default function PostTaskPage() {
       }
 
       // Създаване на задачата в Supabase
+      console.log('Post-task: user.id =', user.id)
       const { data, error } = await supabase
         .from('tasks')
         .insert([{
@@ -204,6 +205,8 @@ export default function PostTaskPage() {
         }])
         .select()
         .single()
+      
+      console.log('Post-task: created task =', data)
 
       if (error) {
         console.error('Supabase error:', error)
@@ -221,9 +224,9 @@ export default function PostTaskPage() {
   }
 
   if (authLoading) {
-    return (
+  return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+      <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Зареждане...</p>
         </div>
