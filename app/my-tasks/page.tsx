@@ -15,7 +15,8 @@ import {
   Edit,
   Trash2,
   Filter,
-  Search
+  Search,
+  Copy
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -147,6 +148,38 @@ export default function MyTasksPage() {
       console.error('Error updating task status:', error)
       toast.error('Грешка при обновяване на статуса')
     }
+  }
+
+  const handleDuplicateTask = (task: any) => {
+    // Create a copy of the task with modified title and reset fields
+    const duplicatedTask = {
+      ...task,
+      title: `${task.title} (Копие)`,
+      status: 'active',
+      applications_count: 0,
+      views_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    // Remove the id so it creates a new task
+    delete duplicatedTask.id
+    
+    // Navigate to post-task page with pre-filled data
+    const queryParams = new URLSearchParams({
+      duplicate: 'true',
+      title: duplicatedTask.title,
+      description: duplicatedTask.description,
+      category: duplicatedTask.category,
+      location: duplicatedTask.location,
+      price: duplicatedTask.price.toString(),
+      price_type: duplicatedTask.price_type,
+      urgent: duplicatedTask.urgent.toString(),
+      deadline: duplicatedTask.deadline || ''
+    })
+    
+    router.push(`/post-task?${queryParams.toString()}`)
+    toast.success('Данните са заредени за нова задача')
   }
 
   const formatDate = (dateString: string | undefined) => {
@@ -431,6 +464,13 @@ export default function MyTasksPage() {
                       title="Редактирай"
                     >
                       <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDuplicateTask(task)}
+                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Дублирай"
+                    >
+                      <Copy className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteTask(task.id)}

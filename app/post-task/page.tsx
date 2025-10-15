@@ -103,6 +103,25 @@ export default function PostTaskPage() {
     if (!user) {
       toast.error('Трябва да сте влезли в акаунта си')
       router.push('/login')
+      return
+    }
+
+    // Check for duplicate parameters
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('duplicate') === 'true') {
+      setFormData({
+        title: urlParams.get('title') || '',
+        description: urlParams.get('description') || '',
+        category: urlParams.get('category') || '',
+        location: urlParams.get('location') || '',
+        price: urlParams.get('price') || '',
+        priceType: (urlParams.get('price_type') as 'fixed' | 'hourly') || 'fixed',
+        urgent: urlParams.get('urgent') === 'true',
+        deadline: urlParams.get('deadline') || ''
+      })
+      
+      // Clear URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname)
     }
   }, [user, authLoading, router])
 
