@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import TaskCard from '@/components/TaskCard'
+import SkeletonCard from '@/components/SkeletonCard'
 import { Task } from '@/hooks/useTasksAPI'
 
 interface TaskGridProps {
@@ -49,21 +50,10 @@ export default function TaskGrid({ tasks: propTasks }: TaskGridProps = {}) {
 
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-pulse">
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="h-32 sm:h-48 bg-gray-200 dark:bg-gray-700 animate-shimmer"></div>
-                <div className="p-3 sm:p-4">
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 animate-shimmer"></div>
-                  <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2 animate-shimmer"></div>
-                  <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 animate-shimmer"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
+        {[...Array(8)].map((_, index) => (
+          <SkeletonCard key={index} />
+        ))}
       </div>
     )
   }

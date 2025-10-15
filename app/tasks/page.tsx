@@ -29,6 +29,7 @@ import {
 import toast from 'react-hot-toast'
 import TasksMap from '@/components/TasksMap'
 import MobileFiltersSheet from '@/components/MobileFiltersSheet'
+import SkeletonCard from '@/components/SkeletonCard'
 
 // Task interface is imported from useTasksAPI
 
@@ -814,9 +815,10 @@ export default function TasksPage() {
           {/* Tasks List */}
           <div className="lg:col-span-2">
             {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Зареждане на задачи...</p>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+                {[...Array(9)].map((_, index) => (
+                  <SkeletonCard key={index} />
+                ))}
               </div>
             ) : filteredTasks.length === 0 ? (
               <div className="text-center py-12">
