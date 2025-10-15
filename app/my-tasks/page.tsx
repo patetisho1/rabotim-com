@@ -123,6 +123,32 @@ export default function MyTasksPage() {
     router.push(`/task/${taskId}/edit`)
   }
 
+  const handleStatusChange = async (taskId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update task status')
+      }
+
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId ? { ...task, status: newStatus } : task
+      ))
+      
+      toast.success(`Статусът е обновен на "${statusLabels[newStatus as keyof typeof statusLabels]}"`)
+    } catch (error: any) {
+      console.error('Error updating task status:', error)
+      toast.error('Грешка при обновяване на статуса')
+    }
+  }
+
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return 'Няма срок'
     const date = new Date(dateString)
@@ -133,11 +159,26 @@ export default function MyTasksPage() {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
   }
 
+  // Status definitions
+  const statusLabels = {
+    active: 'Активна',
+    in_progress: 'В процес',
+    completed: 'Завършена',
+    cancelled: 'Отменена'
+  }
+
+  const statusColors = {
+    active: 'bg-green-100 text-green-800',
+    in_progress: 'bg-blue-100 text-blue-800',
+    completed: 'bg-gray-100 text-gray-800',
+    cancelled: 'bg-red-100 text-red-800'
+  }
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active':
         return <Clock className="h-4 w-4" />
-      case 'assigned':
+      case 'in_progress':
         return <MessageCircle className="h-4 w-4" />
       case 'completed':
         return <CheckCircle className="h-4 w-4" />
@@ -217,9 +258,9 @@ export default function MyTasksPage() {
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-600">Възложени</p>
+                  <p className="text-sm text-blue-600">В процес</p>
                   <p className="text-2xl font-bold text-blue-900">
-                    {tasks.filter(t => t.status === 'assigned').length}
+                    {tasks.filter(t => t.status === 'in_progress').length}
                   </p>
                 </div>
                 <div className="bg-blue-100 rounded-full p-2">
@@ -269,7 +310,7 @@ export default function MyTasksPage() {
             >
               <option value="">Всички статуси</option>
               <option value="active">Активни</option>
-              <option value="assigned">Възложени</option>
+              <option value="in_progress">В процес</option>
               <option value="completed">Завършени</option>
               <option value="cancelled">Отменени</option>
             </select>
@@ -310,9 +351,16 @@ export default function MyTasksPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
-                        {statusLabels[task.status]}
-                      </span>
+                      <select
+                        value={task.status}
+                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${statusColors[task.status as keyof typeof statusColors]}`}
+                      >
+                        <option value="active">Активна</option>
+                        <option value="in_progress">В процес</option>
+                        <option value="completed">Завършена</option>
+                        <option value="cancelled">Отменена</option>
+                      </select>
                       {task.urgent && (
                         <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
                           Спешно
