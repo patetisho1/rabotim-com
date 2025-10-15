@@ -257,28 +257,28 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
             </span>
           </div>
         )}
-        {/* Heart icon overlay for mobile */}
+        {/* Heart icon overlay for mobile - Bigger touch target */}
         <div className="absolute bottom-2 right-2">
           <button
             onClick={(e) => {
               e.stopPropagation()
               handleFavoriteToggle()
             }}
-            className={`p-2 rounded-full shadow-lg transition-all duration-200 ${
+            className={`p-3 rounded-full shadow-lg transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
               isFavorite
                 ? 'bg-red-500 text-white'
                 : 'bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white'
             }`}
           >
-            {isFavorite ? <Heart size={16} className="fill-current" /> : <HeartOff size={16} />}
+            {isFavorite ? <Heart size={20} className="fill-current" /> : <HeartOff size={20} />}
           </button>
         </div>
       </div>
 
       {/* Mobile-optimized card layout - Better padding */}
       <div className="p-4 sm:p-6">
-        {/* Title - Better visibility */}
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 leading-tight">
+        {/* Title - Better visibility and readability */}
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 leading-snug">
           {task.title}
         </h3>
         
