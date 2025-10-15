@@ -74,7 +74,7 @@ export function useTasksAPI() {
 
       // If no Supabase client, return empty array
       if (!supabase) {
-        console.warn('Supabase not configured - fetchTasks returning empty array')
+        console.warn('Supabase client not initialized - fetchTasks returning empty array')
         setTasks([])
         setLoading(false)
         return
@@ -201,11 +201,11 @@ export function useTasksAPI() {
     try {
       setError(null)
 
-      // Check if Supabase is configured
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.warn('Supabase not configured - getUserTasks returning empty array')
-        return []
-      }
+      // Check if Supabase is configured (use fallback values from lib/supabase.ts)
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wwbxzkbilklullziiogr.supabase.co'
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Ynh6a2JpbGtsdWxsemlpb2dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNzQwMjMsImV4cCI6MjA3MjY1MDAyM30.o1GA7hqkhIn9wH3HzdpkmUEkjz13HJGixfZ9ggVCvu0'
+      
+      console.log('getUserTasks: Using Supabase URL:', supabaseUrl)
 
       const response = await fetch(`/api/tasks?userId=${userId}`)
       
