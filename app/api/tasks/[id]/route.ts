@@ -24,7 +24,7 @@ export async function GET(
       .from('tasks')
       .select(`
         *,
-        profiles!tasks_posted_by_fkey (
+        profiles!tasks_user_id_fkey (
           id,
           full_name,
           avatar_url,
@@ -44,7 +44,7 @@ export async function GET(
     // Увеличаване на броя гледания
     await supabase
       .from('tasks')
-      .update({ views: (task.views || 0) + 1 })
+      .update({ views_count: (task.views_count || 0) + 1 })
       .eq('id', params.id)
 
     return NextResponse.json({ task })
@@ -84,11 +84,11 @@ export async function PUT(
     // Проверка дали потребителят е собственик на задачата
     const { data: existingTask, error: fetchError } = await supabase
       .from('tasks')
-      .select('posted_by')
+      .select('user_id')
       .eq('id', params.id)
       .single()
 
-    if (fetchError || existingTask.posted_by !== user.id) {
+    if (fetchError || existingTask.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -98,7 +98,7 @@ export async function PUT(
       .eq('id', params.id)
       .select(`
         *,
-        profiles!tasks_posted_by_fkey (
+        profiles!tasks_user_id_fkey (
           id,
           full_name,
           avatar_url,
@@ -147,11 +147,11 @@ export async function DELETE(
     // Проверка дали потребителят е собственик на задачата
     const { data: existingTask, error: fetchError } = await supabase
       .from('tasks')
-      .select('posted_by')
+      .select('user_id')
       .eq('id', params.id)
       .single()
 
-    if (fetchError || existingTask.posted_by !== user.id) {
+    if (fetchError || existingTask.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
