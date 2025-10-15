@@ -16,7 +16,8 @@ import {
   Trash2,
   Filter,
   Search,
-  Copy
+  Copy,
+  BarChart3
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -440,11 +441,19 @@ export default function MyTasksPage() {
                   </div>
                   
                   <div className="text-right ml-4">
-                    <div className="text-sm text-gray-500 mb-1">
-                      {task.applications} оферти
+                    <div className="bg-blue-50 rounded-lg p-3 min-w-[120px]">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Eye className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-900">{task.views || 0}</span>
+                      </div>
+                      <div className="text-xs text-blue-600 text-center">прегледа</div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {task.views} прегледа
+                    <div className="bg-green-50 rounded-lg p-3 min-w-[120px] mt-2">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <MessageCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-900">{task.applications || 0}</span>
+                      </div>
+                      <div className="text-xs text-green-600 text-center">оферти</div>
                     </div>
                   </div>
                 </div>
@@ -455,6 +464,16 @@ export default function MyTasksPage() {
                       <Calendar className="h-4 w-4" />
                       Публикувана на {formatDate(task.created_at)}
                     </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {task.deadline ? `Срок: ${formatDate(task.deadline)}` : 'Без срок'}
+                    </div>
+                    {task.urgent && (
+                      <div className="flex items-center gap-1 text-red-600">
+                        <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>
+                        Спешно
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -478,6 +497,13 @@ export default function MyTasksPage() {
                       title="Изтрий"
                     >
                       <Trash2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => router.push(`/task/${task.id}/analytics`)}
+                      className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      title="Аналитика"
+                    >
+                      <BarChart3 className="h-4 w-4" />
                     </button>
                     <button 
                       onClick={() => router.push(`/task/${task.id}/applicants`)}
