@@ -18,6 +18,7 @@ const NotificationsPage: React.FC = () => {
     loading,
     error,
     markAsRead,
+    markAllAsRead,
     createNotification
   } = useNotifications('user1') // Mock user ID for now
 

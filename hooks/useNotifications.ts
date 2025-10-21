@@ -72,6 +72,31 @@ export function useNotifications(userId: string) {
     }
   }
 
+  const markAllAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter(n => !n.read)
+      if (unreadNotifications.length === 0) return
+
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to mark all notifications as read')
+      }
+
+      setNotifications(prev => 
+        prev.map(notification => ({ ...notification, read: true }))
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
   useEffect(() => {
     if (userId) {
       fetchNotifications()
@@ -84,6 +109,7 @@ export function useNotifications(userId: string) {
     error,
     refetch: fetchNotifications,
     markAsRead,
+    markAllAsRead,
     createNotification
   }
 }
