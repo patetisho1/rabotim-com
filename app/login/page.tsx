@@ -59,15 +59,24 @@ export default function LoginPage() {
         return
       }
 
-      // Real authentication with Supabase
+      // Реален вход с Supabase
       const { data, error } = await signIn(formData.email, formData.password)
-
+      
       if (error) {
         toast.error(error.message || 'Невалиден имейл или парола')
-      } else if (data.user) {
-        toast.success('Успешно влизане!')
-        router.push('/')
+        return
       }
+
+      if (data.user) {
+        console.log('Login successful, user:', data.user)
+        console.log('Session:', data.session)
+        toast.success('Успешно влизане!')
+        // Малко забавяне за да се синхронизира сесията
+        setTimeout(() => {
+          router.push('/profile')
+        }, 1000)
+      }
+
 
     } catch (error) {
       toast.error('Възникна грешка при входа')
@@ -83,31 +92,24 @@ export default function LoginPage() {
     }))
   }
 
-  const handleGoogleLogin = async () => {
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setIsSubmitting(true)
-      const { data, error } = await signInWithGoogle()
+      let result
       
-      if (error) {
-        toast.error('Грешка при вход с Google')
+      if (provider === 'google') {
+        result = await signInWithGoogle()
+      } else {
+        result = await signInWithFacebook()
       }
-      // OAuth redirect will handle the rest
-    } catch (error) {
-      toast.error('Възникна грешка при входа')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleFacebookLogin = async () => {
-    try {
-      setIsSubmitting(true)
-      const { data, error } = await signInWithFacebook()
       
-      if (error) {
-        toast.error('Грешка при вход с Facebook')
+      if (result?.error) {
+        toast.error(`Грешка при вход с ${provider === 'google' ? 'Google' : 'Facebook'}`)
+      } else {
+        toast.success(`Успешен вход с ${provider === 'google' ? 'Google' : 'Facebook'}!`)
+        // Пренасочване към профила след OAuth логин
+        router.push('/profile')
       }
-      // OAuth redirect will handle the rest
     } catch (error) {
       toast.error('Възникна грешка при входа')
     } finally {
@@ -169,7 +171,7 @@ export default function LoginPage() {
         {/* Social Login Buttons */}
         <div className="space-y-3">
           <button
-            onClick={handleGoogleLogin}
+            onClick={() => handleSocialLogin('google')}
             disabled={isSubmitting}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
@@ -183,7 +185,7 @@ export default function LoginPage() {
           </button>
 
           <button
-            onClick={handleFacebookLogin}
+            onClick={() => handleSocialLogin('facebook')}
             disabled={isSubmitting}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >

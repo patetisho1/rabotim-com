@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTasks } from '@/hooks/useTasks'
-import FileUpload from '@/components/FileUpload'
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -21,6 +19,7 @@ import {
   Star
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 interface TaskFormData {
   title: string
@@ -60,9 +59,9 @@ const steps = [
 
 export default function PostTaskPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
@@ -76,17 +75,15 @@ export default function PostTaskPage() {
     conditions: ''
   })
 
-  // Use the tasks hook for creating tasks
-  const { createTask } = useTasks()
-
   // Проверка дали потребителят е влязъл
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn')
-    if (!isLoggedIn) {
+    if (authLoading) return
+    
+    if (!authUser) {
       toast.error('Трябва да влезете в акаунта си, за да публикувате задача')
       router.push('/login')
     }
-  }, [router])
+  }, [authUser, authLoading, router])
 
   const handleInputChange = (field: keyof TaskFormData, value: any) => {
     setFormData(prev => ({
@@ -176,22 +173,26 @@ export default function PostTaskPage() {
       // Симулация на публикуване
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Create task via API
-      const newTask = await createTask({
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
+      // Запазване в localStorage
+      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+      
+      const newTask = {
+        id: Date.now(),
+        ...formData,
         price: parseFloat(formData.price),
-        price_type: formData.priceType,
-        location: formData.location,
-        deadline: formData.deadline,
-        urgent: formData.urgent,
-        user_id: 'user1', // Mock user ID for now
+        postedBy: authUser?.user_metadata?.full_name || 'Потребител',
+        postedByEmail: authUser?.email || '',
+        postedDate: new Date().toISOString(),
         status: 'active',
-        applications_count: 0,
-        views_count: 0,
-        attachments: uploadedFiles.map(file => file.url)
-      })
+        applications: 0,
+        views: 0,
+        rating: 0,
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
+        image: formData.photos.length > 0 ? URL.createObjectURL(formData.photos[0]) : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop'
+      }
+
+      tasks.unshift(newTask)
+      localStorage.setItem('tasks', JSON.stringify(tasks))
 
       toast.success('Задачата е публикувана успешно!')
       
@@ -353,20 +354,25 @@ export default function PostTaskPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Снимки (по избор)
               </label>
-              <FileUpload
-                onFilesSelected={(files) => {
-                  setFormData(prev => ({ ...prev, photos: files }))
-                }}
-                onFilesUploaded={(uploadedFiles) => {
-                  setUploadedFiles(uploadedFiles)
-                }}
-                maxFiles={5}
-                maxFileSize={5}
-                acceptedTypes={['image/*']}
-                showPreview={true}
-                multiple={true}
-                folder="tasks"
-              />
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="photo-upload"
+                />
+                <label htmlFor="photo-upload" className="cursor-pointer">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600">
+                    Кликнете за качване на снимки
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Максимум 5 снимки, до 5MB всяка
+                  </p>
+                </label>
+              </div>
               
               {formData.photos.length > 0 && (
                 <div className="grid grid-cols-2 gap-4 mt-4">

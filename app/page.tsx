@@ -1,5 +1,3 @@
-
-
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
@@ -7,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
-import { useStats } from '@/hooks/useStats'
+import { LazyWrapper } from '@/components/LazyComponents'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -192,13 +190,35 @@ export default function HomePage() {
 
 
 
-  // Use the new stats hook
-  const { stats: apiStats, loading: statsLoading, error: statsError } = useStats()
-  
   useEffect(() => {
-    setStats(apiStats)
-    setIsLoadingStats(statsLoading)
-  }, [apiStats, statsLoading])
+    // Зареждане на статистики от localStorage
+    const loadStats = async () => {
+      setIsLoadingStats(true)
+      // Симулиране на зареждане
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+      const savedSearches = JSON.parse(localStorage.getItem('savedSearches') || '[]')
+      
+      // По-реалистични статистики
+      const baseTasks = Math.max(tasks.length, 15) // Минимум 15 задачи
+      const baseUsers = Math.max(users.length, 250) // Минимум 250 потребители
+      const cities = new Set(tasks.map((task: any) => task.location)).size
+      const activeCities = Math.max(cities, 12) // Минимум 12 града
+      
+      setStats({
+        tasks: baseTasks,
+        users: baseUsers,
+        cities: activeCities,
+        completed: Math.floor(baseTasks * 0.85) // 85% завършени задачи
+      })
+      setIsLoadingStats(false)
+    }
+    
+    loadStats()
+  }, [])
 
   // Auto-scroll effect for service cards
   useEffect(() => {

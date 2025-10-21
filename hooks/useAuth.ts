@@ -43,7 +43,8 @@ export function useAuth() {
         email,
         password,
         options: {
-          data: userData
+          data: userData,
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
       return { data, error }

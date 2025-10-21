@@ -1,135 +1,102 @@
+'use client'
+
 import { useState, useCallback } from 'react'
 
 interface UploadedFile {
+  id: string
+  url: string
   name: string
   size: number
   type: string
-  url: string
-  path: string
 }
 
 interface UseFileUploadOptions {
   folder?: string
-  onUploadComplete?: (files: UploadedFile[]) => void
+  onUploadComplete?: (uploadedFiles: UploadedFile[]) => void
   onUploadError?: (error: string) => void
 }
 
-export function useFileUpload(options: UseFileUploadOptions = {}) {
+export function useFileUpload({ 
+  folder = 'uploads', 
+  onUploadComplete, 
+  onUploadError 
+}: UseFileUploadOptions = {}) {
   const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({})
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
-
-  const uploadFile = useCallback(async (file: File): Promise<UploadedFile | null> => {
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      if (options.folder) {
-        formData.append('folder', options.folder)
-      }
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Upload failed')
-      }
-
-      const result = await response.json()
-      return result.file
-    } catch (error) {
-      console.error('Upload error:', error)
-      options.onUploadError?.(error instanceof Error ? error.message : 'Upload failed')
-      return null
-    }
-  }, [options])
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const uploadFiles = useCallback(async (files: File[]): Promise<UploadedFile[]> => {
     setUploading(true)
-    setUploadProgress({})
-    setUploadedFiles([])
-
-    const uploadedFiles: UploadedFile[] = []
+    setUploadProgress(0)
 
     try {
+      const uploadedFiles: UploadedFile[] = []
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        const fileId = `${file.name}-${i}`
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('folder', folder)
 
-        // Simulate progress for better UX
-        setUploadProgress(prev => ({ ...prev, [fileId]: 0 }))
-        
-        // Simulate progress updates
-        const progressInterval = setInterval(() => {
-          setUploadProgress(prev => {
-            const current = prev[fileId] || 0
-            if (current < 90) {
-              return { ...prev, [fileId]: current + Math.random() * 20 }
-            }
-            return prev
-          })
-        }, 200)
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
 
-        const uploadedFile = await uploadFile(file)
-        
-        clearInterval(progressInterval)
-        setUploadProgress(prev => ({ ...prev, [fileId]: 100 }))
-
-        if (uploadedFile) {
-          uploadedFiles.push(uploadedFile)
+        if (!response.ok) {
+          throw new Error(`Failed to upload ${file.name}`)
         }
+
+        const result = await response.json()
+        
+        uploadedFiles.push({
+          id: result.id || Date.now().toString(),
+          url: result.url,
+          name: file.name,
+          size: file.size,
+          type: file.type
+        })
+
+        // Update progress
+        setUploadProgress(((i + 1) / files.length) * 100)
       }
 
-      setUploadedFiles(uploadedFiles)
-      options.onUploadComplete?.(uploadedFiles)
-      
+      onUploadComplete?.(uploadedFiles)
       return uploadedFiles
+
     } catch (error) {
-      console.error('Upload error:', error)
-      options.onUploadError?.(error instanceof Error ? error.message : 'Upload failed')
-      return []
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed'
+      onUploadError?.(errorMessage)
+      throw error
     } finally {
       setUploading(false)
-      setUploadProgress({})
+      setUploadProgress(0)
     }
-  }, [uploadFile, options])
+  }, [folder, onUploadComplete, onUploadError])
 
-  const deleteFile = useCallback(async (filePath: string): Promise<boolean> => {
+  const deleteFile = useCallback(async (fileId: string): Promise<void> => {
     try {
-      const response = await fetch(`/api/upload?path=${encodeURIComponent(filePath)}`, {
+      const response = await fetch('/api/upload', {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileId }),
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Delete failed')
+        throw new Error('Failed to delete file')
       }
-
-      // Remove from uploaded files
-      setUploadedFiles(prev => prev.filter(file => file.path !== filePath))
-      return true
     } catch (error) {
-      console.error('Delete error:', error)
-      options.onUploadError?.(error instanceof Error ? error.message : 'Delete failed')
-      return false
+      const errorMessage = error instanceof Error ? error.message : 'Delete failed'
+      onUploadError?.(errorMessage)
+      throw error
     }
-  }, [options])
-
-  const reset = useCallback(() => {
-    setUploading(false)
-    setUploadProgress({})
-    setUploadedFiles([])
-  }, [])
+  }, [onUploadError])
 
   return {
-    uploading,
-    uploadProgress,
-    uploadedFiles,
-    uploadFile,
     uploadFiles,
     deleteFile,
-    reset
+    uploading,
+    uploadProgress
   }
 }

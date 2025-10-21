@@ -106,8 +106,32 @@ export default function RegisterPage() {
         return
       }
 
-      // Симулация на регистрация
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Реална регистрация с Supabase
+      const { data, error } = await signUp(
+        formData.email,
+        formData.password,
+        {
+          full_name: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone
+        }
+      )
+
+      if (error) {
+        toast.error(error.message || 'Грешка при регистрацията')
+        return
+      }
+
+      if (data.user) {
+        // Проверяваме дали потребителят е вече потвърден
+        if (data.user.email_confirmed_at) {
+          toast.success('Регистрацията е успешна! Добре дошли!')
+          router.push('/')
+        } else {
+          toast.success('Регистрацията е успешна! Моля, проверете имейла си за потвърждение.')
+          router.push('/login')
+        }
+        return
+      }
 
       // Запазване в localStorage
       const userData = {
@@ -153,20 +177,6 @@ export default function RegisterPage() {
         }
       }
 
-      // Запазване в списъка с потребители
-      existingUsers.push(userData)
-      localStorage.setItem('users', JSON.stringify(existingUsers))
-
-      // Запазване на текущия потребител
-      localStorage.setItem('user', JSON.stringify(userData))
-      localStorage.setItem('isLoggedIn', 'true')
-
-      toast.success('Регистрацията е успешна!')
-      
-      // Пренасочване към профила
-      setTimeout(() => {
-        router.push('/profile')
-      }, 1000)
 
     } catch (error) {
       toast.error('Възникна грешка при регистрацията')

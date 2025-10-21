@@ -2,39 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
 import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Header() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState<'tasker' | 'poster'>('poster')
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const [favoritesCount, setFavoritesCount] = useState(0)
   const [notificationsCount, setNotificationsCount] = useState(3)
 
   useEffect(() => {
-    // Проверка дали потребителят е влязъл с NextAuth или localStorage
-    if (session) {
-      setIsLoggedIn(true)
-      setUser(session.user)
-    } else if (typeof window !== 'undefined') {
-      const loginStatus = localStorage.getItem('isLoggedIn')
-      const userData = localStorage.getItem('user')
-      
-      if (loginStatus === 'true' && userData) {
-        try {
-          setIsLoggedIn(true)
-          setUser(JSON.parse(userData))
-        } catch (error) {
-          console.error('Error parsing user data:', error)
-        }
-      }
-    }
+    // Автентикацията се управлява от useAuth hook
 
     // Зареждане на броя любими задачи
     const loadFavoritesCount = () => {
@@ -60,22 +42,11 @@ export default function Header() {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('favoritesUpdated', loadFavoritesCount)
     }
-  }, [session])
+  }, [authUser])
 
   const handleLogout = async () => {
-    if (session) {
-      // NextAuth logout
-      await signOut({ callbackUrl: '/' })
-    } else {
-      // localStorage logout (demo users)
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('isLoggedIn')
-        localStorage.removeItem('user')
-      }
-      setIsLoggedIn(false)
-      setUser(null)
-      router.push('/')
-    }
+    await signOut()
+    router.push('/')
   }
 
   const handleLogin = () => {
@@ -202,7 +173,7 @@ export default function Header() {
               </button>
               
               {/* Моите задачи линк - само за влезли потребители */}
-              {isLoggedIn && (
+              {authUser && (
                 <button
                   onClick={() => router.push('/my-tasks')}
                   className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
@@ -223,7 +194,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {isLoggedIn ? (
+            {authUser ? (
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => router.push('/notifications')}
@@ -257,7 +228,7 @@ export default function Header() {
                     <User size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {user?.firstName || 'User'} {user?.lastName || ''}
+                    {authUser?.user_metadata?.full_name || 'Потребител'}
                   </span>
                 </div>
                 <button
@@ -337,7 +308,7 @@ export default function Header() {
                 <ArrowRight size={16} />
               </button>
               
-              {isLoggedIn && (
+              {authUser && (
                 <button
                   onClick={() => {
                     router.push('/my-tasks')
@@ -378,14 +349,14 @@ export default function Header() {
             </nav>
             
             {/* Mobile User Menu - Enhanced */}
-            {isLoggedIn ? (
+            {authUser ? (
               <div className="px-4 space-y-2">
                 <div className="flex items-center px-4 py-4 text-gray-700 dark:text-gray-300">
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
                     <User size={20} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <span className="font-medium">
-                    {user?.firstName || 'User'} {user?.lastName || ''}
+                    {authUser?.user_metadata?.full_name || 'Потребител'}
                   </span>
                 </div>
                 <button
