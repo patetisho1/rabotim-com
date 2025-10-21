@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { 
   ArrowLeft, MapPin, DollarSign, User, Star, Calendar, 
-  MessageSquare, AlertCircle, Heart, Share2, Shield
+  MessageSquare, AlertCircle, Heart, Share2, Shield, CheckCircle
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'

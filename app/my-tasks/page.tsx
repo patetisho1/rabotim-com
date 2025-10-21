@@ -130,7 +130,7 @@ export default function MyTasksPage() {
     router.push(`/task/${taskId}/edit`)
   }
 
-  const handleStatusChange = async (taskId: string, newStatus: string) => {
+  const handleStatusChange = async (taskId: string, newStatus: 'active' | 'assigned' | 'completed' | 'cancelled') => {
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PUT',
@@ -227,14 +227,14 @@ export default function MyTasksPage() {
   // Status definitions
   const statusLabels = {
     active: 'Активна',
-    in_progress: 'В процес',
+    assigned: 'В процес',
     completed: 'Завършена',
     cancelled: 'Отменена'
   }
 
   const statusColors = {
     active: 'bg-green-100 text-green-800',
-    in_progress: 'bg-blue-100 text-blue-800',
+    assigned: 'bg-blue-100 text-blue-800',
     completed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800'
   }
@@ -243,7 +243,7 @@ export default function MyTasksPage() {
     switch (status) {
       case 'active':
         return <Clock className="h-4 w-4" />
-      case 'in_progress':
+      case 'assigned':
         return <MessageCircle className="h-4 w-4" />
       case 'completed':
         return <CheckCircle className="h-4 w-4" />
@@ -334,7 +334,7 @@ export default function MyTasksPage() {
                 <div>
                   <p className="text-sm text-blue-600">В процес</p>
                   <p className="text-2xl font-bold text-blue-900">
-                    {tasks.filter(t => t.status === 'in_progress').length}
+                    {tasks.filter(t => t.status === 'assigned').length}
                   </p>
                 </div>
                 <div className="bg-blue-100 rounded-full p-2">
@@ -384,7 +384,7 @@ export default function MyTasksPage() {
             >
               <option value="">Всички статуси</option>
               <option value="active">Активни</option>
-              <option value="in_progress">В процес</option>
+              <option value="assigned">В процес</option>
               <option value="completed">Завършени</option>
               <option value="cancelled">Отменени</option>
             </select>
@@ -432,11 +432,11 @@ export default function MyTasksPage() {
                       <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
                       <select
                         value={task.status}
-                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                        onChange={(e) => handleStatusChange(task.id, e.target.value as 'active' | 'assigned' | 'completed' | 'cancelled')}
                         className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${statusColors[task.status as keyof typeof statusColors]}`}
                       >
                         <option value="active">Активна</option>
-                        <option value="in_progress">В процес</option>
+                        <option value="assigned">В процес</option>
                         <option value="completed">Завършена</option>
                         <option value="cancelled">Отменена</option>
                       </select>

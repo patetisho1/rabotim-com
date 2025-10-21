@@ -33,6 +33,11 @@ export interface Task {
   created_at: string
   updated_at: string
   images?: string[]
+  is_archived?: boolean
+  archived_at?: string
+  is_top?: boolean
+  is_featured?: boolean
+  is_promoted?: boolean
   profiles?: {
     id: string
     full_name: string

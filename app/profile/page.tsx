@@ -18,6 +18,7 @@ import {
   DollarSign,
   MessageCircle,
   Heart,
+  X,
   Share2,
   Settings,
   Plus,

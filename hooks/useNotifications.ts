@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Notification } from '@/lib/supabase'
+import { Notification as SupabaseNotification } from '@/lib/supabase'
+import { Notification } from '@/types/notification'
 
 export function useNotifications(userId: string) {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -17,8 +18,24 @@ export function useNotifications(userId: string) {
         throw new Error('Failed to fetch notifications')
       }
 
-      const data = await response.json()
-      setNotifications(data)
+      const data: SupabaseNotification[] = await response.json()
+      
+      // Transform Supabase notifications to our Notification type
+      const transformedNotifications: Notification[] = data.map(notification => ({
+        id: notification.id,
+        userId: notification.user_id,
+        type: notification.type as any,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data,
+        isRead: notification.read,
+        isPinned: notification.isPinned || false,
+        createdAt: new Date(notification.created_at),
+        priority: 'normal' as any,
+        category: 'system' as any
+      }))
+      
+      setNotifications(transformedNotifications)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -39,7 +56,7 @@ export function useNotifications(userId: string) {
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
-            ? { ...notification, read: true }
+            ? { ...notification, isRead: true }
             : notification
         )
       )
@@ -72,6 +89,69 @@ export function useNotifications(userId: string) {
     }
   }
 
+  const markAllAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter(n => !n.isRead)
+      if (unreadNotifications.length === 0) return
+
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to mark all notifications as read')
+      }
+
+      setNotifications(prev => 
+        prev.map(notification => ({ ...notification, isRead: true }))
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const togglePin = async (notificationId: string) => {
+    try {
+      const notification = notifications.find(n => n.id === notificationId)
+      if (!notification) return
+
+      // Optimistically update UI
+      setNotifications(prev => 
+        prev.map(n => 
+          n.id === notificationId 
+            ? { ...n, isPinned: !n.isPinned }
+            : n
+        )
+      )
+
+      // Note: This would require an API endpoint to persist the change
+      // For now, it's client-side only
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete notification')
+      }
+
+      setNotifications(prev => prev.filter(n => n.id !== notificationId))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      throw err
+    }
+  }
+
   useEffect(() => {
     if (userId) {
       fetchNotifications()
@@ -84,6 +164,9 @@ export function useNotifications(userId: string) {
     error,
     refetch: fetchNotifications,
     markAsRead,
+    markAllAsRead,
+    togglePin,
+    deleteNotification,
     createNotification
   }
 }
