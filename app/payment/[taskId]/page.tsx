@@ -4,16 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, CreditCard, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Task {
-  id: number
-  title: string
-  price: string
-  priceType: string
-  user: {
-    name: string
-  }
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface PaymentMethod {
   id: string
@@ -81,17 +72,13 @@ export default function PaymentPage() {
   }
 
   const loadTask = () => {
-    // Симулация на зареждане на задача
-    const sampleTask: Task = {
-      id: taskId,
-      title: 'Помощ при преместване',
-      price: '45',
-      priceType: 'fixed',
-      user: {
-        name: 'Иван Петров'
-      }
+    // Load task from localStorage or API
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+    const foundTask = tasks.find((t: Task) => t.id === taskId.toString())
+    
+    if (foundTask) {
+      setTask(foundTask)
     }
-    setTask(sampleTask)
     setIsLoading(false)
   }
 
@@ -241,12 +228,12 @@ export default function PaymentPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Изпълнител:</span>
-                  <span className="font-medium">{task.user.name}</span>
+                  <span className="font-medium">{task.profiles?.full_name || 'Анонимен'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Сума:</span>
                   <span className="font-semibold text-lg text-primary-600">
-                    {task.price} {task.priceType === 'hourly' ? 'лв/час' : 'лв'}
+                    {task.price} {task.price_type === 'hourly' ? 'лв/час' : 'лв'}
                   </span>
                 </div>
               </div>
@@ -364,7 +351,7 @@ export default function PaymentPage() {
                   Обработка на плащането...
                 </>
               ) : (
-                `Плати ${task.price} ${task.priceType === 'hourly' ? 'лв/час' : 'лв'}`
+                `Плати ${task.price} ${task.price_type === 'hourly' ? 'лв/час' : 'лв'}`
               )}
             </button>
           </div>

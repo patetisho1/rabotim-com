@@ -1,12 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useRatings } from '@/hooks/useRatings'
+import { useAuth } from '@/hooks/useAuth'
 import RatingDisplay from '@/components/RatingDisplay'
 import AddRating from '@/components/AddRating'
 import { Star, Filter, Search, Award } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function RatingsPage() {
+  const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const {
     ratings,
     reviews,
@@ -29,12 +34,20 @@ export default function RatingsPage() {
   })
 
   useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+    
     // Зареждане на демо рейтинги за няколко потребителя
     const demoUsers = ['user1', 'user2', 'user3', 'user4']
     demoUsers.forEach(userId => {
       loadUserRatings(userId)
     })
-  }, [loadUserRatings])
+  }, [authUser, authLoading, router, loadUserRatings])
 
   const handleAddRating = async (ratingData: any) => {
     try {

@@ -1,32 +1,40 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useAuth } from '@/hooks/useAuth'
 import NotificationItem from '@/components/NotificationItem'
 import NotificationSettings from '@/components/NotificationSettings'
 import { Bell, Settings, Check, Trash2, Filter, Search, BarChart3, Pin } from 'lucide-react'
 import { Notification, NotificationCategory, NotificationPriority } from '@/types/notification'
+import toast from 'react-hot-toast'
 
 const NotificationsPage: React.FC = () => {
+  const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const {
     notifications,
-    preferences,
-    stats,
-    isSubscribed,
+    loading,
     error,
     markAsRead,
-    markAllAsRead,
-    deleteNotification,
-    togglePin,
-    updatePreferences,
-    subscribeToPush,
-    unsubscribeFromPush
-  } = useNotifications()
+    createNotification
+  } = useNotifications('user1') // Mock user ID for now
 
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'pinned' | 'settings'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<NotificationCategory | 'all'>('all')
   const [selectedPriority, setSelectedPriority] = useState<NotificationPriority | 'all'>('all')
+
+  useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+  }, [authUser, authLoading, router])
 
   // Filter notifications based on current filters
   const filteredNotifications = useMemo(() => {
@@ -34,9 +42,9 @@ const NotificationsPage: React.FC = () => {
 
     // Filter by tab
     if (activeTab === 'unread') {
-      filtered = filtered.filter(n => !n.isRead)
+      filtered = filtered.filter(n => !n.read)
     } else if (activeTab === 'pinned') {
-      filtered = filtered.filter(n => n.isPinned)
+      filtered = filtered.filter(n => false) // No pinned property in our schema
     }
 
     // Filter by search query
@@ -47,15 +55,15 @@ const NotificationsPage: React.FC = () => {
       )
     }
 
-    // Filter by category
+    // Filter by category (using type instead)
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(n => n.category === selectedCategory)
+      filtered = filtered.filter(n => n.type === selectedCategory)
     }
 
-    // Filter by priority
-    if (selectedPriority !== 'all') {
-      filtered = filtered.filter(n => n.priority === selectedPriority)
-    }
+    // Filter by priority (not available in our schema)
+    // if (selectedPriority !== 'all') {
+    //   filtered = filtered.filter(n => n.priority === selectedPriority)
+    // }
 
     return filtered
   }, [notifications, activeTab, searchQuery, selectedCategory, selectedPriority])
@@ -84,8 +92,8 @@ const NotificationsPage: React.FC = () => {
 
   const tabs = [
     { id: 'all', label: 'Всички', count: notifications.length, icon: Bell },
-    { id: 'unread', label: 'Непрочетени', count: stats.unread, icon: Check },
-    { id: 'pinned', label: 'Закачени', count: notifications.filter(n => n.isPinned).length, icon: Pin },
+    { id: 'unread', label: 'Непрочетени', count: notifications.filter(n => !n.read).length, icon: Check },
+    { id: 'pinned', label: 'Закачени', count: 0, icon: Pin },
     { id: 'settings', label: 'Настройки', count: null, icon: Settings }
   ]
 
@@ -103,11 +111,31 @@ const NotificationsPage: React.FC = () => {
           </div>
 
           <NotificationSettings
-            preferences={preferences}
-            onUpdatePreferences={updatePreferences}
-            isSubscribed={isSubscribed}
-            onSubscribe={subscribeToPush}
-            onUnsubscribe={unsubscribeFromPush}
+            preferences={{
+              userId: 'user1',
+              email: true,
+              push: false,
+              inApp: true,
+              categories: {
+                communication: { email: true, push: false, inApp: true },
+                tasks: { email: true, push: false, inApp: true },
+                payments: { email: true, push: false, inApp: true },
+                system: { email: false, push: false, inApp: true },
+                security: { email: true, push: true, inApp: true },
+                achievements: { email: false, push: false, inApp: true }
+              },
+              quietHours: {
+                enabled: false,
+                start: '22:00',
+                end: '08:00',
+                timezone: 'Europe/Sofia'
+              },
+              frequency: 'immediate'
+            }}
+            onUpdatePreferences={() => {}}
+            isSubscribed={false}
+            onSubscribe={async () => true}
+            onUnsubscribe={async () => true}
             error={error}
           />
         </div>
@@ -132,7 +160,7 @@ const NotificationsPage: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <BarChart3 size={16} />
-                <span>{stats.unread} непрочетени</span>
+                <span>{notifications.filter(n => !n.read).length} непрочетени</span>
               </div>
               <button
                 onClick={() => setActiveTab('settings')}
@@ -151,14 +179,14 @@ const NotificationsPage: React.FC = () => {
                 <Bell className="text-blue-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Общо</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.length}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
                 <Check className="text-green-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Непрочетени</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.unread}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => !n.read).length}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
@@ -174,7 +202,7 @@ const NotificationsPage: React.FC = () => {
                 <BarChart3 className="text-purple-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Днес</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.recentActivity.last24h}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => new Date(n.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}</p>
             </div>
           </div>
         </div>
@@ -258,7 +286,7 @@ const NotificationsPage: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={markAllAsRead}
-                disabled={stats.unread === 0}
+                disabled={notifications.filter(n => !n.read).length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Check size={16} />

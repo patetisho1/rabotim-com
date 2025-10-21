@@ -5,27 +5,12 @@ import { useRouter } from 'next/navigation'
 import { Heart, ArrowLeft, Trash2, Filter, Grid, List } from 'lucide-react'
 import TaskCard from '@/components/TaskCard'
 import toast from 'react-hot-toast'
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  location: string
-  price: number
-  priceType: 'hourly' | 'fixed'
-  urgent: boolean
-  rating: number
-  reviewCount: number
-  postedBy: string
-  postedDate: string
-  views: number
-  applications: number
-  attachments?: any[]
-}
+import { useAuth } from '@/hooks/useAuth'
+import { Task } from '@/hooks/useTasksAPI'
 
 export default function FavoritesPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const [favorites, setFavorites] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -33,8 +18,16 @@ export default function FavoritesPage() {
   const [sortBy, setSortBy] = useState('newest')
 
   useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+    
     loadFavorites()
-  }, [])
+  }, [authUser, authLoading, router])
 
   const loadFavorites = () => {
     setLoading(true)
@@ -92,10 +85,10 @@ export default function FavoritesPage() {
     // Сортиране
     switch (sortBy) {
       case 'newest':
-        filtered.sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime())
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         break
       case 'oldest':
-        filtered.sort((a, b) => new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime())
+        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
         break
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price)

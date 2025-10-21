@@ -66,6 +66,26 @@ export default function RegisterPage() {
         return
       }
 
+      // Real registration with Supabase
+      const { data, error } = await signUp(
+        formData.email, 
+        formData.password, 
+        {
+          full_name: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone
+        }
+      )
+
+      if (error) {
+        toast.error(error.message || 'Грешка при регистрацията')
+        return
+      }
+
+      if (data.user) {
+        toast.success('Регистрацията е успешна! Моля, проверете имейла си за потвърждение.')
+        router.push('/login')
+      }
+
       // Валидация на телефон (ако е въведен)
       if (formData.phone) {
         const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/

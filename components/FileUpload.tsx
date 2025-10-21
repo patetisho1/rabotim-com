@@ -171,6 +171,17 @@ export default function FileUpload({
     onFilesSelected(updatedFiles)
   }
 
+  const handleUpload = async () => {
+    if (files.length === 0) return
+    
+    setIsUploading(true)
+    try {
+      await uploadFiles(files)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const openFilePreview = (file: FileWithPreview) => {
     if (file.preview) {
       window.open(file.preview, '_blank')
@@ -318,24 +329,38 @@ export default function FileUpload({
           </div>
 
           {/* Upload Progress */}
-          {isUploading && (
+          {(isUploading || uploading) && (
             <div className="space-y-2">
               {files.map((file) => (
                 <div key={file.id} className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-700 dark:text-gray-300">{file.name}</span>
                     <span className="text-gray-500 dark:text-gray-400">
-                      {file.uploadProgress}%
+                      {uploadProgress[`${file.name}-${files.indexOf(file)}`] || 0}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                     <div
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${file.uploadProgress || 0}%` }}
+                      style={{ width: `${uploadProgress[`${file.name}-${files.indexOf(file)}`] || 0}%` }}
                     />
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Upload Button */}
+          {files.length > 0 && !autoUpload && (
+            <div className="flex justify-center">
+              <button
+                onClick={handleUpload}
+                disabled={isUploading || uploading}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
+              >
+                <Upload size={18} />
+                {isUploading || uploading ? 'Качване...' : 'Качи файлове'}
+              </button>
             </div>
           )}
         </div>

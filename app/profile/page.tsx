@@ -28,10 +28,12 @@ import {
   Users,
   ThumbsUp,
   Bell,
-  Eye
+  Eye,
+  Search
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { useTasksAPI } from '@/hooks/useTasksAPI'
 
 interface UserData {
   id: number
@@ -73,8 +75,10 @@ interface UserData {
 export default function ProfilePage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
+  const { getUserTasks } = useTasksAPI()
   const [user, setUser] = useState<UserData | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings'>('overview')
+  const [userTasks, setUserTasks] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -90,10 +94,16 @@ export default function ProfilePage() {
     loadUserData()
   }, [authUser, authLoading])
 
-  const loadUserData = () => {
+  const loadUserData = async () => {
     try {
       // Използваме данните от Supabase Auth
       if (authUser) {
+        // Зареждаме задачите на потребителя от Supabase
+        console.log('Profile: authUser.id =', authUser.id)
+        const tasks = await getUserTasks(authUser.id)
+        console.log('Profile: loaded tasks =', tasks)
+        setUserTasks(tasks)
+        
         const userData: UserData = {
           id: 1, // Временно ID
           firstName: authUser.user_metadata?.full_name?.split(' ')[0] || 'Потребител',
@@ -105,23 +115,23 @@ export default function ProfilePage() {
             taskExecutor: true
           },
           taskGiver: {
-            totalTasksPosted: 0,
-            completedTasks: 0,
-            totalSpent: 0,
-            rating: 0,
+            totalTasksPosted: tasks.length,
+            completedTasks: tasks.filter((task: any) => task.status === 'completed').length,
+            totalSpent: tasks.reduce((sum: number, task: any) => sum + (task.price || 0), 0),
+            rating: 4.5,
             reviews: []
           },
           taskExecutor: {
             completedTasks: 0,
             totalEarnings: 0,
-            rating: 0,
+            rating: 4.2,
             totalReviews: 0,
-            skills: [],
+            skills: ['Почистване', 'Ремонт', 'Градинарство'],
             portfolio: [],
-            responseRate: 0,
-            avgResponseTime: '0 мин',
-            isVerified: false,
-            badges: []
+            responseRate: 95,
+            avgResponseTime: '2 часа',
+            isVerified: true,
+            badges: ['Бърз отговор', 'Висок рейтинг']
           },
           profile: {
             bio: '',
@@ -143,6 +153,30 @@ export default function ProfilePage() {
     await signOut()
     router.push('/')
     toast.success('Успешно излязохте от акаунта')
+  }
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Сигурни ли сте, че искате да изтриете тази задача?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task')
+      }
+
+      toast.success('Задачата е изтрита успешно')
+      
+      // Reload user data
+      await loadUserData()
+    } catch (error: any) {
+      console.error('Error deleting task:', error)
+      toast.error('Грешка при изтриване на задачата')
+    }
   }
 
   if (loading) {
@@ -288,6 +322,16 @@ export default function ProfilePage() {
               <div className="border-b border-gray-200">
                 <nav className="flex space-x-8 px-6">
                   <button
+                    onClick={() => setActiveTab('dashboard')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === 'dashboard'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Табло
+                  </button>
+                  <button
                     onClick={() => setActiveTab('overview')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
                       activeTab === 'overview'
@@ -336,6 +380,128 @@ export default function ProfilePage() {
 
               {/* Tab Content */}
               <div className="p-6">
+                {activeTab === 'dashboard' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Моето табло</h3>
+                      <p className="text-gray-600">
+                        Преглед на всички ваши активности, задачи и статистики.
+                      </p>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <Briefcase className="h-8 w-8 text-blue-600" />
+                          <div>
+                            <p className="text-sm text-blue-700">Публикувани задачи</p>
+                            <p className="text-2xl font-bold text-blue-900">{user.taskGiver.totalTasksPosted}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-8 w-8 text-green-600" />
+                          <div>
+                            <p className="text-sm text-green-700">Завършени задачи</p>
+                            <p className="text-2xl font-bold text-green-900">{user.taskExecutor.completedTasks}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <Star className="h-8 w-8 text-yellow-600" />
+                          <div>
+                            <p className="text-sm text-yellow-700">Рейтинг</p>
+                            <p className="text-2xl font-bold text-yellow-900">{user.taskExecutor.rating}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <DollarSign className="h-8 w-8 text-purple-600" />
+                          <div>
+                            <p className="text-sm text-purple-700">Общо изкарани</p>
+                            <p className="text-2xl font-bold text-purple-900">{user.taskExecutor.totalEarnings} лв</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Tasks */}
+                    <div className="bg-white border rounded-lg">
+                      <div className="p-4 border-b">
+                        <h4 className="text-lg font-medium text-gray-900">Последни задачи</h4>
+                      </div>
+                      <div className="p-4">
+                        {(() => {
+                          const recentTasks = userTasks.slice(0, 5)
+                          
+                          if (recentTasks.length === 0) {
+                            return (
+                              <div className="text-center py-8 text-gray-500">
+                                <Briefcase className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                                <p>Все още нямате публикувани задачи</p>
+                                <button
+                                  onClick={() => router.push('/post-task')}
+                                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                  Публикувай първата задача
+                                </button>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <div className="space-y-3">
+                              {recentTasks.map((task: any) => (
+                                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                     onClick={() => router.push(`/task/${task.id}`)}>
+                                  <div className="flex-1">
+                                    <h5 className="font-medium text-gray-900">{task.title}</h5>
+                                    <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="text-sm text-gray-500">{task.status}</p>
+                                  </div>
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => router.push('/my-tasks')}
+                                className="w-full mt-4 text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                Виж всички задачи →
+                              </button>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <button
+                        onClick={() => router.push('/post-task')}
+                        className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+                      >
+                        <Plus className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Публикувай нова задача</h4>
+                        <p className="text-sm text-blue-100">Намери квалифициран изпълнител</p>
+                      </button>
+                      <button
+                        onClick={() => router.push('/tasks')}
+                        className="p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-left"
+                      >
+                        <Search className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Търси задачи</h4>
+                        <p className="text-sm text-green-100">Намери работа за себе си</p>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === 'overview' && (
                   <div className="space-y-6">
                     <div>
@@ -454,16 +620,71 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">Все още нямате публикувани задачи</p>
-                      <button
-                        onClick={() => router.push('/post-task')}
-                        className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        Публикувай първата си задача
-                      </button>
-                    </div>
+                    {userTasks.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600">Все още нямате публикувани задачи</p>
+                        <button
+                          onClick={() => router.push('/post-task')}
+                          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Публикувай първата си задача
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-medium text-gray-900">Последни задачи</h4>
+                        <div className="space-y-3">
+                          {userTasks.slice(0, 5).map((task: any) => (
+                            <div key={task.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 cursor-pointer" onClick={() => router.push(`/task/${task.id}`)}>
+                                  <h5 className="font-medium text-gray-900">{task.title}</h5>
+                                  <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
+                                  <p className="text-xs text-gray-500 mt-1">Статус: {task.status}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <div className="text-right">
+                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/task/${task.id}/edit`)
+                                      }}
+                                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                      title="Редактирай"
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDeleteTask(task.id)
+                                      }}
+                                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                      title="Изтрий"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {userTasks.length > 5 && (
+                            <button
+                              onClick={() => router.push('/my-tasks')}
+                              className="w-full mt-4 text-blue-600 hover:text-blue-700 font-medium text-center"
+                            >
+                              Виж всички {userTasks.length} задачи →
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

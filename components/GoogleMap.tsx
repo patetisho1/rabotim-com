@@ -2,22 +2,12 @@
 
 import React from 'react'
 import { MapPin } from 'lucide-react'
-
-interface Task {
-  id: number
-  title: string
-  location: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  urgent: boolean
-  remote: boolean
-  category: string
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface GoogleMapProps {
   tasks: Task[]
   selectedLocation?: string
-  onTaskClick?: (taskId: number) => void
+  onTaskClick?: (taskId: string) => void
 }
 
 export default function GoogleMap({ tasks, selectedLocation, onTaskClick }: GoogleMapProps) {

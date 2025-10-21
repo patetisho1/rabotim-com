@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
+import TestimonialsSection from '@/components/TestimonialsSection'
 import { LazyWrapper } from '@/components/LazyComponents'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
@@ -59,7 +60,14 @@ export default function HomePage() {
   ]
 
   // Service cards data for scrolling
-  const serviceCards = [
+  interface ServiceCard {
+    name: string
+    subtitle: string
+    image: string
+    avatar: string
+  }
+  
+  const serviceCards: ServiceCard[] = [
     {
       name: "Преместване",
       subtitle: "Пакетиране, опаковане, преместване и още!",
@@ -918,7 +926,7 @@ export default function HomePage() {
               
               {/* Main Title - Mobile Optimized */}
                <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-3 sm:mb-4 md:mb-6 transition-all duration-1000 font-display ${heroInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                Търся някой...
+                Търся някой... 🚀
               </h1>
               
               {/* Rotating Task Text - Mobile Optimized */}
@@ -1397,7 +1405,8 @@ export default function HomePage() {
           </div>
         </section>
 
-
+        {/* Testimonials Section */}
+        <TestimonialsSection />
 
         {/* Recent Tasks */}
         <section ref={tasksRef} className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
