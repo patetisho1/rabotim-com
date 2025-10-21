@@ -227,14 +227,14 @@ export default function MyTasksPage() {
   // Status definitions
   const statusLabels = {
     active: 'Активна',
-    in_progress: 'В процес',
+    assigned: 'В процес',
     completed: 'Завършена',
     cancelled: 'Отменена'
   }
 
   const statusColors = {
     active: 'bg-green-100 text-green-800',
-    in_progress: 'bg-blue-100 text-blue-800',
+    assigned: 'bg-blue-100 text-blue-800',
     completed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800'
   }
@@ -243,7 +243,7 @@ export default function MyTasksPage() {
     switch (status) {
       case 'active':
         return <Clock className="h-4 w-4" />
-      case 'in_progress':
+      case 'assigned':
         return <MessageCircle className="h-4 w-4" />
       case 'completed':
         return <CheckCircle className="h-4 w-4" />
@@ -384,7 +384,7 @@ export default function MyTasksPage() {
             >
               <option value="">Всички статуси</option>
               <option value="active">Активни</option>
-              <option value="in_progress">В процес</option>
+              <option value="assigned">В процес</option>
               <option value="completed">Завършени</option>
               <option value="cancelled">Отменени</option>
             </select>
@@ -436,7 +436,7 @@ export default function MyTasksPage() {
                         className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${statusColors[task.status as keyof typeof statusColors]}`}
                       >
                         <option value="active">Активна</option>
-                        <option value="in_progress">В процес</option>
+                        <option value="assigned">В процес</option>
                         <option value="completed">Завършена</option>
                         <option value="cancelled">Отменена</option>
                       </select>
