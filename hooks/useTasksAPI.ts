@@ -35,6 +35,9 @@ export interface Task {
   images?: string[]
   is_archived?: boolean
   archived_at?: string
+  is_top?: boolean
+  is_featured?: boolean
+  is_promoted?: boolean
   profiles?: {
     id: string
     full_name: string
