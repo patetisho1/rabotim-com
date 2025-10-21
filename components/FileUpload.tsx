@@ -336,13 +336,13 @@ export default function FileUpload({
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-700 dark:text-gray-300">{file.name}</span>
                     <span className="text-gray-500 dark:text-gray-400">
-                      {uploadProgress[`${file.name}-${files.indexOf(file)}`] || 0}%
+                      {file.uploadProgress || 0}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                     <div
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress[`${file.name}-${files.indexOf(file)}`] || 0}%` }}
+                      style={{ width: `${file.uploadProgress || 0}%` }}
                     />
                   </div>
                 </div>
