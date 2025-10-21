@@ -91,7 +91,7 @@ export function useNotifications(userId: string) {
 
   const markAllAsRead = async () => {
     try {
-      const unreadNotifications = notifications.filter(n => !n.read)
+      const unreadNotifications = notifications.filter(n => !n.isRead)
       if (unreadNotifications.length === 0) return
 
       const response = await fetch('/api/notifications/mark-all-read', {
