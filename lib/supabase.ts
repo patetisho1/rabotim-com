@@ -77,6 +77,7 @@ export interface Notification {
   read: boolean
   created_at: string
   data?: any
+  isPinned?: boolean
 }
 
 // Database functions
