@@ -130,7 +130,7 @@ export default function MyTasksPage() {
     router.push(`/task/${taskId}/edit`)
   }
 
-  const handleStatusChange = async (taskId: string, newStatus: string) => {
+  const handleStatusChange = async (taskId: string, newStatus: 'active' | 'assigned' | 'completed' | 'cancelled') => {
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PUT',
