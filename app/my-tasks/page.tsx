@@ -432,7 +432,7 @@ export default function MyTasksPage() {
                       <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
                       <select
                         value={task.status}
-                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                        onChange={(e) => handleStatusChange(task.id, e.target.value as 'active' | 'assigned' | 'completed' | 'cancelled')}
                         className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${statusColors[task.status as keyof typeof statusColors]}`}
                       >
                         <option value="active">Активна</option>
