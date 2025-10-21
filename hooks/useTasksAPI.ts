@@ -33,6 +33,8 @@ export interface Task {
   created_at: string
   updated_at: string
   images?: string[]
+  is_archived?: boolean
+  archived_at?: string
   profiles?: {
     id: string
     full_name: string
