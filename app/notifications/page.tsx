@@ -43,7 +43,7 @@ const NotificationsPage: React.FC = () => {
 
     // Filter by tab
     if (activeTab === 'unread') {
-      filtered = filtered.filter(n => !n.read)
+      filtered = filtered.filter(n => !n.isRead)
     } else if (activeTab === 'pinned') {
       filtered = filtered.filter(n => false) // No pinned property in our schema
     }
@@ -93,7 +93,7 @@ const NotificationsPage: React.FC = () => {
 
   const tabs = [
     { id: 'all', label: 'Всички', count: notifications.length, icon: Bell },
-    { id: 'unread', label: 'Непрочетени', count: notifications.filter(n => !n.read).length, icon: Check },
+    { id: 'unread', label: 'Непрочетени', count: notifications.filter(n => !n.isRead).length, icon: Check },
     { id: 'pinned', label: 'Закачени', count: 0, icon: Pin },
     { id: 'settings', label: 'Настройки', count: null, icon: Settings }
   ]
@@ -161,7 +161,7 @@ const NotificationsPage: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <BarChart3 size={16} />
-                <span>{notifications.filter(n => !n.read).length} непрочетени</span>
+                <span>{notifications.filter(n => !n.isRead).length} непрочетени</span>
               </div>
               <button
                 onClick={() => setActiveTab('settings')}
@@ -187,7 +187,7 @@ const NotificationsPage: React.FC = () => {
                 <Check className="text-green-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Непрочетени</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => !n.read).length}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => !n.isRead).length}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
