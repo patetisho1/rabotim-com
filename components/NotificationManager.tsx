@@ -10,7 +10,7 @@ interface Notification {
   title: string
   message: string
   timestamp: Date
-  read: boolean
+  isRead: boolean
   action?: {
     label: string
     url: string
@@ -48,7 +48,7 @@ export default function NotificationManager({
     if (savedNotifications) {
       const parsed = JSON.parse(savedNotifications)
       setNotifications(parsed)
-      setUnreadCount(parsed.filter((n: Notification) => !n.read).length)
+      setUnreadCount(parsed.filter((n: Notification) => !n.isRead).length)
     }
 
     // Simulate real-time notifications
@@ -128,7 +128,7 @@ export default function NotificationManager({
       title: randomType.title,
       message: randomType.message,
       timestamp: new Date(),
-      read: false,
+      isRead: false,
       icon: randomType.icon,
       priority: randomType.priority,
       category: randomType.category,
@@ -148,7 +148,7 @@ export default function NotificationManager({
       return updated
     })
     
-    if (!notification.read) {
+    if (!notification.isRead) {
       setUnreadCount(prev => prev + 1)
     }
 
@@ -230,7 +230,7 @@ export default function NotificationManager({
 
   const markAsRead = (id: string) => {
     setNotifications(prev => {
-      const updated = prev.map(n => n.id === id ? { ...n, read: true } : n)
+      const updated = prev.map(n => n.id === id ? { ...n, isRead: true } : n)
       localStorage.setItem('notifications', JSON.stringify(updated))
       return updated
     })
@@ -239,7 +239,7 @@ export default function NotificationManager({
 
   const markAllAsRead = () => {
     setNotifications(prev => {
-      const updated = prev.map(n => ({ ...n, read: true }))
+      const updated = prev.map(n => ({ ...n, isRead: true }))
       localStorage.setItem('notifications', JSON.stringify(updated))
       return updated
     })
@@ -254,7 +254,7 @@ export default function NotificationManager({
     })
     setUnreadCount(prev => {
       const notification = notifications.find(n => n.id === id)
-      return notification && !notification.read ? Math.max(0, prev - 1) : prev
+      return notification && !notification.isRead ? Math.max(0, prev - 1) : prev
     })
   }
 
@@ -266,7 +266,7 @@ export default function NotificationManager({
 
   const archiveNotifications = () => {
     setNotifications(prev => {
-      const updated = prev.map(n => ({ ...n, read: true }))
+      const updated = prev.map(n => ({ ...n, isRead: true }))
       localStorage.setItem('notifications', JSON.stringify(updated))
       return updated
     })
@@ -319,8 +319,8 @@ export default function NotificationManager({
 
   const filteredNotifications = notifications.filter(notification => {
     const matchesFilter = filter === 'all' || 
-      (filter === 'unread' && !notification.read) ||
-      (filter === 'read' && notification.read)
+      (filter === 'unread' && !notification.isRead) ||
+      (filter === 'read' && notification.isRead)
     
     const matchesSearch = !searchQuery || 
       notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -455,7 +455,7 @@ export default function NotificationManager({
                     <div
                       key={notification.id}
                       className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer border-l-4 ${getPriorityColor(notification.priority)} ${
-                        !notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+                        !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
                       }`}
                       onClick={() => {
                         markAsRead(notification.id)
@@ -480,7 +480,7 @@ export default function NotificationManager({
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(notification.category)}`}>
                                   {notification.category}
                                 </span>
-                                {!notification.read && (
+                                {!notification.isRead && (
                                   <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                                 )}
                               </div>
