@@ -5,14 +5,20 @@ import { NextAuthOptions } from 'next-auth'
 
 const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID || '',
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
-    }),
+    // Google Provider (only if environment variables are set)
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      })
+    ] : []),
+    // Facebook Provider (only if environment variables are set)
+    ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET ? [
+      FacebookProvider({
+        clientId: process.env.FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      })
+    ] : []),
   ],
   callbacks: {
     async jwt({ token, user }) {

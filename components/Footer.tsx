@@ -80,9 +80,10 @@ const Footer = () => {
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Пловдив</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Варна</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Бургас</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Русе</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Стара Загора</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Плевен</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Велико Търново</Link></li>
+              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Видин</Link></li>
             </ul>
           </div>
         </div>

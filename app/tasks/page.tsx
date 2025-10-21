@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTasks } from '@/hooks/useTasks'
+import { useTasksAPI, Task } from '@/hooks/useTasksAPI'
+import TaskCard from '@/components/TaskCard'
 import { 
   Search, 
   MapPin, 
@@ -26,31 +27,11 @@ import {
   Leaf
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import GoogleMap from '@/components/GoogleMap'
+import TasksMap from '@/components/TasksMap'
+import MobileFiltersSheet from '@/components/MobileFiltersSheet'
+import SkeletonCard from '@/components/SkeletonCard'
 
-interface Task {
-  id: number
-  title: string
-  description: string
-  category: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  location: string
-  deadline: string
-  urgent: boolean
-  remote: boolean
-  offers: number
-  views: number
-  createdAt: string
-  userId: number
-  status: 'active' | 'assigned' | 'completed'
-  image: string
-  user: {
-    name: string
-    rating: number
-    avatar: string
-  }
-}
+// Task interface is imported from useTasksAPI
 
 const categories = [
   { name: 'Всички категории', icon: Briefcase, value: '' },
@@ -95,355 +76,415 @@ const sortOptions = [
 // Реални обяви за задачи
 const mockTasks: Task[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Почистване на апартамент',
     description: 'Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса, нужна е генерална почистка.',
     category: 'Почистване',
     price: 25,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Кв. Бояна',
     deadline: '2024-02-15',
     urgent: false,
     remote: false,
-    offers: 8,
+    applications: 8,
     views: 45,
-    createdAt: '2024-01-20',
-    userId: 1,
+    rating: 4.8,
+    review_count: 12,
+    posted_by_email: 'maria@example.com',
+    created_at: '2024-01-20',
+    updated_at: '2024-01-20',
+    posted_by: '1',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    user: {
-      name: 'Мария Петрова',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '1',
+      full_name: 'Мария Петрова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 2,
+    id: '2',
     title: 'Ремонт на баня',
     description: 'Нужен е майстор за ремонт на баня. Замяна на плочки, ремонт на душ кабина и монтаж на ново санитари.',
     category: 'Ремонт',
     price: 1500,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'Пловдив, Център',
     deadline: '2024-02-10',
     urgent: true,
     remote: false,
-    offers: 12,
+    applications: 12,
     views: 67,
-    createdAt: '2024-01-19',
-    userId: 2,
+    rating: 4.9,
+    review_count: 8,
+    posted_by_email: 'ivan@example.com',
+    created_at: '2024-01-19',
+    updated_at: '2024-01-19',
+    posted_by: '2',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop',
-    user: {
-      name: 'Иван Димитров',
-      rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '2',
+      full_name: 'Иван Димитров',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 3,
+    id: '3',
     title: 'Разходка с кучето',
     description: 'Търся някой да разходи кучето ми два пъти дневно. Кучето е спокойно и послушно, нужни са 30 мин разходка.',
     category: 'Доставка',
     price: 20,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'Варна, Морска градина',
     deadline: '2024-01-25',
     urgent: false,
     remote: false,
-    offers: 5,
+    applications: 5,
     views: 23,
-    createdAt: '2024-01-18',
-    userId: 3,
+    rating: 4.7,
+    review_count: 15,
+    posted_by_email: 'elena@example.com',
+    created_at: '2024-01-18',
+    updated_at: '2024-01-18',
+    posted_by: '3',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=300&fit=crop',
-    user: {
-      name: 'Елена Стоянова',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '3',
+      full_name: 'Елена Стоянова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 4,
+    id: '4',
     title: 'Уроци по математика',
     description: 'Нужен е учител по математика за ученик в 8 клас. Уроците да са 2 пъти седмично по 90 минути.',
     category: 'Обучение',
     price: 30,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Младост',
     deadline: '2024-02-20',
     urgent: false,
     remote: true,
-    offers: 15,
+    applications: 15,
     views: 89,
-    createdAt: '2024-01-17',
-    userId: 4,
+    rating: 4.6,
+    review_count: 6,
+    posted_by_email: 'stefan@example.com',
+    created_at: '2024-01-17',
+    updated_at: '2024-01-17',
+    posted_by: '4',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
-    user: {
-      name: 'Стефан Георгиев',
-      rating: 4.6,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '4',
+      full_name: 'Стефан Георгиев',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 5,
+    id: '5',
     title: 'Градинарски услуги',
     description: 'Нужен е градинар за подреждане на градината. Плевене, подрязване на живи плетове и посаждане на цветя.',
     category: 'Градинарство',
     price: 35,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Драгалевци',
     deadline: '2024-01-30',
     urgent: false,
     remote: false,
-    offers: 7,
+    applications: 7,
     views: 34,
-    createdAt: '2024-01-16',
-    userId: 5,
+    rating: 4.8,
+    review_count: 9,
+    posted_by_email: 'petar@example.com',
+    created_at: '2024-01-16',
+    updated_at: '2024-01-16',
+    posted_by: '5',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-    user: {
-      name: 'Петър Иванов',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '5',
+      full_name: 'Петър Иванов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 6,
+    id: '6',
     title: 'Сглобяване на мебели',
     description: 'Нужен е майстор за сглобяване на кухненски шкафове и маса. Мебелите са от IKEA.',
     category: 'Ремонт',
     price: 200,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Лозенец',
     deadline: '2024-02-05',
     urgent: false,
     remote: false,
-    offers: 3,
+    applications: 3,
     views: 18,
-    createdAt: '2024-01-15',
-    userId: 6,
+    rating: 4.9,
+    review_count: 4,
+    posted_by_email: 'anna@example.com',
+    created_at: '2024-01-15',
+    updated_at: '2024-01-15',
+    posted_by: '6',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    user: {
-      name: 'Анна Георгиева',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '6',
+      full_name: 'Анна Георгиева',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 7,
+    id: '7',
     title: 'Доставка на храни',
     description: 'Нужна е доставка на храни от магазин до дома. Списъкът ще бъде предоставен предварително.',
     category: 'Доставка',
     price: 15,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Център',
     deadline: '2024-01-28',
     urgent: true,
     remote: false,
-    offers: 4,
+    applications: 4,
     views: 22,
-    createdAt: '2024-01-14',
-    userId: 7,
+    rating: 4.7,
+    review_count: 11,
+    posted_by_email: 'nikolai@example.com',
+    created_at: '2024-01-14',
+    updated_at: '2024-01-14',
+    posted_by: '7',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop',
-    user: {
-      name: 'Николай Петров',
-      rating: 4.5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '7',
+      full_name: 'Николай Петров',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 8,
+    id: '8',
     title: 'Почистване след ремонт',
     description: 'Нужна е генерална почистка след ремонт на апартамент. Включва почистване на прах и отпадъци.',
     category: 'Почистване',
     price: 300,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Изток',
     deadline: '2024-02-01',
     urgent: false,
     remote: false,
-    offers: 6,
+    applications: 6,
     views: 31,
-    createdAt: '2024-01-13',
-    userId: 8,
+    rating: 4.8,
+    review_count: 7,
+    posted_by_email: 'georgi@example.com',
+    created_at: '2024-01-13',
+    updated_at: '2024-01-13',
+    posted_by: '8',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    user: {
-      name: 'Георги Стоянов',
-      rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '8',
+      full_name: 'Георги Стоянов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 9,
+    id: '9',
     title: 'Уроци по английски',
     description: 'Търся учител по английски за начинаещи. Уроците да са онлайн, 2 пъти седмично по 60 минути.',
     category: 'Обучение',
     price: 25,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'Онлайн',
     deadline: '2024-02-12',
     urgent: false,
     remote: true,
-    offers: 9,
+    applications: 9,
     views: 56,
-    createdAt: '2024-01-12',
-    userId: 9,
+    rating: 4.9,
+    review_count: 3,
+    posted_by_email: 'maria2@example.com',
+    created_at: '2024-01-12',
+    updated_at: '2024-01-12',
+    posted_by: '9',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
-    user: {
-      name: 'Мария Иванова',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '9',
+      full_name: 'Мария Иванова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 10,
+    id: '10',
     title: 'Поддръжка на градина',
     description: 'Нужна е редовна поддръжка на градината - плевене, поливане, подрязване на растения.',
     category: 'Градинарство',
     price: 40,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Бояна',
     deadline: '2024-01-29',
     urgent: false,
     remote: false,
-    offers: 5,
+    applications: 5,
     views: 28,
-    createdAt: '2024-01-11',
-    userId: 10,
+    rating: 4.7,
+    review_count: 13,
+    posted_by_email: 'ivan2@example.com',
+    created_at: '2024-01-11',
+    updated_at: '2024-01-11',
+    posted_by: '10',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-    user: {
-      name: 'Иван Петров',
-      rating: 4.6,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '10',
+      full_name: 'Иван Петров',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 11,
+    id: '11',
     title: 'Ремонт на електрически уреди',
     description: 'Нужен е електротехник за ремонт на пералня и хладилник. Проблемът е с електрическата част.',
     category: 'Ремонт',
     price: 120,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Младост',
     deadline: '2024-01-27',
     urgent: true,
     remote: false,
-    offers: 7,
+    applications: 7,
     views: 35,
-    createdAt: '2024-01-10',
-    userId: 11,
+    rating: 4.8,
+    review_count: 5,
+    posted_by_email: 'petar2@example.com',
+    created_at: '2024-01-10',
+    updated_at: '2024-01-10',
+    posted_by: '11',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    user: {
-      name: 'Петър Георгиев',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '11',
+      full_name: 'Петър Георгиев',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 12,
+    id: '12',
     title: 'Почистване на офис',
     description: 'Нужна е почистка на офис пространство 200 кв/м. Включва почистване на работни места и общи зони.',
     category: 'Почистване',
     price: 400,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Център',
     deadline: '2024-01-26',
     urgent: false,
     remote: false,
-    offers: 8,
+    applications: 8,
     views: 42,
-    createdAt: '2024-01-09',
-    userId: 12,
+    rating: 4.9,
+    review_count: 8,
+    posted_by_email: 'anna2@example.com',
+    created_at: '2024-01-09',
+    updated_at: '2024-01-09',
+    posted_by: '12',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    user: {
-      name: 'Анна Петрова',
-      rating: 4.8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '12',
+      full_name: 'Анна Петрова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 13,
+    id: '13',
     title: 'Доставка на мебели',
     description: 'Нужна е доставка на диван и маса от магазин до дома. Разстояние около 5 км.',
     category: 'Доставка',
     price: 80,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Лозенец',
     deadline: '2024-01-25',
     urgent: false,
     remote: false,
-    offers: 4,
+    applications: 4,
     views: 19,
-    createdAt: '2024-01-08',
-    userId: 13,
+    rating: 4.6,
+    review_count: 12,
+    posted_by_email: 'nikolai2@example.com',
+    created_at: '2024-01-08',
+    updated_at: '2024-01-08',
+    posted_by: '13',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop',
-    user: {
-      name: 'Николай Иванов',
-      rating: 4.5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '13',
+      full_name: 'Николай Иванов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 14,
+    id: '14',
     title: 'Уроци по музика',
     description: 'Търся учител по пиано за дете 8 години. Уроците да са в дома ни, веднъж седмично по 45 минути.',
     category: 'Обучение',
     price: 35,
-    priceType: 'hourly',
+    price_type: 'hourly',
     location: 'София, Драгалевци',
     deadline: '2024-02-08',
     urgent: false,
     remote: false,
-    offers: 6,
+    applications: 6,
     views: 33,
-    createdAt: '2024-01-07',
-    userId: 14,
+    rating: 4.7,
+    review_count: 6,
+    posted_by_email: 'elena2@example.com',
+    created_at: '2024-01-07',
+    updated_at: '2024-01-07',
+    posted_by: '14',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
-    user: {
-      name: 'Елена Петрова',
-      rating: 4.9,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '14',
+      full_name: 'Елена Петрова',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face'
     }
   },
   {
-    id: 15,
+    id: '15',
     title: 'Посаждане на дървета',
     description: 'Нужен е градинар за посаждане на 10 плодни дървета. Включва копаене на ями и посаждане.',
     category: 'Градинарство',
     price: 250,
-    priceType: 'fixed',
+    price_type: 'fixed',
     location: 'София, Бояна',
     deadline: '2024-01-24',
     urgent: false,
     remote: false,
-    offers: 3,
+    applications: 3,
     views: 16,
-    createdAt: '2024-01-06',
-    userId: 15,
+    rating: 4.8,
+    review_count: 9,
+    posted_by_email: 'georgi2@example.com',
+    created_at: '2024-01-06',
+    updated_at: '2024-01-06',
+    posted_by: '15',
     status: 'active',
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop',
-    user: {
-      name: 'Георги Иванов',
-      rating: 4.7,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+    profiles: {
+      id: '15',
+      full_name: 'Георги Иванов',
+      is_verified: true,
+      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
     }
   }
 ]
 
 export default function TasksPage() {
   const router = useRouter()
-  const [tasks, setTasks] = useState<Task[]>([])
+  const { tasks, loading, fetchTasks } = useTasksAPI()
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -451,8 +492,7 @@ export default function TasksPage() {
   const [selectedPriceRange, setSelectedPriceRange] = useState('')
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
-  const [favorites, setFavorites] = useState<number[]>([])
-  const [loading, setLoading] = useState(true)
+  const [favorites, setFavorites] = useState<string[]>([])
 
   // Функция за получаване на икона според категорията
   const getCategoryIcon = (category: string) => {
@@ -472,51 +512,16 @@ export default function TasksPage() {
     }
   }
 
-  // Use the new tasks hook
-  const { tasks: apiTasks, loading: tasksLoading, error: tasksError } = useTasks({
-    category: selectedCategory,
-    location: selectedLocation,
-    search: searchQuery
-  })
-
   useEffect(() => {
-    if (apiTasks) {
-      // Convert API tasks to local Task format
-      const processedTasks = apiTasks.map(task => ({
-        id: parseInt(task.id),
-        title: task.title,
-        description: task.description,
-        category: task.category,
-        price: task.price,
-        priceType: task.price_type,
-        location: task.location,
-        deadline: task.deadline || '',
-        urgent: task.urgent,
-        remote: false, // Default value
-        offers: task.applications_count || 0,
-        views: task.views_count || 0,
-        createdAt: task.created_at,
-        userId: parseInt(task.user_id),
-        status: task.status as 'active' | 'assigned' | 'completed',
-        image: task.attachments?.[0] || '',
-        user: {
-          name: 'Потребител',
-          rating: 4.5,
-          avatar: ''
-        }
-      }))
-      
-      setTasks(processedTasks)
-      setFilteredTasks(processedTasks)
-    }
-    setLoading(tasksLoading)
-  }, [apiTasks, tasksLoading])
-
-  // Load favorites from localStorage
-  useEffect(() => {
+    // Зареждане на любими задачи от localStorage
     const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]')
     setFavorites(savedFavorites)
   }, [])
+
+  // Обновяване на филтрираните задачи когато се променят задачите или филтрите
+  useEffect(() => {
+    setFilteredTasks(tasks)
+  }, [tasks])
 
   // Скролиране към конкретна обява, ако е подаден jobId в URL
   useEffect(() => {
@@ -599,7 +604,7 @@ export default function TasksPage() {
     // Сортиране
     switch (selectedSort) {
       case 'Най-нови':
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         break
       case 'Най-висока цена':
         filtered.sort((a, b) => b.price - a.price)
@@ -615,7 +620,16 @@ export default function TasksPage() {
     setFilteredTasks(filtered)
   }
 
-  const handleFavoriteToggle = (taskId: number) => {
+  const handleResetFilters = () => {
+    setSearchQuery('')
+    setSelectedCategory('')
+    setSelectedLocation('')
+    setSelectedPriceRange('')
+    setSelectedSort('Най-нови')
+    toast.success('Филтрите са изчистени')
+  }
+
+  const handleFavoriteToggle = (taskId: string) => {
     const newFavorites = favorites.includes(taskId)
       ? favorites.filter(id => id !== taskId)
       : [...favorites, taskId]
@@ -636,7 +650,8 @@ export default function TasksPage() {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Няма краен срок'
     const date = new Date(dateString)
     const now = new Date()
     const diffTime = date.getTime() - now.getTime()
@@ -726,12 +741,12 @@ export default function TasksPage() {
               </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex gap-2">
+            {/* Filters - Desktop */}
+            <div className="hidden lg:flex gap-2">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {categories.map(category => (
                   <option key={category.value} value={category.name}>
@@ -743,7 +758,7 @@ export default function TasksPage() {
               <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {locations.map(location => (
                   <option key={location} value={location}>
@@ -755,7 +770,7 @@ export default function TasksPage() {
               <select
                 value={selectedPriceRange}
                 onChange={(e) => setSelectedPriceRange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {priceRanges.map(range => (
                   <option key={range} value={range}>
@@ -767,7 +782,7 @@ export default function TasksPage() {
               <select
                 value={selectedSort}
                 onChange={(e) => setSelectedSort(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 {sortOptions.map(option => (
                   <option key={option} value={option}>
@@ -775,15 +790,21 @@ export default function TasksPage() {
                   </option>
                 ))}
               </select>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Filter className="h-4 w-4" />
-                Филтри
-              </button>
             </div>
+
+            {/* Filters Button - Mobile */}
+            <button
+              onClick={() => setShowFilters(true)}
+              className="lg:hidden px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 font-medium text-gray-700 dark:text-gray-300 min-h-[44px] touch-manipulation"
+            >
+              <Filter className="h-5 w-5" />
+              Филтри
+              {(selectedCategory || selectedLocation || selectedPriceRange || selectedSort !== 'Най-нови') && (
+                <span className="ml-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+                  •
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -793,231 +814,38 @@ export default function TasksPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tasks List */}
           <div className="lg:col-span-2">
-            <div className="space-y-4">
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Зареждане на задачи...</p>
-                </div>
-              ) : filteredTasks.length === 0 ? (
-                <div className="text-center py-12">
-                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Няма намерени задачи</h3>
-                  <p className="text-gray-600">Опитайте да промените филтрите или търсенето</p>
-                </div>
-              ) : (
-                filteredTasks.map(task => (
-                  <div key={task.id} id={`task-${task.id}`} className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300">
-                    {/* Mobile Layout */}
-                    <div className="block lg:hidden">
-                      <div className="h-48 relative">
-                        <img 
-                          src={task.image} 
-                          alt={task.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                            {task.category}
-                          </span>
-                        </div>
-                        {task.urgent && (
-                          <div className="absolute top-3 right-3">
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Спешно
-                            </span>
-                          </div>
-                        )}
-                        {task.remote && (
-                          <div className="absolute bottom-3 left-3">
-                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Дистанционно
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="p-4">
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h3>
-                          <p className="text-gray-600 text-sm mb-3 leading-relaxed line-clamp-3">{task.description}</p>
-                          
-                          <div className="space-y-2 text-sm text-gray-500 mb-4">
-                            <div className="flex items-center gap-2">
-                              {React.createElement(getCategoryIcon(task.category), { className: "h-4 w-4 text-blue-500" })}
-                              <span className="font-medium">{task.category}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4 text-gray-400" />
-                              <span>{task.location}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-gray-400" />
-                              <span>{formatDate(task.deadline)}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="text-center mb-4">
-                          <div className="text-2xl font-bold text-blue-600 mb-1">
-                            {formatPrice(task.price, task.priceType)}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {task.offers} оферти
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <div className="flex items-center gap-3">
-                            <img 
-                              src={task.user.avatar} 
-                              alt={task.user.name} 
-                              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
-                            />
-                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.user.rating}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleFavoriteToggle(task.id)}
-                              className={`p-2 rounded-lg transition-colors ${
-                                favorites.includes(task.id)
-                                  ? 'text-red-500 bg-red-50'
-                                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                              }`}
-                            >
-                              <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
-                            </button>
-                            <button 
-                              onClick={() => router.push(`/submit-offer/${task.id}`)}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
-                            >
-                              Подай оферта
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Desktop Layout */}
-                    <div className="hidden lg:flex">
-                      {/* Image Section */}
-                      <div className="w-48 h-48 flex-shrink-0 relative">
-                        <img 
-                          src={task.image} 
-                          alt={task.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                            {task.category}
-                          </span>
-                        </div>
-                        {task.urgent && (
-                          <div className="absolute top-3 right-3">
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Спешно
-                            </span>
-                          </div>
-                        )}
-                        {task.remote && (
-                          <div className="absolute bottom-3 left-3">
-                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
-                              Дистанционно
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Content Section */}
-                      <div className="flex-1 p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{task.title}</h3>
-                            <p className="text-gray-600 text-sm mb-4 leading-relaxed">{task.description}</p>
-                            
-                            <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
-                              <div className="flex items-center gap-2">
-                                {React.createElement(getCategoryIcon(task.category), { className: "h-4 w-4 text-blue-500" })}
-                                <span className="font-medium">{task.category}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-gray-400" />
-                                <span>{task.location}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-gray-400" />
-                                <span>{formatDate(task.deadline)}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="text-right ml-4">
-                            <div className="text-3xl font-bold text-blue-600 mb-1">
-                              {formatPrice(task.price, task.priceType)}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {task.offers} оферти
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <img 
-                                src={task.user.avatar} 
-                                alt={task.user.name} 
-                                className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
-                              />
-                              <span className="font-medium">{task.user.name}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="font-medium">{task.user.rating}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
-                              <Eye className="h-4 w-4" />
-                              <span>{task.views} прегледа</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => handleFavoriteToggle(task.id)}
-                              className={`p-2 rounded-lg transition-colors ${
-                                favorites.includes(task.id)
-                                  ? 'text-red-500 bg-red-50'
-                                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                              }`}
-                            >
-                              <Heart className={`h-5 w-5 ${favorites.includes(task.id) ? 'fill-current' : ''}`} />
-                            </button>
-                            <button 
-                              onClick={() => router.push(`/submit-offer/${task.id}`)}
-                              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                            >
-                              Подай оферта
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+            {loading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+                {[...Array(9)].map((_, index) => (
+                  <SkeletonCard key={index} />
+                ))}
+              </div>
+            ) : filteredTasks.length === 0 ? (
+              <div className="text-center py-12">
+                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Няма намерени задачи</h3>
+                <p className="text-gray-600">Опитайте да промените филтрите или търсенето</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                {filteredTasks.map(task => (
+                  <TaskCard 
+                    key={task.id} 
+                    task={task}
+                    onFavoriteToggle={handleFavoriteToggle}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Map */}
           <div className="lg:col-span-1">
             <div className="sticky top-4">
-              <GoogleMap 
+              <TasksMap 
                 tasks={filteredTasks}
                 selectedLocation={selectedLocation}
+                height="600px"
                 onTaskClick={(taskId) => {
                   // Скролиране към задачата в списъка
                   const taskElement = document.getElementById(`task-${taskId}`)
@@ -1030,6 +858,25 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Filters Sheet */}
+      <MobileFiltersSheet
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        categories={categories}
+        locations={locations}
+        priceRanges={priceRanges}
+        sortOptions={sortOptions}
+        selectedCategory={selectedCategory}
+        selectedLocation={selectedLocation}
+        selectedPriceRange={selectedPriceRange}
+        selectedSort={selectedSort}
+        onCategoryChange={setSelectedCategory}
+        onLocationChange={setSelectedLocation}
+        onPriceRangeChange={setSelectedPriceRange}
+        onSortChange={setSelectedSort}
+        onReset={handleResetFilters}
+      />
     </div>
   )
 }

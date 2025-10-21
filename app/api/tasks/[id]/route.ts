@@ -1,94 +1,158 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { db, supabase } from '@/lib/supabase'
 
-// GET /api/tasks/[id] - Вземи конкретна задача
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const task = await db.getTask(params.id)
-    
-    if (!task) {
-      return NextResponse.json(
-        { error: 'Task not found' },
-        { status: 404 }
-      )
+    const cookieStore = cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) { return cookieStore.get(name)?.value },
+          set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }) },
+          remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }) },
+        },
+      }
+    )
+
+    const { data: task, error } = await supabase
+      .from('tasks')
+      .select(`
+        *,
+        profiles!tasks_user_id_fkey (
+          id,
+          full_name,
+          avatar_url,
+          is_verified,
+          bio,
+          location
+        )
+      `)
+      .eq('id', params.id)
+      .single()
+
+    if (error) {
+      console.error('Error fetching task:', error)
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
-    return NextResponse.json(task)
+    // Увеличаване на броя гледания
+    await supabase
+      .from('tasks')
+      .update({ views_count: (task.views_count || 0) + 1 })
+      .eq('id', params.id)
+
+    return NextResponse.json({ task })
   } catch (error) {
-    console.error('Error fetching task:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch task' },
-      { status: 500 }
-    )
+    console.error('Error in GET /api/tasks/[id]:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-// PUT /api/tasks/[id] - Обнови задача
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const body = await request.json()
-    const { title, description, category, location, price, priceType, urgent, deadline, attachments, status } = body
+    const cookieStore = cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) { return cookieStore.get(name)?.value },
+          set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }) },
+          remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }) },
+        },
+      }
+    )
 
-    // Get current task to check ownership
-    const currentTask = await db.getTask(params.id)
-    if (!currentTask) {
-      return NextResponse.json(
-        { error: 'Task not found' },
-        { status: 404 }
-      )
+    // Проверка за автентикация
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const updates: any = {}
-    if (title !== undefined) updates.title = title
-    if (description !== undefined) updates.description = description
-    if (category !== undefined) updates.category = category
-    if (location !== undefined) updates.location = location
-    if (price !== undefined) updates.price = parseFloat(price)
-    if (priceType !== undefined) updates.price_type = priceType
-    if (urgent !== undefined) updates.urgent = urgent
-    if (deadline !== undefined) updates.deadline = deadline
-    if (attachments !== undefined) updates.attachments = attachments
-    if (status !== undefined) updates.status = status
+    const body = await request.json()
 
-    // Update task
-    const { data, error } = await supabase
+    // Проверка дали потребителят е собственик на задачата
+    const { data: existingTask, error: fetchError } = await supabase
       .from('tasks')
-      .update(updates)
+      .select('user_id')
       .eq('id', params.id)
-      .select()
       .single()
 
-    if (error) throw error
+    if (fetchError || existingTask.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
-    return NextResponse.json(data)
+    const { data: task, error } = await supabase
+      .from('tasks')
+      .update(body)
+      .eq('id', params.id)
+      .select(`
+        *,
+        profiles!tasks_user_id_fkey (
+          id,
+          full_name,
+          avatar_url,
+          is_verified
+        )
+      `)
+      .single()
+
+    if (error) {
+      console.error('Error updating task:', error)
+      return NextResponse.json({ error: 'Failed to update task' }, { status: 500 })
+    }
+
+    return NextResponse.json({ task })
   } catch (error) {
-    console.error('Error updating task:', error)
-    return NextResponse.json(
-      { error: 'Failed to update task' },
-      { status: 500 }
-    )
+    console.error('Error in PUT /api/tasks/[id]:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-// DELETE /api/tasks/[id] - Изтрий задача
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Get current task to check ownership
-    const currentTask = await db.getTask(params.id)
-    if (!currentTask) {
-      return NextResponse.json(
-        { error: 'Task not found' },
-        { status: 404 }
-      )
+    const cookieStore = cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) { return cookieStore.get(name)?.value },
+          set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }) },
+          remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }) },
+        },
+      }
+    )
+
+    // Проверка за автентикация
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Проверка дали потребителят е собственик на задачата
+    const { data: existingTask, error: fetchError } = await supabase
+      .from('tasks')
+      .select('user_id')
+      .eq('id', params.id)
+      .single()
+
+    if (fetchError || existingTask.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const { error } = await supabase
@@ -96,14 +160,15 @@ export async function DELETE(
       .delete()
       .eq('id', params.id)
 
-    if (error) throw error
+    if (error) {
+      console.error('Error deleting task:', error)
+      return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 })
+    }
 
     return NextResponse.json({ message: 'Task deleted successfully' })
   } catch (error) {
-    console.error('Error deleting task:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete task' },
-      { status: 500 }
-    )
+    console.error('Error in DELETE /api/tasks/[id]:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+

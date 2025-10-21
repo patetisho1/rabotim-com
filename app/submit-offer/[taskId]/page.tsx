@@ -16,30 +16,7 @@ import {
   Send
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Task {
-  id: number
-  title: string
-  description: string
-  category: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  location: string
-  deadline: string
-  urgent: boolean
-  remote: boolean
-  offers: number
-  views: number
-  createdAt: string
-  userId: number
-  status: 'active' | 'assigned' | 'completed'
-  image: string
-  user: {
-    name: string
-    rating: number
-    avatar: string
-  }
-}
+import { Task } from '@/hooks/useTasksAPI'
 
 interface OfferFormData {
   proposedPrice: string
@@ -78,69 +55,12 @@ export default function SubmitOfferPage() {
   useEffect(() => {
     const loadTask = () => {
       try {
-        // Първо търсим в localStorage
+        // Търсим в localStorage
         const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
         const foundTask = savedTasks.find((t: Task) => t.id.toString() === taskId)
         
         if (foundTask) {
           setTask(foundTask)
-          setLoading(false)
-          return
-        }
-
-        // Ако не намерим в localStorage, използваме mock данни
-        const mockTasks = [
-          {
-            id: 1,
-            title: 'Почистване на апартамент',
-            description: 'Търся някой да почисти апартамент в Кв. Бояна. 140 кв/м и тераса, нужна е генерална почистка.',
-            category: 'Почистване',
-            price: 25,
-            priceType: 'hourly',
-            location: 'София, Кв. Бояна',
-            deadline: '2024-02-15',
-            urgent: false,
-            remote: false,
-            offers: 8,
-            views: 45,
-            createdAt: '2024-01-20',
-            userId: 1,
-            status: 'active',
-            image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-            user: {
-              name: 'Мария Петрова',
-              rating: 4.8,
-              avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
-            }
-          },
-          {
-            id: 2,
-            title: 'Ремонт на баня',
-            description: 'Нужен е майстор за ремонт на баня. Замяна на плочки, ремонт на душ кабина и монтаж на ново санитари.',
-            category: 'Ремонт',
-            price: 1500,
-            priceType: 'fixed',
-            location: 'Пловдив, Център',
-            deadline: '2024-02-10',
-            urgent: true,
-            remote: false,
-            offers: 12,
-            views: 67,
-            createdAt: '2024-01-19',
-            userId: 2,
-            status: 'active',
-            image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop',
-            user: {
-              name: 'Иван Димитров',
-              rating: 4.9,
-              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
-            }
-          }
-        ]
-
-        const mockTask = mockTasks.find(t => t.id.toString() === taskId)
-        if (mockTask) {
-          setTask(mockTask as Task)
         } else {
           toast.error('Задачата не е намерена')
           router.push('/tasks')
@@ -221,11 +141,12 @@ export default function SubmitOfferPage() {
     }
   }
 
-  const formatPrice = (price: number, priceType: string) => {
+  const formatPrice = (price: number, priceType: string | undefined) => {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Няма краен срок'
     const date = new Date(dateString)
     const now = new Date()
     const diffTime = date.getTime() - now.getTime()
@@ -305,7 +226,7 @@ export default function SubmitOfferPage() {
                   <div className="flex items-center gap-3 text-sm">
                     <DollarSign className="h-4 w-4 text-green-600" />
                     <span className="font-medium">Бюджет:</span>
-                    <span className="text-gray-600">{formatPrice(task.price, task.priceType)}</span>
+                    <span className="text-gray-600">{formatPrice(task.price, task.price_type)}</span>
                   </div>
                   
                   <div className="flex items-center gap-3 text-sm">
@@ -339,21 +260,21 @@ export default function SubmitOfferPage() {
                 <div className="border-t pt-4">
                   <div className="flex items-center gap-3 mb-3">
                     <img 
-                      src={task.user.avatar} 
-                      alt={task.user.name} 
+                      src={task.profiles?.avatar_url || 'https://via.placeholder.com/40'} 
+                      alt={task.profiles?.full_name || 'Потребител'} 
                       className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                     />
                     <div>
-                      <div className="font-medium text-gray-900">{task.user.name}</div>
+                      <div className="font-medium text-gray-900">{task.profiles?.full_name || 'Анонимен'}</div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
                         <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span>{task.user.rating}</span>
+                        <span>{task.rating || 0}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="text-sm text-gray-500">
-                    {task.offers} оферти • {task.views} прегледа
+                    {task.applications} оферти • {task.views} прегледа
                   </div>
                 </div>
               </div>
@@ -381,11 +302,11 @@ export default function SubmitOfferPage() {
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-600 flex items-center">
-                      {task.priceType === 'hourly' ? 'лв/час' : 'лв'}
+                      {task.price_type === 'hourly' ? 'лв/час' : 'лв'}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Оригиналният бюджет е {formatPrice(task.price, task.priceType)}
+                    Оригиналният бюджет е {formatPrice(task.price, task.price_type)}
                   </p>
                 </div>
 

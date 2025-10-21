@@ -235,7 +235,7 @@ export default function TaskForm({
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 placeholder="Напр. Трябва ми майстор за ремонт на баня"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-base ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base ${
                   errors.title ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
               />
@@ -257,7 +257,7 @@ export default function TaskForm({
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Опишете подробно какво трябва да се свърши, когато, къде и какви са изискванията..."
                 rows={4}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-base resize-none ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base resize-none ${
                   errors.description ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
               />
@@ -375,7 +375,7 @@ export default function TaskForm({
                       placeholder="От"
                       value={formData.budget.amount}
                       onChange={(e) => handleBudgetChange('amount', e.target.value ? parseInt(e.target.value) : '')}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-base ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base ${
                         errors.budget ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                     />

@@ -15,28 +15,16 @@ import {
   Edit,
   Trash2,
   Filter,
-  Search
+  Search,
+  Copy,
+  BarChart3,
+  Sparkles,
+  Archive
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Task {
-  id: number
-  title: string
-  description: string
-  category: string
-  price: number
-  priceType: 'fixed' | 'hourly'
-  location: string
-  deadline: string
-  urgent: boolean
-  remote: boolean
-  offers: number
-  views: number
-  createdAt: string
-  userId: number
-  status: 'active' | 'assigned' | 'completed' | 'cancelled'
-  applications?: any[]
-}
+import { useAuth } from '@/hooks/useAuth'
+import { Task, useTasksAPI } from '@/hooks/useTasksAPI'
+import { supabase } from '@/lib/supabase'
 
 const statusColors = {
   active: 'bg-green-100 text-green-800',
@@ -54,37 +42,40 @@ const statusLabels = {
 
 export default function MyTasksPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
+  const { tasks: allTasks, loading: tasksLoading, getUserTasks } = useTasksAPI()
   const [tasks, setTasks] = useState<Task[]>([])
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [selectedStatus, setSelectedStatus] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    // Проверка дали потребителят е влязъл
-    const loginStatus = localStorage.getItem('isLoggedIn')
-    if (loginStatus !== 'true') {
+    if (authLoading || tasksLoading) return
+    
+    if (!authUser) {
       toast.error('Трябва да сте влезли в акаунта си')
       router.push('/login')
       return
     }
-
-    // Зареждане на потребителските данни
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const userObj = JSON.parse(userData)
-      setUser(userObj)
-      
-      // Зареждане на задачите на потребителя
-      const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const userTasks = allTasks.filter((task: Task) => task.userId === userObj.id)
-      setTasks(userTasks)
-      setFilteredTasks(userTasks)
+    
+    // Зареждане на задачите на потребителя от Supabase
+    const loadUserTasks = async () => {
+      try {
+        const userTasks = await getUserTasks(authUser.id)
+        console.log('Задачи на потребителя от Supabase:', userTasks)
+        setTasks(userTasks)
+        setFilteredTasks(userTasks)
+      } catch (error) {
+        console.error('Грешка при зареждане на задачи:', error)
+        toast.error('Грешка при зареждане на задачи')
+      } finally {
+        setLoading(false)
+      }
     }
     
-    setLoading(false)
-  }, [router])
+    loadUserTasks()
+  }, [authUser, authLoading, tasksLoading, getUserTasks, router])
 
   useEffect(() => {
     filterTasks()
@@ -92,6 +83,9 @@ export default function MyTasksPage() {
 
   const filterTasks = () => {
     let filtered = [...tasks]
+
+    // Филтър за неархивирани задачи
+    filtered = filtered.filter(task => !task.is_archived)
 
     // Филтър по търсене
     if (searchQuery) {
@@ -109,29 +103,119 @@ export default function MyTasksPage() {
     setFilteredTasks(filtered)
   }
 
-  const handleDeleteTask = (taskId: number) => {
-    if (window.confirm('Сигурни ли сте, че искате да изтриете тази задача?')) {
-      const updatedTasks = tasks.filter(task => task.id !== taskId)
-      setTasks(updatedTasks)
-      
-      // Обновяване на localStorage
-      const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const updatedAllTasks = allTasks.filter((task: Task) => task.id !== taskId)
-      localStorage.setItem('tasks', JSON.stringify(updatedAllTasks))
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Сигурни ли сте, че искате да изтриете тази задача? Това действие е необратимо.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      // Update local state
+      setTasks(prev => prev.filter(task => task.id !== taskId))
       
       toast.success('Задачата е изтрита успешно')
+    } catch (error: any) {
+      console.error('Error deleting task:', error)
+      toast.error('Грешка при изтриване на задачата')
     }
   }
 
-  const handleEditTask = (taskId: number) => {
-    // За сега просто показваме съобщение
-    toast('Редактирането на задачи ще бъде добавено скоро', {
-      icon: 'ℹ️',
-      duration: 3000
-    })
+  const handleEditTask = (taskId: string) => {
+    router.push(`/task/${taskId}/edit`)
   }
 
-  const formatDate = (dateString: string) => {
+  const handleStatusChange = async (taskId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update task status')
+      }
+
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId ? { ...task, status: newStatus } : task
+      ))
+      
+      toast.success(`Статусът е обновен на "${statusLabels[newStatus as keyof typeof statusLabels]}"`)
+    } catch (error: any) {
+      console.error('Error updating task status:', error)
+      toast.error('Грешка при обновяване на статуса')
+    }
+  }
+
+  const handleDuplicateTask = (task: any) => {
+    // Create a copy of the task with modified title and reset fields
+    const duplicatedTask = {
+      ...task,
+      title: `${task.title} (Копие)`,
+      status: 'active',
+      applications_count: 0,
+      views_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    // Remove the id so it creates a new task
+    delete duplicatedTask.id
+    
+    // Navigate to post-task page with pre-filled data
+    const queryParams = new URLSearchParams({
+      duplicate: 'true',
+      title: duplicatedTask.title,
+      description: duplicatedTask.description,
+      category: duplicatedTask.category,
+      location: duplicatedTask.location,
+      price: duplicatedTask.price.toString(),
+      price_type: duplicatedTask.price_type,
+      urgent: duplicatedTask.urgent.toString(),
+      deadline: duplicatedTask.deadline || ''
+    })
+    
+    router.push(`/post-task?${queryParams.toString()}`)
+    toast.success('Данните са заредени за нова задача')
+  }
+
+  const handleArchiveTask = async (taskId: string) => {
+    if (!window.confirm('Сигурни ли сте, че искате да архивирате тази задача? Ще можете да я възстановите по-късно.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          is_archived: true,
+          archived_at: new Date().toISOString()
+        })
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      // Update local state
+      setTasks(prev => prev.filter(task => task.id !== taskId))
+      
+      toast.success('Задачата е архивирана успешно')
+    } catch (error: any) {
+      console.error('Error archiving task:', error)
+      toast.error('Грешка при архивиране на задачата')
+    }
+  }
+
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Няма срок'
     const date = new Date(dateString)
     return date.toLocaleDateString('bg-BG')
   }
@@ -140,11 +224,26 @@ export default function MyTasksPage() {
     return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
   }
 
+  // Status definitions
+  const statusLabels = {
+    active: 'Активна',
+    in_progress: 'В процес',
+    completed: 'Завършена',
+    cancelled: 'Отменена'
+  }
+
+  const statusColors = {
+    active: 'bg-green-100 text-green-800',
+    in_progress: 'bg-blue-100 text-blue-800',
+    completed: 'bg-gray-100 text-gray-800',
+    cancelled: 'bg-red-100 text-red-800'
+  }
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active':
         return <Clock className="h-4 w-4" />
-      case 'assigned':
+      case 'in_progress':
         return <MessageCircle className="h-4 w-4" />
       case 'completed':
         return <CheckCircle className="h-4 w-4" />
@@ -179,13 +278,22 @@ export default function MyTasksPage() {
                   Управлявайте задачите, които сте публикували
                 </p>
               </div>
-              <button
-                onClick={() => router.push('/post-task')}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Публикувай нова задача
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.push('/archived-tasks')}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                >
+                  <Archive className="h-4 w-4" />
+                  Архив
+                </button>
+                <button
+                  onClick={() => router.push('/post-task')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Публикувай нова задача
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -224,9 +332,9 @@ export default function MyTasksPage() {
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-600">Възложени</p>
+                  <p className="text-sm text-blue-600">В процес</p>
                   <p className="text-2xl font-bold text-blue-900">
-                    {tasks.filter(t => t.status === 'assigned').length}
+                    {tasks.filter(t => t.status === 'in_progress').length}
                   </p>
                 </div>
                 <div className="bg-blue-100 rounded-full p-2">
@@ -276,7 +384,7 @@ export default function MyTasksPage() {
             >
               <option value="">Всички статуси</option>
               <option value="active">Активни</option>
-              <option value="assigned">Възложени</option>
+              <option value="in_progress">В процес</option>
               <option value="completed">Завършени</option>
               <option value="cancelled">Отменени</option>
             </select>
@@ -312,21 +420,72 @@ export default function MyTasksPage() {
         ) : (
           <div className="space-y-4">
             {filteredTasks.map(task => (
-              <div key={task.id} className="bg-white rounded-lg shadow-sm border p-6">
+              <div key={task.id} className={`rounded-lg shadow-sm border p-6 ${
+                task.is_top ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-400' :
+                task.is_featured ? 'bg-purple-50 border-purple-400' :
+                task.is_promoted ? 'bg-blue-50 border-blue-400' :
+                'bg-white'
+              }`}>
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
-                        {statusLabels[task.status]}
-                      </span>
+                      <select
+                        value={task.status}
+                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${statusColors[task.status as keyof typeof statusColors]}`}
+                      >
+                        <option value="active">Активна</option>
+                        <option value="in_progress">В процес</option>
+                        <option value="completed">Завършена</option>
+                        <option value="cancelled">Отменена</option>
+                      </select>
                       {task.urgent && (
                         <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
                           Спешно
                         </span>
                       )}
+                      {task.is_top && (
+                        <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Топ
+                        </span>
+                      )}
+                      {task.is_featured && !task.is_top && (
+                        <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Препоръчана
+                        </span>
+                      )}
+                      {task.is_promoted && !task.is_featured && !task.is_top && (
+                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Промотирана
+                        </span>
+                      )}
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{task.description}</p>
+                    
+                    {/* Images */}
+                    {task.images && task.images.length > 0 && (
+                      <div className="mb-3">
+                        <div className="flex gap-2 overflow-x-auto">
+                          {task.images.slice(0, 3).map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Снимка ${index + 1}`}
+                              className="w-16 h-16 object-cover rounded-lg border border-gray-200 flex-shrink-0"
+                            />
+                          ))}
+                          {task.images.length > 3 && (
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
+                              +{task.images.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
@@ -339,17 +498,25 @@ export default function MyTasksPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4" />
-                        {formatPrice(task.price, task.priceType)}
+                        {formatPrice(task.price, task.price_type)}
                       </div>
                     </div>
                   </div>
                   
                   <div className="text-right ml-4">
-                    <div className="text-sm text-gray-500 mb-1">
-                      {task.offers} оферти
+                    <div className="bg-blue-50 rounded-lg p-3 min-w-[120px]">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Eye className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-900">{task.views || 0}</span>
+                      </div>
+                      <div className="text-xs text-blue-600 text-center">прегледа</div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {task.views} прегледа
+                    <div className="bg-green-50 rounded-lg p-3 min-w-[120px] mt-2">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <MessageCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-900">{task.applications || 0}</span>
+                      </div>
+                      <div className="text-xs text-green-600 text-center">оферти</div>
                     </div>
                   </div>
                 </div>
@@ -358,8 +525,18 @@ export default function MyTasksPage() {
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      Публикувана на {formatDate(task.createdAt)}
+                      Публикувана на {formatDate(task.created_at)}
                     </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {task.deadline ? `Срок: ${formatDate(task.deadline)}` : 'Без срок'}
+                    </div>
+                    {task.urgent && (
+                      <div className="flex items-center gap-1 text-red-600">
+                        <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>
+                        Спешно
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -371,18 +548,47 @@ export default function MyTasksPage() {
                       <Edit className="h-4 w-4" />
                     </button>
                     <button
+                      onClick={() => handleDuplicateTask(task)}
+                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Дублирай"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleArchiveTask(task.id)}
+                      className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                      title="Архивирай"
+                    >
+                      <Archive className="h-4 w-4" />
+                    </button>
+                    <button
                       onClick={() => handleDeleteTask(task.id)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Изтрий"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                                         <button 
-                       onClick={() => router.push(`/task-offers/${task.id}`)}
-                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                     >
-                       Оферти ({task.offers || 0})
-                     </button>
+                    <button
+                      onClick={() => router.push(`/task/${task.id}/analytics`)}
+                      className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      title="Аналитика"
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => router.push(`/task/${task.id}/promote`)}
+                      className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                      title="Промоция"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => router.push(`/task/${task.id}/applicants`)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Кандидати ({task.applications || 0})
+                    </button>
                   </div>
                 </div>
               </div>

@@ -1,13 +1,18 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useAuth } from '@/hooks/useAuth'
 import NotificationItem from '@/components/NotificationItem'
 import NotificationSettings from '@/components/NotificationSettings'
 import { Bell, Settings, Check, Trash2, Filter, Search, BarChart3, Pin } from 'lucide-react'
 import { Notification, NotificationCategory, NotificationPriority } from '@/types/notification'
+import toast from 'react-hot-toast'
 
 const NotificationsPage: React.FC = () => {
+  const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const {
     notifications,
     loading,
@@ -20,6 +25,16 @@ const NotificationsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<NotificationCategory | 'all'>('all')
   const [selectedPriority, setSelectedPriority] = useState<NotificationPriority | 'all'>('all')
+
+  useEffect(() => {
+    if (authLoading) return
+    
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+  }, [authUser, authLoading, router])
 
   // Filter notifications based on current filters
   const filteredNotifications = useMemo(() => {
