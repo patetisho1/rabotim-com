@@ -113,50 +113,8 @@ export default function RegisterPage() {
         return
       }
 
-      // Запазване в localStorage
-      const userData = {
-        id: Date.now(),
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password, // В реален проект паролата ще бъде хеширана
-        roles: formData.roles,
-        createdAt: new Date().toISOString(),
-        isVerified: false,
-        
-        // Данни за даващ задачи
-        taskGiver: {
-          totalTasksPosted: 0,
-          completedTasks: 0,
-          totalSpent: 0,
-          rating: 0,
-          reviews: []
-        },
-        
-        // Данни за изпълнител
-        taskExecutor: {
-          completedTasks: 0,
-          totalEarnings: 0,
-          rating: 0,
-          totalReviews: 0,
-          skills: [],
-          portfolio: [],
-          responseRate: 100,
-          avgResponseTime: '2ч',
-          isVerified: false,
-          badges: []
-        },
-        
-        // Общи данни
-        profile: {
-          bio: '',
-          location: '',
-          avatar: '',
-          joinDate: new Date().toISOString()
-        }
-      }
-
+      // Ако стигнем до тук, значи има проблем с регистрацията
+      toast.error('Възникна неочаквана грешка при регистрацията')
 
     } catch (error) {
       toast.error('Възникна грешка при регистрацията')
