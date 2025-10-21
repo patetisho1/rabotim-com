@@ -114,6 +114,44 @@ export function useNotifications(userId: string) {
     }
   }
 
+  const togglePin = async (notificationId: string) => {
+    try {
+      const notification = notifications.find(n => n.id === notificationId)
+      if (!notification) return
+
+      // Optimistically update UI
+      setNotifications(prev => 
+        prev.map(n => 
+          n.id === notificationId 
+            ? { ...n, isPinned: !n.isPinned }
+            : n
+        )
+      )
+
+      // Note: This would require an API endpoint to persist the change
+      // For now, it's client-side only
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete notification')
+      }
+
+      setNotifications(prev => prev.filter(n => n.id !== notificationId))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      throw err
+    }
+  }
+
   useEffect(() => {
     if (userId) {
       fetchNotifications()
@@ -127,6 +165,8 @@ export function useNotifications(userId: string) {
     refetch: fetchNotifications,
     markAsRead,
     markAllAsRead,
+    togglePin,
+    deleteNotification,
     createNotification
   }
 }
