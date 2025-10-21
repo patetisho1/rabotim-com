@@ -203,7 +203,7 @@ const NotificationsPage: React.FC = () => {
                 <BarChart3 className="text-purple-600" size={20} />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Днес</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => new Date(n.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.filter(n => new Date(n.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}</p>
             </div>
           </div>
         </div>
