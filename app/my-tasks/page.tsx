@@ -334,7 +334,7 @@ export default function MyTasksPage() {
                 <div>
                   <p className="text-sm text-blue-600">В процес</p>
                   <p className="text-2xl font-bold text-blue-900">
-                    {tasks.filter(t => t.status === 'in_progress').length}
+                    {tasks.filter(t => t.status === 'assigned').length}
                   </p>
                 </div>
                 <div className="bg-blue-100 rounded-full p-2">
