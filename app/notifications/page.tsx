@@ -56,9 +56,9 @@ const NotificationsPage: React.FC = () => {
       )
     }
 
-    // Filter by category (using type instead)
+    // Filter by category
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(n => n.type === selectedCategory)
+      filtered = filtered.filter(n => n.category === selectedCategory)
     }
 
     // Filter by priority (not available in our schema)
