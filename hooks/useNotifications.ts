@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Notification } from '@/lib/supabase'
+import { Notification as SupabaseNotification } from '@/lib/supabase'
+import { Notification } from '@/types/notification'
 
 export function useNotifications(userId: string) {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -17,8 +18,24 @@ export function useNotifications(userId: string) {
         throw new Error('Failed to fetch notifications')
       }
 
-      const data = await response.json()
-      setNotifications(data)
+      const data: SupabaseNotification[] = await response.json()
+      
+      // Transform Supabase notifications to our Notification type
+      const transformedNotifications: Notification[] = data.map(notification => ({
+        id: notification.id,
+        userId: notification.user_id,
+        type: notification.type as any,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data,
+        isRead: notification.read,
+        isPinned: notification.isPinned || false,
+        createdAt: new Date(notification.created_at),
+        priority: 'normal' as any,
+        category: 'system' as any
+      }))
+      
+      setNotifications(transformedNotifications)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -39,7 +56,7 @@ export function useNotifications(userId: string) {
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
-            ? { ...notification, read: true }
+            ? { ...notification, isRead: true }
             : notification
         )
       )
@@ -90,7 +107,7 @@ export function useNotifications(userId: string) {
       }
 
       setNotifications(prev => 
-        prev.map(notification => ({ ...notification, read: true }))
+        prev.map(notification => ({ ...notification, isRead: true }))
       )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
