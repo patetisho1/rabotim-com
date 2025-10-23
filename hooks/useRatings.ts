@@ -16,109 +16,68 @@ export function useRatings() {
     setError(null)
     
     try {
-      // Зареждане от localStorage
-      const storedRatings = localStorage.getItem(`ratings_${userId}`)
-      const storedReviews = localStorage.getItem(`reviews_${userId}`)
+      const response = await fetch(`/api/ratings?userId=${userId}`)
       
-      if (storedRatings && storedReviews) {
-        const parsedRatings = JSON.parse(storedRatings).map((rating: any) => ({
-          ...rating,
-          createdAt: new Date(rating.createdAt)
-        }))
-        const parsedReviews = JSON.parse(storedReviews).map((review: any) => ({
-          ...review,
-          createdAt: new Date(review.createdAt),
-          updatedAt: review.updatedAt ? new Date(review.updatedAt) : undefined
-        }))
-        
-        setRatings(parsedRatings)
-        setReviews(parsedReviews)
-        
-        // Изчисляване на общия рейтинг
-        const userRating = calculateUserRating(userId, parsedRatings, parsedReviews)
+      if (!response.ok) {
+        throw new Error('Failed to fetch ratings')
+      }
+
+      const data = await response.json()
+      
+      // Transform data to match our types
+      const transformedRatings: Rating[] = data.ratings?.map((rating: any) => ({
+        id: rating.id,
+        taskId: rating.task_id,
+        reviewerId: rating.reviewer_id,
+        reviewedUserId: rating.reviewed_user_id,
+        rating: rating.rating,
+        comment: rating.comment,
+        category: rating.category,
+        createdAt: new Date(rating.created_at),
+        isVerified: rating.is_verified
+      })) || []
+
+      const transformedReviews: Review[] = data.reviews?.map((review: any) => ({
+        id: review.id,
+        taskId: review.task_id,
+        reviewerId: review.reviewer_id,
+        reviewedUserId: review.reviewed_user_id,
+        rating: review.rating,
+        title: review.title,
+        comment: review.comment,
+        pros: review.pros || [],
+        cons: review.cons || [],
+        tags: review.tags || [],
+        createdAt: new Date(review.created_at),
+        updatedAt: review.updated_at ? new Date(review.updated_at) : undefined,
+        isVerified: review.is_verified,
+        helpfulCount: review.helpful_count || 0,
+        reportedCount: review.reported_count || 0
+      })) || []
+
+      setRatings(transformedRatings)
+      setReviews(transformedReviews)
+      
+      // Use summary data if available, otherwise calculate
+      if (data.summary) {
+        const userRating: UserRating = {
+          userId,
+          averageRating: data.summary.average_rating || 0,
+          totalReviews: data.summary.total_reviews || 0,
+          ratingDistribution: data.summary.rating_distribution || { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+          categoryRatings: data.summary.category_ratings || {
+            quality: 0,
+            communication: 0,
+            punctuality: 0,
+            overall: 0
+          },
+          recentReviews: transformedReviews.slice(0, 5),
+          badges: data.summary.badges || []
+        }
         setUserRatings(prev => ({ ...prev, [userId]: userRating }))
       } else {
-        // Демо данни
-        const demoRatings: Rating[] = [
-          {
-            id: '1',
-            taskId: 'task1',
-            reviewerId: 'user2',
-            reviewedUserId: userId,
-            rating: 5,
-            comment: 'Отлично качество на работата!',
-            category: 'quality',
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), // 7 дни назад
-            isVerified: true
-          },
-          {
-            id: '2',
-            taskId: 'task2',
-            reviewerId: 'user3',
-            reviewedUserId: userId,
-            rating: 4,
-            comment: 'Добър изпълнител, но малко закъсня.',
-            category: 'punctuality',
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), // 14 дни назад
-            isVerified: true
-          },
-          {
-            id: '3',
-            taskId: 'task3',
-            reviewerId: 'user4',
-            reviewedUserId: userId,
-            rating: 5,
-            comment: 'Професионален подход и отлично общуване.',
-            category: 'communication',
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21), // 21 дни назад
-            isVerified: true
-          }
-        ]
-        
-        const demoReviews: Review[] = [
-          {
-            id: '1',
-            taskId: 'task1',
-            reviewerId: 'user2',
-            reviewedUserId: userId,
-            rating: 5,
-            title: 'Отлично качество на работата!',
-            comment: 'Много доволен от работата. Изпълнителят е професионален и внимателен към детайлите. Определено ще го препоръчам!',
-            pros: ['Професионален', 'Качествена работа', 'Навреме'],
-            cons: [],
-            tags: ['професионален', 'качествен', 'надежден'],
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
-            isVerified: true,
-            helpfulCount: 3,
-            reportedCount: 0
-          },
-          {
-            id: '2',
-            taskId: 'task2',
-            reviewerId: 'user3',
-            reviewedUserId: userId,
-            rating: 4,
-            title: 'Добър изпълнител',
-            comment: 'Работата е добре свършена, но имаше малко закъснение. Въпреки това, качеството е отлично.',
-            pros: ['Качествена работа', 'Добро общуване'],
-            cons: ['Малко закъснение'],
-            tags: ['качествен', 'комуникативен'],
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
-            isVerified: true,
-            helpfulCount: 1,
-            reportedCount: 0
-          }
-        ]
-        
-        setRatings(demoRatings)
-        setReviews(demoReviews)
-        
-        // Запазване в localStorage
-        localStorage.setItem(`ratings_${userId}`, JSON.stringify(demoRatings))
-        localStorage.setItem(`reviews_${userId}`, JSON.stringify(demoReviews))
-        
-        // Изчисляване на общия рейтинг
-        const userRating = calculateUserRating(userId, demoRatings, demoReviews)
+        // Fallback calculation
+        const userRating = calculateUserRating(userId, transformedRatings, transformedReviews)
         setUserRatings(prev => ({ ...prev, [userId]: userRating }))
       }
     } catch (err) {
@@ -208,62 +167,156 @@ export function useRatings() {
 
   // Добавяне на нов рейтинг
   const addRating = useCallback(async (rating: Omit<Rating, 'id' | 'createdAt'>) => {
-    const newRating: Rating = {
-      ...rating,
-      id: Date.now().toString(),
-      createdAt: new Date()
-    }
+    try {
+      const response = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          task_id: rating.taskId,
+          reviewer_id: rating.reviewerId,
+          reviewed_user_id: rating.reviewedUserId,
+          rating: rating.rating,
+          comment: rating.comment,
+          category: rating.category,
+          is_review: false
+        }),
+      })
 
-    setRatings(prev => [...prev, newRating])
-    
-    // Запазване в localStorage
-    const existingRatings = JSON.parse(localStorage.getItem(`ratings_${rating.reviewedUserId}`) || '[]')
-    localStorage.setItem(`ratings_${rating.reviewedUserId}`, JSON.stringify([...existingRatings, newRating]))
-    
-    // Обновяване на общия рейтинг
-    const updatedRatings = [...ratings, newRating]
-    const userRating = calculateUserRating(rating.reviewedUserId, updatedRatings, reviews)
-    setUserRatings(prev => ({ ...prev, [rating.reviewedUserId]: userRating }))
-  }, [ratings, reviews])
+      if (!response.ok) {
+        throw new Error('Failed to add rating')
+      }
+
+      const newRating = await response.json()
+      
+      // Transform to our type
+      const transformedRating: Rating = {
+        id: newRating.id,
+        taskId: newRating.task_id,
+        reviewerId: newRating.reviewer_id,
+        reviewedUserId: newRating.reviewed_user_id,
+        rating: newRating.rating,
+        comment: newRating.comment,
+        category: newRating.category,
+        createdAt: new Date(newRating.created_at),
+        isVerified: newRating.is_verified
+      }
+
+      setRatings(prev => [...prev, transformedRating])
+      
+      // Reload user ratings to get updated summary
+      await loadUserRatings(rating.reviewedUserId)
+    } catch (err) {
+      setError('Грешка при добавяне на рейтинга')
+      console.error('Error adding rating:', err)
+      throw err
+    }
+  }, [loadUserRatings])
 
   // Добавяне на нов отзив
   const addReview = useCallback(async (review: Omit<Review, 'id' | 'createdAt' | 'helpfulCount' | 'reportedCount'>) => {
-    const newReview: Review = {
-      ...review,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      helpfulCount: 0,
-      reportedCount: 0
-    }
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          task_id: review.taskId,
+          reviewer_id: review.reviewerId,
+          reviewed_user_id: review.reviewedUserId,
+          rating: review.rating,
+          title: review.title,
+          comment: review.comment,
+          pros: review.pros,
+          cons: review.cons,
+          tags: review.tags
+        }),
+      })
 
-    setReviews(prev => [...prev, newReview])
-    
-    // Запазване в localStorage
-    const existingReviews = JSON.parse(localStorage.getItem(`reviews_${review.reviewedUserId}`) || '[]')
-    localStorage.setItem(`reviews_${review.reviewedUserId}`, JSON.stringify([...existingReviews, newReview]))
-    
-    // Обновяване на общия рейтинг
-    const updatedReviews = [...reviews, newReview]
-    const userRating = calculateUserRating(review.reviewedUserId, ratings, updatedReviews)
-    setUserRatings(prev => ({ ...prev, [review.reviewedUserId]: userRating }))
-  }, [ratings, reviews])
+      if (!response.ok) {
+        throw new Error('Failed to add review')
+      }
+
+      const newReview = await response.json()
+      
+      // Transform to our type
+      const transformedReview: Review = {
+        id: newReview.id,
+        taskId: newReview.task_id,
+        reviewerId: newReview.reviewer_id,
+        reviewedUserId: newReview.reviewed_user_id,
+        rating: newReview.rating,
+        title: newReview.title,
+        comment: newReview.comment,
+        pros: newReview.pros || [],
+        cons: newReview.cons || [],
+        tags: newReview.tags || [],
+        createdAt: new Date(newReview.created_at),
+        updatedAt: newReview.updated_at ? new Date(newReview.updated_at) : undefined,
+        isVerified: newReview.is_verified,
+        helpfulCount: newReview.helpful_count || 0,
+        reportedCount: newReview.reported_count || 0
+      }
+
+      setReviews(prev => [...prev, transformedReview])
+      
+      // Reload user ratings to get updated summary
+      await loadUserRatings(review.reviewedUserId)
+    } catch (err) {
+      setError('Грешка при добавяне на отзива')
+      console.error('Error adding review:', err)
+      throw err
+    }
+  }, [loadUserRatings])
 
   // Маркиране на отзив като полезен
-  const markReviewHelpful = useCallback((reviewId: string) => {
-    setReviews(prev => prev.map(review => 
-      review.id === reviewId 
-        ? { ...review, helpfulCount: review.helpfulCount + 1 }
-        : review
-    ))
+  const markReviewHelpful = useCallback(async (reviewId: string) => {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ increment: true }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to mark review as helpful')
+      }
+
+      // Optimistically update UI
+      setReviews(prev => prev.map(review => 
+        review.id === reviewId 
+          ? { ...review, helpfulCount: review.helpfulCount + 1 }
+          : review
+      ))
+    } catch (err) {
+      console.error('Error marking review as helpful:', err)
+    }
   }, [])
 
   // Докладване на отзив
-  const reportReview = useCallback((reviewId: string) => {
-    setReviews(prev => prev.map(review => 
-      review.id === reviewId 
-        ? { ...review, reportedCount: review.reportedCount + 1 }
-        : review
-    ))
+  const reportReview = useCallback(async (reviewId: string) => {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/report`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to report review')
+      }
+
+      // Optimistically update UI
+      setReviews(prev => prev.map(review => 
+        review.id === reviewId 
+          ? { ...review, reportedCount: review.reportedCount + 1 }
+          : review
+      ))
+    } catch (err) {
+      console.error('Error reporting review:', err)
+    }
   }, [])
 
   // Филтриране на рейтинги

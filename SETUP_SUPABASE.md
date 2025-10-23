@@ -50,3 +50,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-production-anon-key
 Вижте `supabase/schema.sql` за детайли.
 
 
+

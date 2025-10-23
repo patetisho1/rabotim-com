@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { Review, Rating } from '@/types/rating'
 
 console.log('Environment variables:', {
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -45,17 +46,6 @@ export interface Task {
   attachments?: string[]
 }
 
-export interface Rating {
-  id: string
-  task_id: string
-  reviewer_id: string
-  reviewed_user_id: string
-  rating: number
-  comment: string
-  category: 'quality' | 'communication' | 'punctuality' | 'overall'
-  created_at: string
-  is_verified: boolean
-}
 
 export interface Message {
   id: string
@@ -171,7 +161,7 @@ export const db = {
       .from('ratings')
       .select(`
         *,
-        reviewer:users!reviewer_id(full_name, avatar_url),
+        reviewer:profiles!reviewer_id(full_name, avatar_url),
         task:tasks(title)
       `)
       .eq('reviewed_user_id', userId)
@@ -181,12 +171,118 @@ export const db = {
     return data
   },
 
-  async addRating(rating: Omit<Rating, 'id' | 'created_at'>) {
+  async addRating(rating: Omit<Rating, 'id' | 'createdAt'>) {
     const { data, error } = await supabase
       .from('ratings')
       .insert(rating)
       .select()
       .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Reviews
+  async getReviews(userId: string, filters?: { verifiedOnly?: boolean; limit?: number }) {
+    let query = supabase
+      .from('reviews')
+      .select(`
+        *,
+        reviewer:profiles!reviewer_id(full_name, avatar_url),
+        task:tasks(title, amount)
+      `)
+      .eq('reviewed_user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (filters?.verifiedOnly) {
+      query = query.eq('is_verified', true)
+    }
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit)
+    }
+
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  },
+
+  async addReview(review: Omit<Review, 'id' | 'createdAt' | 'helpfulCount' | 'reportedCount'>) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert(review)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateReviewHelpful(reviewId: string, increment: boolean = true) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({ 
+        helpful_count: increment ? supabase.rpc('increment', { table_name: 'reviews', column_name: 'helpful_count', id: reviewId }) : supabase.rpc('decrement', { table_name: 'reviews', column_name: 'helpful_count', id: reviewId })
+      })
+      .eq('id', reviewId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async reportReview(reviewId: string) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({ 
+        reported_count: supabase.rpc('increment', { table_name: 'reviews', column_name: 'reported_count', id: reviewId })
+      })
+      .eq('id', reviewId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // User Rating Summary
+  async getUserRatingSummary(userId: string) {
+    const { data, error } = await supabase
+      .from('user_ratings_summary')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async canUserRate(userId: string, taskId: string) {
+    // Check if user has already rated this task
+    const { data: existingRating, error: ratingError } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('task_id', taskId)
+      .eq('reviewer_id', userId)
+      .single()
+
+    if (ratingError && ratingError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      throw ratingError
+    }
+
+    return !existingRating
+  },
+
+  async getTaskRatings(taskId: string) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        reviewer:profiles!reviewer_id(full_name, avatar_url)
+      `)
+      .eq('task_id', taskId)
+      .order('created_at', { ascending: false })
     
     if (error) throw error
     return data

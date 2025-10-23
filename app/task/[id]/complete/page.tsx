@@ -8,11 +8,15 @@ import {
   Clock,
   AlertCircle,
   Star,
-  User
+  User,
+  MessageSquare
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { useRatings } from '@/hooks/useRatings'
 import { supabase } from '@/lib/supabase'
+import RatingSystem from '@/components/RatingSystem'
+import AddReview from '@/components/AddReview'
 
 interface Task {
   id: string
@@ -45,6 +49,13 @@ export default function CompleteTaskPage() {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userRole, setUserRole] = useState<'poster' | 'worker' | null>(null)
+  
+  // Rating states
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; avatar: string } | null>(null)
+  
+  const { addRating, addReview } = useRatings()
 
   useEffect(() => {
     if (authLoading) return
@@ -205,6 +216,65 @@ export default function CompleteTaskPage() {
     }
   }
 
+  const handleRateUser = (user: { id: string; name: string; avatar: string }) => {
+    setSelectedUser(user)
+    setShowRatingModal(true)
+  }
+
+  const handleReviewUser = (user: { id: string; name: string; avatar: string }) => {
+    setSelectedUser(user)
+    setShowReviewModal(true)
+  }
+
+  const handleRatingSubmit = async (ratingData: any) => {
+    if (!authUser || !selectedUser || !task) return
+
+    try {
+      await addRating({
+        taskId: task.id,
+        reviewerId: authUser.id,
+        reviewedUserId: selectedUser.id,
+        rating: ratingData.rating,
+        comment: ratingData.comment,
+        category: 'overall',
+        isVerified: true
+      })
+
+      toast.success('Рейтингът е добавен успешно!')
+      setShowRatingModal(false)
+      setSelectedUser(null)
+    } catch (error) {
+      console.error('Error adding rating:', error)
+      toast.error('Грешка при добавяне на рейтинга')
+    }
+  }
+
+  const handleReviewSubmit = async (reviewData: any) => {
+    if (!authUser || !selectedUser || !task) return
+
+    try {
+      await addReview({
+        taskId: task.id,
+        reviewerId: authUser.id,
+        reviewedUserId: selectedUser.id,
+        rating: reviewData.rating,
+        title: reviewData.title,
+        comment: reviewData.comment,
+        pros: reviewData.pros,
+        cons: reviewData.cons,
+        tags: reviewData.tags,
+        isVerified: true
+      })
+
+      toast.success('Отзивът е добавен успешно!')
+      setShowReviewModal(false)
+      setSelectedUser(null)
+    } catch (error) {
+      console.error('Error adding review:', error)
+      toast.error('Грешка при добавяне на отзива')
+    }
+  }
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -309,17 +379,45 @@ export default function CompleteTaskPage() {
               <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
                 Приети изпълнители:
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {acceptedApplicants.map((applicant) => (
-                  <div key={applicant.id} className="flex items-center gap-2">
-                    <img
-                      src={applicant.user.avatar_url || '/default-avatar.png'}
-                      alt={applicant.user.full_name}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <span className="text-sm text-gray-900 dark:text-gray-100">
-                      {applicant.user.full_name}
-                    </span>
+                  <div key={applicant.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={applicant.user.avatar_url || '/default-avatar.png'}
+                        alt={applicant.user.full_name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {applicant.user.full_name}
+                        </span>
+                        <div className="flex items-center gap-4 mt-1">
+                          <button
+                            onClick={() => handleRateUser({
+                              id: applicant.user.id,
+                              name: applicant.user.full_name,
+                              avatar: applicant.user.avatar_url || '/default-avatar.png'
+                            })}
+                            className="flex items-center gap-1 px-3 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-xs rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-900/30 transition-colors"
+                          >
+                            <Star size={12} />
+                            Оцени
+                          </button>
+                          <button
+                            onClick={() => handleReviewUser({
+                              id: applicant.user.id,
+                              name: applicant.user.full_name,
+                              avatar: applicant.user.avatar_url || '/default-avatar.png'
+                            })}
+                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-colors"
+                          >
+                            <MessageSquare size={12} />
+                            Отзив
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -371,6 +469,39 @@ export default function CompleteTaskPage() {
           <p>Имате проблем? <button className="text-blue-600 dark:text-blue-400 hover:underline">Свържете се с поддръжка</button></p>
         </div>
       </div>
+
+      {/* Rating Modal */}
+      {selectedUser && (
+        <RatingSystem
+          taskId={taskId}
+          taskTitle={task?.title || ''}
+          taskAmount={0}
+          taskCompletedAt={new Date().toISOString()}
+          otherUser={selectedUser}
+          onRatingSubmit={handleRatingSubmit}
+          onClose={() => {
+            setShowRatingModal(false)
+            setSelectedUser(null)
+          }}
+          isOpen={showRatingModal}
+        />
+      )}
+
+      {/* Review Modal */}
+      {selectedUser && (
+        <AddReview
+          taskId={taskId}
+          taskTitle={task?.title || ''}
+          reviewerId={authUser?.id || ''}
+          reviewedUserId={selectedUser.id}
+          onReviewSubmit={handleReviewSubmit}
+          onClose={() => {
+            setShowReviewModal(false)
+            setSelectedUser(null)
+          }}
+          isOpen={showReviewModal}
+        />
+      )}
     </div>
   )
 }

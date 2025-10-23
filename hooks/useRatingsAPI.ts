@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Rating } from '@/lib/supabase'
+import { Rating } from '@/types/rating'
 
 export function useRatingsAPI(userId: string) {
   const [ratings, setRatings] = useState<Rating[]>([])
