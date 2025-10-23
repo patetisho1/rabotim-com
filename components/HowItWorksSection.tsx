@@ -34,18 +34,6 @@ const features: Feature[] = [
     title: 'Качествена работа',
     description: 'Рейтинг система гарантира високо качество на услугите',
     color: 'text-purple-600 bg-purple-100 dark:bg-purple-900/30'
-  },
-  {
-    icon: <Clock className="h-8 w-8" />,
-    title: 'Гъвкаво време',
-    description: 'Работи когато искаш - ден, вечер или уикенд',
-    color: 'text-orange-600 bg-orange-100 dark:bg-orange-900/30'
-  },
-  {
-    icon: <Heart className="h-8 w-8" />,
-    title: 'Локална подкрепа',
-    description: 'Подкрепяме местните таланти и бизнеси',
-    color: 'text-red-600 bg-red-100 dark:bg-red-900/30'
   }
 ]
 
