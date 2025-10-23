@@ -7,6 +7,7 @@ import SearchSection from '@/components/SearchSection'
 import TaskGrid from '@/components/TaskGrid'
 import TestimonialsSection from '@/components/TestimonialsSection'
 import HowItWorksSection from '@/components/HowItWorksSection'
+import SocialFeed from '@/components/SocialFeed'
 import { LazyWrapper } from '@/components/LazyComponents'
 import { LocalBusinessStructuredData, FAQStructuredData } from '@/components/StructuredData'
 
@@ -1412,6 +1413,13 @@ export default function HomePage() {
 
         {/* How It Works Section */}
         <HowItWorksSection />
+
+        {/* Social Feed Section */}
+        <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-6xl mx-auto">
+            <SocialFeed maxPosts={4} />
+          </div>
+        </section>
 
         {/* Recent Tasks */}
         <section ref={tasksRef} className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
