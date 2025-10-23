@@ -8,6 +8,7 @@ import TaskGrid from '@/components/TaskGrid'
 import TestimonialsSection from '@/components/TestimonialsSection'
 import HowItWorksSection from '@/components/HowItWorksSection'
 import { LazyWrapper } from '@/components/LazyComponents'
+import { LocalBusinessStructuredData, FAQStructuredData } from '@/components/StructuredData'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -1531,6 +1532,31 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* Structured Data */}
+      <LocalBusinessStructuredData />
+      <FAQStructuredData faqs={[
+        {
+          question: 'Как работи Rabotim.com?',
+          answer: 'Rabotim.com е платформа за намиране на почасова работа и изпълнители. Публикувате задача, получавате отговори от квалифицирани изпълнители, избирате най-подходящия и работата е свършена.'
+        },
+        {
+          question: 'Колко струва използването на платформата?',
+          answer: 'Регистрацията и публикуването на задачи е напълно безплатно. Няма скрити такси или комисионни.'
+        },
+        {
+          question: 'Как мога да се уверя, че изпълнителят е надежден?',
+          answer: 'Всички изпълнители имат рейтинг система и отзиви от предишни клиенти. Можете да видите тяхната репутация преди да ги наемете.'
+        },
+        {
+          question: 'В кои градове работи Rabotim.com?',
+          answer: 'Rabotim.com работи в цяла България - от София до Варна, от Пловдив до Бургас и всички други градове.'
+        },
+        {
+          question: 'Какви видове задачи могат да се публикуват?',
+          answer: 'Можете да публикувате всякакви задачи - от ремонт и почистване до IT услуги, обучение, градинарство, доставка и много други.'
+        }
+      ]} />
     </div>
   )
 }

@@ -9,6 +9,7 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { JobPostingStructuredData } from '@/components/StructuredData'
 
 interface Task {
   id: string
@@ -501,6 +502,9 @@ export default function TaskDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Structured Data */}
+      {task && <JobPostingStructuredData task={task} />}
     </div>
   )
 }
