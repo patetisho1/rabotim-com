@@ -86,6 +86,52 @@ const testimonials: Testimonial[] = [
     task: 'Градинарство',
     timeframe: 'редовно',
     verified: true
+  },
+  {
+    id: '7',
+    name: 'Светлана Тодорова',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face',
+    role: 'task_executor',
+    rating: 5,
+    text: 'Като майка с две деца, Rabotim ми позволява да работя от вкъщи и да изкарвам пари в свободното си време. Перфектно решение!',
+    task: 'Онлайн подпомагане',
+    earnings: '300+ лв/месец',
+    timeframe: 'от вкъщи',
+    verified: true
+  },
+  {
+    id: '8',
+    name: 'Димитър Колев',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+    role: 'task_giver',
+    rating: 5,
+    text: 'Трябваше ми спешна доставка и за 15 минути имах курьер на вратата. Невероятно бързо и надеждно!',
+    task: 'Доставка на документи',
+    timeframe: '15 минути',
+    verified: true
+  },
+  {
+    id: '9',
+    name: 'Кристина Вълчева',
+    avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop&crop=face',
+    role: 'task_executor',
+    rating: 5,
+    text: 'Преподавам онлайн и Rabotim ми дава възможност да намеря нови ученици. Платформата е професионална и лесна за използване.',
+    task: 'Онлайн преподаване',
+    earnings: '400+ лв/месец',
+    timeframe: 'онлайн',
+    verified: true
+  },
+  {
+    id: '10',
+    name: 'Николай Станчев',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face',
+    role: 'task_giver',
+    rating: 5,
+    text: 'Намерих отличен IT специалист за поддръжка на сайта ми. Работата беше свършена професионално и навреме.',
+    task: 'IT поддръжка',
+    timeframe: '1 ден',
+    verified: true
   }
 ]
 
