@@ -10,10 +10,11 @@ import HowItWorksSection from '@/components/HowItWorksSection'
 import SocialFeed from '@/components/SocialFeed'
 import ProfessionalProfilesCatalog from '@/components/ProfessionalProfilesCatalog'
 import PremiumFeatures from '@/components/PremiumFeatures'
+import CompanyProfilesCatalog from '@/components/CompanyProfilesCatalog'
 import { LazyWrapper } from '@/components/LazyComponents'
 import { LocalBusinessStructuredData, FAQStructuredData } from '@/components/StructuredData'
 
-import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
+import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle, Building2 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -1458,6 +1459,37 @@ export default function HomePage() {
         <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-6xl mx-auto">
             <PremiumFeatures variant="default" />
+          </div>
+        </section>
+
+        {/* Company Profiles Section */}
+        <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-800">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Партньорски компании
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
+                Работете с доверени компании, които предлагат качествени услуги и имат доказан опит.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/companies"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  <Building2 className="h-5 w-5" />
+                  Вижте всички компании
+                </Link>
+                <Link
+                  href="/companies"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+                >
+                  <Users className="h-5 w-5" />
+                  Станете партньор
+                </Link>
+              </div>
+            </div>
+            <CompanyProfilesCatalog />
           </div>
         </section>
 
