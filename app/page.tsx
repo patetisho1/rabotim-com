@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
+import { useRouter } from 'next/navigation'
 import SearchSection from '@/components/SearchSection'
-import TaskGrid from '@/components/TaskGrid'
 import TestimonialsSection from '@/components/TestimonialsSection'
 import HowItWorksSection from '@/components/HowItWorksSection'
 import { LazyWrapper } from '@/components/LazyComponents'
@@ -16,8 +15,6 @@ import Link from 'next/link'
 export default function HomePage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [selectedLocation, setSelectedLocation] = useState('')
   const [stats, setStats] = useState({
     tasks: 0,
     users: 0,
@@ -273,20 +270,12 @@ export default function HomePage() {
     return () => clearInterval(exampleInterval)
   }, [])
 
-  const handleSearch = (query: string, category: string, location: string, filters: any) => {
+  const handleSearch = (query: string, category: string, location: string) => {
     setSearchQuery(query)
-    setSelectedCategory(category)
-    setSelectedLocation(location)
     const filterParams = new URLSearchParams()
     if (query) filterParams.append('search', query)
     if (category) filterParams.append('category', category)
     if (location) filterParams.append('location', location)
-    if (filters.priceMin) filterParams.append('priceMin', filters.priceMin)
-    if (filters.priceMax) filterParams.append('priceMax', filters.priceMax)
-    if (filters.urgent) filterParams.append('urgent', 'true')
-    if (filters.rating) filterParams.append('rating', filters.rating)
-    if (filters.datePosted) filterParams.append('datePosted', filters.datePosted)
-    
     router.push(`/tasks?${filterParams.toString()}`)
   }
 
@@ -1413,124 +1402,6 @@ export default function HomePage() {
         {/* Testimonials Section */}
         <TestimonialsSection />
 
-        {/* Recent Tasks */}
-        <section ref={tasksRef} className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-          <div className="max-w-6xl mx-auto">
-            <div className={`text-center mb-8 md:mb-12 transition-all duration-1000 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
-                Вижте какво другите свършват
-              </h2>
-            </div>
-            
-            {/* Category Tabs - Mobile Optimized */}
-            <div className={`mb-6 md:mb-8 transition-all duration-1000 delay-300 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              {/* Mobile: Horizontal scrollable tabs */}
-              <div className="block md:hidden">
-                <div className="overflow-x-auto scrollbar-hide mobile-tabs-container -mx-4 px-4 relative">
-                  <div className="flex space-x-2 pb-2 min-w-max">
-                    {['Преместване', 'Поддръжка на дома', 'Стартиране на бизнес', 'Партита', 'Нещо различно'].map((tab, index) => (
-                      <button
-                        key={tab}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
-                          index === 0 
-                            ? 'bg-blue-500 text-white shadow-lg' 
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                  {/* Scroll indicators */}
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
-                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
-                </div>
-              </div>
-              
-              {/* Desktop: Centered tabs */}
-              <div className="hidden md:flex justify-center">
-                <div className="flex space-x-1 bg-white rounded-full p-1 shadow-sm">
-                  {['Преместване', 'Поддръжка на дома', 'Стартиране на бизнес', 'Партита', 'Нещо различно'].map((tab, index) => (
-                    <button
-                      key={tab}
-                      className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
-                        index === 0 
-                          ? 'bg-blue-500 text-white' 
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Task Cards Grid - Mobile Optimized */}
-            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 transition-all duration-1000 delay-500 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              {recentTasks.map((task) => (
-                <Link
-                  key={task.id}
-                  href={`/tasks?jobId=${task.id}&category=${task.category}`}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group transform hover:-translate-y-1"
-                >
-                  <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
-                    <img 
-                      src={task.avatar} 
-                      alt={task.title} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                        {task.category === 'cleaning' ? 'Почистване' :
-                         task.category === 'handyman' ? 'Ремонт' :
-                         task.category === 'delivery' ? 'Доставка' :
-                         task.category === 'gardening' ? 'Градинарство' :
-                         task.category === 'tutoring' ? 'Обучение' :
-                         task.category === 'dog-care' ? 'Грижа за кучета' :
-                         task.category === 'care' ? 'Грижа' : 'Друго'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-2 sm:p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                      <img 
-                        src={task.avatar} 
-                        alt={task.postedBy} 
-                        className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-200"
-                      />
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 group-hover:line-clamp-none text-xs sm:text-sm">
-                          {task.title}
-                        </div>
-                        <div className="text-xs text-gray-500">{task.postedBy}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-current" />
-                        <span className="text-xs md:text-sm font-medium">{task.rating}</span>
-                      </div>
-                      <div className="text-xs sm:text-sm md:text-lg font-bold text-green-600">
-                        {task.priceType === 'hourly' ? `${task.price} лв/час` : `${task.price} лв`}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            
-            <div className={`text-center transition-all duration-1000 delay-700 ${tasksInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <button 
-                onClick={handlePostTask}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base md:text-lg transition-all duration-200 w-full sm:w-auto"
-              >
-                Публикувайте задачата си безплатно
-              </button>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Structured Data */}
