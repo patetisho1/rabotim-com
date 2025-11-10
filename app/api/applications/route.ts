@@ -132,3 +132,151 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+// PATCH - Обновяване на статус на кандидатура (приемане/отхвърляне)
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { application_id, status, task_id, requester_id, reason } = body
+
+    if (!application_id || !status || !task_id || !requester_id) {
+      return NextResponse.json(
+        { error: 'application_id, status, task_id и requester_id са задължителни' },
+        { status: 400 }
+      )
+    }
+
+    if (!['accepted', 'rejected'].includes(status)) {
+      return NextResponse.json(
+        { error: 'Невалиден статус. Разрешени са accepted или rejected.' },
+        { status: 400 }
+      )
+    }
+
+    // Проверка дали заявителя е собственик на задачата
+    const { data: task, error: taskError } = await supabase
+      .from('tasks')
+      .select('user_id, title, status')
+      .eq('id', task_id)
+      .single()
+
+    if (taskError || !task) {
+      console.error('Supabase error (task lookup):', taskError)
+      return NextResponse.json(
+        { error: 'Задачата не е намерена' },
+        { status: 404 }
+      )
+    }
+
+    if (task.user_id !== requester_id) {
+      return NextResponse.json(
+        { error: 'Нямате права да управлявате кандидатурите за тази задача' },
+        { status: 403 }
+      )
+    }
+
+    // Зареждаме кандидатурата и кандидата
+    const { data: application, error: applicationError } = await supabase
+      .from('task_applications')
+      .select('id, task_id, user_id, status')
+      .eq('id', application_id)
+      .single()
+
+    if (applicationError || !application) {
+      console.error('Supabase error (application lookup):', applicationError)
+      return NextResponse.json(
+        { error: 'Кандидатурата не е намерена' },
+        { status: 404 }
+      )
+    }
+
+    // Обновяваме статуса
+    const { data: updatedApplication, error: updateError } = await supabase
+      .from('task_applications')
+      .update({ status })
+      .eq('id', application_id)
+      .select(`
+        *,
+        user:users(id, full_name, email)
+      `)
+      .single()
+
+    if (updateError) {
+      console.error('Supabase error (update application):', updateError)
+      return NextResponse.json(
+        { error: 'Грешка при обновяване на кандидатурата' },
+        { status: 500 }
+      )
+    }
+
+    // Ако статусът е accepted → отхвърляме всички останали кандидатури и обновяваме задачата
+    if (status === 'accepted') {
+      const { error: rejectOthersError } = await supabase
+        .from('task_applications')
+        .update({ status: 'rejected' })
+        .eq('task_id', task_id)
+        .neq('id', application_id)
+
+      if (rejectOthersError) {
+        console.error('Supabase error (reject others):', rejectOthersError)
+      }
+
+      const { error: updateTaskStatusError } = await supabase
+        .from('tasks')
+        .update({ status: 'assigned' })
+        .eq('id', task_id)
+
+      if (updateTaskStatusError) {
+        console.error('Supabase error (update task status):', updateTaskStatusError)
+      }
+    } else if (status === 'rejected') {
+      // Ако отказваме кандидатура и няма други приети → връщаме задачата в активна
+      const { data: acceptedApplications } = await supabase
+        .from('task_applications')
+        .select('id')
+        .eq('task_id', task_id)
+        .eq('status', 'accepted')
+
+      if (!acceptedApplications || acceptedApplications.length === 0) {
+        const { error: revertTaskStatusError } = await supabase
+          .from('tasks')
+          .update({ status: 'active' })
+          .eq('id', task_id)
+
+        if (revertTaskStatusError) {
+          console.error('Supabase error (revert task status):', revertTaskStatusError)
+        }
+      }
+    }
+
+    // Нотификация към кандидата
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert([{
+        user_id: application.user_id,
+        type: status === 'accepted' ? 'application_accepted' : 'application_rejected',
+        title: status === 'accepted' ? 'Кандидатурата е одобрена' : 'Кандидатурата е отхвърлена',
+        message: status === 'accepted'
+          ? `Вашата кандидатура за "${task.title}" беше одобрена.`
+          : `Вашата кандидатура за "${task.title}" беше отхвърлена.${reason ? ` Причина: ${reason}` : ''}`,
+        data: {
+          task_id,
+          application_id,
+          status,
+        },
+        read: false
+      }])
+
+    if (notificationError) {
+      console.error('Supabase error (notification):', notificationError)
+    }
+
+    return NextResponse.json(updatedApplication, { status: 200 })
+  } catch (error: any) {
+    console.error('API error (PATCH /applications):', error)
+    return NextResponse.json(
+      { error: error.message || 'Вътрешна грешка' },
+      { status: 500 }
+    )
+  }
+}

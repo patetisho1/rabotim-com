@@ -71,6 +71,9 @@ export default function TaskDetailPage() {
   const [applications, setApplications] = useState<TaskApplication[]>([])
   const [applicationsLoading, setApplicationsLoading] = useState(true)
   const [applicationsError, setApplicationsError] = useState<string | null>(null)
+  const [applicationActionId, setApplicationActionId] = useState<string | null>(null)
+  const [applicationActionStatus, setApplicationActionStatus] = useState<'accepted' | 'rejected' | null>(null)
+  const [applicationActionError, setApplicationActionError] = useState<string | null>(null)
 
   useEffect(() => {
     if (taskId) {
@@ -234,6 +237,52 @@ export default function TaskDetailPage() {
     }
   }
 
+  const handleApplicationStatusChange = async (applicationId: string, status: 'accepted' | 'rejected') => {
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+
+    setApplicationActionId(applicationId)
+    setApplicationActionStatus(status)
+    setApplicationActionError(null)
+
+    try {
+      const response = await fetch('/api/applications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          application_id: applicationId,
+          status,
+          task_id: taskId,
+          requester_id: authUser.id,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Грешка при обновяване на кандидатурата')
+      }
+
+      toast.success(status === 'accepted' ? 'Кандидатът е одобрен' : 'Кандидатът е отхвърлен')
+
+      await loadApplications()
+      await loadTask()
+    } catch (error: any) {
+      console.error('Error updating application status:', error)
+      const errorMessage = error.message || 'Грешка при обновяване на кандидатурата'
+      setApplicationActionError(errorMessage)
+      toast.error(errorMessage)
+    } finally {
+      setApplicationActionId(null)
+      setApplicationActionStatus(null)
+    }
+  }
+
   const handleContact = () => {
     if (!authUser) {
       toast.error('Трябва да сте влезли в акаунта си за да се свържете')
@@ -307,6 +356,8 @@ export default function TaskDetailPage() {
       .join('')
     return initials || 'R'
   }
+
+  const isTaskOwner = task?.user_id === authUser?.id
 
   if (isLoading || authLoading) {
     return (
@@ -468,6 +519,12 @@ export default function TaskDetailPage() {
                 </div>
               )}
 
+              {applicationActionError && (
+                <div className="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-200">
+                  {applicationActionError}
+                </div>
+              )}
+
               {applicationsLoading ? (
                 <div className="space-y-4">
                   {[...Array(2)].map((_, index) => (
@@ -497,6 +554,9 @@ export default function TaskDetailPage() {
               ) : (
                 <div className="space-y-4">
                   {applications.map((application) => {
+                    const isAccepted = application.status === 'accepted'
+                    const isRejected = application.status === 'rejected'
+                    const isPending = application.status === 'pending'
                     const ratingValue = application.user?.rating !== null && application.user?.rating !== undefined
                       ? Number(application.user.rating)
                       : null
@@ -508,7 +568,13 @@ export default function TaskDetailPage() {
                     return (
                       <div
                         key={application.id}
-                        className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-5"
+                        className={`rounded-xl border p-5 transition-shadow ${
+                          isAccepted
+                            ? 'border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/30'
+                            : isRejected
+                              ? 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/40'
+                              : 'border-gray-200 bg-gray-50 hover:shadow-md dark:border-gray-700 dark:bg-gray-800/60'
+                        }`}
                       >
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                           <div className="flex items-start gap-3">
@@ -519,50 +585,111 @@ export default function TaskDetailPage() {
                                 className="h-12 w-12 rounded-full object-cover border border-gray-200 dark:border-gray-600"
                               />
                             ) : (
-                              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 font-semibold text-white">
                                 {getInitials(application.user?.full_name)}
                               </div>
                             )}
                             <div>
-                              <div className="flex items-center gap-2 flex-wrap">
+                              <div className="flex flex-wrap items-center gap-2">
                                 <span className="font-semibold text-gray-900 dark:text-gray-100">
                                   {application.user?.full_name || 'Потребител'}
                                 </span>
                                 {ratingValue !== null && !Number.isNaN(ratingValue) && (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 dark:bg-yellow-500/10 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:text-yellow-200">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-200">
                                     <Star size={12} className="fill-current" />
                                     {ratingValue.toFixed(1)}
                                     <span className="text-gray-500 dark:text-gray-400">({totalReviews})</span>
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                 {formatRelativeTime(application.created_at)}
                               </p>
                             </div>
                           </div>
 
                           {proposedPrice && (
-                            <div className="rounded-lg bg-white dark:bg-gray-900/40 border border-blue-100 dark:border-blue-900 px-3 py-1.5 text-sm font-semibold text-blue-700 dark:text-blue-200">
+                            <div className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-semibold text-blue-700 dark:border-blue-900 dark:bg-gray-900/40 dark:text-blue-200">
                               Предложение: {proposedPrice}
                             </div>
                           )}
                         </div>
 
                         {application.message && (
-                          <p className="mt-4 text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                          <p className="mt-4 whitespace-pre-line leading-relaxed text-gray-700 dark:text-gray-300">
                             {application.message}
                           </p>
                         )}
 
                         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-900/40 px-2.5 py-1">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 dark:bg-gray-900/40">
                             <MessageSquare size={12} />
-                            {application.status === 'pending' && 'Очаква одобрение'}
-                            {application.status === 'accepted' && 'Одобрена кандидатура'}
-                            {application.status === 'rejected' && 'Отхвърлена кандидатура'}
+                            {isPending && 'Очаква одобрение'}
+                            {isAccepted && 'Кандидатът е назначен'}
+                            {isRejected && 'Отхвърлена кандидатура'}
                           </span>
+
+                          {isTaskOwner && isAccepted && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                              <CheckCircle size={12} />
+                              Назначен изпълнител
+                            </span>
+                          )}
                         </div>
+
+                        {isTaskOwner && (
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            <button
+                              onClick={() => handleApplicationStatusChange(application.id, 'accepted')}
+                              disabled={
+                                isAccepted ||
+                                applicationActionId === application.id && applicationActionStatus !== null
+                              }
+                              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                                isAccepted
+                                  ? 'cursor-default bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200'
+                                  : 'bg-green-600 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400'
+                              }`}
+                            >
+                              {applicationActionId === application.id && applicationActionStatus === 'accepted' ? (
+                                <>
+                                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
+                                  Одобряване...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle size={14} />
+                                  {isAccepted ? 'Одобрена' : 'Одобри кандидат'}
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => handleApplicationStatusChange(application.id, 'rejected')}
+                              disabled={
+                                isRejected ||
+                                applicationActionId === application.id && applicationActionStatus !== null
+                              }
+                              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                                isRejected
+                                  ? 'cursor-default border border-gray-300 bg-gray-100 text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400'
+                                  : 'border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800'
+                              }`}
+                            >
+                              {applicationActionId === application.id && applicationActionStatus === 'rejected' ? (
+                                <>
+                                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current" />
+                                  Отхвърляне...
+                                </>
+                              ) : (
+                                <>
+                                  <AlertCircle size={14} />
+                                  {isRejected ? 'Отхвърлена' : 'Отхвърли'}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
