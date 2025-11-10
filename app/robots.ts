@@ -7,7 +7,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: [
+          '/',
+          '/tasks',
+          '/task/*',
+          '/categories',
+          '/about',
+          '/contact',
+          '/how-it-works',
+          '/become-tasker',
+          '/careers',
+          '/ratings',
+          '/search'
+        ],
         disallow: [
           '/api/',
           '/admin/',
@@ -16,12 +28,36 @@ export default function robots(): MetadataRoute.Robots {
           '/my-applications',
           '/messages',
           '/notifications',
-          '/settings'
-        ]
+          '/settings',
+          '/auth/',
+          '/auth/*',
+          '/submit-offer/',
+          '/review/',
+          '/payment/',
+          '/archived-tasks',
+          '/task/*/edit',
+          '/task/*/promote',
+          '/task/*/analytics',
+          '/task/*/applicants',
+          '/task/*/complete'
+        ],
+        crawlDelay: 1
       },
       {
         userAgent: 'Googlebot',
-        allow: '/',
+        allow: [
+          '/',
+          '/tasks',
+          '/task/*',
+          '/categories',
+          '/about',
+          '/contact',
+          '/how-it-works',
+          '/become-tasker',
+          '/careers',
+          '/ratings',
+          '/search'
+        ],
         disallow: [
           '/api/',
           '/admin/',
@@ -30,12 +66,25 @@ export default function robots(): MetadataRoute.Robots {
           '/my-applications',
           '/messages',
           '/notifications',
-          '/settings'
-        ]
+          '/settings',
+          '/auth/',
+          '/auth/*',
+          '/submit-offer/',
+          '/review/',
+          '/payment/',
+          '/archived-tasks',
+          '/task/*/edit',
+          '/task/*/promote',
+          '/task/*/analytics',
+          '/task/*/applicants',
+          '/task/*/complete'
+        ],
+        crawlDelay: 1
       }
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
     host: baseUrl
   }
 }
+
 

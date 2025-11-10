@@ -19,33 +19,43 @@ export const metadata: Metadata = {
     template: '%s | Rabotim.com'
   },
   description: 'Водещата платформа за намиране на почасова работа и професионални изпълнители в България. Повече от 10,000 завършени задачи. Регистрацията е безплатна!',
-  keywords: 'работа българия, почасова работа, изпълнители, freelance българия, временна работа, услуги българия, ремонт, почистване, доставка, rabotim',
+  keywords: 'работа българия, почасова работа, изпълнители, freelance българия, временна работа, услуги българия, ремонт, почистване, доставка, rabotim, работа софия, работа пловдив, работа варна, работа бургас, работа плевен, работа русе, работа стара загора, работа шумен, работа ямбол, работа благоевград, работа видин, работа ловеч, работа монтана, работа разград, работа силистра, работа сливен, работа смолян, работа търговище, работа хасково, работа перник, работа кърджали, работа кюстендил, работа добрич, работа габрово, работа пазарджик, работа смолян, работа търговище, работа хасково',
   authors: [{ name: 'Rabotim.com' }],
   creator: 'Rabotim.com',
   publisher: 'Rabotim.com',
   robots: 'index, follow',
+  alternates: {
+    canonical: 'https://rabotim.com',
+    languages: {
+      'bg-BG': 'https://rabotim.com',
+      'en-US': 'https://rabotim.com/en'
+    }
+  },
   openGraph: {
     type: 'website',
     locale: 'bg_BG',
     url: 'https://rabotim.com',
     siteName: 'Rabotim.com',
     title: 'Rabotim.com - Намери работа и изпълнители в България',
-    description: 'Водещата платформа за намиране на почасова работа и професионални изпълнители в България',
+    description: 'Водещата платформа за намиране на почасова работа и професионални изпълнители в България. Повече от 10,000 завършени задачи.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Rabotim.com'
+        alt: 'Rabotim.com - Намери работа и изпълнители в България',
+        type: 'image/png'
       }
-    ]
+    ],
+    countryName: 'Bulgaria'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Rabotim.com - Намери работа и изпълнители в България',
-    description: 'Водещата платформа за намиране на почасова работа в България',
+    description: 'Водещата платформа за намиране на почасова работа и професионални изпълнители в България. Повече от 10,000 завършени задачи.',
     images: ['/og-image.png'],
-    creator: '@rabotim_bg'
+    creator: '@rabotim_bg',
+    site: '@rabotim_bg'
   },
   themeColor: '#3b82f6',
   viewport: {
@@ -55,9 +65,23 @@ export const metadata: Metadata = {
   },
   formatDetection: {
     telephone: false,
+    date: false,
+    address: false,
+    email: false,
+    url: false
   },
   verification: {
     google: 'verification_token_here', // TODO: Add real token
+  },
+  category: 'Business',
+  classification: 'Job Board, Freelance Platform',
+  referrer: 'origin-when-cross-origin',
+  colorScheme: 'light dark',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png'
   }
 }
 

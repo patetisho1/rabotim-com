@@ -9,6 +9,8 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { JobPostingStructuredData } from '@/components/StructuredData'
+import SocialShare from '@/components/SocialShare'
 
 interface Task {
   id: string
@@ -310,6 +312,15 @@ export default function TaskDetailPage() {
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     {task.price_type === 'hourly' ? 'на час' : 'общо'}
                   </div>
+                  <div className="mt-2">
+                    <SocialShare
+                      url={`${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/task/${task.id}`}
+                      title={task.title}
+                      description={task.description.substring(0, 160)}
+                      hashtags={[task.category, task.location, 'работа', 'rabotim']}
+                      variant="compact"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -501,6 +512,9 @@ export default function TaskDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Structured Data */}
+      {task && <JobPostingStructuredData task={task} />}
     </div>
   )
 }

@@ -179,3 +179,4 @@ npm run dev
 - `SETUP_SUPABASE.md` - Supabase setup детайли
 
 
+

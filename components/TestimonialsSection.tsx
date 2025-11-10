@@ -64,29 +64,6 @@ const testimonials: Testimonial[] = [
     timeframe: '20 минути',
     verified: true
   },
-  {
-    id: '5',
-    name: 'Анна Стоянова',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
-    role: 'task_executor',
-    rating: 5,
-    text: 'Работя като фрийлансър и Rabotim ми носи постоянни клиенти. Рейтинг системата работи отлично и привлича качествени поръчки.',
-    task: 'Графичен дизайн',
-    earnings: '500+ лв/месец',
-    timeframe: 'редовно',
-    verified: true
-  },
-  {
-    id: '6',
-    name: 'Петър Николов',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face',
-    role: 'task_giver',
-    rating: 5,
-    text: 'Отлична платформа! Намерих надежден градинар, който се грижи за двора ми всяка седмица. Много съм доволен от сервиза.',
-    task: 'Градинарство',
-    timeframe: 'редовно',
-    verified: true
-  }
 ]
 
 export default function TestimonialsSection() {
@@ -321,4 +298,5 @@ export default function TestimonialsSection() {
     </section>
   )
 }
+
 

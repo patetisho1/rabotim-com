@@ -138,3 +138,4 @@ https://rabotim-com-git-staging-tihomirs-projects-850a4235.vercel.app
 *Създадено: $(date)*
 *Статус: Core functionality готово за тестване* ✅
 
+
