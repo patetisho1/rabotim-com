@@ -5,7 +5,6 @@ import { useInView } from 'react-intersection-observer'
 import { useRouter } from 'next/navigation'
 import SearchSection from '@/components/SearchSection'
 import TestimonialsSection from '@/components/TestimonialsSection'
-import HowItWorksSection from '@/components/HowItWorksSection'
 import { LazyWrapper } from '@/components/LazyComponents'
 import { LocalBusinessStructuredData, FAQStructuredData } from '@/components/StructuredData'
 
@@ -1395,9 +1394,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* How It Works Section */}
-        <HowItWorksSection />
 
         {/* Testimonials Section */}
         <TestimonialsSection />
