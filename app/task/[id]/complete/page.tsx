@@ -26,6 +26,8 @@ interface Task {
   user_id: string
   completion_confirmed_by_poster: boolean
   completion_confirmed_by_worker: boolean
+  completion_confirmed_by_poster_at?: string | null
+  completion_confirmed_by_worker_at?: string | null
   poster?: {
     id: string
     full_name: string
@@ -54,6 +56,8 @@ export default function CompleteTaskPage() {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userRole, setUserRole] = useState<'poster' | 'worker' | null>(null)
+  const [canLeaveFeedback, setCanLeaveFeedback] = useState(false)
+  const [autoFeedbackDate, setAutoFeedbackDate] = useState<Date | null>(null)
   
   // Rating states
   const [showRatingModal, setShowRatingModal] = useState(false)
@@ -89,6 +93,8 @@ export default function CompleteTaskPage() {
           user_id,
           completion_confirmed_by_poster,
           completion_confirmed_by_worker,
+          completion_confirmed_by_poster_at,
+          completion_confirmed_by_worker_at,
           poster:users!user_id (
             id,
             full_name,
@@ -123,7 +129,9 @@ export default function CompleteTaskPage() {
       setTask(formattedTask)
 
       // Determine user role
+      let role: 'poster' | 'worker' | null = null
       if (formattedTask.user_id === authUser?.id) {
+        role = 'poster'
         setUserRole('poster')
       } else {
         // Check if user is accepted applicant
@@ -136,6 +144,7 @@ export default function CompleteTaskPage() {
           .single()
 
         if (applicantData) {
+          role = 'worker'
           setUserRole('worker')
         } else {
           toast.error('Нямате достъп до тази страница')
@@ -145,7 +154,7 @@ export default function CompleteTaskPage() {
       }
 
       // Load accepted applicants (for poster view)
-      if (formattedTask.user_id === authUser?.id) {
+      if (role === 'poster') {
         const { data: applicantsData, error: applicantsError } = await supabase
           .from('task_applications')
           .select(`
@@ -174,6 +183,43 @@ export default function CompleteTaskPage() {
 
         setAcceptedApplicants(formatted)
       }
+
+      // Check if user can leave feedback (7 day rule handled via RPC)
+      if (authUser) {
+        const { data: canRate, error: canRateError } = await supabase.rpc('can_rate_task', {
+          task_id_param: taskId,
+          user_id_param: authUser.id
+        })
+
+        if (canRateError) {
+          console.error('Error checking rating permission:', canRateError)
+        } else {
+          setCanLeaveFeedback(Boolean(canRate))
+        }
+      }
+
+      // Compute potential auto-feedback date if awaiting confirmation
+      if (role) {
+        let autoDate: Date | null = null
+        if (
+          role === 'poster' &&
+          formattedTask.completion_confirmed_by_poster &&
+          !formattedTask.completion_confirmed_by_worker &&
+          formattedTask.completion_confirmed_by_poster_at
+        ) {
+          autoDate = new Date(new Date(formattedTask.completion_confirmed_by_poster_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+        } else if (
+          role === 'worker' &&
+          formattedTask.completion_confirmed_by_worker &&
+          !formattedTask.completion_confirmed_by_poster &&
+          formattedTask.completion_confirmed_by_worker_at
+        ) {
+          autoDate = new Date(new Date(formattedTask.completion_confirmed_by_worker_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+        } else if (formattedTask.status === 'completed') {
+          autoDate = null
+        }
+        setAutoFeedbackDate(autoDate)
+      }
     } catch (error: any) {
       console.error('Error loading data:', error)
       toast.error('Грешка при зареждане на данните')
@@ -197,20 +243,31 @@ export default function CompleteTaskPage() {
         : 'completion_confirmed_by_worker_at'
 
       // Update confirmation status with timestamp
+      const confirmationTimestamp = new Date().toISOString()
       const { error: updateError } = await supabase
         .from('tasks')
         .update({ 
           [updateField]: true,
-          [timestampField]: new Date().toISOString()
+          [timestampField]: confirmationTimestamp
         })
         .eq('id', taskId)
 
       if (updateError) throw updateError
 
+      const updatedTask = task
+        ? {
+            ...task,
+            [updateField]: true,
+            [timestampField]: confirmationTimestamp
+          }
+        : null
+
+      setTask(updatedTask as Task | null)
+
       // Check if both parties confirmed
       const otherPartyConfirmed = userRole === 'poster'
-        ? task.completion_confirmed_by_worker
-        : task.completion_confirmed_by_poster
+        ? updatedTask?.completion_confirmed_by_worker
+        : updatedTask?.completion_confirmed_by_poster
 
       if (otherPartyConfirmed) {
         // Both confirmed - mark task as completed
@@ -230,6 +287,8 @@ export default function CompleteTaskPage() {
           duration: 5000,
           icon: 'ℹ️'
         })
+        setCanLeaveFeedback(false)
+        setAutoFeedbackDate(new Date(new Date(confirmationTimestamp).getTime() + 7 * 24 * 60 * 60 * 1000))
         router.push(`/task/${taskId}`)
       }
     } catch (error: any) {
@@ -241,8 +300,8 @@ export default function CompleteTaskPage() {
   }
 
   const handleRateUser = (user: { id: string; name: string; avatar: string }) => {
-    if (!task || task.status !== 'completed') {
-      toast.error('Можете да оставите оценка след като задачата е завършена')
+    if (!task || !canLeaveFeedback) {
+      toast.error('Можете да оставите оценка след като задачата е завършена или изминат 7 дни от вашето потвърждение')
       return
     }
 
@@ -251,8 +310,8 @@ export default function CompleteTaskPage() {
   }
 
   const handleReviewUser = (user: { id: string; name: string; avatar: string }) => {
-    if (!task || task.status !== 'completed') {
-      toast.error('Можете да оставите отзив след като задачата е завършена')
+    if (!task || !canLeaveFeedback) {
+      toast.error('Можете да оставите отзив след като задачата е завършена или изминат 7 дни от вашето потвърждение')
       return
     }
 
@@ -332,7 +391,7 @@ export default function CompleteTaskPage() {
     ? task.completion_confirmed_by_worker
     : task.completion_confirmed_by_poster
 
-  const canLeaveFeedback = task.status === 'completed'
+  const pendingAutoFeedback = !canLeaveFeedback && hasUserConfirmed && !hasOtherPartyConfirmed && autoFeedbackDate
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -529,7 +588,7 @@ export default function CompleteTaskPage() {
               </div>
               {!canLeaveFeedback && (
                 <p className="mt-3 text-xs text-blue-700 dark:text-blue-200">
-                  Ще можете да оставите оценка и отзив след като и двете страни потвърдят, че задачата е завършена.
+                  Ще можете да оставите оценка и отзив след двустранно потвърждение или автоматично след 7 дни от вашето потвърждение.
                 </p>
               )}
             </div>
@@ -545,7 +604,13 @@ export default function CompleteTaskPage() {
                   <li>И двете страни трябва да потвърдят, че работата е завършена</li>
                   <li>След двустранно потвърждение, задачата става "Завършена"</li>
                   <li>След това можете да оставите отзиви един за друг</li>
+                  <li>Ако другата страна не реагира, след 7 дни ще можете да оставите рейтинг автоматично</li>
                 </ul>
+                {pendingAutoFeedback && autoFeedbackDate && (
+                  <p className="mt-3 text-xs text-yellow-700 dark:text-yellow-300">
+                    Очаквана дата за автоматично отключване на обратната връзка: {autoFeedbackDate.toLocaleDateString('bg-BG')}.
+                  </p>
+                )}
               </div>
             </div>
           </div>
