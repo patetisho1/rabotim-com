@@ -1,157 +1,166 @@
 import Link from 'next/link';
 
-const priceGuides = [
+type Guide = {
+  title: string;
+  links: Array<{ label: string; href: string }>;
+};
+
+const categories: Guide[] = [
+  {
+    title: 'Бизнес и администрация',
+    links: [
+      { label: 'Финансов консултант – ориентировъчни цени', href: '#' },
+      { label: 'Виртуален асистент – почасови ставки', href: '#' },
+    ],
+  },
   {
     title: 'Домашни ремонти и монтажи',
-    description:
-      'Средни цени и времеви рамки за услуги като монтаж на мебели, електрически и водопроводни ремонти.',
+    links: [
+      { label: 'Монтаж на мебели – примерни пакети', href: '#' },
+      { label: 'Електрически ремонт – ориентировъчни цени', href: '#' },
+      { label: 'ВиК услуги – сравнение на тарифи', href: '#' },
+    ],
   },
   {
-    title: 'Почистване и домашна помощ',
-    description:
-      'Проучете почасови ставки и пакетни услуги за стандартно почистване, дълбоко почистване и специализирани задачи.',
+    title: 'Почистване и помощ у дома',
+    links: [
+      { label: 'Стандартно почистване – месечен абонамент', href: '#' },
+      { label: 'Дълбоко почистване – ориентировъчни пакети', href: '#' },
+    ],
   },
   {
-    title: 'Доставка, куриерство и логистика',
-    description:
-      'Открийте ориентировъчни тарифи за еднократни доставки, регулярни маршрути и услуги на дълги разстояния.',
+    title: 'Градинарство и открити площи',
+    links: [
+      { label: 'Поддръжка на двор – сезонни тарифи', href: '#' },
+      { label: 'Озеленяване – примерни диапазони', href: '#' },
+    ],
   },
   {
-    title: 'Градинарство и поддръжка на двор',
-    description:
-      'Как се формират цените за косене, оформяне на зелени площи, озеленяване и сезонни дейности.',
+    title: 'Доставка и логистика',
+    links: [
+      { label: 'Еднократни доставки – очаквани цени', href: '#' },
+      { label: 'Регулярни маршрути – оферти и пакетиране', href: '#' },
+    ],
+  },
+  {
+    title: 'IT и дигитални услуги',
+    links: [
+      { label: 'Уеб разработка – основни ставки', href: '#' },
+      { label: 'Графичен дизайн – ориентировъчен бюджет', href: '#' },
+    ],
   },
 ];
 
-const checklistItems = [
-  'Препоръчани диапазони за цена по категория – добавете реални стойности, когато са налични.',
-  'Фактори, които влияят върху цената: трудност, материали, местоположение, спешност.',
-  'Съвети към клиентите: как да сравнят оферти и калкулират бюджета си.',
-  'Съвети към специалистите: как да позиционират услугите си и да обосноват стойността.',
-  'Линкове към полезни инструменти – калкулатори, шаблони за оферти, статии.',
-];
-
-const resourceSections = [
-  {
-    heading: 'Как да поддържате актуални цени',
-    body: 'Предложете методика за събиране на данни – анкети, анализ на успешни задачи, история на плащанията. Добавете инструкции за ежегодно обновяване.',
-  },
-  {
-    heading: 'Регионални разлики',
-    body: 'Създайте таблици по градове или области. Можете да добавите филтри и карти, когато интеграцията с реални данни е готова.',
-  },
-  {
-    heading: 'Оптимизация на оферти',
-    body: 'Включете примери за пакетни цени, добавена стойност (материали, гаранция, follow-up посещения) и техники за upsell.',
-  },
+const sidebarCategories = [
+  'Бизнес услуги',
+  'Домашни ремонти',
+  'Почистване',
+  'Преместване',
+  'Градинарство',
+  'IT & дигитални',
+  'Доставка',
+  'Авто услуги',
+  'Здраве и красота',
+  'Събития',
+  'Обучение и уроци',
 ];
 
 export default function PriceGuidesPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-blue-600 text-white">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
-            <div className="space-y-6">
-              <span className="inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium uppercase tracking-wide text-blue-100">
-                Ръководства за цени
-              </span>
-              <h1 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
-                Създайте своя библиотека с ценови ръководства и съвети за клиенти и изпълнители.
-              </h1>
-              <p className="text-lg text-blue-50 sm:text-xl">
-                Използвайте тази страница като шаблон: добавете реални диапазони, инфографики, pdf файлове и
-                всички ресурси, които помагат на потребителите да вземат информирани решения.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/tasks"
-                  className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
-                >
-                  Разгледайте задачи
-                </Link>
-                <Link
-                  href="/contact"
-                  className="rounded-lg border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Свържете се за партньорство
-                </Link>
-              </div>
-            </div>
+      <div className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <div className="grid gap-10 lg:grid-cols-[220px,1fr]">
+            <aside className="hidden lg:block">
+              <nav className="sticky top-28">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                  Категории
+                </h2>
+                <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                  {sidebarCategories.map((item) => (
+                    <li key={item}>
+                      <button className="rounded-md px-2 py-1 text-left transition hover:bg-blue-50 hover:text-blue-700">
+                        {item}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </aside>
 
-            <div className="space-y-4">
-              {priceGuides.map((guide) => (
-                <div key={guide.title} className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur">
-                  <h2 className="text-xl font-semibold text-white">{guide.title}</h2>
-                  <p className="mt-2 text-sm text-blue-100">{guide.description}</p>
-                  <div className="mt-4 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-xs text-blue-100">
-                    Тук можете да добавите кратък pdf, таблица или връзка към детайлно ръководство.
+            <div className="space-y-12">
+              <header className="space-y-4">
+                <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                  Ръководства за цени
+                </span>
+                <h1 className="text-4xl font-semibold text-slate-900 sm:text-5xl">
+                  Библиотека с ориентировъчни цени за популярни услуги
+                </h1>
+                <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
+                  Намерете примерни диапазони за домашни ремонти, маркетинг, почистване, градинарство, логистика и
+                  още. Когато сте готови, свържете секциите със свои статии, PDF ръководства или калкулатори.
+                </p>
+              </header>
+
+              <div className="space-y-14">
+                {categories.map((category) => (
+                  <section key={category.title} className="space-y-4">
+                    <h2 className="text-2xl font-semibold text-slate-900">{category.title}</h2>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {category.links.map((link) => (
+                        <Link
+                          key={link.label}
+                          href={link.href}
+                          className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-blue-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+
+              <section className="rounded-2xl border border-dashed border-blue-300 bg-blue-50/70 p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-blue-900">
+                  Как да развиете секцията с реални данни
+                </h3>
+                <p className="mt-3 text-sm text-blue-900">
+                  Заменете бутоните с истински връзки, добавете филтри по локация, включете таблици с минимална и
+                  максимална цена, отчети за сезонност или вграден калкулатор. Този блок може да съдържа и форма
+                  за заявка на индивидуално ценово проучване.
+                </p>
+              </section>
+
+              <section className="rounded-3xl bg-gradient-to-br from-blue-900 to-indigo-700 px-6 py-10 text-white">
+                <div className="space-y-4 text-center sm:text-left">
+                  <h3 className="text-2xl font-semibold sm:text-3xl">
+                    Нуждаете се от съдействие при изграждането на ръководствата?
+                  </h3>
+                  <p className="text-sm text-blue-100 sm:text-base">
+                    Свържете се с нашия екип за съдържание, за да изградим автоматизирани таблици, API интеграции и
+                    визуализации на ценови данни директно в Rabotim.
+                  </p>
+                  <div className="flex flex-wrap gap-4 sm:justify-start">
+                    <Link
+                      href="/contact"
+                      className="rounded-lg bg-white px-5 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
+                    >
+                      Свържете се с нас
+                    </Link>
+                    <Link
+                      href="/post-task"
+                      className="rounded-lg border border-white/60 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                    >
+                      Публикувайте задача
+                    </Link>
                   </div>
                 </div>
-              ))}
+              </section>
             </div>
           </div>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-blue-900 sm:text-3xl">
-              Структура за вашите ръководства
-            </h2>
-            <p className="text-base text-slate-600 sm:text-lg">
-              Поддържайте страницата динамична – когато съберете реални данни, заменете примерните описания със
-              статистика, графики и автоматични препоръки.
-            </p>
-            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-blue-900">Чеклист за съдържание:</h3>
-              <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                {checklistItems.map((item) => (
-                  <li key={item}>• {item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            {resourceSections.map((resource) => (
-              <div key={resource.heading} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-blue-900">{resource.heading}</h3>
-                <p className="mt-2 text-sm text-slate-600">{resource.body}</p>
-              </div>
-            ))}
-            <div className="rounded-xl border border-dashed border-blue-300 bg-blue-50/70 p-6 text-sm text-blue-900">
-              Този блок може да се замени с интерактивна таблица, филтри по локация или формуляр за изтегляне на
-              пълни ръководства, когато са готови.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-b from-blue-900 to-blue-700 px-6 py-12 text-center text-white shadow-lg">
-          <h2 className="text-2xl font-semibold sm:text-3xl">Готови ли сте да споделите своите ценови прозрения?</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-blue-100 sm:text-base">
-            Попълнете страницата с вашите ресурси или ни потърсете за консултация как да изградим автоматизирани
-            ръководства за ценообразуване директно в Rabotim.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/post-task"
-              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
-            >
-              Публикувайте задача
-            </Link>
-            <Link
-              href="/contact"
-              className="rounded-lg border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              Заявете демонстрация
-            </Link>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
