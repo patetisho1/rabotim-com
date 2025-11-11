@@ -25,7 +25,7 @@ const Footer = () => {
               <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Сравнителни ръководства</Link></li>
               <li><Link href="/register" className="hover:text-blue-200 transition-colors">Студентски отстъпки</Link></li>
               <li><Link href="/partneri" className="hover:text-blue-200 transition-colors">Партньори</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">ЧЗВ за нови потребители</Link></li>
+              <li><Link href="/faq-novi-potrebiteli" className="hover:text-blue-200 transition-colors">ЧЗВ за нови потребители</Link></li>
             </ul>
           </div>
 
