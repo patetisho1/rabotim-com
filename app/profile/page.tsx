@@ -35,6 +35,8 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { useTasksAPI } from '@/hooks/useTasksAPI'
+import RatingDisplay from '@/components/RatingDisplay'
+import { useRatings } from '@/hooks/useRatings'
 
 interface UserData {
   id: number
@@ -77,11 +79,13 @@ export default function ProfilePage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { getUserTasks } = useTasksAPI()
+  const { userRatings, loadUserRatings, isLoading: ratingsLoading } = useRatings()
   const [user, setUser] = useState<UserData | null>(null)
   const [userTasks, setUserTasks] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
+  const userRatingSummary = authUser ? userRatings[authUser.id] : undefined
 
   useEffect(() => {
     if (authLoading) return
@@ -93,7 +97,7 @@ export default function ProfilePage() {
     }
 
     loadUserData()
-  }, [authUser, authLoading])
+  }, [authUser, authLoading, loadUserRatings])
 
   const loadUserData = async () => {
     try {
@@ -104,6 +108,7 @@ export default function ProfilePage() {
         const tasks = await getUserTasks(authUser.id)
         console.log('Profile: loaded tasks =', tasks)
         setUserTasks(tasks)
+        await loadUserRatings(authUser.id)
         
         const userData: UserData = {
           id: 1, // Временно ID
@@ -119,13 +124,13 @@ export default function ProfilePage() {
             totalTasksPosted: tasks.length,
             completedTasks: tasks.filter((task: any) => task.status === 'completed').length,
             totalSpent: tasks.reduce((sum: number, task: any) => sum + (task.price || 0), 0),
-            rating: 4.5,
+            rating: 0,
             reviews: []
           },
           taskExecutor: {
             completedTasks: 0,
             totalEarnings: 0,
-            rating: 4.2,
+            rating: 0,
             totalReviews: 0,
             skills: ['Почистване', 'Ремонт', 'Градинарство'],
             portfolio: [],
@@ -510,6 +515,19 @@ export default function ProfilePage() {
                       <p className="text-gray-600">
                         Това е вашият личен профил в Rabotim.com. Тук можете да управлявате всички ваши активности.
                       </p>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h4 className="text-lg font-medium text-gray-900 mb-4">Моят рейтинг</h4>
+                      {ratingsLoading && !userRatingSummary ? (
+                        <div className="h-24 bg-gray-100 animate-pulse rounded-lg"></div>
+                      ) : userRatingSummary ? (
+                        <RatingDisplay userRating={userRatingSummary} showDetails={false} />
+                      ) : (
+                        <p className="text-sm text-gray-600">
+                          Все още нямате отзиви. Завършвайте задачи и събирайте позитивни оценки, за да се отличите.
+                        </p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

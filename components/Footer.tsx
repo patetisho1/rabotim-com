@@ -16,16 +16,16 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4">Открийте</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Как работи</Link></li>
-              <li><Link href="/post-task" className="hover:text-blue-200 transition-colors">Rabotim за бизнес</Link></li>
-              <li><Link href="/register" className="hover:text-blue-200 transition-colors">Печелете пари</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Калкулатор за странични доходи</Link></li>
+              <li><Link href="/rabotim-za-biznes" className="hover:text-blue-200 transition-colors">Rabotim за бизнес</Link></li>
+              <li><Link href="/pechelete-pari" className="hover:text-blue-200 transition-colors">Печелете пари</Link></li>
+              <li><Link href="/kalkulator-za-stranichni-dohodi" className="hover:text-blue-200 transition-colors">Калкулатор за странични доходи</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Търсете задачи</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Ръководства за цени</Link></li>
+              <li><Link href="/rukovodstva-za-tseni" className="hover:text-blue-200 transition-colors">Ръководства за цени</Link></li>
               <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Ръководства за услуги</Link></li>
               <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Сравнителни ръководства</Link></li>
               <li><Link href="/register" className="hover:text-blue-200 transition-colors">Студентски отстъпки</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Партньори</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">ЧЗВ за нови потребители</Link></li>
+              <li><Link href="/partneri" className="hover:text-blue-200 transition-colors">Партньори</Link></li>
+              <li><Link href="/faq-novi-potrebiteli" className="hover:text-blue-200 transition-colors">ЧЗВ за нови потребители</Link></li>
             </ul>
           </div>
 
@@ -53,7 +53,7 @@ const Footer = () => {
               <li><Link href="/post-task" className="hover:text-blue-200 transition-colors">Публикувайте задача</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Разглеждайте задачи</Link></li>
               <li><Link href="/login" className="hover:text-blue-200 transition-colors">Вход</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Център за поддръжка</Link></li>
+              <li><Link href="/support-center" className="hover:text-blue-200 transition-colors">Център за поддръжка</Link></li>
             </ul>
           </div>
 

@@ -6,6 +6,8 @@ import {
   ArrowLeft, MapPin, DollarSign, User, Star, Calendar, 
   MessageSquare, AlertCircle, Heart, Share2, Shield, CheckCircle
 } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { bg } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
@@ -38,6 +40,23 @@ interface Task {
   }
 }
 
+interface TaskApplication {
+  id: string
+  task_id: string
+  user_id: string
+  message: string | null
+  proposed_price: number | null
+  status: 'pending' | 'accepted' | 'rejected'
+  created_at: string
+  user?: {
+    id: string
+    full_name: string
+    avatar_url: string | null
+    rating: number | null
+    total_reviews: number | null
+  } | null
+}
+
 export default function TaskDetailPage() {
   const router = useRouter()
   const params = useParams()
@@ -49,10 +68,17 @@ export default function TaskDetailPage() {
   const [isApplying, setIsApplying] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
   const [applicationMessage, setApplicationMessage] = useState('')
+  const [applications, setApplications] = useState<TaskApplication[]>([])
+  const [applicationsLoading, setApplicationsLoading] = useState(true)
+  const [applicationsError, setApplicationsError] = useState<string | null>(null)
+  const [applicationActionId, setApplicationActionId] = useState<string | null>(null)
+  const [applicationActionStatus, setApplicationActionStatus] = useState<'accepted' | 'rejected' | null>(null)
+  const [applicationActionError, setApplicationActionError] = useState<string | null>(null)
 
   useEffect(() => {
     if (taskId) {
       loadTask()
+      loadApplications()
       incrementViewCount()
     }
   }, [taskId])
@@ -99,6 +125,36 @@ export default function TaskDetailPage() {
       router.push('/tasks')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadApplications = async () => {
+    if (!taskId) return
+
+    try {
+      setApplicationsLoading(true)
+      setApplicationsError(null)
+
+      const response = await fetch(`/api/applications?task_id=${taskId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-store'
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Грешка при зареждането на кандидатурите')
+      }
+
+      setApplications(result as TaskApplication[])
+    } catch (error: any) {
+      console.error('Error loading applications:', error)
+      setApplicationsError(error.message || 'Грешка при зареждането на кандидатурите')
+      setApplications([])
+    } finally {
+      setApplicationsLoading(false)
     }
   }
 
@@ -172,11 +228,58 @@ export default function TaskDetailPage() {
       
       // Reload task to update applications count
       loadTask()
+      loadApplications()
     } catch (error: any) {
       console.error('Error applying:', error)
       toast.error(error.message || 'Грешка при изпращането на кандидатурата')
     } finally {
       setIsApplying(false)
+    }
+  }
+
+  const handleApplicationStatusChange = async (applicationId: string, status: 'accepted' | 'rejected') => {
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си')
+      router.push('/login')
+      return
+    }
+
+    setApplicationActionId(applicationId)
+    setApplicationActionStatus(status)
+    setApplicationActionError(null)
+
+    try {
+      const response = await fetch('/api/applications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          application_id: applicationId,
+          status,
+          task_id: taskId,
+          requester_id: authUser.id,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Грешка при обновяване на кандидатурата')
+      }
+
+      toast.success(status === 'accepted' ? 'Кандидатът е одобрен' : 'Кандидатът е отхвърлен')
+
+      await loadApplications()
+      await loadTask()
+    } catch (error: any) {
+      console.error('Error updating application status:', error)
+      const errorMessage = error.message || 'Грешка при обновяване на кандидатурата'
+      setApplicationActionError(errorMessage)
+      toast.error(errorMessage)
+    } finally {
+      setApplicationActionId(null)
+      setApplicationActionStatus(null)
     }
   }
 
@@ -230,6 +333,31 @@ export default function TaskDetailPage() {
     }
     return `${price} лв`
   }
+
+  const formatRelativeTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), {
+        addSuffix: true,
+        locale: bg
+      }).replace('около ', 'приблизително ')
+    } catch (error) {
+      console.error('Error formatting date:', error)
+      return new Date(dateString).toLocaleString('bg-BG')
+    }
+  }
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'R'
+    const initials = name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('')
+    return initials || 'R'
+  }
+
+  const isTaskOwner = task?.user_id === authUser?.id
 
   if (isLoading || authLoading) {
     return (
@@ -360,6 +488,213 @@ export default function TaskDetailPage() {
                   {task.description}
                 </p>
               </div>
+            </div>
+
+            {/* Applications */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Кандидатури
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {applicationsLoading
+                      ? 'Зареждаме кандидатурите...'
+                      : applications.length === 0
+                        ? 'Все още няма кандидатури за тази задача.'
+                        : `${applications.length} ${applications.length === 1 ? 'кандидат' : 'кандидати'}`}
+                  </p>
+                </div>
+                {!applicationsLoading && (
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium dark:bg-blue-900/40 dark:text-blue-200">
+                    <MessageSquare size={16} />
+                    {task.applications_count || applications.length} отговора
+                  </span>
+                )}
+              </div>
+
+              {applicationsError && (
+                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+                  {applicationsError}
+                </div>
+              )}
+
+              {applicationActionError && (
+                <div className="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-200">
+                  {applicationActionError}
+                </div>
+              )}
+
+              {applicationsLoading ? (
+                <div className="space-y-4">
+                  {[...Array(2)].map((_, index) => (
+                    <div key={index} className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-4">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
+                          <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+                        </div>
+                      </div>
+                      <div className="h-3 w-full rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="mt-2 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                    </div>
+                  ))}
+                </div>
+              ) : applications.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-8 text-center">
+                  <MessageSquare className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Няма кандидатури все още
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Бъдете първи, който ще кандидатства, за да увеличите шанса си да получите задачата.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {applications.map((application) => {
+                    const isAccepted = application.status === 'accepted'
+                    const isRejected = application.status === 'rejected'
+                    const isPending = application.status === 'pending'
+                    const ratingValue = application.user?.rating !== null && application.user?.rating !== undefined
+                      ? Number(application.user.rating)
+                      : null
+                    const totalReviews = application.user?.total_reviews ?? 0
+                    const proposedPrice = application.proposed_price !== null && application.proposed_price !== undefined
+                      ? `${Number(application.proposed_price).toFixed(2)} лв`
+                      : null
+
+                    return (
+                      <div
+                        key={application.id}
+                        className={`rounded-xl border p-5 transition-shadow ${
+                          isAccepted
+                            ? 'border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/30'
+                            : isRejected
+                              ? 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/40'
+                              : 'border-gray-200 bg-gray-50 hover:shadow-md dark:border-gray-700 dark:bg-gray-800/60'
+                        }`}
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex items-start gap-3">
+                            {application.user?.avatar_url ? (
+                              <img
+                                src={application.user.avatar_url}
+                                alt={application.user.full_name || 'Кандидат'}
+                                className="h-12 w-12 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                              />
+                            ) : (
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 font-semibold text-white">
+                                {getInitials(application.user?.full_name)}
+                              </div>
+                            )}
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                                  {application.user?.full_name || 'Потребител'}
+                                </span>
+                                {ratingValue !== null && !Number.isNaN(ratingValue) && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-200">
+                                    <Star size={12} className="fill-current" />
+                                    {ratingValue.toFixed(1)}
+                                    <span className="text-gray-500 dark:text-gray-400">({totalReviews})</span>
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {formatRelativeTime(application.created_at)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {proposedPrice && (
+                            <div className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-semibold text-blue-700 dark:border-blue-900 dark:bg-gray-900/40 dark:text-blue-200">
+                              Предложение: {proposedPrice}
+                            </div>
+                          )}
+                        </div>
+
+                        {application.message && (
+                          <p className="mt-4 whitespace-pre-line leading-relaxed text-gray-700 dark:text-gray-300">
+                            {application.message}
+                          </p>
+                        )}
+
+                        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 dark:bg-gray-900/40">
+                            <MessageSquare size={12} />
+                            {isPending && 'Очаква одобрение'}
+                            {isAccepted && 'Кандидатът е назначен'}
+                            {isRejected && 'Отхвърлена кандидатура'}
+                          </span>
+
+                          {isTaskOwner && isAccepted && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                              <CheckCircle size={12} />
+                              Назначен изпълнител
+                            </span>
+                          )}
+                        </div>
+
+                        {isTaskOwner && (
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            <button
+                              onClick={() => handleApplicationStatusChange(application.id, 'accepted')}
+                              disabled={
+                                isAccepted ||
+                                applicationActionId === application.id && applicationActionStatus !== null
+                              }
+                              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                                isAccepted
+                                  ? 'cursor-default bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200'
+                                  : 'bg-green-600 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400'
+                              }`}
+                            >
+                              {applicationActionId === application.id && applicationActionStatus === 'accepted' ? (
+                                <>
+                                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
+                                  Одобряване...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle size={14} />
+                                  {isAccepted ? 'Одобрена' : 'Одобри кандидат'}
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => handleApplicationStatusChange(application.id, 'rejected')}
+                              disabled={
+                                isRejected ||
+                                applicationActionId === application.id && applicationActionStatus !== null
+                              }
+                              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                                isRejected
+                                  ? 'cursor-default border border-gray-300 bg-gray-100 text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400'
+                                  : 'border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800'
+                              }`}
+                            >
+                              {applicationActionId === application.id && applicationActionStatus === 'rejected' ? (
+                                <>
+                                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current" />
+                                  Отхвърляне...
+                                </>
+                              ) : (
+                                <>
+                                  <AlertCircle size={14} />
+                                  {isRejected ? 'Отхвърлена' : 'Отхвърли'}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             {/* User Info */}

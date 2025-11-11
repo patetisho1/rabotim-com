@@ -26,6 +26,11 @@ interface Task {
   user_id: string
   completion_confirmed_by_poster: boolean
   completion_confirmed_by_worker: boolean
+  poster?: {
+    id: string
+    full_name: string
+    avatar_url?: string | null
+  } | null
 }
 
 interface AcceptedApplicant {
@@ -76,7 +81,20 @@ export default function CompleteTaskPage() {
       // Load task with completion status
       const { data: taskData, error: taskError } = await supabase
         .from('tasks')
-        .select('id, title, description, status, user_id, completion_confirmed_by_poster, completion_confirmed_by_worker')
+        .select(`
+          id,
+          title,
+          description,
+          status,
+          user_id,
+          completion_confirmed_by_poster,
+          completion_confirmed_by_worker,
+          poster:users!user_id (
+            id,
+            full_name,
+            avatar_url
+          )
+        `)
         .eq('id', taskId)
         .single()
 
@@ -89,16 +107,23 @@ export default function CompleteTaskPage() {
       }
 
       // Check if task is in progress
-      if (taskData.status !== 'in_progress') {
-        toast.error('Задачата трябва да е в процес за да може да се завърши')
+      if (taskData.status !== 'in_progress' && taskData.status !== 'completed') {
+        toast.error('Задачата трябва да е в процес или завършена, за да използвате тази страница')
         router.push(`/task/${taskId}`)
         return
       }
 
-      setTask(taskData)
+      const formattedTask: Task = {
+        ...taskData,
+        poster: Array.isArray(taskData.poster)
+          ? (taskData.poster[0] ?? null)
+          : (taskData.poster ?? null)
+      }
+
+      setTask(formattedTask)
 
       // Determine user role
-      if (taskData.user_id === authUser?.id) {
+      if (formattedTask.user_id === authUser?.id) {
         setUserRole('poster')
       } else {
         // Check if user is accepted applicant
@@ -120,7 +145,7 @@ export default function CompleteTaskPage() {
       }
 
       // Load accepted applicants (for poster view)
-      if (taskData.user_id === authUser?.id) {
+      if (formattedTask.user_id === authUser?.id) {
         const { data: applicantsData, error: applicantsError } = await supabase
           .from('task_applications')
           .select(`
@@ -197,9 +222,8 @@ export default function CompleteTaskPage() {
         if (completeError) throw completeError
 
         toast.success('Задачата е завършена успешно! Сега можете да оставите отзив.')
-        
-        // Redirect to rating page
-        router.push(`/task/${taskId}/rate`)
+
+        await loadTaskData()
       } else {
         toast.success('Вашето потвърждение е записано. Чакаме потвърждение от другата страна.')
         toast('💡 Ако другата страна не потвърди до 7 дни, автоматично ще можете да оставите отзив.', {
@@ -217,11 +241,21 @@ export default function CompleteTaskPage() {
   }
 
   const handleRateUser = (user: { id: string; name: string; avatar: string }) => {
+    if (!task || task.status !== 'completed') {
+      toast.error('Можете да оставите оценка след като задачата е завършена')
+      return
+    }
+
     setSelectedUser(user)
     setShowRatingModal(true)
   }
 
   const handleReviewUser = (user: { id: string; name: string; avatar: string }) => {
+    if (!task || task.status !== 'completed') {
+      toast.error('Можете да оставите отзив след като задачата е завършена')
+      return
+    }
+
     setSelectedUser(user)
     setShowReviewModal(true)
   }
@@ -297,6 +331,8 @@ export default function CompleteTaskPage() {
   const hasOtherPartyConfirmed = userRole === 'poster'
     ? task.completion_confirmed_by_worker
     : task.completion_confirmed_by_poster
+
+  const canLeaveFeedback = task.status === 'completed'
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -399,7 +435,13 @@ export default function CompleteTaskPage() {
                               name: applicant.user.full_name,
                               avatar: applicant.user.avatar_url || '/default-avatar.png'
                             })}
-                            className="flex items-center gap-1 px-3 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-xs rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-900/30 transition-colors"
+                            disabled={!canLeaveFeedback}
+                            title={canLeaveFeedback ? undefined : 'Оценката е активна след завършване на задачата'}
+                            className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full transition-colors ${
+                              canLeaveFeedback
+                                ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-900/30'
+                                : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-900/40 dark:text-gray-500'
+                            }`}
                           >
                             <Star size={12} />
                             Оцени
@@ -410,7 +452,13 @@ export default function CompleteTaskPage() {
                               name: applicant.user.full_name,
                               avatar: applicant.user.avatar_url || '/default-avatar.png'
                             })}
-                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-colors"
+                            disabled={!canLeaveFeedback}
+                            title={canLeaveFeedback ? undefined : 'Отзивите са активни след завършване на задачата'}
+                            className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full transition-colors ${
+                              canLeaveFeedback
+                                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-900/30'
+                                : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-900/40 dark:text-gray-500'
+                            }`}
                           >
                             <MessageSquare size={12} />
                             Отзив
@@ -421,6 +469,69 @@ export default function CompleteTaskPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {userRole === 'worker' && task.poster && (
+            <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/40">
+              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
+                Работодател:
+              </h3>
+              <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={task.poster.avatar_url || '/default-avatar.png'}
+                    alt={task.poster.full_name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {task.poster.full_name}
+                    </span>
+                    <div className="flex items-center gap-4 mt-1">
+                      <button
+                        onClick={() => handleRateUser({
+                          id: task.poster!.id,
+                          name: task.poster!.full_name,
+                          avatar: task.poster!.avatar_url || '/default-avatar.png'
+                        })}
+                        disabled={!canLeaveFeedback}
+                        title={canLeaveFeedback ? undefined : 'Оценката е активна след завършване на задачата'}
+                        className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full transition-colors ${
+                          canLeaveFeedback
+                            ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-900/30'
+                            : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-900/40 dark:text-gray-500'
+                        }`}
+                      >
+                        <Star size={12} />
+                        Оцени
+                      </button>
+                      <button
+                        onClick={() => handleReviewUser({
+                          id: task.poster!.id,
+                          name: task.poster!.full_name,
+                          avatar: task.poster!.avatar_url || '/default-avatar.png'
+                        })}
+                        disabled={!canLeaveFeedback}
+                        title={canLeaveFeedback ? undefined : 'Отзивите са активни след завършване на задачата'}
+                        className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full transition-colors ${
+                          canLeaveFeedback
+                            ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-900/30'
+                            : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-900/40 dark:text-gray-500'
+                        }`}
+                      >
+                        <MessageSquare size={12} />
+                        Отзив
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {!canLeaveFeedback && (
+                <p className="mt-3 text-xs text-blue-700 dark:text-blue-200">
+                  Ще можете да оставите оценка и отзив след като и двете страни потвърдят, че задачата е завършена.
+                </p>
+              )}
             </div>
           )}
 
