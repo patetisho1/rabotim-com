@@ -20,7 +20,7 @@ const Footer = () => {
               <li><Link href="/pechelete-pari" className="hover:text-blue-200 transition-colors">Печелете пари</Link></li>
               <li><Link href="/kalkulator-za-stranichni-dohodi" className="hover:text-blue-200 transition-colors">Калкулатор за странични доходи</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Търсете задачи</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Ръководства за цени</Link></li>
+              <li><Link href="/rukovodstva-za-tseni" className="hover:text-blue-200 transition-colors">Ръководства за цени</Link></li>
               <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Ръководства за услуги</Link></li>
               <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Сравнителни ръководства</Link></li>
               <li><Link href="/register" className="hover:text-blue-200 transition-colors">Студентски отстъпки</Link></li>
