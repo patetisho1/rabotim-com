@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { 
-  ArrowLeft, MapPin, DollarSign, User, Star, Calendar, 
+  ArrowLeft, MapPin, DollarSign, User, Star, Calendar, Clock,
   MessageSquare, AlertCircle, Heart, Share2, Shield, CheckCircle
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
