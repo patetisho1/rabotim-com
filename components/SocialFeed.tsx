@@ -297,3 +297,5 @@ export default function SocialFeed({ className = '', maxPosts = 6 }: SocialFeedP
     </div>
   )
 }
+
+

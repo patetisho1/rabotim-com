@@ -172,9 +172,19 @@ export const db = {
   },
 
   async addRating(rating: Omit<Rating, 'id' | 'createdAt'>) {
+    const payload = {
+      task_id: rating.taskId,
+      reviewer_id: rating.reviewerId,
+      reviewed_user_id: rating.reviewedUserId,
+      rating: rating.rating,
+      comment: rating.comment,
+      category: rating.category,
+      is_verified: rating.isVerified ?? false
+    }
+
     const { data, error } = await supabase
       .from('ratings')
-      .insert(rating)
+      .insert(payload)
       .select()
       .single()
     
@@ -208,9 +218,22 @@ export const db = {
   },
 
   async addReview(review: Omit<Review, 'id' | 'createdAt' | 'helpfulCount' | 'reportedCount'>) {
+    const payload = {
+      task_id: review.taskId,
+      reviewer_id: review.reviewerId,
+      reviewed_user_id: review.reviewedUserId,
+      rating: review.rating,
+      title: review.title,
+      comment: review.comment,
+      pros: review.pros ?? [],
+      cons: review.cons ?? [],
+      tags: review.tags ?? [],
+      is_verified: review.isVerified ?? false
+    }
+
     const { data, error } = await supabase
       .from('reviews')
-      .insert(review)
+      .insert(payload)
       .select()
       .single()
     
@@ -254,24 +277,65 @@ export const db = {
       .eq('user_id', userId)
       .single()
     
-    if (error) throw error
+    if (error) {
+      if ((error as any).code === 'PGRST116') {
+        return null
+      }
+      throw error
+    }
     return data
   },
 
-  async canUserRate(userId: string, taskId: string) {
-    // Check if user has already rated this task
-    const { data: existingRating, error: ratingError } = await supabase
+  async canUserRate(userId: string, taskId: string): Promise<{ canRate: boolean; reason: 'not_completed' | 'already_rated' | 'allowed' }> {
+    // Task must be completed before ratings/reviews are allowed
+    const { data: taskData, error: taskError } = await supabase
+      .from('tasks')
+      .select('status')
+      .eq('id', taskId)
+      .single()
+
+    if (taskError) {
+      console.error('canUserRate task lookup error:', taskError)
+      return { canRate: false, reason: 'not_completed' }
+    }
+
+    if (!taskData || taskData.status !== 'completed') {
+      return { canRate: false, reason: 'not_completed' }
+    }
+
+    // Check for existing review
+    const { data: existingReview, error: reviewError } = await supabase
       .from('reviews')
       .select('id')
       .eq('task_id', taskId)
       .eq('reviewer_id', userId)
       .single()
 
-    if (ratingError && ratingError.code !== 'PGRST116') { // PGRST116 = no rows returned
+    if (reviewError && (reviewError as any).code !== 'PGRST116') {
+      throw reviewError
+    }
+
+    if (existingReview) {
+      return { canRate: false, reason: 'already_rated' }
+    }
+
+    // Check for existing rating entry
+    const { data: existingRating, error: ratingError } = await supabase
+      .from('ratings')
+      .select('id')
+      .eq('task_id', taskId)
+      .eq('reviewer_id', userId)
+      .single()
+
+    if (ratingError && (ratingError as any).code !== 'PGRST116') {
       throw ratingError
     }
 
-    return !existingRating
+    if (existingRating) {
+      return { canRate: false, reason: 'already_rated' }
+    }
+
+    return { canRate: true, reason: 'allowed' }
   },
 
   async getTaskRatings(taskId: string) {

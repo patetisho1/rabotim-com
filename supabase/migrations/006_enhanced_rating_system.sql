@@ -168,3 +168,5 @@ ALTER TABLE public.ratings ADD CONSTRAINT check_category_values
 
 -- Update existing ratings to have category 'overall' if null
 UPDATE public.ratings SET category = 'overall' WHERE category IS NULL;
+
+

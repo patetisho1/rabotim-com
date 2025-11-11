@@ -16,7 +16,7 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4">Открийте</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Как работи</Link></li>
-              <li><Link href="/post-task" className="hover:text-blue-200 transition-colors">Rabotim за бизнес</Link></li>
+              <li><Link href="/rabotim-za-biznes" className="hover:text-blue-200 transition-colors">Rabotim за бизнес</Link></li>
               <li><Link href="/register" className="hover:text-blue-200 transition-colors">Печелете пари</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Калкулатор за странични доходи</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Търсете задачи</Link></li>

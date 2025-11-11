@@ -65,10 +65,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user can rate this task
-    const canRate = await db.canUserRate(reviewer_id, task_id)
+    const { canRate, reason } = await db.canUserRate(reviewer_id, task_id)
     if (!canRate) {
+      const message = reason === 'not_completed'
+        ? 'Задачата трябва да бъде завършена преди да оставите отзив'
+        : 'Вече сте оставили отзив за тази задача'
       return NextResponse.json(
-        { error: 'User has already rated this task' },
+        { error: message },
         { status: 400 }
       )
     }
@@ -83,7 +86,7 @@ export async function POST(request: NextRequest) {
       pros: pros || [],
       cons: cons || [],
       tags: tags || [],
-      isVerified: false
+      isVerified: true
     })
 
     return NextResponse.json(newReview, { status: 201 })
