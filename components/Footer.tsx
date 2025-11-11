@@ -53,7 +53,7 @@ const Footer = () => {
               <li><Link href="/post-task" className="hover:text-blue-200 transition-colors">Публикувайте задача</Link></li>
               <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Разглеждайте задачи</Link></li>
               <li><Link href="/login" className="hover:text-blue-200 transition-colors">Вход</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-blue-200 transition-colors">Център за поддръжка</Link></li>
+              <li><Link href="/support-center" className="hover:text-blue-200 transition-colors">Център за поддръжка</Link></li>
             </ul>
           </div>
 
