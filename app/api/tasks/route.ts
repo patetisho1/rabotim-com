@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get('location')
     const priceMin = searchParams.get('priceMin')
     const priceMax = searchParams.get('priceMax')
-    const status = searchParams.get('status') || 'active'
+    const status = searchParams.get('status')
     const userId = searchParams.get('userId')
 
     let query = supabase
@@ -36,8 +36,13 @@ export async function GET(request: NextRequest) {
           verified
         )
       `)
-      .eq('status', status)
       .order('created_at', { ascending: false })
+
+    if (status && status !== 'all') {
+      query = query.eq('status', status)
+    } else if (!status) {
+      query = query.eq('status', 'active')
+    }
 
     if (category && category !== 'all') {
       query = query.eq('category', category)
@@ -107,7 +112,8 @@ export async function POST(request: NextRequest) {
       deadline,
       urgent = false,
       remote = false,
-      conditions = ''
+      conditions = '',
+      images = []
     } = body
 
     // Валидация
@@ -115,20 +121,85 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    const normalizedTitle = title?.toString().trim()
+    const normalizedDescription = description?.toString().trim()
+    const normalizedConditions = conditions?.toString().trim() || ''
+    const numericPrice = Number(price)
+
+    if (!normalizedTitle || !normalizedDescription || Number.isNaN(numericPrice)) {
+      return NextResponse.json({ error: 'Invalid task payload' }, { status: 400 })
+    }
+
+    // Допълнителни проверки
+    const MIN_TITLE_LENGTH = 10
+    const MIN_DESCRIPTION_LENGTH = 80
+    const MIN_PRICE_VALUE = 5
+    const bannedPatterns = [
+      /https?:\/\//i,
+      /\bтелефон\b/i,
+      /\bwhatsapp\b/i,
+      /\bviber\b/i,
+      /\bemail\b/i
+    ]
+
+    const issues: string[] = []
+
+    if (normalizedTitle.length < MIN_TITLE_LENGTH) {
+      issues.push('Заглавието е твърде кратко')
+    }
+    if (normalizedDescription.length < MIN_DESCRIPTION_LENGTH) {
+      issues.push('Описанието е твърде кратко')
+    }
+    if (numericPrice < MIN_PRICE_VALUE) {
+      issues.push('Посочената цена е подозрително ниска')
+    }
+    if (
+      bannedPatterns.some((pattern) => pattern.test(normalizedTitle) || pattern.test(normalizedDescription) || pattern.test(normalizedConditions))
+    ) {
+      issues.push('Открито е съдържание, изискващо модерация')
+    }
+
+    // Проверка на историята на потребителя
+    const { data: profile, error: profileError } = await supabase
+      .from('users')
+      .select('id, verified, created_at')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error loading user profile for moderation:', profileError)
+    }
+
+    const { count: tasksCount } = await supabase
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    const userIsTrusted = Boolean(profile?.verified) || (tasksCount || 0) >= 5
+    if (!userIsTrusted) {
+      issues.push('Нов профил – изисква се първоначален преглед')
+    }
+
+    const moderationStatus = issues.length === 0 ? 'active' : 'pending'
+
     // Създаване на задача
     const { data: task, error: taskError } = await supabase
       .from('tasks')
       .insert({
-        title,
-        description,
+        title: normalizedTitle,
+        description: normalizedDescription,
         category,
         location,
-        price: parseFloat(price),
+        price: numericPrice,
         price_type: priceType,
         deadline: deadline ? new Date(deadline).toISOString() : null,
         urgent,
+        remote,
+        images,
         user_id: user.id,
-        status: 'active'
+        status: moderationStatus,
+        applications_count: 0,
+        views_count: 0
       })
       .select(`
         *,
@@ -146,7 +217,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create task' }, { status: 500 })
     }
 
-    return NextResponse.json({ task }, { status: 201 })
+    return NextResponse.json({ 
+      task, 
+      moderation: {
+        status: moderationStatus,
+        issues
+      } 
+    }, { status: 201 })
   } catch (error) {
     console.error('Error in POST /api/tasks:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
