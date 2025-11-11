@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { 
   ArrowLeft, MapPin, DollarSign, User, Star, Calendar, 
@@ -294,6 +294,15 @@ export default function TaskDetailPage() {
     router.push(`/messages?userId=${task?.user_id}`)
   }
 
+  const handleContactApplicant = (userId: string) => {
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си за да се свържете')
+      router.push('/login')
+      return
+    }
+    router.push(`/messages?userId=${userId}`)
+  }
+
   const getCategoryLabel = (categoryValue: string) => {
     const categories: Record<string, string> = {
       'repair': 'Ремонт',
@@ -358,6 +367,176 @@ export default function TaskDetailPage() {
   }
 
   const isTaskOwner = task?.user_id === authUser?.id
+
+  const acceptedApplications = useMemo(
+    () => applications.filter((application) => application.status === 'accepted'),
+    [applications]
+  )
+
+  const pendingApplications = useMemo(
+    () => applications.filter((application) => application.status === 'pending'),
+    [applications]
+  )
+
+  const rejectedApplications = useMemo(
+    () => applications.filter((application) => application.status === 'rejected'),
+    [applications]
+  )
+
+  const renderStatusBadge = (status: TaskApplication['status']) => {
+    if (status === 'accepted') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200">
+          <CheckCircle size={12} />
+          Назначен изпълнител
+        </span>
+      )
+    }
+    if (status === 'rejected') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-200">
+          <AlertCircle size={12} />
+          Отхвърлена кандидатура
+        </span>
+      )
+    }
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
+        <Clock size={12} />
+        Очаква одобрение
+      </span>
+    )
+  }
+
+  const renderApplicationCard = (application: TaskApplication) => {
+    const applicant = application.user
+    const isAccepted = application.status === 'accepted'
+    const isRejected = application.status === 'rejected'
+    const isOwnApplication = application.user_id === authUser?.id
+    const canModerate = isTaskOwner && application.status === 'pending'
+    const acceptLoading =
+      applicationActionId === application.id && applicationActionStatus === 'accepted'
+    const rejectLoading =
+      applicationActionId === application.id && applicationActionStatus === 'rejected'
+    const proposedPriceLabel =
+      application.proposed_price !== null && application.proposed_price !== undefined
+        ? `${Number(application.proposed_price).toFixed(2)} лв`
+        : null
+
+    const cardClasses = [
+      'rounded-2xl border p-4 sm:p-5 transition-shadow',
+      'bg-white dark:bg-gray-800',
+      isAccepted
+        ? 'border-emerald-200 bg-emerald-50/60 dark:border-emerald-800/60 dark:bg-emerald-900/10'
+        : isRejected
+          ? 'border-gray-200 dark:border-gray-700'
+          : 'border-blue-100 bg-blue-50/60 dark:border-blue-900/40 dark:bg-blue-900/10'
+    ].join(' ')
+
+    return (
+      <div key={application.id} className={cardClasses}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className={`relative flex h-12 w-12 items-center justify-center rounded-full ${isAccepted ? 'bg-emerald-500' : 'bg-blue-500'} text-white font-semibold`}>
+              {applicant?.avatar_url ? (
+                <img
+                  src={applicant.avatar_url}
+                  alt={applicant.full_name}
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              ) : (
+                getInitials(applicant?.full_name)
+              )}
+              {isOwnApplication && !isTaskOwner && (
+                <span className="absolute -bottom-1 -right-1 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 shadow">
+                  Вие
+                </span>
+              )}
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                  {applicant?.full_name || 'Потребител'}
+                </h4>
+                {renderStatusBadge(application.status)}
+              </div>
+              <div className="mt-1 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+                {applicant?.rating !== null && applicant?.rating !== undefined && (
+                  <span className="inline-flex items-center gap-1">
+                    <Star size={14} className="text-yellow-500 fill-current" />
+                    {applicant.rating.toFixed(1)} ({applicant.total_reviews || 0} отзива)
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1">
+                  <Clock size={14} />
+                  Кандидатствал {formatRelativeTime(application.created_at)}
+                </span>
+              </div>
+              {application.message && (
+                <p className="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+                  {application.message}
+                </p>
+              )}
+              {proposedPriceLabel && (
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-gray-900/40 dark:text-blue-200">
+                  <DollarSign size={12} />
+                  Предложение: {proposedPriceLabel}
+                </div>
+              )}
+            </div>
+          </div>
+          {isTaskOwner && isAccepted && (
+            <button
+              onClick={() => handleContactApplicant(application.user_id)}
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-300 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-700 dark:text-emerald-200 dark:hover:bg-emerald-900/30"
+            >
+              <MessageSquare size={14} />
+              Свържи се с изпълнителя
+            </button>
+          )}
+        </div>
+
+        {canModerate && (
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              onClick={() => handleApplicationStatusChange(application.id, 'accepted')}
+              disabled={acceptLoading}
+              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400"
+            >
+              {acceptLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
+                  Одобряване...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={14} />
+                  Одобри кандидат
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => handleApplicationStatusChange(application.id, 'rejected')}
+              disabled={rejectLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+            >
+              {rejectLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current" />
+                  Отхвърляне...
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={14} />
+                  Отхвърли
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   if (isLoading || authLoading) {
     return (
@@ -552,147 +731,64 @@ export default function TaskDetailPage() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {applications.map((application) => {
-                    const isAccepted = application.status === 'accepted'
-                    const isRejected = application.status === 'rejected'
-                    const isPending = application.status === 'pending'
-                    const ratingValue = application.user?.rating !== null && application.user?.rating !== undefined
-                      ? Number(application.user.rating)
-                      : null
-                    const totalReviews = application.user?.total_reviews ?? 0
-                    const proposedPrice = application.proposed_price !== null && application.proposed_price !== undefined
-                      ? `${Number(application.proposed_price).toFixed(2)} лв`
-                      : null
+                <div className="space-y-6">
+                  {isTaskOwner && (
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-800 dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-200">
+                      След одобрение кандидатът автоматично получава достъп до чата, останалите се поместват в история. Можете да променяте решението си по всяко време.
+                    </div>
+                  )}
 
-                    return (
-                      <div
-                        key={application.id}
-                        className={`rounded-xl border p-5 transition-shadow ${
-                          isAccepted
-                            ? 'border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/30'
-                            : isRejected
-                              ? 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/40'
-                              : 'border-gray-200 bg-gray-50 hover:shadow-md dark:border-gray-700 dark:bg-gray-800/60'
-                        }`}
-                      >
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="flex items-start gap-3">
-                            {application.user?.avatar_url ? (
-                              <img
-                                src={application.user.avatar_url}
-                                alt={application.user.full_name || 'Кандидат'}
-                                className="h-12 w-12 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                              />
-                            ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 font-semibold text-white">
-                                {getInitials(application.user?.full_name)}
-                              </div>
-                            )}
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-semibold text-gray-900 dark:text-gray-100">
-                                  {application.user?.full_name || 'Потребител'}
-                                </span>
-                                {ratingValue !== null && !Number.isNaN(ratingValue) && (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-200">
-                                    <Star size={12} className="fill-current" />
-                                    {ratingValue.toFixed(1)}
-                                    <span className="text-gray-500 dark:text-gray-400">({totalReviews})</span>
-                                  </span>
-                                )}
-                              </div>
-                              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                {formatRelativeTime(application.created_at)}
-                              </p>
-                            </div>
-                          </div>
-
-                          {proposedPrice && (
-                            <div className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-semibold text-blue-700 dark:border-blue-900 dark:bg-gray-900/40 dark:text-blue-200">
-                              Предложение: {proposedPrice}
-                            </div>
-                          )}
-                        </div>
-
-                        {application.message && (
-                          <p className="mt-4 whitespace-pre-line leading-relaxed text-gray-700 dark:text-gray-300">
-                            {application.message}
-                          </p>
-                        )}
-
-                        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 dark:bg-gray-900/40">
-                            <MessageSquare size={12} />
-                            {isPending && 'Очаква одобрение'}
-                            {isAccepted && 'Кандидатът е назначен'}
-                            {isRejected && 'Отхвърлена кандидатура'}
-                          </span>
-
-                          {isTaskOwner && isAccepted && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
-                              <CheckCircle size={12} />
-                              Назначен изпълнител
-                            </span>
-                          )}
-                        </div>
-
-                        {isTaskOwner && (
-                          <div className="mt-4 flex flex-wrap gap-3">
-                            <button
-                              onClick={() => handleApplicationStatusChange(application.id, 'accepted')}
-                              disabled={
-                                isAccepted ||
-                                applicationActionId === application.id && applicationActionStatus !== null
-                              }
-                              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-                                isAccepted
-                                  ? 'cursor-default bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200'
-                                  : 'bg-green-600 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400'
-                              }`}
-                            >
-                              {applicationActionId === application.id && applicationActionStatus === 'accepted' ? (
-                                <>
-                                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
-                                  Одобряване...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle size={14} />
-                                  {isAccepted ? 'Одобрена' : 'Одобри кандидат'}
-                                </>
-                              )}
-                            </button>
-
-                            <button
-                              onClick={() => handleApplicationStatusChange(application.id, 'rejected')}
-                              disabled={
-                                isRejected ||
-                                applicationActionId === application.id && applicationActionStatus !== null
-                              }
-                              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-                                isRejected
-                                  ? 'cursor-default border border-gray-300 bg-gray-100 text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400'
-                                  : 'border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800'
-                              }`}
-                            >
-                              {applicationActionId === application.id && applicationActionStatus === 'rejected' ? (
-                                <>
-                                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current" />
-                                  Отхвърляне...
-                                </>
-                              ) : (
-                                <>
-                                  <AlertCircle size={14} />
-                                  {isRejected ? 'Отхвърлена' : 'Отхвърли'}
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        )}
+                  {acceptedApplications.length > 0 && (
+                    <section className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-base font-semibold text-emerald-800 dark:text-emerald-200">
+                          Назначени изпълнители
+                        </h4>
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
+                          {acceptedApplications.length}
+                        </span>
                       </div>
-                    )
-                  })}
+                      <div className="space-y-3">
+                        {acceptedApplications.map((application) => renderApplicationCard(application))}
+                      </div>
+                    </section>
+                  )}
+
+                  <section className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                        Кандидатури в изчакване
+                      </h4>
+                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                        {pendingApplications.length}
+                      </span>
+                    </div>
+                    {pendingApplications.length > 0 ? (
+                      <div className="space-y-3">
+                        {pendingApplications.map((application) => renderApplicationCard(application))}
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                        Няма кандидатури, които очакват вашето решение.
+                      </div>
+                    )}
+                  </section>
+
+                  {rejectedApplications.length > 0 && (
+                    <section>
+                      <details className="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                        <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          История на отхвърлените кандидати
+                          <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                            {rejectedApplications.length}
+                          </span>
+                        </summary>
+                        <div className="mt-4 space-y-3">
+                          {rejectedApplications.map((application) => renderApplicationCard(application))}
+                        </div>
+                      </details>
+                    </section>
+                  )}
                 </div>
               )}
             </div>
