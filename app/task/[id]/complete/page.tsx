@@ -420,53 +420,105 @@ export default function CompleteTaskPage() {
           </div>
 
           {/* Status */}
-          <div className="space-y-4 mb-8">
-            {/* Current User Status */}
-            <div className={`p-4 rounded-lg border-2 ${
-              hasUserConfirmed
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
-            }`}>
-              <div className="flex items-center gap-3">
-                {hasUserConfirmed ? (
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-                ) : (
-                  <Clock className="h-6 w-6 text-gray-400" />
-                )}
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
-                    {userRole === 'poster' ? 'Вие (Работодател)' : 'Вие (Изпълнител)'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {hasUserConfirmed ? 'Потвърдихте завършването' : 'Чака потвърждение'}
-                  </p>
+          <div className="space-y-6 mb-8">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Current User Status */}
+              <div className={`p-4 rounded-2xl border ${
+                hasUserConfirmed
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                  : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
+              }`}>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    {hasUserConfirmed ? (
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {userRole === 'poster' ? 'Вие (Работодател)' : 'Вие (Изпълнител)'}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {hasUserConfirmed ? 'Потвърдихте завършването' : 'Чака потвърждение'}
+                    </p>
+                  </div>
+                  <div className="hidden sm:block">
+                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                      hasUserConfirmed
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                        : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                    }`}>
+                      {hasUserConfirmed ? 'Готово' : 'Изчаква'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Other Party Status */}
+              <div className={`p-4 rounded-2xl border ${
+                hasOtherPartyConfirmed
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                  : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
+              }`}>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    {hasOtherPartyConfirmed ? (
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {userRole === 'poster' ? 'Изпълнител' : 'Работодател'}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {hasOtherPartyConfirmed ? 'Потвърди завършването' : 'Чака потвърждение'}
+                    </p>
+                  </div>
+                  <div className="hidden sm:block">
+                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                      hasOtherPartyConfirmed
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                        : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                    }`}>
+                      {hasOtherPartyConfirmed ? 'Готово' : 'Изчаква'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Other Party Status */}
-            <div className={`p-4 rounded-lg border-2 ${
-              hasOtherPartyConfirmed
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
-            }`}>
-              <div className="flex items-center gap-3">
-                {hasOtherPartyConfirmed ? (
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-                ) : (
-                  <Clock className="h-6 w-6 text-gray-400" />
-                )}
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
-                    {userRole === 'poster' ? 'Изпълнител' : 'Работодател'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {hasOtherPartyConfirmed ? 'Потвърди завършването' : 'Чака потвърждение'}
-                  </p>
-                </div>
+            <div className="h-2 flex rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
+              <div className="flex-1 bg-green-500 dark:bg-green-600 transition-all duration-500" />
+              <div className={`flex-1 transition-all duration-500 ${hasOtherPartyConfirmed ? 'bg-green-500 dark:bg-green-600' : 'bg-gray-200 dark:bg-gray-800'}`} />
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-xs font-semibold">1</span>
+                <span>{hasUserConfirmed ? 'Вашето потвърждение е записано' : 'Очаква се вашето потвърждение'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${hasOtherPartyConfirmed ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400'} text-xs font-semibold`}>2</span>
+                <span>{hasOtherPartyConfirmed ? 'Другата страна потвърди' : 'Чака се потвърждение от другата страна'}</span>
               </div>
             </div>
           </div>
+
+          {pendingAutoFeedback && autoFeedbackDate && (
+            <div className="mb-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                <Clock className="h-4 w-4" />
+                <span>Очаквано отключване на обратната връзка: {autoFeedbackDate.toLocaleDateString('bg-BG')}</span>
+              </div>
+              <p className="mt-2 text-xs text-blue-700 dark:text-blue-200">
+                Ако другата страна не потвърди до тази дата, автоматично ще можете да оставите оценка и отзив.
+              </p>
+            </div>
+          )}
 
           {/* Workers List (for poster) */}
           {userRole === 'poster' && acceptedApplicants.length > 0 && (
@@ -498,7 +550,7 @@ export default function CompleteTaskPage() {
                             title={canLeaveFeedback ? undefined : 'Оценката е активна след завършване на задачата'}
                             className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full transition-colors ${
                               canLeaveFeedback
-                                ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-900/30'
+                                ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-900/30 shadow-sm ring-2 ring-yellow-200 dark:ring-yellow-700'
                                 : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-900/40 dark:text-gray-500'
                             }`}
                           >
@@ -515,7 +567,7 @@ export default function CompleteTaskPage() {
                             title={canLeaveFeedback ? undefined : 'Отзивите са активни след завършване на задачата'}
                             className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full transition-colors ${
                               canLeaveFeedback
-                                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-900/30'
+                                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-900/30 shadow-sm ring-2 ring-blue-200 dark:ring-blue-700'
                                 : 'bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-900/40 dark:text-gray-500'
                             }`}
                           >
@@ -528,6 +580,11 @@ export default function CompleteTaskPage() {
                   </div>
                 ))}
               </div>
+              {!canLeaveFeedback && (
+                <p className="mt-3 text-xs text-blue-700 dark:text-blue-200">
+                  След двустранно потвърждение или 7 дни след вашето потвърждение, ще можете да оставите оценка и отзив за избраните изпълнители.
+                </p>
+              )}
             </div>
           )}
 
@@ -606,11 +663,6 @@ export default function CompleteTaskPage() {
                   <li>След това можете да оставите отзиви един за друг</li>
                   <li>Ако другата страна не реагира, след 7 дни ще можете да оставите рейтинг автоматично</li>
                 </ul>
-                {pendingAutoFeedback && autoFeedbackDate && (
-                  <p className="mt-3 text-xs text-yellow-700 dark:text-yellow-300">
-                    Очаквана дата за автоматично отключване на обратната връзка: {autoFeedbackDate.toLocaleDateString('bg-BG')}.
-                  </p>
-                )}
               </div>
             </div>
           </div>
