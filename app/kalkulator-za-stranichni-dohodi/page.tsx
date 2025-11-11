@@ -1,4 +1,7 @@
+ 'use client';
+
 import Link from 'next/link';
+import { useMemo, useState } from 'react';
 
 const stats = [
   { label: 'Средна ставка', value: '35 лв./ч.', description: 'за популярни услуги като монтаж, почистване и куриерски задачи.' },
@@ -24,7 +27,79 @@ const categories = [
   },
 ];
 
+const skillRates: Record<
+  string,
+  {
+    label: string;
+    hourly: number;
+    complexity: 'начално' | 'средно' | 'високо';
+  }
+> = {
+  Почистване: { label: 'Почистване', hourly: 15, complexity: 'начално' },
+  'Монтаж и ремонт': { label: 'Монтаж и ремонт', hourly: 32, complexity: 'високо' },
+  Доставка: { label: 'Доставка', hourly: 18, complexity: 'начално' },
+  Градинарство: { label: 'Градинарство', hourly: 22, complexity: 'средно' },
+  'IT & дигитални услуги': { label: 'IT & дигитални услуги', hourly: 38, complexity: 'високо' },
+};
+
+const locationMultipliers: Record<string, number> = {
+  София: 1.15,
+  Пловдив: 1.05,
+  Варна: 1.08,
+  Бургас: 1.03,
+  Дистанционно: 1.1,
+};
+
+type CalculatorResult = {
+  hourly: number;
+  weekly: number;
+  monthly: number;
+  annual: number;
+  complexity: string;
+  hoursPerWeek: number;
+};
+
+const bgCurrency = (value: number) =>
+  new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'BGN', maximumFractionDigits: 0 }).format(value);
+
 export default function SideHustleCalculatorPage() {
+  const [selectedSkill, setSelectedSkill] = useState<keyof typeof skillRates>('Почистване');
+  const [hoursPerWeek, setHoursPerWeek] = useState<number>(10);
+  const [selectedLocation, setSelectedLocation] = useState<keyof typeof locationMultipliers>('София');
+  const [result, setResult] = useState<CalculatorResult | null>(null);
+
+  const skillOptions = useMemo(() => Object.keys(skillRates) as Array<keyof typeof skillRates>, []);
+  const locationOptions = useMemo(() => Object.keys(locationMultipliers) as Array<keyof typeof locationMultipliers>, []);
+
+  const handleCalculate = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const base = skillRates[selectedSkill];
+    const locationMultiplier = locationMultipliers[selectedLocation] ?? 1;
+    const safeHours = Number.isFinite(hoursPerWeek) && hoursPerWeek > 0 ? hoursPerWeek : 1;
+
+    const hourly = Math.min(Math.max(base.hourly * locationMultiplier, 10), 40);
+    const weekly = hourly * safeHours;
+    const monthly = weekly * 4.3;
+    const annual = monthly * 12;
+
+    setResult({
+      hourly,
+      weekly,
+      monthly,
+      annual,
+      complexity: base.complexity,
+      hoursPerWeek: safeHours,
+    });
+  };
+
+  const resultSummary = useMemo(() => {
+    if (!result) return '';
+
+    const target = result.hoursPerWeek >= 20 ? 'допълнителен, но стабилен доход' : 'гъвкав доход за свободни уикенди';
+    return `При ${result.hoursPerWeek} часа седмично можете да постигнете ${bgCurrency(result.monthly)} на месец – идеално за ${target}.`;
+  }, [result]);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <section className="bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white">
@@ -62,15 +137,19 @@ export default function SideHustleCalculatorPage() {
               <p className="mt-2 text-sm text-slate-600">
                 Попълнете полетата и заменете placeholder данните с реалните ви стойности, когато сте готови.
               </p>
-              <form className="mt-6 space-y-4">
+              <form className="mt-6 space-y-4" onSubmit={handleCalculate}>
                 <div>
                   <label className="text-sm font-medium text-slate-700">Изберете умение</label>
-                  <select className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-400 focus:outline-none">
-                    <option>Почистване</option>
-                    <option>Монтаж и ремонт</option>
-                    <option>Доставка</option>
-                    <option>Градинарство</option>
-                    <option>IT & дигитални услуги</option>
+                  <select
+                    value={selectedSkill}
+                    onChange={(event) => setSelectedSkill(event.target.value as keyof typeof skillRates)}
+                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-400 focus:outline-none"
+                  >
+                    {skillOptions.map((skill) => (
+                      <option key={skill} value={skill}>
+                        {skillRates[skill].label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -79,33 +158,74 @@ export default function SideHustleCalculatorPage() {
                     type="number"
                     min={1}
                     max={40}
-                    defaultValue={10}
+                    value={hoursPerWeek}
+                    onChange={(event) => setHoursPerWeek(Number(event.target.value))}
                     className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-400 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-700">Предпочитана локация</label>
-                  <select className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-400 focus:outline-none">
-                    <option>София</option>
-                    <option>Пловдив</option>
-                    <option>Варна</option>
-                    <option>Бургас</option>
-                    <option>Дистанционно</option>
+                  <select
+                    value={selectedLocation}
+                    onChange={(event) => setSelectedLocation(event.target.value as keyof typeof locationMultipliers)}
+                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-400 focus:outline-none"
+                  >
+                    {locationOptions.map((location) => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <button
-                  type="button"
+                  type="submit"
                   className="w-full rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800"
                 >
                   Изчислете потенциален доход
                 </button>
               </form>
 
-              <div className="mt-6 rounded-xl border border-dashed border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-900">
-                Тук може да визуализирате резултатите от калкулацията – диаграма, обобщение по седмица или
-                предложения за популярни задачи.
-              </div>
+              {result ? (
+                <div className="mt-6 space-y-4 rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-blue-900">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+                        Прогнозни приходи
+                      </h3>
+                      <p className="mt-1 text-xs text-blue-600">
+                        Сложност на задачите: {skillRates[selectedSkill].complexity}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-white px-4 py-2 text-center shadow-sm">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">Почасово</p>
+                      <p className="text-lg font-semibold text-blue-800">{bgCurrency(result.hourly)}</p>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-lg bg-white/80 p-3 text-center shadow-sm">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">Седмично</p>
+                      <p className="text-lg font-semibold text-blue-800">{bgCurrency(result.weekly)}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/80 p-3 text-center shadow-sm">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">Месечно</p>
+                      <p className="text-lg font-semibold text-blue-800">{bgCurrency(result.monthly)}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/80 p-3 text-center shadow-sm">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">Годишно</p>
+                      <p className="text-lg font-semibold text-blue-800">{bgCurrency(result.annual)}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-blue-900">{resultSummary}</p>
+                  <p className="text-xs text-blue-600">
+                    *Тези стойности са демонстративни и ще бъдат актуализирани с реални данни при пускането на официалния калкулатор.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-6 rounded-xl border border-dashed border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-900">
+                  Тук може да визуализирате резултатите от калкулацията – диаграма, обобщение по седмица или предложения за популярни задачи.
+                </div>
+              )}
             </div>
           </div>
         </div>
