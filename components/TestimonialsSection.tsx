@@ -3,21 +3,25 @@
 import { useState, useEffect } from 'react'
 import { Star, Quote, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import OptimizedImage from './OptimizedImage'
 
 interface Testimonial {
   id: string
   name: string
-  avatar: string
+  avatar: string | null
   role: 'task_giver' | 'task_executor'
   rating: number
   text: string
   task: string
+  taskCategory?: string | null
+  taskLocation?: string | null
   earnings?: string
   timeframe?: string
   verified: boolean
 }
 
-const testimonials: Testimonial[] = [
+// Fallback testimonials if no real data
+const fallbackTestimonials: Testimonial[] = [
   {
     id: '1',
     name: 'Мария Иванова',
@@ -70,17 +74,61 @@ export default function TestimonialsSection() {
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(fallbackTestimonials)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load real testimonials from API
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        const response = await fetch('/api/testimonials?limit=6&minRating=4')
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success && result.data && result.data.length > 0) {
+            // Transform API data to Testimonial format
+            const transformedTestimonials: Testimonial[] = result.data.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              avatar: item.avatar || null,
+              role: 'task_giver' as const, // Default to task_giver, can be determined from context if needed
+              rating: item.rating,
+              text: item.testimonialText || item.comment || item.title,
+              task: item.taskCategory || item.taskLocation || 'Задача',
+              taskCategory: item.taskCategory,
+              taskLocation: item.taskLocation,
+              verified: true
+            }))
+            setTestimonials(transformedTestimonials)
+          } else {
+            // Use fallback if no real data
+            setTestimonials(fallbackTestimonials)
+          }
+        } else {
+          // Use fallback if API fails
+          setTestimonials(fallbackTestimonials)
+        }
+      } catch (error) {
+        console.error('Error loading testimonials:', error)
+        // Use fallback on error
+        setTestimonials(fallbackTestimonials)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadTestimonials()
+  }, [])
 
   // Auto-play carousel
   useEffect(() => {
-    if (!isAutoPlaying) return
+    if (!isAutoPlaying || testimonials.length === 0) return
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [isAutoPlaying])
+  }, [isAutoPlaying, testimonials.length])
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length)
@@ -133,11 +181,19 @@ export default function TestimonialsSection() {
             <div className="relative z-10">
               {/* User info */}
               <div className="flex items-center gap-4 mb-6">
-                <img
-                  src={testimonials[currentIndex].avatar}
-                  alt={testimonials[currentIndex].name}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-blue-100 dark:border-blue-900"
-                />
+                {testimonials[currentIndex].avatar ? (
+                  <OptimizedImage
+                    src={testimonials[currentIndex].avatar}
+                    alt={testimonials[currentIndex].name}
+                    width={80}
+                    height={80}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-blue-100 dark:border-blue-900"
+                  />
+                ) : (
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-blue-100 dark:border-blue-900 flex items-center justify-center text-2xl font-bold text-gray-600 dark:text-gray-300">
+                    {testimonials[currentIndex].name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
