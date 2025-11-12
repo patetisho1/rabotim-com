@@ -217,7 +217,8 @@ export async function PATCH(request: NextRequest) {
         .neq('id', application_id)
 
       if (rejectOthersError) {
-        logger.warn('Error rejecting other applications', rejectOthersError, { task_id, application_id })
+        const error = rejectOthersError instanceof Error ? rejectOthersError : new Error(String(rejectOthersError))
+        logger.warn('Error rejecting other applications', error, { task_id, application_id })
       }
 
       const { error: updateTaskStatusError } = await supabase
@@ -226,7 +227,8 @@ export async function PATCH(request: NextRequest) {
         .eq('id', task_id)
 
       if (updateTaskStatusError) {
-        logger.warn('Error updating task status', updateTaskStatusError, { task_id, status: 'assigned' })
+        const error = updateTaskStatusError instanceof Error ? updateTaskStatusError : new Error(String(updateTaskStatusError))
+        logger.warn('Error updating task status', error, { task_id, status: 'assigned' })
       }
     } else if (status === 'rejected') {
       // Ако отказваме кандидатура и няма други приети → връщаме задачата в активна
@@ -243,7 +245,8 @@ export async function PATCH(request: NextRequest) {
           .eq('id', task_id)
 
         if (revertTaskStatusError) {
-          logger.warn('Error reverting task status', revertTaskStatusError, { task_id, status: 'active' })
+          const error = revertTaskStatusError instanceof Error ? revertTaskStatusError : new Error(String(revertTaskStatusError))
+          logger.warn('Error reverting task status', error, { task_id, status: 'active' })
         }
       }
     }
@@ -267,7 +270,8 @@ export async function PATCH(request: NextRequest) {
       }])
 
     if (notificationError) {
-      logger.warn('Error creating notification', notificationError, { application_id, status })
+      const error = notificationError instanceof Error ? notificationError : new Error(String(notificationError))
+      logger.warn('Error creating notification', error, { application_id, status })
     }
 
     logger.info('Application status updated', { application_id, status, task_id, requester_id })

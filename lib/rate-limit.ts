@@ -37,15 +37,24 @@ const store = new Map<string, { count: number; resetTime: number }>()
 // Cleanup function - called on each request to avoid stale entries
 function cleanupStore() {
   const now = Date.now()
-  for (const [key, value] of store.entries()) {
+  const keysToDelete: string[] = []
+  
+  // Collect keys to delete
+  store.forEach((value, key) => {
     if (value.resetTime < now) {
-      store.delete(key)
+      keysToDelete.push(key)
     }
-  }
+  })
+  
+  // Delete expired entries
+  keysToDelete.forEach(key => store.delete(key))
   
   // Limit store size to prevent memory issues (keep max 1000 entries)
   if (store.size > 1000) {
-    const entries = Array.from(store.entries())
+    const entries: Array<[string, { count: number; resetTime: number }]> = []
+    store.forEach((value, key) => {
+      entries.push([key, value])
+    })
     entries.sort((a, b) => a[1].resetTime - b[1].resetTime)
     const toDelete = entries.slice(0, store.size - 1000)
     toDelete.forEach(([key]) => store.delete(key))
@@ -115,7 +124,8 @@ export async function rateLimit(
   
   if (entry.count > config.maxRequests) {
     // Rate limit exceeded
-    logger.warn('Rate limit exceeded', {
+    const error = new Error(`Rate limit exceeded: ${entry.count}/${config.maxRequests} requests`)
+    logger.warn('Rate limit exceeded', error, {
       clientId,
       count: entry.count,
       maxRequests: config.maxRequests,

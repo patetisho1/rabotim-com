@@ -17,7 +17,8 @@ import {
   MapPin,
   DollarSign,
   User,
-  Shield
+  Shield,
+  Activity
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -243,6 +244,14 @@ export default function TaskManagement() {
       case 'cancelled':
         return 'Отказана'
       case 'in_progress':
+        return 'В процес'
+      case 'assigned':
+        return 'Назначена'
+      default:
+        return status
+    }
+  }
+
   const openLogsModal = async (task: Task) => {
     setLogsModalTask(task)
     setLogsLoading(true)
@@ -376,11 +385,6 @@ export default function TaskManagement() {
         )}
       </div>
     )
-  }
-        return 'В процес'
-      default:
-        return status
-    }
   }
 
   return (

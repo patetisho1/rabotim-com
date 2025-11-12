@@ -77,11 +77,21 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-      logger.error('Error fetching tasks', error, { category, location, status, userId })
+      logger.error('Error fetching tasks', error, { 
+        category: category || undefined, 
+        location: location || undefined, 
+        status: status || undefined, 
+        userId: userId || undefined 
+      })
       return handleApiError(error, { endpoint: 'GET /api/tasks' })
     }
 
-    logger.info('Tasks fetched successfully', { count: data?.length || 0, category, location, status })
+    logger.info('Tasks fetched successfully', { 
+      count: data?.length || 0, 
+      category: category || undefined, 
+      location: location || undefined, 
+      status: status || undefined 
+    })
 
     return NextResponse.json({ tasks: data || [] })
   } catch (error) {
@@ -183,7 +193,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError) {
-      logger.warn('Error loading user profile for moderation', undefined, { userId: user.id, error: profileError })
+      const error = profileError instanceof Error ? profileError : new Error(String(profileError))
+      logger.warn('Error loading user profile for moderation', error, { userId: user.id })
     }
 
     const { count: tasksCount } = await supabase

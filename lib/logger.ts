@@ -66,7 +66,7 @@ class Logger {
     // In production, could send to logging service
   }
 
-  warn(message: string, context?: LogContext, error?: Error) {
+  warn(message: string, error?: Error, context?: LogContext) {
     if (!this.shouldLog('warn')) return
     
     const formattedMessage = this.formatMessage('warn', message, context, error)

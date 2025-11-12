@@ -212,11 +212,12 @@ export async function PATCH(request: Request) {
       throw error
     }
 
+    // Определяне на финалния статус
+    const statusAfter = updates.status || data.status
+    const shouldLogStatusChange = updates.status && existingTask?.status !== updates.status
+
     // Запис на модерационен лог
     try {
-      const statusAfter = updates.status || data.status
-      const shouldLogStatusChange = updates.status && existingTask?.status !== updates.status
-
       await supabase.from('task_moderation_logs').insert({
         task_id: taskId,
         moderated_by: user.id,
