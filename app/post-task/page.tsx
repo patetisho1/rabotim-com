@@ -13,6 +13,7 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 const categories = [
   { value: 'repair', label: 'Ремонт' },
@@ -38,7 +39,7 @@ const locations = [
   { value: 'Друго', label: 'Друго' }
 ]
 
-export default function PostTaskPage() {
+function PostTaskPageContent() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -524,5 +525,13 @@ export default function PostTaskPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function PostTaskPage() {
+  return (
+    <ErrorBoundary>
+      <PostTaskPageContent />
+    </ErrorBoundary>
   )
 } 

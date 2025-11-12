@@ -74,31 +74,50 @@ export default class ErrorBoundary extends Component<Props, State> {
     this.setState({ isOnline: false })
   }
 
-  logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
+  logErrorToService = async (error: Error, errorInfo: ErrorInfo) => {
     // Implement error logging to your preferred service
     // Example: Sentry, LogRocket, etc.
     try {
-      // Send error data to your analytics service
-      const errorData = {
-        message: error.message,
-        stack: error.stack,
+      // Import logger dynamically to avoid SSR issues
+      const { logger } = await import('@/lib/logger')
+      
+      // Log error to centralized logging system
+      logger.error('ErrorBoundary caught an error', error, {
         componentStack: errorInfo.componentStack,
         timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        isOnline: navigator.onLine
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+        url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+        isOnline: typeof navigator !== 'undefined' ? navigator.onLine : false,
+        errorName: error.name,
+        errorMessage: error.message
+      })
+      
+      // Optionally send to API endpoint for error tracking
+      if (process.env.NODE_ENV === 'production') {
+        try {
+          await fetch('/api/errors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: error.message,
+              stack: error.stack,
+              componentStack: errorInfo.componentStack,
+              timestamp: new Date().toISOString(),
+              userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+              url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+              isOnline: typeof navigator !== 'undefined' ? navigator.onLine : false,
+              errorName: error.name
+            })
+          })
+        } catch (apiError) {
+          // Silently fail if API endpoint doesn't exist or fails
+          logger.warn('Failed to send error to API', apiError as Error)
+        }
       }
-      
-      // Example: Send to your API endpoint
-      // fetch('/api/errors', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(errorData)
-      // })
-      
-      console.log('Error logged:', errorData)
     } catch (loggingError) {
+      // Fallback to console if logger fails
       console.error('Failed to log error:', loggingError)
+      console.error('Original error:', error, errorInfo)
     }
   }
 

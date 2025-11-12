@@ -174,15 +174,18 @@
 - **Приоритет:** Нисък (marketing) ✅ **ЗАВЪРШЕНО**
 
 ### Error Boundary Implementation
-- [ ] Проверка дали ErrorBoundary компонент съществува
-- [ ] Обвиване на критични секции с ErrorBoundary:
+- [x] Проверка дали ErrorBoundary компонент съществува
+- [x] Обвиване на критични секции с ErrorBoundary:
   - Task detail page
   - Task creation form
   - Messaging компонент
   - Profile page
-- [ ] Fallback UI за критични грешки
-- [ ] Error reporting към logging система
-- **Приоритет:** Среден
+- [x] Fallback UI за критични грешки
+- [x] Error reporting към logging система
+- [x] Интеграция на ErrorBoundary с logger.ts
+- [x] Динамичен импорт на logger за избегване на SSR проблеми
+- [x] Опционално изпращане на грешки към /api/errors endpoint в production
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
 
 ### Testing Infrastructure
 - [ ] Setup на testing framework (Jest + React Testing Library)

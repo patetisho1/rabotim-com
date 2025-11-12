@@ -16,6 +16,7 @@ import SocialShare from '@/components/SocialShare'
 import OptimizedImage from '@/components/OptimizedImage'
 import { ImageGallerySkeleton, UserAvatarSkeleton } from '@/components/SkeletonLoader'
 import DynamicMetaTags from '@/components/DynamicMetaTags'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 interface Task {
   id: string
@@ -60,7 +61,7 @@ interface TaskApplication {
   } | null
 }
 
-export default function TaskDetailPage() {
+function TaskDetailPageContent() {
   const router = useRouter()
   const params = useParams()
   const taskId = params.id as string
@@ -996,5 +997,13 @@ export default function TaskDetailPage() {
       {/* Structured Data */}
       {task && <JobPostingStructuredData task={task} />}
     </div>
+  )
+}
+
+export default function TaskDetailPage() {
+  return (
+    <ErrorBoundary>
+      <TaskDetailPageContent />
+    </ErrorBoundary>
   )
 }
