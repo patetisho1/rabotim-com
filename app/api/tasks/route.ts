@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const priceMax = searchParams.get('priceMax')
     const status = searchParams.get('status')
     const userId = searchParams.get('userId')
+    const limit = searchParams.get('limit')
 
     let query = supabase
       .from('tasks')
@@ -42,7 +43,8 @@ export async function GET(request: NextRequest) {
           id,
           full_name,
           avatar_url,
-          verified
+          verified,
+          rating
         )
       `)
       .order('created_at', { ascending: false })
@@ -72,6 +74,11 @@ export async function GET(request: NextRequest) {
     // Филтър по userId (за "Моите задачи")
     if (userId) {
       query = query.eq('user_id', userId)
+    }
+
+    // Лимит на броя резултати
+    if (limit) {
+      query = query.limit(parseInt(limit))
     }
 
     const { data, error } = await query

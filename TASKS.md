@@ -153,13 +153,16 @@
 
 ### Homepage Real Data
 - [x] Зареждане на реални статистики от API/Supabase (брой задачи, потребители, градове, завършени)
-- [ ] Зареждане на реални задачи за homepage вместо hardcoded данни
+- [x] Зареждане на реални задачи за homepage вместо hardcoded данни
 - [x] Зареждане на реални testimonials от базата данни
 - [x] Fallback към placeholder данни ако няма реални
 - [x] Loading states за всички async операции
 - [x] Създаден /api/testimonials endpoint за verified reviews
 - [x] Обновен TestimonialsSection да зарежда реални данни
-- **Приоритет:** Среден ✅ **ЧАСТИЧНО ЗАВЪРШЕНО** (остава зареждане на реални задачи)
+- [x] Добавен limit параметър в /api/tasks endpoint
+- [x] Интегриран OptimizedImage компонент в homepage task cards
+- [x] Добавен loading state и fallback UI за задачи
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
 
 ### Homepage Testimonials секция
 - [x] Използване на съществуващата reviews система (няма нужда от нова таблица)

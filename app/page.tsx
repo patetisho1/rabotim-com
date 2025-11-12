@@ -23,6 +23,8 @@ export default function HomePage() {
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [selectedJobCategory, setSelectedJobCategory] = useState('Всички')
+  const [homepageTasks, setHomepageTasks] = useState<any[]>([])
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true)
 
   // Refs for scrolling animation
   const containerRef = useRef<HTMLDivElement>(null)
@@ -255,6 +257,53 @@ export default function HomePage() {
     }
     
     loadStats()
+  }, [])
+
+  // Load real tasks for homepage
+  useEffect(() => {
+    const loadHomepageTasks = async () => {
+      setIsLoadingTasks(true)
+      try {
+        const response = await fetch('/api/tasks?status=active&limit=30')
+        if (response.ok) {
+          const result = await response.json()
+          if (result.tasks && result.tasks.length > 0) {
+            // Transform API tasks to homepage format
+            const transformedTasks = result.tasks.map((task: any) => ({
+              id: task.id,
+              title: task.title,
+              description: task.description,
+              price: task.price,
+              priceType: task.price_type || 'fixed',
+              location: task.location,
+              category: task.category,
+              postedBy: task.profiles?.full_name || 'Потребител',
+              rating: task.profiles?.rating || 4.5,
+              image: task.images && task.images.length > 0 ? task.images[0] : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop',
+              avatar: task.profiles?.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face',
+              images: task.images || [],
+              urgent: task.urgent || false,
+              createdAt: task.created_at
+            }))
+            setHomepageTasks(transformedTasks)
+          } else {
+            // Keep empty array, will fallback to activeJobListings
+            setHomepageTasks([])
+          }
+        } else {
+          // Keep empty array, will fallback to activeJobListings
+          setHomepageTasks([])
+        }
+      } catch (error) {
+        console.error('Error loading homepage tasks:', error)
+        // Keep empty array, will fallback to activeJobListings
+        setHomepageTasks([])
+      } finally {
+        setIsLoadingTasks(false)
+      }
+    }
+
+    loadHomepageTasks()
   }, [])
 
   // Auto-scroll effect for service cards
@@ -916,13 +965,14 @@ export default function HomePage() {
     }
   ]
 
-  // Filter jobs based on selected category
+  // Filter jobs based on selected category - use real tasks if available, otherwise fallback to hardcoded
   const filteredJobs = useMemo(() => {
+    const tasksToUse = homepageTasks.length > 0 ? homepageTasks : activeJobListings
     if (selectedJobCategory === 'Всички') {
-      return activeJobListings;
+      return tasksToUse
     }
-    return activeJobListings.filter(job => job.category === selectedJobCategory);
-  }, [selectedJobCategory, activeJobListings]);
+    return tasksToUse.filter((job: any) => job.category === selectedJobCategory)
+  }, [selectedJobCategory, homepageTasks, activeJobListings])
 
   return (
     <div className="min-h-screen bg-white">
@@ -1336,27 +1386,59 @@ export default function HomePage() {
             
             {/* Rotating Job Cards - Two Rows - Mobile Optimized */}
             <div className="space-y-6 md:space-y-8">
-              {/* Top Row - Moving Left */}
-              <div className="relative overflow-hidden">
-                <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-left">
-                  {/* Duplicate the filtered jobs for seamless loop */}
-                  {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
-                    <Link 
-                      key={`${job.id}-${index}`} 
-                      href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
-                    >
-                      <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
-                        <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute top-2 right-2">
-                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                            {job.category}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-2 sm:p-3 md:p-4">
-                        <div className="flex items-center gap-2 mb-2 md:mb-3">
-                          <img src={job.avatar} alt={job.postedBy} className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
+              {isLoadingTasks && homepageTasks.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                  <p className="mt-4 text-gray-600">Зареждане на задачи...</p>
+                </div>
+              ) : filteredJobs.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-600">Няма налични задачи в момента.</p>
+                  <button
+                    onClick={handlePostTask}
+                    className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Публикувай първата задача
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Top Row - Moving Left */}
+                  <div className="relative overflow-hidden">
+                    <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-left">
+                      {/* Duplicate the filtered jobs for seamless loop */}
+                      {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
+                        <Link 
+                          key={`${job.id}-${index}`} 
+                          href={`/task/${job.id}`}
+                          className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+                        >
+                          <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
+                            <OptimizedImage
+                              src={job.image}
+                              alt={job.title}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 192px"
+                              objectFit="cover"
+                            />
+                            <div className="absolute top-2 right-2 z-10">
+                              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                {job.category}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-2 sm:p-3 md:p-4">
+                            <div className="flex items-center gap-2 mb-2 md:mb-3">
+                              <OptimizedImage
+                                src={job.avatar}
+                                alt={job.postedBy}
+                                width={32}
+                                height={32}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200"
+                                sizes="32px"
+                                objectFit="cover"
+                              />
                           <div className="flex-1">
                             <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
                             <div className="text-xs text-gray-500">{job.postedBy}</div>
@@ -1375,32 +1457,47 @@ export default function HomePage() {
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Bottom Row - Moving Right */}
-              <div className="relative overflow-hidden">
-                <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-right">
-                  {/* Duplicate the filtered jobs for seamless loop */}
-                  {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
-                    <Link 
-                      key={`${job.id}-${index + 20}`} 
-                      href={`/tasks?jobId=${job.id}&category=${encodeURIComponent(job.category)}`}
-                      className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
-                    >
-                      <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
-                        <img src={job.image} alt={job.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute top-2 right-2">
-                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                            {job.category}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-2 sm:p-3 md:p-4">
-                        <div className="flex items-center gap-2 mb-2 md:mb-3">
-                          <img src={job.avatar} alt={job.postedBy} className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Row - Moving Right */}
+                  <div className="relative overflow-hidden">
+                    <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-right">
+                      {/* Duplicate the filtered jobs for seamless loop */}
+                      {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
+                        <Link 
+                          key={`${job.id}-${index + 20}`} 
+                          href={`/task/${job.id}`}
+                          className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+                        >
+                          <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
+                            <OptimizedImage
+                              src={job.image}
+                              alt={job.title}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 192px"
+                              objectFit="cover"
+                            />
+                            <div className="absolute top-2 right-2 z-10">
+                              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                {job.category}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-2 sm:p-3 md:p-4">
+                            <div className="flex items-center gap-2 mb-2 md:mb-3">
+                              <OptimizedImage
+                                src={job.avatar}
+                                alt={job.postedBy}
+                                width={32}
+                                height={32}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200"
+                                sizes="32px"
+                                objectFit="cover"
+                              />
                           <div className="flex-1">
                             <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
                             <div className="text-xs text-gray-500">{job.postedBy}</div>
@@ -1419,10 +1516,12 @@ export default function HomePage() {
                           <span className="truncate">{job.location}</span>
                         </div>
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             
             {/* View All Button */}
