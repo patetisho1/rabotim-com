@@ -259,45 +259,84 @@ export default function HomePage() {
     loadStats()
   }, [])
 
-  // Load real tasks for homepage
+  // Category mapping from API category values to UI category labels
+  const categoryMapping: Record<string, string> = {
+    'repair': 'Ремонт',
+    'cleaning': 'Почистване',
+    'delivery': 'Доставка',
+    'tutoring': 'Обучение',
+    'garden': 'Градинарство',
+    'care': 'Грижа',
+    'moving': 'Преместване',
+    'assembly': 'Сглобяване',
+    'it-services': 'IT услуги',
+    'other': 'Друго'
+  }
+
+  // Reverse mapping from UI category labels to API category values
+  const reverseCategoryMapping: Record<string, string[]> = {
+    'Всички': [],
+    'Почистване': ['cleaning'],
+    'Ремонт': ['repair'],
+    'Доставка': ['delivery'],
+    'Градинарство': ['garden'],
+    'Обучение': ['tutoring']
+  }
+
+  // Load real tasks for homepage and merge with mock tasks
   useEffect(() => {
     const loadHomepageTasks = async () => {
       setIsLoadingTasks(true)
       try {
-        const response = await fetch('/api/tasks?status=active&limit=30')
+        // Load all active tasks from API
+        const response = await fetch('/api/tasks?status=active&limit=100')
         if (response.ok) {
           const result = await response.json()
-          if (result.tasks && result.tasks.length > 0) {
-            // Transform API tasks to homepage format
-            const transformedTasks = result.tasks.map((task: any) => ({
-              id: task.id,
-              title: task.title,
-              description: task.description,
-              price: task.price,
-              priceType: task.price_type || 'fixed',
-              location: task.location,
-              category: task.category,
-              postedBy: task.profiles?.full_name || 'Потребител',
-              rating: task.profiles?.rating || 4.5,
-              image: task.images && task.images.length > 0 ? task.images[0] : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop',
-              avatar: task.profiles?.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face',
-              images: task.images || [],
-              urgent: task.urgent || false,
-              createdAt: task.created_at
-            }))
-            setHomepageTasks(transformedTasks)
-          } else {
-            // Keep empty array, will fallback to activeJobListings
-            setHomepageTasks([])
-          }
+          const realTasks = result.tasks || []
+          
+          // Transform API tasks to homepage format with isReal flag
+          const transformedRealTasks = realTasks.map((task: any) => ({
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            price: task.price,
+            priceType: task.price_type || 'fixed',
+            location: task.location,
+            category: categoryMapping[task.category] || task.category,
+            postedBy: task.profiles?.full_name || 'Потребител',
+            rating: task.profiles?.rating || 4.5,
+            image: task.images && task.images.length > 0 ? task.images[0] : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop',
+            avatar: task.profiles?.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face',
+            images: task.images || [],
+            urgent: task.urgent || false,
+            createdAt: task.created_at,
+            isReal: true // Mark as real task
+          }))
+
+          // Mark mock tasks with isDemo flag
+          const mockTasksWithDemo = activeJobListings.map((task: any) => ({
+            ...task,
+            isDemo: true // Mark as demo task
+          }))
+
+          // Combine real and mock tasks
+          setHomepageTasks([...transformedRealTasks, ...mockTasksWithDemo])
         } else {
-          // Keep empty array, will fallback to activeJobListings
-          setHomepageTasks([])
+          // If API fails, use only mock tasks
+          const mockTasksWithDemo = activeJobListings.map((task: any) => ({
+            ...task,
+            isDemo: true
+          }))
+          setHomepageTasks(mockTasksWithDemo)
         }
       } catch (error) {
         console.error('Error loading homepage tasks:', error)
-        // Keep empty array, will fallback to activeJobListings
-        setHomepageTasks([])
+        // If error, use only mock tasks
+        const mockTasksWithDemo = activeJobListings.map((task: any) => ({
+          ...task,
+          isDemo: true
+        }))
+        setHomepageTasks(mockTasksWithDemo)
       } finally {
         setIsLoadingTasks(false)
       }
@@ -965,14 +1004,50 @@ export default function HomePage() {
     }
   ]
 
-  // Filter jobs based on selected category - use real tasks if available, otherwise fallback to hardcoded
+  // Filter and merge jobs based on selected category - always show 20 tasks (real first, then mock)
   const filteredJobs = useMemo(() => {
-    const tasksToUse = homepageTasks.length > 0 ? homepageTasks : activeJobListings
-    if (selectedJobCategory === 'Всички') {
-      return tasksToUse
+    const TARGET_TASKS_COUNT = 20
+    
+    // Separate real and mock tasks
+    const realTasks = homepageTasks.filter((task: any) => task.isReal === true)
+    const mockTasks = homepageTasks.filter((task: any) => task.isDemo === true)
+    
+    // Filter by category
+    let filteredRealTasks = realTasks
+    let filteredMockTasks = mockTasks
+    
+    if (selectedJobCategory !== 'Всички') {
+      filteredRealTasks = realTasks.filter((task: any) => task.category === selectedJobCategory)
+      filteredMockTasks = mockTasks.filter((task: any) => task.category === selectedJobCategory)
     }
-    return tasksToUse.filter((job: any) => job.category === selectedJobCategory)
-  }, [selectedJobCategory, homepageTasks, activeJobListings])
+    
+    // Sort real tasks by createdAt (newest first)
+    filteredRealTasks.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt || 0).getTime()
+      const dateB = new Date(b.createdAt || 0).getTime()
+      return dateB - dateA
+    })
+    
+    // Combine: real tasks first, then mock tasks to fill up to TARGET_TASKS_COUNT
+    const combinedTasks = [...filteredRealTasks]
+    const remainingSlots = TARGET_TASKS_COUNT - combinedTasks.length
+    
+    if (remainingSlots > 0 && filteredMockTasks.length > 0) {
+      // Take mock tasks to fill remaining slots
+      const mockTasksToAdd = filteredMockTasks.slice(0, remainingSlots)
+      combinedTasks.push(...mockTasksToAdd)
+    }
+    
+    // If we still don't have enough tasks, duplicate mock tasks
+    if (combinedTasks.length < TARGET_TASKS_COUNT && filteredMockTasks.length > 0) {
+      const needed = TARGET_TASKS_COUNT - combinedTasks.length
+      const mockTasksToDuplicate = filteredMockTasks.slice(0, needed)
+      combinedTasks.push(...mockTasksToDuplicate)
+    }
+    
+    // Return at least what we have (could be less than TARGET_TASKS_COUNT if no mock tasks available)
+    return combinedTasks.length > 0 ? combinedTasks : filteredMockTasks.slice(0, TARGET_TASKS_COUNT)
+  }, [selectedJobCategory, homepageTasks])
 
   return (
     <div className="min-h-screen bg-white">
@@ -1407,58 +1482,86 @@ export default function HomePage() {
                   <div className="relative overflow-hidden">
                     <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-left">
                       {/* Duplicate the filtered jobs for seamless loop */}
-                      {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => (
-                        <Link 
-                          key={`${job.id}-${index}`} 
-                          href={`/task/${job.id}`}
-                          className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
-                        >
-                          <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
-                            <OptimizedImage
-                              src={job.image}
-                              alt={job.title}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                              sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 192px"
-                              objectFit="cover"
-                            />
-                            <div className="absolute top-2 right-2 z-10">
-                              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                {job.category}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center gap-2 mb-2 md:mb-3">
+                      {[...filteredJobs, ...filteredJobs].slice(0, 20).map((job, index) => {
+                        const cardContent = (
+                          <>
+                            <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
                               <OptimizedImage
-                                src={job.avatar}
-                                alt={job.postedBy}
-                                width={32}
-                                height={32}
-                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200"
-                                sizes="32px"
+                                src={job.image}
+                                alt={job.title}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 192px"
                                 objectFit="cover"
                               />
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
-                            <div className="text-xs text-gray-500">{job.postedBy}</div>
-                          </div>
-                        </div>
-                        <p className="text-gray-600 text-xs mb-2 md:mb-3 line-clamp-2 leading-relaxed group-hover:line-clamp-none">{job.description}</p>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-xs font-medium">{job.rating}</span>
-                          </div>
-                          <div className="text-xs md:text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <MapPin className="w-3 h-3" />
-                          <span className="truncate">{job.location}</span>
-                        </div>
-                      </div>
-                        </Link>
-                      ))}
+                              <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
+                                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                  {job.category}
+                                </span>
+                                {job.isDemo && (
+                                  <span className="bg-gray-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                                    Демо обява
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="p-2 sm:p-3 md:p-4">
+                              <div className="flex items-center gap-2 mb-2 md:mb-3">
+                                <OptimizedImage
+                                  src={job.avatar}
+                                  alt={job.postedBy}
+                                  width={32}
+                                  height={32}
+                                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200"
+                                  sizes="32px"
+                                  objectFit="cover"
+                                />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
+                                  <div className="text-xs text-gray-500">{job.postedBy}</div>
+                                </div>
+                              </div>
+                              <p className="text-gray-600 text-xs mb-2 md:mb-3 line-clamp-2 leading-relaxed group-hover:line-clamp-none">{job.description}</p>
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                  <span className="text-xs font-medium">{job.rating}</span>
+                                </div>
+                                <div className="text-xs md:text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <MapPin className="w-3 h-3" />
+                                <span className="truncate">{job.location}</span>
+                              </div>
+                            </div>
+                          </>
+                        )
+
+                        const cardClassName = "flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+
+                        // For demo tasks, use div with onClick, for real tasks use Link
+                        if (job.isDemo) {
+                          return (
+                            <div
+                              key={`${job.id}-${index}`}
+                              onClick={() => router.push(`/tasks?category=${encodeURIComponent(job.category)}`)}
+                              className={cardClassName}
+                            >
+                              {cardContent}
+                            </div>
+                          )
+                        }
+
+                        return (
+                          <Link
+                            key={`${job.id}-${index}`}
+                            href={`/task/${job.id}`}
+                            className={cardClassName}
+                          >
+                            {cardContent}
+                          </Link>
+                        )
+                      })}
                     </div>
                   </div>
                   
@@ -1466,58 +1569,86 @@ export default function HomePage() {
                   <div className="relative overflow-hidden">
                     <div className="flex space-x-3 md:space-x-4 lg:space-x-6 animate-scroll-right">
                       {/* Duplicate the filtered jobs for seamless loop */}
-                      {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => (
-                        <Link 
-                          key={`${job.id}-${index + 20}`} 
-                          href={`/task/${job.id}`}
-                          className="flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
-                        >
-                          <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
-                            <OptimizedImage
-                              src={job.image}
-                              alt={job.title}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                              sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 192px"
-                              objectFit="cover"
-                            />
-                            <div className="absolute top-2 right-2 z-10">
-                              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                {job.category}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center gap-2 mb-2 md:mb-3">
+                      {[...filteredJobs, ...filteredJobs].slice(20, 40).map((job, index) => {
+                        const cardContent = (
+                          <>
+                            <div className="h-20 sm:h-24 md:h-32 overflow-hidden relative">
                               <OptimizedImage
-                                src={job.avatar}
-                                alt={job.postedBy}
-                                width={32}
-                                height={32}
-                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200"
-                                sizes="32px"
+                                src={job.image}
+                                alt={job.title}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 192px"
                                 objectFit="cover"
                               />
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
-                            <div className="text-xs text-gray-500">{job.postedBy}</div>
-                          </div>
-                        </div>
-                        <p className="text-gray-600 text-xs mb-2 md:mb-3 line-clamp-2 leading-relaxed group-hover:line-clamp-none">{job.description}</p>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-xs font-medium">{job.rating}</span>
-                          </div>
-                          <div className="text-xs md:text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <MapPin className="w-3 h-3" />
-                          <span className="truncate">{job.location}</span>
-                        </div>
-                      </div>
-                        </Link>
-                      ))}
+                              <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
+                                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                  {job.category}
+                                </span>
+                                {job.isDemo && (
+                                  <span className="bg-gray-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                                    Демо обява
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="p-2 sm:p-3 md:p-4">
+                              <div className="flex items-center gap-2 mb-2 md:mb-3">
+                                <OptimizedImage
+                                  src={job.avatar}
+                                  alt={job.postedBy}
+                                  width={32}
+                                  height={32}
+                                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-gray-200"
+                                  sizes="32px"
+                                  objectFit="cover"
+                                />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-gray-900 text-xs md:text-sm group-hover:text-blue-600 transition-colors line-clamp-2 mb-1 group-hover:line-clamp-none">{job.title}</div>
+                                  <div className="text-xs text-gray-500">{job.postedBy}</div>
+                                </div>
+                              </div>
+                              <p className="text-gray-600 text-xs mb-2 md:mb-3 line-clamp-2 leading-relaxed group-hover:line-clamp-none">{job.description}</p>
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                  <span className="text-xs font-medium">{job.rating}</span>
+                                </div>
+                                <div className="text-xs md:text-sm font-bold text-green-600">{job.priceType === 'hourly' ? `${job.price} лв/час` : `${job.price} лв`}</div>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <MapPin className="w-3 h-3" />
+                                <span className="truncate">{job.location}</span>
+                              </div>
+                            </div>
+                          </>
+                        )
+
+                        const cardClassName = "flex-shrink-0 w-36 sm:w-40 md:w-48 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden group cursor-pointer text-left transform hover:-translate-y-1"
+
+                        // For demo tasks, use div with onClick, for real tasks use Link
+                        if (job.isDemo) {
+                          return (
+                            <div
+                              key={`${job.id}-${index + 20}`}
+                              onClick={() => router.push(`/tasks?category=${encodeURIComponent(job.category)}`)}
+                              className={cardClassName}
+                            >
+                              {cardContent}
+                            </div>
+                          )
+                        }
+
+                        return (
+                          <Link
+                            key={`${job.id}-${index + 20}`}
+                            href={`/task/${job.id}`}
+                            className={cardClassName}
+                          >
+                            {cardContent}
+                          </Link>
+                        )
+                      })}
                     </div>
                   </div>
                 </>
