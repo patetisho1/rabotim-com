@@ -173,6 +173,16 @@
 - [x] Fallback към hardcoded testimonials ако няма реални данни
 - **Приоритет:** Нисък (marketing) ✅ **ЗАВЪРШЕНО**
 
+### Homepage Hybrid Tasks
+- [x] Комбинация от реални и mock обяви за homepage
+- [x] Винаги показване на минимум 20 обяви на категория
+- [x] Реални обяви първо, допълване с mock данни
+- [x] "Демо обява" badge за mock обяви
+- [x] Правилни линкове - демо обяви сочат към `/tasks?category=...`
+- [x] Две части - Top Row (animate-scroll-left) и Bottom Row (animate-scroll-right)
+- [x] Условно рендиране - демо обяви използват `div onClick`, реални използват `Link`
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
+
 ### Error Boundary Implementation
 - [x] Проверка дали ErrorBoundary компонент съществува
 - [x] Обвиване на критични секции с ErrorBoundary:
