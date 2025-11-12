@@ -1,9 +1,18 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { handleApiError, AuthenticationError, ValidationError, ErrorMessages } from '@/lib/errors'
+import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wwbxzkbilklullziiogr.supabase.co',
@@ -22,7 +31,7 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get('location')
     const priceMin = searchParams.get('priceMin')
     const priceMax = searchParams.get('priceMax')
-    const status = searchParams.get('status') || 'active'
+    const status = searchParams.get('status')
     const userId = searchParams.get('userId')
 
     let query = supabase
@@ -36,8 +45,13 @@ export async function GET(request: NextRequest) {
           verified
         )
       `)
-      .eq('status', status)
       .order('created_at', { ascending: false })
+
+    if (status && status !== 'all') {
+      query = query.eq('status', status)
+    } else if (!status) {
+      query = query.eq('status', 'active')
+    }
 
     if (category && category !== 'all') {
       query = query.eq('category', category)
@@ -63,19 +77,36 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching tasks:', error)
-      return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 })
+      logger.error('Error fetching tasks', error, { 
+        category: category || undefined, 
+        location: location || undefined, 
+        status: status || undefined, 
+        userId: userId || undefined 
+      })
+      return handleApiError(error, { endpoint: 'GET /api/tasks' })
     }
+
+    logger.info('Tasks fetched successfully', { 
+      count: data?.length || 0, 
+      category: category || undefined, 
+      location: location || undefined, 
+      status: status || undefined 
+    })
 
     return NextResponse.json({ tasks: data || [] })
   } catch (error) {
-    console.error('Error in GET /api/tasks:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error, { endpoint: 'GET /api/tasks' })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting (stricter for task creation)
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.taskCreation)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wwbxzkbilklullziiogr.supabase.co',
@@ -93,7 +124,7 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
     const body = await request.json()
@@ -107,28 +138,95 @@ export async function POST(request: NextRequest) {
       deadline,
       urgent = false,
       remote = false,
-      conditions = ''
+      conditions = '',
+      images = []
     } = body
 
     // Валидация
     if (!title || !description || !category || !location || !price) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      throw new ValidationError('Missing required fields', ErrorMessages.MISSING_FIELDS, { body })
     }
+
+    const normalizedTitle = title?.toString().trim()
+    const normalizedDescription = description?.toString().trim()
+    const normalizedConditions = conditions?.toString().trim() || ''
+    const numericPrice = Number(price)
+
+    if (!normalizedTitle || !normalizedDescription || Number.isNaN(numericPrice)) {
+      throw new ValidationError('Invalid task payload', ErrorMessages.INVALID_DATA, { body })
+    }
+
+    // Допълнителни проверки
+    const MIN_TITLE_LENGTH = 10
+    const MIN_DESCRIPTION_LENGTH = 80
+    const MIN_PRICE_VALUE = 5
+    const bannedPatterns = [
+      /https?:\/\//i,
+      /\bтелефон\b/i,
+      /\bwhatsapp\b/i,
+      /\bviber\b/i,
+      /\bemail\b/i
+    ]
+
+    const issues: string[] = []
+
+    if (normalizedTitle.length < MIN_TITLE_LENGTH) {
+      issues.push('Заглавието е твърде кратко')
+    }
+    if (normalizedDescription.length < MIN_DESCRIPTION_LENGTH) {
+      issues.push('Описанието е твърде кратко')
+    }
+    if (numericPrice < MIN_PRICE_VALUE) {
+      issues.push('Посочената цена е подозрително ниска')
+    }
+    if (
+      bannedPatterns.some((pattern) => pattern.test(normalizedTitle) || pattern.test(normalizedDescription) || pattern.test(normalizedConditions))
+    ) {
+      issues.push('Открито е съдържание, изискващо модерация')
+    }
+
+    // Проверка на историята на потребителя
+    const { data: profile, error: profileError } = await supabase
+      .from('users')
+      .select('id, verified, created_at')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      const error = profileError instanceof Error ? profileError : new Error(String(profileError))
+      logger.warn('Error loading user profile for moderation', error, { userId: user.id })
+    }
+
+    const { count: tasksCount } = await supabase
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    const userIsTrusted = Boolean(profile?.verified) || (tasksCount || 0) >= 5
+    if (!userIsTrusted) {
+      issues.push('Нов профил – изисква се първоначален преглед')
+    }
+
+    const moderationStatus = issues.length === 0 ? 'active' : 'pending'
 
     // Създаване на задача
     const { data: task, error: taskError } = await supabase
       .from('tasks')
       .insert({
-        title,
-        description,
+        title: normalizedTitle,
+        description: normalizedDescription,
         category,
         location,
-        price: parseFloat(price),
+        price: numericPrice,
         price_type: priceType,
         deadline: deadline ? new Date(deadline).toISOString() : null,
         urgent,
+        remote,
+        images,
         user_id: user.id,
-        status: 'active'
+        status: moderationStatus,
+        applications_count: 0,
+        views_count: 0
       })
       .select(`
         *,
@@ -142,14 +240,42 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (taskError) {
-      console.error('Error creating task:', taskError)
-      return NextResponse.json({ error: 'Failed to create task' }, { status: 500 })
+      logger.error('Error creating task', taskError, { userId: user.id, category, location })
+      return handleApiError(taskError, { endpoint: 'POST /api/tasks', userId: user.id })
     }
 
-    return NextResponse.json({ task }, { status: 201 })
+    // Лог за модерация
+    try {
+      await supabase.from('task_moderation_logs').insert({
+        task_id: task.id,
+        moderated_by: null,
+        action: issues.length === 0 ? 'auto_approved' : 'auto_review',
+        status_after: moderationStatus,
+        issues: issues.length ? issues : null,
+        notes: issues.length
+          ? `Автоматична проверка откри ${issues.length} потенциални проблема`
+          : 'Задачата покри всички критерии и е активирана автоматично'
+      })
+    } catch (logError) {
+      logger.error('Error writing moderation log', logError as Error, { taskId: task.id })
+    }
+
+    logger.info('Task created successfully', {
+      taskId: task.id,
+      userId: user.id,
+      status: moderationStatus,
+      issuesCount: issues.length
+    })
+
+    return NextResponse.json({ 
+      task, 
+      moderation: {
+        status: moderationStatus,
+        issues
+      } 
+    }, { status: 201 })
   } catch (error) {
-    console.error('Error in POST /api/tasks:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error, { endpoint: 'POST /api/tasks' })
   }
 }
 

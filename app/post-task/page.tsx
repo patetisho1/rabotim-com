@@ -204,36 +204,47 @@ export default function PostTaskPage() {
       }
 
       // Създаване на задачата в Supabase
-      console.log('Post-task: user.id =', user.id)
-      const { data, error } = await supabase
-        .from('tasks')
-        .insert([{
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
           category: formData.category,
           location: formData.location,
           price: parseFloat(formData.price),
-          price_type: formData.priceType,
+          priceType: formData.priceType,
           urgent: formData.urgent,
-          user_id: user.id,
-          status: 'active',
           deadline: formData.deadline || null,
-          applications_count: 0,
-          views_count: 0,
-          images: imageUrls // Добавяме снимките
-        }])
-        .select()
-        .single()
-      
-      console.log('Post-task: created task =', data)
+          images: imageUrls
+        })
+      })
 
-      if (error) {
-        console.error('Supabase error:', error)
-        throw error
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Грешка при публикуването на задачата')
       }
 
-      toast.success('Задачата е публикувана успешно!')
-      router.push(`/task/${data.id}`)
+      const createdTask = result?.task
+      const moderationStatus = result?.moderation?.status || createdTask?.status
+      const moderationIssues = result?.moderation?.issues || []
+
+      if (moderationStatus === 'pending') {
+        toast.success('Задачата е изпратена за преглед. Ще я публикуваме след проверка.')
+        moderationIssues.slice(0, 2).forEach((issue: string) =>
+          toast(issue, { icon: 'ℹ️', duration: 5000 })
+        )
+        router.push('/profile?tab=taskGiver')
+      } else if (createdTask?.id) {
+        toast.success('Задачата е публикувана успешно!')
+        router.push(`/task/${createdTask.id}`)
+      } else {
+        toast.success('Задачата е записана.')
+        router.push('/profile?tab=taskGiver')
+      }
     } catch (error: any) {
       console.error('Error creating task:', error)
       toast.error(error.message || 'Грешка при публикуването на задачата')

@@ -8,11 +8,31 @@ const nextConfig = {
   
   // Оптимизации за изображения
   images: {
-    domains: ['localhost', 'firebasestorage.googleapis.com', 'images.unsplash.com', 'wwbxzkbilklullziiogr.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'wwbxzkbilklullziiogr.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
   // Оптимизации за кеширане

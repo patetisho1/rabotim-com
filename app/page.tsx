@@ -10,6 +10,7 @@ import { LocalBusinessStructuredData, FAQStructuredData } from '@/components/Str
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
+import OptimizedImage from '@/components/OptimizedImage'
 
 export default function HomePage() {
   const router = useRouter()
@@ -1177,21 +1178,30 @@ export default function HomePage() {
                       
                       return (
                         <div key={currentExampleIndex} className="relative w-full h-full rounded-2xl overflow-hidden">
-                          <img 
-                            src={currentExample.image} 
-                            alt={currentExample.task} 
-                            className="w-full h-full object-cover"
+                          <OptimizedImage
+                            src={currentExample.image}
+                            alt={currentExample.task}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            priority
+                            objectFit="cover"
                           />
                           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
                           
                           {/* Top section - Name and task acceptance */}
                           <div className="absolute top-2 sm:top-4 left-2 sm:left-4 right-2 sm:right-4 flex items-center justify-between">
                             <div className="flex items-center gap-2 sm:gap-3">
-                              <img 
-                                src={currentExample.avatar} 
-                                alt={currentExample.name} 
-                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white"
-                              />
+                              <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-white">
+                                <OptimizedImage
+                                  src={currentExample.avatar}
+                                  alt={currentExample.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="40px"
+                                  objectFit="cover"
+                                />
+                              </div>
                               <div>
                                 <div className="font-semibold text-white text-xs sm:text-sm">{currentExample.name}</div>
                               </div>
