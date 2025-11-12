@@ -13,6 +13,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { JobPostingStructuredData } from '@/components/StructuredData'
 import SocialShare from '@/components/SocialShare'
+import OptimizedImage from '@/components/OptimizedImage'
+import { ImageGallerySkeleton, UserAvatarSkeleton } from '@/components/SkeletonLoader'
+import DynamicMetaTags from '@/components/DynamicMetaTags'
 
 interface Task {
   id: string
@@ -437,12 +440,15 @@ export default function TaskDetailPage() {
       <div key={application.id} className={cardClasses}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
-            <div className={`relative flex h-12 w-12 items-center justify-center rounded-full ${isAccepted ? 'bg-emerald-500' : 'bg-blue-500'} text-white font-semibold`}>
+            <div className={`relative flex h-12 w-12 items-center justify-center rounded-full ${isAccepted ? 'bg-emerald-500' : 'bg-blue-500'} text-white font-semibold overflow-hidden`}>
               {applicant?.avatar_url ? (
-                <img
+                <OptimizedImage
                   src={applicant.avatar_url}
-                  alt={applicant.full_name}
-                  className="h-12 w-12 rounded-full object-cover"
+                  alt={applicant.full_name || 'Потребител'}
+                  fill
+                  className="rounded-full"
+                  sizes="48px"
+                  objectFit="cover"
                 />
               ) : (
                 getInitials(applicant?.full_name)
@@ -565,8 +571,32 @@ export default function TaskDetailPage() {
     )
   }
 
+  // Generate SEO metadata
+  const seoTitle = task ? `${task.title} - ${task.location} | Rabotim.com` : 'Задача | Rabotim.com'
+  const seoDescription = task ? `${task.description.substring(0, 160)}... Намери работа в ${task.location} с Rabotim.com` : 'Намери работа и изпълнители в България с Rabotim.com'
+  const seoImage = task?.images && task.images.length > 0 ? task.images[0] : '/og-image.png'
+  const seoUrl = typeof window !== 'undefined' ? `${window.location.origin}/task/${taskId}` : `https://rabotim.com/task/${taskId}`
+  const seoKeywords = task ? [task.category, task.location, 'работа', 'изпълнители', 'услуги', 'rabotim'] : ['работа', 'изпълнители', 'услуги', 'rabotim']
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Dynamic Meta Tags for SEO */}
+      {task && (
+        <DynamicMetaTags
+          title={seoTitle}
+          description={seoDescription}
+          image={seoImage}
+          url={seoUrl}
+          type="article"
+          keywords={seoKeywords}
+        />
+      )}
+      
+      {/* Structured Data for SEO */}
+      {task && (
+        <JobPostingStructuredData task={task} />
+      )}
+      
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -574,6 +604,8 @@ export default function TaskDetailPage() {
             <button
               onClick={() => router.back()}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              aria-label="Назад"
+              title="Назад"
             >
               <ArrowLeft size={20} />
             </button>
@@ -646,11 +678,15 @@ export default function TaskDetailPage() {
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {task.images.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <img
+                      <div key={index} className="relative group h-48 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
+                        <OptimizedImage
                           src={image}
-                          alt={`Снимка ${index + 1}`}
-                          className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600 group-hover:scale-105 transition-transform duration-300"
+                          alt={`${task.title} - Снимка ${index + 1}`}
+                          fill
+                          className="group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          priority={index === 0}
+                          objectFit="cover"
                         />
                       </div>
                     ))}
@@ -799,9 +835,22 @@ export default function TaskDetailPage() {
                 За потребителя
               </h3>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-blue-600 dark:text-blue-400" />
-                </div>
+                {task.profiles?.avatar_url ? (
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                    <OptimizedImage
+                      src={task.profiles.avatar_url}
+                      alt={task.profiles.full_name || 'Потребител'}
+                      fill
+                      className="rounded-full"
+                      sizes="48px"
+                      objectFit="cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User size={24} className="text-blue-600 dark:text-blue-400" />
+                  </div>
+                )}
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900 dark:text-gray-100">
                     {task.profiles?.full_name || 'Потребител'}

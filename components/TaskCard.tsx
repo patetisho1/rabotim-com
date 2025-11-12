@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Task } from '@/hooks/useTasksAPI'
+import OptimizedImage from './OptimizedImage'
 
 interface TaskCardProps {
   task: Task
@@ -238,10 +239,14 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
     >
       {/* Mobile-optimized Image - Better height for visibility */}
       <div className="relative h-40 sm:h-56 overflow-hidden">
-        <img 
-          src={task.images && task.images.length > 0 ? task.images[0] : getCategoryImage(task.category)} 
-          alt={task.category}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        <OptimizedImage
+          src={task.images && task.images.length > 0 ? task.images[0] : getCategoryImage(task.category)}
+          alt={task.title || task.category}
+          fill
+          className="group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          priority={false}
+          objectFit="cover"
         />
         {/* Category overlay - smaller on mobile */}
         <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
