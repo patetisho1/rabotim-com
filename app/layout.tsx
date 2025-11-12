@@ -12,6 +12,16 @@ import SPANavigation from '@/components/SPANavigation'
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
+// Validate environment variables on app startup
+if (typeof window === 'undefined') {
+  try {
+    require('@/lib/env-init')
+  } catch (error) {
+    // Silently fail in case of import issues
+    console.warn('Could not initialize environment validation:', error)
+  }
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://rabotim.com'),
   title: {

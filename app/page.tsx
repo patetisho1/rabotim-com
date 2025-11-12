@@ -198,30 +198,60 @@ export default function HomePage() {
 
 
   useEffect(() => {
-    // Зареждане на статистики от localStorage
+    // Зареждане на реални статистики от API
     const loadStats = async () => {
       setIsLoadingStats(true)
-      // Симулиране на зареждане
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-      const savedSearches = JSON.parse(localStorage.getItem('savedSearches') || '[]')
-      
-      // По-реалистични статистики
-      const baseTasks = Math.max(tasks.length, 15) // Минимум 15 задачи
-      const baseUsers = Math.max(users.length, 250) // Минимум 250 потребители
-      const cities = new Set(tasks.map((task: any) => task.location)).size
-      const activeCities = Math.max(cities, 12) // Минимум 12 града
-      
-      setStats({
-        tasks: baseTasks,
-        users: baseUsers,
-        cities: activeCities,
-        completed: Math.floor(baseTasks * 0.85) // 85% завършени задачи
-      })
-      setIsLoadingStats(false)
+      try {
+        const response = await fetch('/api/stats')
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success && result.data) {
+            // Use real data with fallback minimums for display
+            setStats({
+              tasks: Math.max(result.data.tasks || 0, 15),
+              users: Math.max(result.data.users || 0, 250),
+              cities: Math.max(result.data.cities || 0, 12),
+              completed: Math.max(result.data.completed || 0, Math.floor((result.data.tasks || 0) * 0.85))
+            })
+          } else {
+            // Fallback to localStorage if API fails
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+            const users = JSON.parse(localStorage.getItem('users') || '[]')
+            const cities = new Set(tasks.map((task: any) => task.location)).size
+            setStats({
+              tasks: Math.max(tasks.length, 15),
+              users: Math.max(users.length, 250),
+              cities: Math.max(cities, 12),
+              completed: Math.floor(Math.max(tasks.length, 15) * 0.85)
+            })
+          }
+        } else {
+          // Fallback to localStorage if API fails
+          const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+          const users = JSON.parse(localStorage.getItem('users') || '[]')
+          const cities = new Set(tasks.map((task: any) => task.location)).size
+          setStats({
+            tasks: Math.max(tasks.length, 15),
+            users: Math.max(users.length, 250),
+            cities: Math.max(cities, 12),
+            completed: Math.floor(Math.max(tasks.length, 15) * 0.85)
+          })
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error)
+        // Fallback to localStorage if API fails
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+        const users = JSON.parse(localStorage.getItem('users') || '[]')
+        const cities = new Set(tasks.map((task: any) => task.location)).size
+        setStats({
+          tasks: Math.max(tasks.length, 15),
+          users: Math.max(users.length, 250),
+          cities: Math.max(cities, 12),
+          completed: Math.floor(Math.max(tasks.length, 15) * 0.85)
+        })
+      } finally {
+        setIsLoadingStats(false)
+      }
     }
     
     loadStats()
