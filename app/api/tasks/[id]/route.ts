@@ -1,12 +1,21 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { handleApiError, AuthenticationError, AuthorizationError, NotFoundError, ValidationError, ErrorMessages } from '@/lib/errors'
+import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,8 +46,8 @@ export async function GET(
       .single()
 
     if (error) {
-      console.error('Error fetching task:', error)
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
+      logger.error('Error fetching task', error, { taskId: params.id })
+      throw new NotFoundError('Task not found', ErrorMessages.TASK_NOT_FOUND)
     }
 
     // Увеличаване на броя гледания
@@ -47,10 +56,11 @@ export async function GET(
       .update({ views_count: (task.views_count || 0) + 1 })
       .eq('id', params.id)
 
+    logger.info('Task fetched successfully', { taskId: params.id })
+
     return NextResponse.json({ task })
   } catch (error) {
-    console.error('Error in GET /api/tasks/[id]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error, { endpoint: 'GET /api/tasks/[id]', taskId: params.id })
   }
 }
 
@@ -59,6 +69,12 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -76,7 +92,7 @@ export async function PUT(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
     const body = await request.json()
@@ -88,8 +104,13 @@ export async function PUT(
       .eq('id', params.id)
       .single()
 
-    if (fetchError || existingTask.user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (fetchError || !existingTask) {
+      logger.error('Task not found for update', fetchError as Error, { taskId: params.id, userId: user.id })
+      throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
+    }
+
+    if (existingTask.user_id !== user.id) {
+      throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
     const { data: task, error } = await supabase
@@ -108,14 +129,15 @@ export async function PUT(
       .single()
 
     if (error) {
-      console.error('Error updating task:', error)
-      return NextResponse.json({ error: 'Failed to update task' }, { status: 500 })
+      logger.error('Error updating task', error, { taskId: params.id, userId: user.id })
+      return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId: params.id })
     }
+
+    logger.info('Task updated successfully', { taskId: params.id, userId: user.id })
 
     return NextResponse.json({ task })
   } catch (error) {
-    console.error('Error in PUT /api/tasks/[id]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId: params.id })
   }
 }
 
@@ -124,6 +146,12 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -141,7 +169,7 @@ export async function DELETE(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
     // Проверка дали потребителят е собственик на задачата
@@ -151,8 +179,13 @@ export async function DELETE(
       .eq('id', params.id)
       .single()
 
-    if (fetchError || existingTask.user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (fetchError || !existingTask) {
+      logger.error('Task not found for deletion', fetchError as Error, { taskId: params.id, userId: user.id })
+      throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
+    }
+
+    if (existingTask.user_id !== user.id) {
+      throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
     const { error } = await supabase
@@ -161,14 +194,15 @@ export async function DELETE(
       .eq('id', params.id)
 
     if (error) {
-      console.error('Error deleting task:', error)
-      return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 })
+      logger.error('Error deleting task', error, { taskId: params.id, userId: user.id })
+      return handleApiError(error, { endpoint: 'DELETE /api/tasks/[id]', taskId: params.id })
     }
+
+    logger.info('Task deleted successfully', { taskId: params.id, userId: user.id })
 
     return NextResponse.json({ message: 'Task deleted successfully' })
   } catch (error) {
-    console.error('Error in DELETE /api/tasks/[id]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error, { endpoint: 'DELETE /api/tasks/[id]', taskId: params.id })
   }
 }
 

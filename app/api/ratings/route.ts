@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
+import { handleApiError, ValidationError, ErrorMessages } from '@/lib/errors'
+import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 // GET /api/ratings - Вземи рейтинги за потребител
 export async function GET(request: NextRequest) {
@@ -10,10 +13,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit')
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      )
+      throw new ValidationError('User ID is required', ErrorMessages.MISSING_FIELDS)
     }
 
     // Get both ratings and reviews
@@ -23,23 +23,27 @@ export async function GET(request: NextRequest) {
       db.getUserRatingSummary(userId)
     ])
 
+    logger.info('Ratings fetched successfully', { userId, ratingsCount: ratings?.length || 0, reviewsCount: reviews?.length || 0 })
+
     return NextResponse.json({
       ratings,
       reviews,
       summary
     })
   } catch (error) {
-    console.error('Error fetching ratings:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch ratings' },
-      { status: 500 }
-    )
+    return handleApiError(error, { endpoint: 'GET /api/ratings' })
   }
 }
 
 // POST /api/ratings - Добави рейтинг
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const body = await request.json()
     const { 
       task_id, 
@@ -57,38 +61,26 @@ export async function POST(request: NextRequest) {
 
     // Validation
     if (!task_id || !reviewer_id || !reviewed_user_id || !rating) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+      throw new ValidationError('Missing required fields', ErrorMessages.MISSING_FIELDS, { body })
     }
 
     if (rating < 1 || rating > 5) {
-      return NextResponse.json(
-        { error: 'Rating must be between 1 and 5' },
-        { status: 400 }
-      )
+      throw new ValidationError('Rating must be between 1 and 5', ErrorMessages.INVALID_DATA, { rating })
     }
 
     // Check if user can rate this task
     const { canRate, reason } = await db.canUserRate(reviewer_id, task_id)
     if (!canRate) {
       const message = reason === 'not_completed'
-        ? 'Задачата трябва да бъде завършена преди да оставите рейтинг'
-        : 'Вече сте оставили рейтинг за тази задача'
-      return NextResponse.json(
-        { error: message },
-        { status: 400 }
-      )
+        ? ErrorMessages.TASK_NOT_COMPLETED
+        : ErrorMessages.ALREADY_RATED
+      throw new ValidationError(message, message, { task_id, reviewer_id, reason })
     }
 
     if (is_review) {
       // Add as review
       if (!title || !comment) {
-        return NextResponse.json(
-          { error: 'Title and comment are required for reviews' },
-          { status: 400 }
-        )
+        throw new ValidationError('Title and comment are required for reviews', ErrorMessages.MISSING_FIELDS, { body })
       }
 
       const newReview = await db.addReview({
@@ -104,14 +96,13 @@ export async function POST(request: NextRequest) {
         isVerified: true
       })
 
+      logger.info('Review added successfully', { reviewId: newReview.id, task_id, reviewer_id, reviewed_user_id })
+
       return NextResponse.json(newReview, { status: 201 })
     } else {
       // Add as simple rating
       if (!comment || !category) {
-        return NextResponse.json(
-          { error: 'Comment and category are required for ratings' },
-          { status: 400 }
-        )
+        throw new ValidationError('Comment and category are required for ratings', ErrorMessages.MISSING_FIELDS, { body })
       }
 
       const newRating = await db.addRating({
@@ -124,13 +115,11 @@ export async function POST(request: NextRequest) {
         isVerified: true
       })
 
+      logger.info('Rating added successfully', { ratingId: newRating.id, task_id, reviewer_id, reviewed_user_id })
+
       return NextResponse.json(newRating, { status: 201 })
     }
   } catch (error) {
-    console.error('Error adding rating:', error)
-    return NextResponse.json(
-      { error: 'Failed to add rating' },
-      { status: 500 }
-    )
+    return handleApiError(error, { endpoint: 'POST /api/ratings' })
   }
 }

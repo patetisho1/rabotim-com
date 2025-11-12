@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
+import { handleApiError, ValidationError, NotFoundError, ConflictError, ErrorMessages } from '@/lib/errors'
+import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 // POST - Кандидатстване за задача
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting (stricter for applications)
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.applications)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const body = await request.json()
     const { task_id, user_id, message, proposed_price } = body
 
     if (!task_id || !user_id) {
-      return NextResponse.json(
-        { error: 'task_id и user_id са задължителни' },
-        { status: 400 }
-      )
+      throw new ValidationError('task_id и user_id са задължителни', ErrorMessages.MISSING_FIELDS, { body })
     }
 
     // Проверка дали потребителят вече е кандидатствал
@@ -23,10 +29,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Вече сте кандидатствали за тази задача' },
-        { status: 400 }
-      )
+      throw new ConflictError('Вече сте кандидатствали за тази задача', ErrorMessages.ALREADY_APPLIED)
     }
 
     // Създаване на кандидатура
@@ -43,11 +46,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      logger.error('Error creating application', error, { task_id, user_id })
+      return handleApiError(error, { endpoint: 'POST /api/applications', task_id, user_id })
     }
 
     // Създаване на нотификация за собственика на задачата
@@ -80,19 +80,23 @@ export async function POST(request: NextRequest) {
         }])
     }
 
+    logger.info('Application created successfully', { application_id: data.id, task_id, user_id })
+
     return NextResponse.json(data, { status: 201 })
-  } catch (error: any) {
-    console.error('API error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Вътрешна грешка' },
-      { status: 500 }
-    )
+  } catch (error) {
+    return handleApiError(error, { endpoint: 'POST /api/applications' })
   }
 }
 
 // GET - Получаване на кандидатури (за потребител или за задача)
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const { searchParams } = new URL(request.url)
     const task_id = searchParams.get('task_id')
     const user_id = searchParams.get('user_id')
@@ -116,40 +120,43 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      logger.error('Error fetching applications', error, { task_id, user_id })
+      return handleApiError(error, { endpoint: 'GET /api/applications', task_id, user_id })
     }
 
+    logger.info('Applications fetched successfully', { count: data?.length || 0, task_id, user_id })
+
     return NextResponse.json(data, { status: 200 })
-  } catch (error: any) {
-    console.error('API error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Вътрешна грешка' },
-      { status: 500 }
-    )
+  } catch (error) {
+    return handleApiError(error, { endpoint: 'GET /api/applications' })
   }
 }
 
 // PATCH - Обновяване на статус на кандидатура (приемане/отхвърляне)
 export async function PATCH(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const body = await request.json()
     const { application_id, status, task_id, requester_id, reason } = body
 
     if (!application_id || !status || !task_id || !requester_id) {
-      return NextResponse.json(
-        { error: 'application_id, status, task_id и requester_id са задължителни' },
-        { status: 400 }
+      throw new ValidationError(
+        'application_id, status, task_id и requester_id са задължителни',
+        ErrorMessages.MISSING_FIELDS,
+        { body }
       )
     }
 
     if (!['accepted', 'rejected'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Невалиден статус. Разрешени са accepted или rejected.' },
-        { status: 400 }
+      throw new ValidationError(
+        'Невалиден статус. Разрешени са accepted или rejected.',
+        ErrorMessages.INVALID_DATA,
+        { status }
       )
     }
 
@@ -161,17 +168,15 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (taskError || !task) {
-      console.error('Supabase error (task lookup):', taskError)
-      return NextResponse.json(
-        { error: 'Задачата не е намерена' },
-        { status: 404 }
-      )
+      logger.error('Task not found', taskError as Error, { task_id, requester_id })
+      throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
     if (task.user_id !== requester_id) {
-      return NextResponse.json(
-        { error: 'Нямате права да управлявате кандидатурите за тази задача' },
-        { status: 403 }
+      throw new ValidationError(
+        'Нямате права да управлявате кандидатурите за тази задача',
+        ErrorMessages.FORBIDDEN,
+        { task_id, requester_id, task_owner: task.user_id }
       )
     }
 
@@ -183,11 +188,8 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (applicationError || !application) {
-      console.error('Supabase error (application lookup):', applicationError)
-      return NextResponse.json(
-        { error: 'Кандидатурата не е намерена' },
-        { status: 404 }
-      )
+      logger.error('Application not found', applicationError as Error, { application_id, task_id })
+      throw new NotFoundError('Кандидатурата не е намерена', ErrorMessages.APPLICATION_NOT_FOUND)
     }
 
     // Обновяваме статуса
@@ -202,11 +204,8 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (updateError) {
-      console.error('Supabase error (update application):', updateError)
-      return NextResponse.json(
-        { error: 'Грешка при обновяване на кандидатурата' },
-        { status: 500 }
-      )
+      logger.error('Error updating application', updateError, { application_id, status })
+      return handleApiError(updateError, { endpoint: 'PATCH /api/applications', application_id })
     }
 
     // Ако статусът е accepted → отхвърляме всички останали кандидатури и обновяваме задачата
@@ -218,7 +217,7 @@ export async function PATCH(request: NextRequest) {
         .neq('id', application_id)
 
       if (rejectOthersError) {
-        console.error('Supabase error (reject others):', rejectOthersError)
+        logger.warn('Error rejecting other applications', rejectOthersError, { task_id, application_id })
       }
 
       const { error: updateTaskStatusError } = await supabase
@@ -227,7 +226,7 @@ export async function PATCH(request: NextRequest) {
         .eq('id', task_id)
 
       if (updateTaskStatusError) {
-        console.error('Supabase error (update task status):', updateTaskStatusError)
+        logger.warn('Error updating task status', updateTaskStatusError, { task_id, status: 'assigned' })
       }
     } else if (status === 'rejected') {
       // Ако отказваме кандидатура и няма други приети → връщаме задачата в активна
@@ -244,7 +243,7 @@ export async function PATCH(request: NextRequest) {
           .eq('id', task_id)
 
         if (revertTaskStatusError) {
-          console.error('Supabase error (revert task status):', revertTaskStatusError)
+          logger.warn('Error reverting task status', revertTaskStatusError, { task_id, status: 'active' })
         }
       }
     }
@@ -268,15 +267,13 @@ export async function PATCH(request: NextRequest) {
       }])
 
     if (notificationError) {
-      console.error('Supabase error (notification):', notificationError)
+      logger.warn('Error creating notification', notificationError, { application_id, status })
     }
 
+    logger.info('Application status updated', { application_id, status, task_id, requester_id })
+
     return NextResponse.json(updatedApplication, { status: 200 })
-  } catch (error: any) {
-    console.error('API error (PATCH /applications):', error)
-    return NextResponse.json(
-      { error: error.message || 'Вътрешна грешка' },
-      { status: 500 }
-    )
+  } catch (error) {
+    return handleApiError(error, { endpoint: 'PATCH /api/applications' })
   }
 }

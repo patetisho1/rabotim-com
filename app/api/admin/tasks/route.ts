@@ -1,9 +1,22 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { handleApiError, AuthenticationError, AuthorizationError, NotFoundError, ValidationError, ErrorMessages } from '@/lib/errors'
+import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function GET(request: Request) {
   try {
+    // Rate limiting (stricter for admin endpoints)
+    const rateLimitResult = await rateLimit(request as any, {
+      windowMs: 1 * 60 * 1000, // 1 minute
+      maxRequests: 30, // 30 requests per minute for admin
+      message: 'Твърде много заявки. Моля опитайте след 1 минута.'
+    })
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,7 +46,7 @@ export async function GET(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Неоторизиран достъп' }, { status: 401 })
+      throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
     const { data: profile } = await supabase
@@ -43,7 +56,7 @@ export async function GET(request: Request) {
       .single()
 
     if (!profile?.is_admin) {
-      return NextResponse.json({ error: 'Нямате админ права' }, { status: 403 })
+      throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
     // Построяване на заявката
@@ -93,7 +106,19 @@ export async function GET(request: Request) {
 
     const { data: tasks, error, count } = await query
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error fetching admin tasks', error, { page, limit, search, status, category, userId: user.id })
+      throw error
+    }
+
+    logger.info('Admin tasks fetched successfully', { 
+      userId: user.id, 
+      count: tasks?.length || 0, 
+      total: count || 0, 
+      page, 
+      status, 
+      category 
+    })
 
     return NextResponse.json({
       tasks: tasks || [],
@@ -106,16 +131,22 @@ export async function GET(request: Request) {
     })
 
   } catch (error) {
-    console.error('Error fetching tasks:', error)
-    return NextResponse.json(
-      { error: 'Възникна грешка при зареждането на задачите' },
-      { status: 500 }
-    )
+    return handleApiError(error, { endpoint: 'GET /api/admin/tasks' })
   }
 }
 
 export async function PATCH(request: Request) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request as any, {
+      windowMs: 1 * 60 * 1000, // 1 minute
+      maxRequests: 30, // 30 requests per minute for admin
+      message: 'Твърде много заявки. Моля опитайте след 1 минута.'
+    })
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -134,13 +165,17 @@ export async function PATCH(request: Request) {
         },
       }
     )
-    const { taskId, updates } = await request.json()
+    const { taskId, updates, notes } = await request.json()
+
+    if (!taskId) {
+      throw new ValidationError('Task ID is required', ErrorMessages.MISSING_FIELDS)
+    }
 
     // Проверка за админ права
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Неоторизиран достъп' }, { status: 401 })
+      throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
     const { data: profile } = await supabase
@@ -150,7 +185,18 @@ export async function PATCH(request: Request) {
       .single()
 
     if (!profile?.is_admin) {
-      return NextResponse.json({ error: 'Нямате админ права' }, { status: 403 })
+      throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
+    }
+
+    const { data: existingTask, error: fetchError } = await supabase
+      .from('tasks')
+      .select('status')
+      .eq('id', taskId)
+      .single()
+
+    if (fetchError) {
+      logger.error('Error loading task before update', fetchError, { taskId, userId: user.id })
+      throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
     // Обновяване на задачата
@@ -161,21 +207,50 @@ export async function PATCH(request: Request) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error updating task', error, { taskId, userId: user.id, updates })
+      throw error
+    }
+
+    // Запис на модерационен лог
+    try {
+      const statusAfter = updates.status || data.status
+      const shouldLogStatusChange = updates.status && existingTask?.status !== updates.status
+
+      await supabase.from('task_moderation_logs').insert({
+        task_id: taskId,
+        moderated_by: user.id,
+        action: shouldLogStatusChange ? 'manual_status_update' : 'manual_update',
+        status_after: statusAfter,
+        notes: notes || (shouldLogStatusChange
+          ? `Статус променен от ${existingTask?.status || 'неизвестен'} на ${updates.status}`
+          : 'Администратор актуализира задачата')
+      })
+    } catch (logError) {
+      logger.error('Error writing moderation log', logError as Error, { taskId, userId: user.id })
+    }
+
+    logger.info('Task updated by admin', { taskId, userId: user.id, updates, statusAfter })
 
     return NextResponse.json({ task: data })
 
   } catch (error) {
-    console.error('Error updating task:', error)
-    return NextResponse.json(
-      { error: 'Възникна грешка при обновяването на задачата' },
-      { status: 500 }
-    )
+    return handleApiError(error, { endpoint: 'PATCH /api/admin/tasks' })
   }
 }
 
 export async function DELETE(request: Request) {
   try {
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request as any, {
+      windowMs: 1 * 60 * 1000, // 1 minute
+      maxRequests: 10, // 10 delete requests per minute (stricter)
+      message: 'Твърде много заявки за изтриване. Моля опитайте след 1 минута.'
+    })
+    if (rateLimitResult.limited) {
+      return rateLimitResult.response!
+    }
+
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -198,14 +273,14 @@ export async function DELETE(request: Request) {
     const taskId = searchParams.get('taskId')
 
     if (!taskId) {
-      return NextResponse.json({ error: 'ID на задача е задължително' }, { status: 400 })
+      throw new ValidationError('ID на задача е задължително', ErrorMessages.MISSING_FIELDS)
     }
 
     // Проверка за админ права
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Неоторизиран достъп' }, { status: 401 })
+      throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
     const { data: profile } = await supabase
@@ -215,7 +290,19 @@ export async function DELETE(request: Request) {
       .single()
 
     if (!profile?.is_admin) {
-      return NextResponse.json({ error: 'Нямате админ права' }, { status: 403 })
+      throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
+    }
+
+    // Проверка дали задачата съществува
+    const { data: existingTask, error: fetchError } = await supabase
+      .from('tasks')
+      .select('id')
+      .eq('id', taskId)
+      .single()
+
+    if (fetchError || !existingTask) {
+      logger.error('Task not found for deletion', fetchError as Error, { taskId, userId: user.id })
+      throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
     // Изтриване на задачата (ще изтрие и свързаните данни заради CASCADE)
@@ -224,15 +311,16 @@ export async function DELETE(request: Request) {
       .delete()
       .eq('id', taskId)
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error deleting task', error, { taskId, userId: user.id })
+      throw error
+    }
+
+    logger.info('Task deleted by admin', { taskId, userId: user.id })
 
     return NextResponse.json({ success: true })
 
   } catch (error) {
-    console.error('Error deleting task:', error)
-    return NextResponse.json(
-      { error: 'Възникна грешка при изтриването на задачата' },
-      { status: 500 }
-    )
+    return handleApiError(error, { endpoint: 'DELETE /api/admin/tasks' })
   }
 }

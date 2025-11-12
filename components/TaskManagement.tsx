@@ -16,7 +16,8 @@ import {
   ChevronRight,
   MapPin,
   DollarSign,
-  User
+  User,
+  Shield
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -63,6 +64,10 @@ export default function TaskManagement() {
   const [statusFilter, setStatusFilter] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [selectedTasks, setSelectedTasks] = useState<string[]>([])
+  const [logsModalTask, setLogsModalTask] = useState<Task | null>(null)
+  const [logs, setLogs] = useState<ModerationLog[]>([])
+  const [logsLoading, setLogsLoading] = useState(false)
+  const [logsError, setLogsError] = useState<string | null>(null)
 
   const categories = [
     'Ремонт и поддръжка',
@@ -105,7 +110,11 @@ export default function TaskManagement() {
     }
   }
 
-  const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
+  const handleTaskUpdate = async (
+    taskId: string,
+    updates: Partial<Task>,
+    options?: { notes?: string; issues?: string[]; skipReload?: boolean }
+  ) => {
     try {
       const response = await fetch('/api/admin/tasks', {
         method: 'PATCH',
@@ -114,7 +123,9 @@ export default function TaskManagement() {
         },
         body: JSON.stringify({
           taskId,
-          updates
+          updates,
+          notes: options?.notes,
+          issues: options?.issues
         })
       })
 
@@ -123,7 +134,9 @@ export default function TaskManagement() {
       }
 
       toast.success('Задачата е обновена успешно')
-      loadTasks()
+      if (!options?.skipReload) {
+        loadTasks()
+      }
     } catch (error) {
       console.error('Error updating task:', error)
       toast.error('Възникна грешка при обновяването на задачата')
@@ -161,16 +174,17 @@ export default function TaskManagement() {
     try {
       for (const taskId of selectedTasks) {
         if (action === 'activate') {
-          await handleTaskUpdate(taskId, { status: 'active' })
+          await handleTaskUpdate(taskId, { status: 'active' }, { notes: 'Администратор активира задачата', skipReload: true })
         } else if (action === 'complete') {
-          await handleTaskUpdate(taskId, { status: 'completed' })
+          await handleTaskUpdate(taskId, { status: 'completed' }, { notes: 'Администратор маркира задачата като завършена', skipReload: true })
         } else if (action === 'cancel') {
-          await handleTaskUpdate(taskId, { status: 'cancelled' })
+          await handleTaskUpdate(taskId, { status: 'cancelled' }, { notes: 'Администратор отказа задачата', skipReload: true })
         }
       }
 
       toast.success(`${action} приложено успешно към ${selectedTasks.length} задачи`)
       setSelectedTasks([])
+      loadTasks()
     } catch (error) {
       console.error('Error performing bulk action:', error)
       toast.error('Възникна грешка при изпълнението на действието')
@@ -211,6 +225,8 @@ export default function TaskManagement() {
         return <XCircle size={16} className="text-red-600" />
       case 'in_progress':
         return <AlertCircle size={16} className="text-yellow-600" />
+      case 'pending':
+        return <Clock size={16} className="text-orange-500" />
       default:
         return <Clock size={16} className="text-gray-600" />
     }
@@ -220,11 +236,147 @@ export default function TaskManagement() {
     switch (status) {
       case 'active':
         return 'Активна'
+      case 'pending':
+        return 'Изчаква преглед'
       case 'completed':
         return 'Завършена'
       case 'cancelled':
         return 'Отказана'
       case 'in_progress':
+  const openLogsModal = async (task: Task) => {
+    setLogsModalTask(task)
+    setLogsLoading(true)
+    setLogsError(null)
+    try {
+      const response = await fetch(`/api/admin/tasks/logs?taskId=${task.id}`)
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data?.error || 'Неуспешно зареждане на модерационната история')
+      }
+      setLogs(data.logs || [])
+    } catch (error) {
+      console.error('Error loading moderation logs:', error)
+      setLogsError(error instanceof Error ? error.message : 'Възникна грешка при зареждането на историята')
+    } finally {
+      setLogsLoading(false)
+    }
+  }
+
+  const closeLogsModal = () => {
+    setLogsModalTask(null)
+    setLogs([])
+    setLogsError(null)
+  }
+
+  const renderStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
+            <Clock size={12} />
+            Изчаква преглед
+          </span>
+        )
+      case 'active':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+            <Clock size={12} />
+            Активна
+          </span>
+        )
+      case 'completed':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+            <CheckCircle size={12} />
+            Завършена
+          </span>
+        )
+      case 'cancelled':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+            <XCircle size={12} />
+            Отказана
+          </span>
+        )
+      case 'in_progress':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-700">
+            <AlertCircle size={12} />
+            В процес
+          </span>
+        )
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">
+            <Clock size={12} />
+            {status}
+          </span>
+        )
+    }
+  }
+
+  const renderTaskActions = (task: Task) => {
+    const isPending = task.status === 'pending'
+    const isActive = task.status === 'active'
+
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => openLogsModal(task)}
+          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+          title="История на модерацията"
+        >
+          <Activity size={16} />
+        </button>
+
+        {isPending ? (
+          <>
+            <button
+              onClick={() =>
+                handleTaskUpdate(task.id, { status: 'active' }, { notes: 'Администратор одобри задачата' })
+              }
+              className="px-3 py-1 text-xs font-semibold rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+            >
+              Одобри
+            </button>
+            <button
+              onClick={() =>
+                handleTaskUpdate(task.id, { status: 'cancelled' }, { notes: 'Администратор отхвърли задачата' })
+              }
+              className="px-3 py-1 text-xs font-semibold rounded-lg border border-red-500 text-red-600 hover:bg-red-50 transition-colors"
+            >
+              Откажи
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() =>
+                handleTaskUpdate(
+                  task.id,
+                  { status: isActive ? 'cancelled' : 'active' },
+                  { notes: isActive ? 'Администратор отказа задачата' : 'Администратор активира задачата' }
+                )
+              }
+              className={`p-2 rounded-lg transition-colors ${
+                isActive ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'
+              }`}
+              title={isActive ? 'Откажи задача' : 'Активирай задача'}
+            >
+              {isActive ? <XCircle size={16} /> : <CheckCircle size={16} />}
+            </button>
+            <button
+              onClick={() => handleTaskDelete(task.id)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Изтрий задача"
+            >
+              <Trash2 size={16} />
+            </button>
+          </>
+        )}
+      </div>
+    )
+  }
         return 'В процес'
       default:
         return status
@@ -257,6 +409,7 @@ export default function TaskManagement() {
             <option value="in_progress">В процес</option>
             <option value="completed">Завършени</option>
             <option value="cancelled">Отказани</option>
+            <option value="pending">Изчаква преглед</option>
           </select>
           <select
             value={categoryFilter}
@@ -402,6 +555,7 @@ export default function TaskManagement() {
                         <div className="flex items-center gap-2">
                           {getStatusIcon(task.status)}
                           <span className="text-sm text-gray-900">{getStatusText(task.status)}</span>
+                          {renderStatusBadge(task.status)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -419,28 +573,7 @@ export default function TaskManagement() {
                         {formatDate(task.created_at)}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleTaskUpdate(task.id, { 
-                              status: task.status === 'active' ? 'cancelled' : 'active' 
-                            })}
-                            className={`p-2 rounded-lg transition-colors ${
-                              task.status === 'active' 
-                                ? 'text-red-600 hover:bg-red-50' 
-                                : 'text-green-600 hover:bg-green-50'
-                            }`}
-                            title={task.status === 'active' ? 'Откажи задача' : 'Активирай задача'}
-                          >
-                            {task.status === 'active' ? <XCircle size={16} /> : <CheckCircle size={16} />}
-                          </button>
-                          <button
-                            onClick={() => handleTaskDelete(task.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Изтрий задача"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        {renderTaskActions(task)}
                       </td>
                     </tr>
                   ))}
@@ -512,7 +645,127 @@ export default function TaskManagement() {
           </>
         )}
       </div>
+      {/* Logs Modal */}
+      {logsModalTask && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-6">
+          <div className="w-full sm:max-w-3xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">История на модерацията</h3>
+                <p className="text-sm text-gray-500">Задача: {logsModalTask.title}</p>
+              </div>
+              <button
+                onClick={closeLogsModal}
+                className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <XCircle size={18} />
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto px-4 py-4">
+              {logsLoading ? (
+                <div className="py-12 flex flex-col items-center gap-3 text-gray-500">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  Зареждане на историята...
+                </div>
+              ) : logsError ? (
+                <div className="py-8 text-center text-red-600 text-sm">{logsError}</div>
+              ) : logs.length === 0 ? (
+                <div className="py-8 text-center text-sm text-gray-500">
+                  Няма записана модерационна история за тази задача.
+                </div>
+              ) : (
+                <ul className="space-y-4">
+                  {logs.map((log) => (
+                    <li key={log.id} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                          <Activity size={16} className="text-blue-600" />
+                          {renderLogActionText(log.action)}
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {new Date(log.created_at).toLocaleString('bg-BG')}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {log.status_after && renderStatusBadge(log.status_after)}
+                        {log.moderator && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700">
+                            <User size={12} />
+                            {log.moderator.full_name || log.moderator.email || 'Система'}
+                          </span>
+                        )}
+                        {!log.moderator && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700">
+                            <Shield size={12} />
+                            Автоматична проверка
+                          </span>
+                        )}
+                      </div>
+                      {log.notes && (
+                        <p className="mt-3 text-sm text-gray-700">{log.notes}</p>
+                      )}
+                      {log.issues && log.issues.length > 0 && (
+                        <div className="mt-3 rounded-lg bg-white border border-orange-200 px-3 py-2">
+                          <p className="text-xs font-semibold text-orange-600 uppercase tracking-wide">
+                            Потенциални проблеми
+                          </p>
+                          <ul className="mt-2 space-y-1 text-sm text-orange-700">
+                            {log.issues.map((issue, index) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <AlertCircle size={14} className="mt-1 flex-shrink-0" />
+                                <span>{issue}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="border-t border-gray-200 px-4 py-3 text-right">
+              <button
+                onClick={closeLogsModal}
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                Затвори
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+interface ModerationLog {
+  id: string
+  task_id: string
+  action: string
+  status_after: string | null
+  issues: string[] | null
+  notes: string | null
+  created_at: string
+  moderator?: {
+    id: string
+    full_name?: string | null
+    email?: string | null
+  } | null
+}
+
+const renderLogActionText = (action: string) => {
+  switch (action) {
+    case 'auto_review':
+      return 'Автоматична проверка'
+    case 'auto_approved':
+      return 'Автоматично одобрена'
+    case 'manual_status_update':
+      return 'Ръчна промяна на статуса'
+    case 'manual_update':
+      return 'Ръчна актуализация'
+    default:
+      return action
+  }
 }
 
