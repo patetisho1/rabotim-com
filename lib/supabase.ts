@@ -300,23 +300,48 @@ export const db = {
   },
 
   async canUserRate(userId: string, taskId: string): Promise<{ canRate: boolean; reason: 'not_completed' | 'already_rated' | 'allowed' }> {
-    // Task must be completed before ratings/reviews are allowed
-    const { data: taskData, error: taskError } = await supabase
-      .from('tasks')
-      .select('status')
-      .eq('id', taskId)
-      .single()
+    // Use the database function can_rate_task which handles 7-day rule
+    const { data: canRate, error: rpcError } = await supabase.rpc('can_rate_task', {
+      task_id_param: taskId,
+      user_id_param: userId
+    })
 
-    if (taskError) {
-      logger.error('canUserRate task lookup error', taskError, { userId, taskId })
+    if (rpcError) {
+      logger.error('can_rate_task RPC error', rpcError, { userId, taskId })
+      // Fallback to old logic if RPC fails
+      const { data: taskData, error: taskError } = await supabase
+        .from('tasks')
+        .select('status')
+        .eq('id', taskId)
+        .single()
+
+      if (taskError || !taskData || taskData.status !== 'completed') {
+        return { canRate: false, reason: 'not_completed' }
+      }
+    } else if (!canRate) {
+      // Check why user can't rate - check for existing reviews/ratings
+      const { data: existingReview } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('reviewer_id', userId)
+        .single()
+
+      const { data: existingRating } = await supabase
+        .from('ratings')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('reviewer_id', userId)
+        .single()
+
+      if (existingReview || existingRating) {
+        return { canRate: false, reason: 'already_rated' }
+      }
+
       return { canRate: false, reason: 'not_completed' }
     }
 
-    if (!taskData || taskData.status !== 'completed') {
-      return { canRate: false, reason: 'not_completed' }
-    }
-
-    // Check for existing review
+    // Double-check for existing review/rating to prevent duplicates
     const { data: existingReview, error: reviewError } = await supabase
       .from('reviews')
       .select('id')
@@ -332,7 +357,6 @@ export const db = {
       return { canRate: false, reason: 'already_rated' }
     }
 
-    // Check for existing rating entry
     const { data: existingRating, error: ratingError } = await supabase
       .from('ratings')
       .select('id')

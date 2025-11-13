@@ -23,6 +23,11 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { Task } from '@/hooks/useTasksAPI'
 import ProfileContactInfo from '@/components/ProfileContactInfo'
+import { useRatings } from '@/hooks/useRatings'
+import { Review } from '@/types/rating'
+import { formatDistanceToNow } from 'date-fns'
+import { bg } from 'date-fns/locale'
+import OptimizedImage from '@/components/OptimizedImage'
 
 interface UserProfile {
   id: number
@@ -54,11 +59,36 @@ export default function UserProfilePage() {
   const [userTasks, setUserTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'reviews'>('overview')
+  const { reviews, isLoading: reviewsLoading, loadUserRatings } = useRatings()
+  const [filteredReviews, setFilteredReviews] = useState<Review[]>([])
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'verified' | '5' | '4' | '3' | '2' | '1'>('all')
 
   useEffect(() => {
     loadUserProfile()
     loadUserTasks()
   }, [userId])
+
+  useEffect(() => {
+    if (userId && activeTab === 'reviews') {
+      loadUserRatings(userId)
+    }
+  }, [userId, activeTab, loadUserRatings])
+
+  useEffect(() => {
+    if (reviews.length > 0) {
+      let filtered = [...reviews]
+
+      if (reviewFilter === 'verified') {
+        filtered = filtered.filter(r => r.isVerified)
+      } else if (reviewFilter !== 'all') {
+        filtered = filtered.filter(r => r.rating === parseInt(reviewFilter))
+      }
+
+      setFilteredReviews(filtered)
+    } else {
+      setFilteredReviews([])
+    }
+  }, [reviews, reviewFilter])
 
   const loadUserProfile = () => {
     try {
@@ -436,9 +466,170 @@ export default function UserProfilePage() {
                 )}
 
                 {activeTab === 'reviews' && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>Отзивите ще бъдат достъпни скоро</p>
+                  <div className="space-y-6">
+                    {/* Reviews Filter */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Филтрирай:</span>
+                      <button
+                        onClick={() => setReviewFilter('all')}
+                        className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                          reviewFilter === 'all'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        Всички ({reviews.length})
+                      </button>
+                      <button
+                        onClick={() => setReviewFilter('verified')}
+                        className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                          reviewFilter === 'verified'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        Верифицирани ({reviews.filter(r => r.isVerified).length})
+                      </button>
+                      {[5, 4, 3, 2, 1].map(rating => (
+                        <button
+                          key={rating}
+                          onClick={() => setReviewFilter(rating.toString() as any)}
+                          className={`px-3 py-1 rounded-lg text-sm transition-colors flex items-center gap-1 ${
+                            reviewFilter === rating.toString()
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          <Star size={14} className={reviewFilter === rating.toString() ? 'fill-current' : 'fill-gray-400'} />
+                          {rating} ({reviews.filter(r => r.rating === rating).length})
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Reviews List */}
+                    {reviewsLoading ? (
+                      <div className="text-center py-8">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400">Зареждане на отзиви...</p>
+                      </div>
+                    ) : filteredReviews.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {reviews.length === 0 ? 'Все още няма отзиви за този потребител.' : 'Няма отзиви, отговарящи на избраните филтри.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {filteredReviews.map((review) => (
+                          <div
+                            key={review.id}
+                            className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+                                  <OptimizedImage
+                                    src={(review as any).reviewer?.avatar_url || '/default-avatar.png'}
+                                    alt={(review as any).reviewer?.full_name || 'Потребител'}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full"
+                                    sizes="40px"
+                                    objectFit="cover"
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                                      {(review as any).reviewer?.full_name || 'Анонимен потребител'}
+                                    </h4>
+                                    {review.isVerified && (
+                                      <CheckCircle size={14} className="text-green-600" />
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {(review as any).task?.title || 'Задача'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="flex items-center gap-1 mb-1">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      size={16}
+                                      className={i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {formatDistanceToNow(review.createdAt, { addSuffix: true, locale: bg })}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Review Title */}
+                            {review.title && (
+                              <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                {review.title}
+                              </h5>
+                            )}
+
+                            {/* Review Comment */}
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                              {review.comment}
+                            </p>
+
+                            {/* Pros */}
+                            {review.pros && review.pros.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">Плюсове:</p>
+                                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                  {review.pros.map((pro, idx) => (
+                                    <li key={idx}>{pro}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* Cons */}
+                            {review.cons && review.cons.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-1">Минуси:</p>
+                                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                  {review.cons.map((con, idx) => (
+                                    <li key={idx}>{con}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* Tags */}
+                            {review.tags && review.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-4">
+                                {review.tags.map((tag, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 text-xs rounded-full"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Helpful Count */}
+                            {review.helpfulCount > 0 && (
+                              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <CheckCircle size={14} />
+                                <span>{review.helpfulCount} човека намират това полезно</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
