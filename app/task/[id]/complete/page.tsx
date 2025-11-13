@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { 
   ArrowLeft,
@@ -66,6 +66,32 @@ export default function CompleteTaskPage() {
   
   const { addRating, addReview } = useRatings()
 
+  // Check if task should be auto-completed
+  const checkAutoCompletion = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/check-completion`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.autoCompleted) {
+          // Task was auto-completed, reload data
+          toast.success('Задачата е автоматично завършена след 7 дни.')
+          // Reload will be handled by useEffect
+          return true
+        }
+      }
+    } catch (error) {
+      console.error('Error checking auto-completion:', error)
+      // Don't show error to user, just log it
+    }
+    return false
+  }, [taskId])
+
   useEffect(() => {
     if (authLoading) return
     
@@ -75,8 +101,17 @@ export default function CompleteTaskPage() {
       return
     }
     
-    loadTaskData()
-  }, [authUser, authLoading, taskId])
+    const initialize = async () => {
+      await loadTaskData()
+      // Check for auto-completion when component mounts
+      const wasCompleted = await checkAutoCompletion()
+      if (wasCompleted) {
+        await loadTaskData()
+      }
+    }
+    
+    initialize()
+  }, [authUser, authLoading, taskId, checkAutoCompletion])
 
   const loadTaskData = async () => {
     try {
@@ -283,13 +318,14 @@ export default function CompleteTaskPage() {
         await loadTaskData()
       } else {
         toast.success('Вашето потвърждение е записано. Чакаме потвърждение от другата страна.')
-        toast('💡 Ако другата страна не потвърди до 7 дни, автоматично ще можете да оставите отзив.', {
-          duration: 5000,
+        toast('💡 Ако другата страна не потвърди до 7 дни, задачата ще се завърши автоматично и ще можете да оставите отзив.', {
+          duration: 6000,
           icon: 'ℹ️'
         })
         setCanLeaveFeedback(false)
         setAutoFeedbackDate(new Date(new Date(confirmationTimestamp).getTime() + 7 * 24 * 60 * 60 * 1000))
-        router.push(`/task/${taskId}`)
+        // Reload data to show updated status
+        await loadTaskData()
       }
     } catch (error: any) {
       console.error('Error confirming completion:', error)
@@ -512,11 +548,15 @@ export default function CompleteTaskPage() {
             <div className="mb-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
                 <Clock className="h-4 w-4" />
-                <span>Очаквано отключване на обратната връзка: {autoFeedbackDate.toLocaleDateString('bg-BG')}</span>
+                <span>Автоматично завършване: {autoFeedbackDate.toLocaleDateString('bg-BG')}</span>
               </div>
               <p className="mt-2 text-xs text-blue-700 dark:text-blue-200">
-                Ако другата страна не потвърди до тази дата, автоматично ще можете да оставите оценка и отзив.
+                Ако другата страна не потвърди до тази дата, задачата ще се завърши автоматично и ще можете да оставите оценка и отзив.
               </p>
+              {/* Countdown */}
+              <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                Оставащи дни: {Math.ceil((autoFeedbackDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+              </div>
             </div>
           )}
 
