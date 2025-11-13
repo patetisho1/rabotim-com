@@ -217,10 +217,12 @@
 - **Приоритет:** Нисък (code quality)
 
 ### Tasks Page - Mock Data Cleanup
-- [ ] Премахване на `mockTasks` array в `app/tasks/page.tsx`
-- [ ] Използване само на реални данни от API
-- [ ] Fallback UI ако няма задачи
-- **Приоритет:** Среден
+- [x] Премахване на `mockTasks` array в `app/tasks/page.tsx`
+- [x] Използване само на реални данни от API
+- [x] Fallback UI ако няма задачи
+- [x] Подобрен empty state с CTA бутон "Публикувай първата задача"
+- [x] Бутон за изчистване на филтрите когато има активни филтри
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
 
 ### API Routes - Standardized Error Responses
 - [ ] Проверка на всички API routes за консистентни error responses
