@@ -105,10 +105,59 @@ export default function RegisterPage() {
         // Проверяваме дали потребителят е вече потвърден
         if (data.user.email_confirmed_at) {
           toast.success('Регистрацията е успешна! Добре дошли!')
+          
+          // Изпращане на welcome email ако Resend е конфигуриран
+          try {
+            await fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'welcome',
+                to: formData.email,
+                name: `${formData.firstName} ${formData.lastName}`
+              })
+            })
+          } catch (emailError) {
+            // Игнорираме грешки при изпращане на welcome email - не е критично
+            console.log('Welcome email not sent (Resend may not be configured):', emailError)
+          }
+          
           router.push('/')
         } else {
-          toast.success('Регистрацията е успешна! Моля, проверете имейла си за потвърждение.')
-          router.push('/login')
+          // Ако email не е потвърден, провери дали confirmations са включени
+          // Ако не са, директно логни потребителя
+          if (data.session) {
+            // Session съществува - потвърждението не е задължително
+            toast.success('Регистрацията е успешна! Добре дошли!')
+            
+            // Изпращане на welcome email ако Resend е конфигуриран
+            try {
+              await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'welcome',
+                  to: formData.email,
+                  name: `${formData.firstName} ${formData.lastName}`
+                })
+              })
+            } catch (emailError) {
+              console.log('Welcome email not sent:', emailError)
+            }
+            
+            router.push('/')
+          } else {
+            // Няма session и няма потвърждение - вероятно confirmations са включени, но SMTP не работи
+            toast.success('Регистрацията е успешна! Влезте в акаунта си.', {
+              duration: 5000,
+              icon: '⚠️'
+            })
+            toast('Имейл за потвърждение може да не е изпратен. Моля, опитайте да влезете с вашите данни.', {
+              duration: 8000,
+              icon: 'ℹ️'
+            })
+            router.push('/login')
+          }
         }
         return
       }
