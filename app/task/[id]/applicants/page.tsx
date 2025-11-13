@@ -25,6 +25,7 @@ interface Applicant {
   message: string
   status: 'pending' | 'accepted' | 'rejected'
   created_at: string
+  proposed_price?: number | null
   user: {
     id: string
     full_name: string
@@ -53,6 +54,11 @@ export default function TaskApplicantsPage() {
   const [applicants, setApplicants] = useState<Applicant[]>([])
   const [loading, setLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [rejectingApplicantId, setRejectingApplicantId] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [sortBy, setSortBy] = useState<'date' | 'rating' | 'price'>('date')
+  const [filterBy, setFilterBy] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all')
 
   useEffect(() => {
     if (authLoading) return
@@ -101,41 +107,26 @@ export default function TaskApplicantsPage() {
       })
 
       // Load applicants
-      const { data: applicantsData, error: applicantsError } = await supabase
-        .from('task_applications')
-        .select(`
-          id,
-          user_id,
-          message,
-          status,
-          created_at,
-          users:user_id (
-            id,
-            full_name,
-            avatar_url,
-            rating,
-            total_reviews,
-            verified
-          )
-        `)
-        .eq('task_id', taskId)
-        .order('created_at', { ascending: false })
+      const response = await fetch(`/api/applications?task_id=${taskId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications')
+      }
+      const applicantsData = await response.json()
 
-      if (applicantsError) throw applicantsError
-
-      const formattedApplicants = (applicantsData || []).map((app: any) => ({
+      const formattedApplicants = (Array.isArray(applicantsData) ? applicantsData : []).map((app: any) => ({
         id: app.id,
-        user_id: app.user_id,
+        user_id: app.user_id || app.user?.id,
         message: app.message || '',
         status: app.status,
         created_at: app.created_at,
+        proposed_price: app.proposed_price || null,
         user: {
-          id: app.users.id,
-          full_name: app.users.full_name,
-          avatar_url: app.users.avatar_url,
-          rating: app.users.rating,
-          total_reviews: app.users.total_reviews,
-          verified: app.users.verified
+          id: app.user?.id || app.users?.id,
+          full_name: app.user?.full_name || app.users?.full_name,
+          avatar_url: app.user?.avatar_url || app.users?.avatar_url,
+          rating: app.user?.rating || app.users?.rating,
+          total_reviews: app.user?.total_reviews || app.users?.total_reviews,
+          verified: app.user?.verified || app.users?.verified
         }
       }))
 
@@ -148,30 +139,29 @@ export default function TaskApplicantsPage() {
     }
   }
 
-  const handleAcceptApplicant = async (applicantId: string, userId: string) => {
-    if (!confirm('Сигурни ли сте, че искате да приемете този кандидат?')) {
-      return
-    }
+  const handleAcceptApplicant = async (applicantId: string) => {
+    if (!authUser || !taskId) return
 
     setProcessingId(applicantId)
     
     try {
-      // Update application status to accepted
-      const { error: updateError } = await supabase
-        .from('task_applications')
-        .update({ status: 'accepted' })
-        .eq('id', applicantId)
+      const response = await fetch('/api/applications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          application_id: applicantId,
+          status: 'accepted',
+          task_id: taskId,
+          requester_id: authUser.id,
+        }),
+      })
 
-      if (updateError) throw updateError
+      const result = await response.json()
 
-      // Update task status to in_progress if not already
-      if (task?.status === 'active') {
-        const { error: taskError } = await supabase
-          .from('tasks')
-          .update({ status: 'in_progress' })
-          .eq('id', taskId)
-
-        if (taskError) throw taskError
+      if (!response.ok) {
+        throw new Error(result?.error || 'Грешка при приемане на кандидата')
       }
 
       toast.success('Кандидатът е приет успешно!')
@@ -180,34 +170,54 @@ export default function TaskApplicantsPage() {
       await loadTaskAndApplicants()
     } catch (error: any) {
       console.error('Error accepting applicant:', error)
-      toast.error('Грешка при приемане на кандидата')
+      toast.error(error.message || 'Грешка при приемане на кандидата')
     } finally {
       setProcessingId(null)
     }
   }
 
-  const handleRejectApplicant = async (applicantId: string) => {
-    if (!confirm('Сигурни ли сте, че искате да отхвърлите този кандидат?')) {
-      return
-    }
+  const openRejectModal = (applicantId: string) => {
+    setRejectingApplicantId(applicantId)
+    setRejectReason('')
+    setShowRejectModal(true)
+  }
 
-    setProcessingId(applicantId)
+  const handleRejectApplicant = async () => {
+    if (!authUser || !taskId || !rejectingApplicantId) return
+
+    setProcessingId(rejectingApplicantId)
     
     try {
-      const { error } = await supabase
-        .from('task_applications')
-        .update({ status: 'rejected' })
-        .eq('id', applicantId)
+      const response = await fetch('/api/applications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          application_id: rejectingApplicantId,
+          status: 'rejected',
+          task_id: taskId,
+          requester_id: authUser.id,
+          reason: rejectReason.trim() || undefined,
+        }),
+      })
 
-      if (error) throw error
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Грешка при отхвърляне на кандидата')
+      }
 
       toast.success('Кандидатът е отхвърлен')
       
-      // Reload data
+      // Close modal and reload data
+      setShowRejectModal(false)
+      setRejectingApplicantId(null)
+      setRejectReason('')
       await loadTaskAndApplicants()
     } catch (error: any) {
       console.error('Error rejecting applicant:', error)
-      toast.error('Грешка при отхвърляне на кандидата')
+      toast.error(error.message || 'Грешка при отхвърляне на кандидата')
     } finally {
       setProcessingId(null)
     }
@@ -251,9 +261,39 @@ export default function TaskApplicantsPage() {
     return null
   }
 
-  const pendingApplicants = applicants.filter(a => a.status === 'pending')
-  const acceptedApplicants = applicants.filter(a => a.status === 'accepted')
-  const rejectedApplicants = applicants.filter(a => a.status === 'rejected')
+  // Sort and filter applicants
+  const getSortedAndFilteredApplicants = () => {
+    let filtered = applicants
+
+    // Filter
+    if (filterBy !== 'all') {
+      filtered = filtered.filter(a => a.status === filterBy)
+    }
+
+    // Sort
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'rating':
+          const aRating = a.user.rating || 0
+          const bRating = b.user.rating || 0
+          return bRating - aRating
+        case 'price':
+          const aPrice = a.proposed_price || 0
+          const bPrice = b.proposed_price || 0
+          return aPrice - bPrice
+        case 'date':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
+    })
+
+    return sorted
+  }
+
+  const filteredApplicants = getSortedAndFilteredApplicants()
+  const pendingApplicants = filteredApplicants.filter(a => a.status === 'pending')
+  const acceptedApplicants = filteredApplicants.filter(a => a.status === 'accepted')
+  const rejectedApplicants = filteredApplicants.filter(a => a.status === 'rejected')
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -283,6 +323,35 @@ export default function TaskApplicantsPage() {
                 В процес
               </span>
             )}
+          </div>
+
+          {/* Filters and Sort */}
+          <div className="mt-4 flex flex-wrap items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Филтрирай:</span>
+              <select
+                value={filterBy}
+                onChange={(e) => setFilterBy(e.target.value as any)}
+                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+              >
+                <option value="all">Всички</option>
+                <option value="pending">В изчакване</option>
+                <option value="accepted">Приети</option>
+                <option value="rejected">Отхвърлени</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Сортирай по:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+              >
+                <option value="date">Дата</option>
+                <option value="rating">Рейтинг</option>
+                <option value="price">Цена</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -340,18 +409,30 @@ export default function TaskApplicantsPage() {
                         </div>
                       )}
 
+                      {/* Proposed Price */}
+                      {applicant.proposed_price && (
+                        <div className="mb-3 flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Предложена цена:
+                          </span>
+                          <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                            {applicant.proposed_price.toFixed(2)} лв
+                          </span>
+                        </div>
+                      )}
+
                       {/* Actions */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
-                          onClick={() => handleAcceptApplicant(applicant.id, applicant.user_id)}
-                          disabled={processingId === applicant.id}
+                          onClick={() => handleAcceptApplicant(applicant.id)}
+                          disabled={processingId === applicant.id || task?.status === 'in_progress'}
                           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           <CheckCircle size={16} />
                           Приеми
                         </button>
                         <button
-                          onClick={() => handleRejectApplicant(applicant.id)}
+                          onClick={() => openRejectModal(applicant.id)}
                           disabled={processingId === applicant.id}
                           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
@@ -467,6 +548,67 @@ export default function TaskApplicantsPage() {
             <p className="text-gray-600 dark:text-gray-400">
               Когато някой кандидатства за вашата задача, ще го видите тук
             </p>
+          </div>
+        )}
+
+        {/* Reject Modal */}
+        {showRejectModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Отхвърли кандидат
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Сигурни ли сте, че искате да отхвърлите този кандидат? Можете да добавите причина (незадължително).
+              </p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Причина (незадължително)
+                </label>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Например: Не отговаря на изискванията..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  rows={3}
+                  maxLength={500}
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {rejectReason.length}/500 символа
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowRejectModal(false)
+                    setRejectingApplicantId(null)
+                    setRejectReason('')
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Откажи
+                </button>
+                <button
+                  onClick={handleRejectApplicant}
+                  disabled={processingId !== null}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {processingId !== null ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Отхвърляне...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle size={16} />
+                      Отхвърли
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
