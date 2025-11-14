@@ -174,6 +174,16 @@ function PostTaskPageContent() {
     setIsSubmitting(true)
 
     try {
+      // Получаване на access token за автентикация
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Error getting session:', sessionError)
+        toast.error('Грешка при автентикация. Моля, опитайте отново или влезте в акаунта си.')
+        router.push('/login')
+        return
+      }
+
       // Качване на снимки в Supabase Storage
       let imageUrls: string[] = []
       if (images.length > 0) {
@@ -208,7 +218,8 @@ function PostTaskPageContent() {
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}` // Изпращаме access token в header
         },
         credentials: 'include', // Важно: изпраща cookies за автентикация
         body: JSON.stringify({

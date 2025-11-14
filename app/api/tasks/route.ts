@@ -115,7 +115,13 @@ export async function POST(request: NextRequest) {
     }
 
     const cookieStore = cookies()
-    const supabase = createServerClient(
+    
+    // Проверка за access token в Authorization header (fallback за cookies)
+    const authHeader = request.headers.get('authorization')
+    const accessToken = authHeader?.replace('Bearer ', '')
+    
+    // Създаваме Supabase client - ако има access token, използваме го
+    let supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wwbxzkbilklullziiogr.supabase.co',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Ynh6a2JpbGtsdWxsemlpb2dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNzQwMjMsImV4cCI6MjA3MjY1MDAyM30.o1GA7hqkhIn9wH3HzdpkmUEkjz13HJGixfZ9ggVCvu0',
       {
@@ -127,14 +133,29 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    // Проверка за автентикация
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Ако има access token в header, го използваме директно
+    let user
+    let authError
+    
+    if (accessToken) {
+      // Използваме getUser с access token
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(accessToken)
+      user = tokenUser
+      authError = tokenError
+    } else {
+      // Опитваме се от cookies
+      const { data: { user: cookieUser }, error: cookieError } = await supabase.auth.getUser()
+      user = cookieUser
+      authError = cookieError
+    }
     
     if (authError || !user) {
       logger.error('Authentication failed in POST /api/tasks', authError as Error || new Error('No user found'), {
         hasError: !!authError,
         errorMessage: authError?.message,
-        hasUser: !!user
+        hasUser: !!user,
+        hasAccessToken: !!accessToken,
+        hasAuthHeader: !!authHeader
       })
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
