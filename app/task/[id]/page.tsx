@@ -234,6 +234,12 @@ function TaskDetailPageContent() {
     setIsApplying(true)
     
     try {
+      console.log('Applying for task:', {
+        task_id: taskId,
+        user_id: authUser.id,
+        message_length: applicationMessage.trim().length
+      })
+
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: {
@@ -247,9 +253,20 @@ function TaskDetailPageContent() {
       })
 
       const result = await response.json()
+      console.log('Application response:', {
+        status: response.status,
+        ok: response.ok,
+        result
+      })
 
       if (!response.ok) {
-        throw new Error(result.error || 'Грешка при изпращането на кандидатурата')
+        const errorMessage = result.error || result.message || 'Грешка при изпращането на кандидатурата'
+        console.error('Application failed:', {
+          status: response.status,
+          error: result,
+          errorMessage
+        })
+        throw new Error(errorMessage)
       }
 
       setHasApplied(true)
@@ -260,8 +277,19 @@ function TaskDetailPageContent() {
       loadTask()
       loadApplications()
     } catch (error: any) {
-      console.error('Error applying:', error)
-      toast.error(error.message || 'Грешка при изпращането на кандидатурата')
+      console.error('Error applying for task:', {
+        error,
+        message: error?.message,
+        stack: error?.stack,
+        task_id: taskId,
+        user_id: authUser?.id
+      })
+      
+      // Показваме по-детайлна грешка
+      const errorMessage = error?.message || error?.toString() || 'Грешка при изпращането на кандидатурата'
+      toast.error(errorMessage, {
+        duration: 5000
+      })
     } finally {
       setIsApplying(false)
     }

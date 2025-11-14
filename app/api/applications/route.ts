@@ -112,6 +112,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 })
   } catch (error) {
+    console.error('Exception in POST /api/applications:', error)
+    logger.error('Exception in POST /api/applications', error as Error, { 
+      endpoint: 'POST /api/applications' 
+    })
     return handleApiError(error, { endpoint: 'POST /api/applications' })
   }
 }
