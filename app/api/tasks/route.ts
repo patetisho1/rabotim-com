@@ -5,6 +5,10 @@ import { logger } from '@/lib/logger'
 import { handleApiError, AuthenticationError, ValidationError, ErrorMessages } from '@/lib/errors'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
+// Force dynamic rendering to prevent static generation errors
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: NextRequest) {
   try {
     // Rate limiting
