@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization')
     const accessToken = authHeader?.replace('Bearer ', '')
     
-    // Създаваме Supabase client - ако има access token, използваме го
-    let supabase = createServerClient(
+    // Създаваме Supabase client
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wwbxzkbilklullziiogr.supabase.co',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Ynh6a2JpbGtsdWxsemlpb2dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNzQwMjMsImV4cCI6MjA3MjY1MDAyM30.o1GA7hqkhIn9wH3HzdpkmUEkjz13HJGixfZ9ggVCvu0',
       {
@@ -133,20 +133,46 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    // Ако има access token в header, го използваме директно
-    let user
-    let authError
+    // Проверка за автентикация
+    // Първо опитваме с cookies (стандартния метод)
+    let { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (accessToken) {
-      // Използваме getUser с access token
-      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(accessToken)
-      user = tokenUser
-      authError = tokenError
-    } else {
-      // Опитваме се от cookies
-      const { data: { user: cookieUser }, error: cookieError } = await supabase.auth.getUser()
-      user = cookieUser
-      authError = cookieError
+    // Ако cookies не работят и има access token, опитваме с JWT декодиране
+    if ((authError || !user) && accessToken) {
+      try {
+        // Декодираме JWT за да получим user ID
+        const tokenParts = accessToken.split('.')
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString())
+          const userId = payload.sub
+          
+          // Използваме service role client за да обходим RLS и да потвърдим user
+          const { getServiceRoleClient } = await import('@/lib/supabase')
+          const supabaseAdmin = getServiceRoleClient()
+          
+          const { data: userData, error: userError } = await supabaseAdmin
+            .from('users')
+            .select('id, email')
+            .eq('id', userId)
+            .single()
+          
+          if (userData && !userError) {
+            // Създаваме user обект от данните
+            user = {
+              id: userData.id,
+              email: userData.email,
+            } as any
+            authError = null
+          } else {
+            authError = userError as Error || new Error('User not found')
+          }
+        } else {
+          authError = new Error('Invalid token format')
+        }
+      } catch (jwtError) {
+        logger.error('Error decoding JWT token', jwtError as Error)
+        authError = jwtError as Error
+      }
     }
     
     if (authError || !user) {
