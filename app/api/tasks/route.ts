@@ -329,6 +329,15 @@ export async function POST(request: NextRequest) {
     })
 
     // Създаване на задача
+    logger.info('Attempting to insert task', {
+      userId: user.id,
+      title: normalizedTitle.substring(0, 30),
+      category,
+      location,
+      price: numericPrice,
+      status: moderationStatus
+    })
+
     const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
       .insert({
@@ -347,20 +356,28 @@ export async function POST(request: NextRequest) {
         applications_count: 0,
         views_count: 0
       })
-      .select(`
-        *,
-        profiles:users!tasks_user_id_fkey (
-          id,
-          full_name,
-          avatar_url,
-          verified
-        )
-      `)
+      .select('*')
       .single()
 
     if (taskError) {
-      logger.error('Error creating task', taskError, { userId: user.id, category, location })
+      logger.error('Error creating task', taskError, { 
+        userId: user.id, 
+        category, 
+        location,
+        errorCode: (taskError as any)?.code,
+        errorMessage: taskError.message,
+        errorDetails: (taskError as any)?.details,
+        errorHint: (taskError as any)?.hint
+      })
       return handleApiError(taskError, { endpoint: 'POST /api/tasks', userId: user.id })
+    }
+
+    if (!task) {
+      logger.error('Task created but no data returned', { userId: user.id })
+      return NextResponse.json(
+        { error: 'Задачата беше създадена, но не успяхме да я заредим' },
+        { status: 500 }
+      )
     }
 
     // Лог за модерация (използваме service role client)
