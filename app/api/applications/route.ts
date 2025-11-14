@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, getServiceRoleClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { handleApiError, ValidationError, NotFoundError, ConflictError, ErrorMessages } from '@/lib/errors'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
@@ -20,8 +20,11 @@ export async function POST(request: NextRequest) {
       throw new ValidationError('task_id и user_id са задължителни', ErrorMessages.MISSING_FIELDS, { body })
     }
 
+    // Използваме service role client за да bypass-нем RLS
+    const supabaseAdmin = getServiceRoleClient()
+
     // Проверка дали потребителят вече е кандидатствал
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing, error: checkError } = await supabaseAdmin
       .from('task_applications')
       .select('id')
       .eq('task_id', task_id)
@@ -39,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Създаване на кандидатура
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('task_applications')
       .insert([{
         task_id,
@@ -57,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Създаване на нотификация за собственика на задачата
-    const { data: task, error: taskError } = await supabase
+    const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
       .select('user_id, title')
       .eq('id', task_id)
@@ -71,13 +74,13 @@ export async function POST(request: NextRequest) {
     } else if (task && task.user_id) {
       // Опитваме се да създадем нотификация, но не блокираме ако не успее
       try {
-        const { data: applicant } = await supabase
+        const { data: applicant } = await supabaseAdmin
           .from('users')
           .select('full_name')
           .eq('id', user_id)
           .maybeSingle()
 
-        const { error: notificationError } = await supabase
+        const { error: notificationError } = await supabaseAdmin
           .from('notifications')
           .insert([{
             user_id: task.user_id,
@@ -133,7 +136,10 @@ export async function GET(request: NextRequest) {
     const task_id = searchParams.get('task_id')
     const user_id = searchParams.get('user_id')
 
-    let query = supabase
+    // Използваме service role client за да bypass-нем RLS
+    const supabaseAdmin = getServiceRoleClient()
+
+    let query = supabaseAdmin
       .from('task_applications')
       .select(`
         *,

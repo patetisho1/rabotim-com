@@ -24,6 +24,24 @@ const supabaseKey = envConfig.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
+// Service role client for server-side operations (bypasses RLS)
+// Use this in API routes when you need to perform operations that require elevated permissions
+export const getServiceRoleClient = () => {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || envConfig.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!serviceRoleKey) {
+    logger.warn('SUPABASE_SERVICE_ROLE_KEY not set, falling back to anon key. Some operations may fail due to RLS.')
+    return supabase
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
+
 // Database Types (ще се генерират от Supabase)
 export interface User {
   id: string
