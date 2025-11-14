@@ -137,7 +137,8 @@ export async function POST(request: NextRequest) {
           hasUser: !!session?.user
         })
       } else {
-        logger.warn('Authentication failed in POST /api/tasks - no session', {
+        const error = new Error('Authentication failed - no session')
+        logger.warn('Authentication failed in POST /api/tasks - no session', error, {
           hasSession: !!session,
           hasUser: !!session?.user
         })
