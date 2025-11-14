@@ -318,6 +318,16 @@ export async function POST(request: NextRequest) {
     const { getServiceRoleClient } = await import('@/lib/supabase')
     const supabaseAdmin = getServiceRoleClient()
 
+    // Логване преди създаване на задача за диагностика
+    logger.info('Creating task with service role client', {
+      userId: user.id,
+      title: normalizedTitle.substring(0, 50),
+      category,
+      location,
+      price: numericPrice,
+      status: moderationStatus
+    })
+
     // Създаване на задача
     const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
@@ -353,9 +363,9 @@ export async function POST(request: NextRequest) {
       return handleApiError(taskError, { endpoint: 'POST /api/tasks', userId: user.id })
     }
 
-    // Лог за модерация
+    // Лог за модерация (използваме service role client)
     try {
-      await supabase.from('task_moderation_logs').insert({
+      await supabaseAdmin.from('task_moderation_logs').insert({
         task_id: task.id,
         moderated_by: null,
         action: issues.length === 0 ? 'auto_approved' : 'auto_review',
