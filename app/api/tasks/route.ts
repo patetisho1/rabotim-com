@@ -143,7 +143,12 @@ export async function POST(request: NextRequest) {
         // Декодираме JWT за да получим user ID
         const tokenParts = accessToken.split('.')
         if (tokenParts.length === 3) {
-          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString())
+          // Използваме atob за декодиране (работи и в браузър и в Node.js)
+          const base64Payload = tokenParts[1]
+          const payloadString = typeof Buffer !== 'undefined' 
+            ? Buffer.from(base64Payload, 'base64').toString()
+            : atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))
+          const payload = JSON.parse(payloadString)
           const userId = payload.sub
           
           // Използваме service role client за да обходим RLS и да потвърдим user
