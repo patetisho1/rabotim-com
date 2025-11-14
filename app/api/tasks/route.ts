@@ -127,26 +127,17 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    // Проверка за автентикация - първо получаваме session от cookies
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    // Проверка за автентикация
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (sessionError || !session || !session.user) {
-      if (sessionError) {
-        logger.error('Authentication failed in POST /api/tasks', sessionError as Error, {
-          hasSession: !!session,
-          hasUser: !!session?.user
-        })
-      } else {
-        const error = new Error('Authentication failed - no session')
-        logger.warn('Authentication failed in POST /api/tasks - no session', error, {
-          hasSession: !!session,
-          hasUser: !!session?.user
-        })
-      }
+    if (authError || !user) {
+      logger.error('Authentication failed in POST /api/tasks', authError as Error || new Error('No user found'), {
+        hasError: !!authError,
+        errorMessage: authError?.message,
+        hasUser: !!user
+      })
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
-
-    const user = session.user
     const body = await request.json()
     const {
       title,
