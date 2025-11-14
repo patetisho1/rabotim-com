@@ -145,29 +145,70 @@ function PostTaskPageContent() {
       return
     }
 
-    // Валидация
-    if (!formData.title.trim() || formData.title.length < 5) {
-      toast.error('Заглавието трябва да е поне 5 символа')
-      return
+    // Client-side validation (същите критерии като сървъра)
+    const MIN_TITLE_LENGTH = 10
+    const MIN_DESCRIPTION_LENGTH = 80
+    const MIN_PRICE_VALUE = 5
+    const bannedPatterns = [
+      /https?:\/\//i,
+      /\bтелефон\b/i,
+      /\bwhatsapp\b/i,
+      /\bviber\b/i,
+      /\bemail\b/i
+    ]
+
+    const normalizedTitle = formData.title.trim()
+    const normalizedDescription = formData.description.trim()
+    const numericPrice = parseFloat(formData.price)
+
+    const validationIssues: string[] = []
+
+    // Проверки за задължителни полета
+    if (!normalizedTitle) {
+      validationIssues.push('Заглавието е задължително')
+    } else if (normalizedTitle.length < MIN_TITLE_LENGTH) {
+      validationIssues.push(`Заглавието е твърде кратко (минимум ${MIN_TITLE_LENGTH} символа, имате ${normalizedTitle.length})`)
     }
 
-    if (!formData.description.trim() || formData.description.length < 20) {
-      toast.error('Описанието трябва да е поне 20 символа')
-      return
+    if (!normalizedDescription) {
+      validationIssues.push('Описанието е задължително')
+    } else if (normalizedDescription.length < MIN_DESCRIPTION_LENGTH) {
+      validationIssues.push(`Описанието е твърде кратко (минимум ${MIN_DESCRIPTION_LENGTH} символа, имате ${normalizedDescription.length})`)
     }
 
     if (!formData.category) {
-      toast.error('Моля, изберете категория')
-      return
+      validationIssues.push('Моля, изберете категория')
     }
 
     if (!formData.location) {
-      toast.error('Моля, изберете локация')
-      return
+      validationIssues.push('Моля, изберете локация')
     }
 
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      toast.error('Моля, въведете валидна цена')
+    if (!formData.price || isNaN(numericPrice)) {
+      validationIssues.push('Моля, въведете валидна цена')
+    } else if (numericPrice < MIN_PRICE_VALUE) {
+      validationIssues.push(`Посочената цена е твърде ниска (минимум ${MIN_PRICE_VALUE} лв)`)
+    }
+
+    // Проверка за забранени думи
+    if (bannedPatterns.some(pattern => pattern.test(normalizedTitle) || pattern.test(normalizedDescription))) {
+      validationIssues.push('Съдържанието не може да включва URL-и, телефон, WhatsApp, Viber или email. Моля, използвайте формата за контакт в сайта.')
+    }
+
+    // Ако има проблеми, показваме ги всички и не изпращаме формата
+    if (validationIssues.length > 0) {
+      toast.error('Моля, коригирайте следните проблеми преди да публикувате:', {
+        duration: 5000
+      })
+      // Показваме всички проблеми един по един
+      validationIssues.forEach((issue, index) => {
+        setTimeout(() => {
+          toast(issue, { 
+            icon: '⚠️', 
+            duration: 6000 
+          })
+        }, index * 100) // Малко забавяне между съобщенията
+      })
       return
     }
 
