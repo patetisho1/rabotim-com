@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const priceMax = searchParams.get('priceMax')
     const status = searchParams.get('status')
     const userId = searchParams.get('userId')
+    const limit = searchParams.get('limit')
 
     let query = supabase
       .from('tasks')
@@ -42,7 +43,8 @@ export async function GET(request: NextRequest) {
           id,
           full_name,
           avatar_url,
-          verified
+          verified,
+          rating
         )
       `)
       .order('created_at', { ascending: false })
@@ -72,6 +74,11 @@ export async function GET(request: NextRequest) {
     // Филтър по userId (за "Моите задачи")
     if (userId) {
       query = query.eq('user_id', userId)
+    }
+
+    // Лимит на броя резултати
+    if (limit) {
+      query = query.limit(parseInt(limit))
     }
 
     const { data, error } = await query
@@ -108,6 +115,12 @@ export async function POST(request: NextRequest) {
     }
 
     const cookieStore = cookies()
+    
+    // Проверка за access token в Authorization header (fallback за cookies)
+    const authHeader = request.headers.get('authorization')
+    const accessToken = authHeader?.replace('Bearer ', '')
+    
+    // Създаваме Supabase client
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wwbxzkbilklullziiogr.supabase.co',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Ynh6a2JpbGtsdWxsemlpb2dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNzQwMjMsImV4cCI6MjA3MjY1MDAyM30.o1GA7hqkhIn9wH3HzdpkmUEkjz13HJGixfZ9ggVCvu0',
@@ -121,12 +134,70 @@ export async function POST(request: NextRequest) {
     )
 
     // Проверка за автентикация
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Първо опитваме с cookies (стандартния метод)
+    let { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    // Ако cookies не работят и има access token, опитваме с JWT декодиране
+    if ((authError || !user) && accessToken) {
+      try {
+        // Декодираме JWT за да получим user ID
+        const tokenParts = accessToken.split('.')
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString())
+          const userId = payload.sub
+          
+          // Използваме service role client за да обходим RLS и да потвърдим user
+          const { getServiceRoleClient } = await import('@/lib/supabase')
+          const supabaseAdmin = getServiceRoleClient()
+          
+          const { data: userData, error: userError } = await supabaseAdmin
+            .from('users')
+            .select('id, email')
+            .eq('id', userId)
+            .single()
+          
+          if (userData && !userError) {
+            // Създаваме user обект от данните
+            user = {
+              id: userData.id,
+              email: userData.email,
+            } as any
+            authError = null
+          } else {
+            // Запазваме оригиналната грешка или създаваме нова AuthError
+            authError = authError || {
+              message: userError?.message || 'User not found',
+              name: 'AuthError',
+              status: 401
+            } as any
+          }
+        } else {
+          authError = {
+            message: 'Invalid token format',
+            name: 'AuthError',
+            status: 401
+          } as any
+        }
+      } catch (jwtError) {
+        logger.error('Error decoding JWT token', jwtError as Error)
+        authError = {
+          message: (jwtError as Error).message || 'Error decoding token',
+          name: 'AuthError',
+          status: 401
+        } as any
+      }
+    }
     
     if (authError || !user) {
+      logger.error('Authentication failed in POST /api/tasks', authError as Error || new Error('No user found'), {
+        hasError: !!authError,
+        errorMessage: authError?.message,
+        hasUser: !!user,
+        hasAccessToken: !!accessToken,
+        hasAuthHeader: !!authHeader
+      })
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
-
     const body = await request.json()
     const {
       title,

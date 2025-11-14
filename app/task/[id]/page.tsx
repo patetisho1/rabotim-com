@@ -16,6 +16,8 @@ import SocialShare from '@/components/SocialShare'
 import OptimizedImage from '@/components/OptimizedImage'
 import { ImageGallerySkeleton, UserAvatarSkeleton } from '@/components/SkeletonLoader'
 import DynamicMetaTags from '@/components/DynamicMetaTags'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { useRatings } from '@/hooks/useRatings'
 
 interface Task {
   id: string
@@ -60,7 +62,7 @@ interface TaskApplication {
   } | null
 }
 
-export default function TaskDetailPage() {
+function TaskDetailPageContent() {
   const router = useRouter()
   const params = useParams()
   const taskId = params.id as string
@@ -77,6 +79,7 @@ export default function TaskDetailPage() {
   const [applicationActionId, setApplicationActionId] = useState<string | null>(null)
   const [applicationActionStatus, setApplicationActionStatus] = useState<'accepted' | 'rejected' | null>(null)
   const [applicationActionError, setApplicationActionError] = useState<string | null>(null)
+  const { reviews: taskReviews, isLoading: reviewsLoading } = useRatings()
 
   useEffect(() => {
     if (taskId) {
@@ -91,6 +94,30 @@ export default function TaskDetailPage() {
       checkIfApplied()
     }
   }, [authUser, taskId])
+
+  // Get task-specific reviews from API
+  const [taskReviewsList, setTaskReviewsList] = useState<any[]>([])
+  const [taskReviewsLoading, setTaskReviewsLoading] = useState(false)
+
+  useEffect(() => {
+    const loadTaskReviews = async () => {
+      if (task?.status === 'completed' && taskId) {
+        setTaskReviewsLoading(true)
+        try {
+          const response = await fetch(`/api/reviews?taskId=${taskId}`)
+          if (response.ok) {
+            const reviewsData = await response.json()
+            setTaskReviewsList(reviewsData || [])
+          }
+        } catch (error) {
+          console.error('Error loading task reviews:', error)
+        } finally {
+          setTaskReviewsLoading(false)
+        }
+      }
+    }
+    loadTaskReviews()
+  }, [task?.status, taskId])
 
   const loadTask = async () => {
     try {
@@ -207,6 +234,12 @@ export default function TaskDetailPage() {
     setIsApplying(true)
     
     try {
+      console.log('Applying for task:', {
+        task_id: taskId,
+        user_id: authUser.id,
+        message_length: applicationMessage.trim().length
+      })
+
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: {
@@ -220,9 +253,20 @@ export default function TaskDetailPage() {
       })
 
       const result = await response.json()
+      console.log('Application response:', {
+        status: response.status,
+        ok: response.ok,
+        result
+      })
 
       if (!response.ok) {
-        throw new Error(result.error || 'Грешка при изпращането на кандидатурата')
+        const errorMessage = result.error || result.message || 'Грешка при изпращането на кандидатурата'
+        console.error('Application failed:', {
+          status: response.status,
+          error: result,
+          errorMessage
+        })
+        throw new Error(errorMessage)
       }
 
       setHasApplied(true)
@@ -233,8 +277,19 @@ export default function TaskDetailPage() {
       loadTask()
       loadApplications()
     } catch (error: any) {
-      console.error('Error applying:', error)
-      toast.error(error.message || 'Грешка при изпращането на кандидатурата')
+      console.error('Error applying for task:', {
+        error,
+        message: error?.message,
+        stack: error?.stack,
+        task_id: taskId,
+        user_id: authUser?.id
+      })
+      
+      // Показваме по-детайлна грешка
+      const errorMessage = error?.message || error?.toString() || 'Грешка при изпращането на кандидатурата'
+      toast.error(errorMessage, {
+        duration: 5000
+      })
     } finally {
       setIsApplying(false)
     }
@@ -991,10 +1046,138 @@ export default function TaskDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Task Reviews Section - Show when task is completed */}
+        {task?.status === 'completed' && (
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Отзиви за задачата
+              </h3>
+              {task?.profiles?.id && (
+                <button
+                  onClick={() => router.push(`/user/${task.profiles?.id}?tab=reviews`)}
+                  className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
+                >
+                  Виж всички отзиви
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {taskReviewsLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Зареждане на отзиви...</p>
+              </div>
+            ) : taskReviewsList.length === 0 ? (
+              <div className="text-center py-12">
+                <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p className="text-gray-600 dark:text-gray-400">
+                  Все още няма отзиви за тази задача.
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                  Отзивите се появяват след като задачата е завършена и участниците оставят оценки.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {taskReviewsList.slice(0, 5).map((review: any) => (
+                  <div
+                    key={review.id}
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+                          <OptimizedImage
+                            src={review.reviewer?.avatar_url || '/default-avatar.png'}
+                            alt={review.reviewer?.full_name || 'Потребител'}
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                            sizes="40px"
+                            objectFit="cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                              {review.reviewer?.full_name || 'Анонимен потребител'}
+                            </h4>
+                            {review.is_verified && (
+                              <CheckCircle size={14} className="text-green-600" />
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatDistanceToNow(new Date(review.created_at), { addSuffix: true, locale: bg })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={16}
+                            className={i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {review.title && (
+                      <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                        {review.title}
+                      </h5>
+                    )}
+
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm">
+                      {review.comment}
+                    </p>
+
+                    {review.tags && review.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {review.tags.slice(0, 3).map((tag: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 text-xs rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {taskReviewsList.length > 5 && task?.profiles?.id && (
+                  <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => router.push(`/user/${task.profiles?.id}?tab=reviews`)}
+                      className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                    >
+                      Виж всички {taskReviewsList.length} отзива
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Structured Data */}
       {task && <JobPostingStructuredData task={task} />}
     </div>
+  )
+}
+
+export default function TaskDetailPage() {
+  return (
+    <ErrorBoundary>
+      <TaskDetailPageContent />
+    </ErrorBoundary>
   )
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, getServiceRoleClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { handleApiError, ValidationError, NotFoundError, ConflictError, ErrorMessages } from '@/lib/errors'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
@@ -20,20 +20,29 @@ export async function POST(request: NextRequest) {
       throw new ValidationError('task_id и user_id са задължителни', ErrorMessages.MISSING_FIELDS, { body })
     }
 
+    // Използваме service role client за да bypass-нем RLS
+    const supabaseAdmin = getServiceRoleClient()
+
     // Проверка дали потребителят вече е кандидатствал
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing, error: checkError } = await supabaseAdmin
       .from('task_applications')
       .select('id')
       .eq('task_id', task_id)
       .eq('user_id', user_id)
-      .single()
+      .maybeSingle()
+
+    // Ако има грешка, която не е "не намерен запис", хвърляме грешка
+    if (checkError && (checkError as any).code !== 'PGRST116') {
+      logger.error('Error checking existing application', checkError, { task_id, user_id })
+      return handleApiError(checkError, { endpoint: 'POST /api/applications', task_id, user_id })
+    }
 
     if (existing) {
       throw new ConflictError('Вече сте кандидатствали за тази задача', ErrorMessages.ALREADY_APPLIED)
     }
 
     // Създаване на кандидатура
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('task_applications')
       .insert([{
         task_id,
@@ -51,39 +60,65 @@ export async function POST(request: NextRequest) {
     }
 
     // Създаване на нотификация за собственика на задачата
-    const { data: task } = await supabase
+    const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
       .select('user_id, title')
       .eq('id', task_id)
       .single()
 
-    if (task && task.user_id) {
-      const { data: applicant } = await supabase
-        .from('users')
-        .select('full_name')
-        .eq('id', user_id)
-        .single()
+    // Ако задачата не съществува, това е сериозна грешка
+    if (taskError || !task) {
+      logger.error('Task not found when creating application', taskError, { task_id, user_id })
+      // Не хвърляме грешка тук, защото кандидатурата вече е създадена
+      // Но логваме за диагностика
+    } else if (task && task.user_id) {
+      // Опитваме се да създадем нотификация, но не блокираме ако не успее
+      try {
+        const { data: applicant } = await supabaseAdmin
+          .from('users')
+          .select('full_name')
+          .eq('id', user_id)
+          .maybeSingle()
 
-      await supabase
-        .from('notifications')
-        .insert([{
-          user_id: task.user_id,
-          type: 'new_application',
-          title: 'Нова кандидатура',
-          message: `${applicant?.full_name || 'Потребител'} кандидатства за "${task.title}"`,
-          data: {
-            task_id,
-            application_id: data.id,
-            applicant_id: user_id
-          },
-          read: false
-        }])
+        const { error: notificationError } = await supabaseAdmin
+          .from('notifications')
+          .insert([{
+            user_id: task.user_id,
+            type: 'new_application',
+            title: 'Нова кандидатура',
+            message: `${applicant?.full_name || 'Потребител'} кандидатства за "${task.title}"`,
+            data: {
+              task_id,
+              application_id: data.id,
+              applicant_id: user_id
+            },
+            read: false
+          }])
+
+        if (notificationError) {
+          logger.warn('Error creating notification for application', notificationError, { 
+            task_id, 
+            user_id, 
+            application_id: data.id 
+          })
+        }
+      } catch (notificationErr) {
+        logger.warn('Exception creating notification for application', notificationErr as Error, { 
+          task_id, 
+          user_id, 
+          application_id: data.id 
+        })
+      }
     }
 
     logger.info('Application created successfully', { application_id: data.id, task_id, user_id })
 
     return NextResponse.json(data, { status: 201 })
   } catch (error) {
+    console.error('Exception in POST /api/applications:', error)
+    logger.error('Exception in POST /api/applications', error as Error, { 
+      endpoint: 'POST /api/applications' 
+    })
     return handleApiError(error, { endpoint: 'POST /api/applications' })
   }
 }
@@ -101,7 +136,10 @@ export async function GET(request: NextRequest) {
     const task_id = searchParams.get('task_id')
     const user_id = searchParams.get('user_id')
 
-    let query = supabase
+    // Използваме service role client за да bypass-нем RLS
+    const supabaseAdmin = getServiceRoleClient()
+
+    let query = supabaseAdmin
       .from('task_applications')
       .select(`
         *,

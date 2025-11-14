@@ -7,8 +7,9 @@ import { useAuth } from '@/hooks/useAuth'
 import ConversationList from '@/components/ConversationList'
 import ChatWindow from '@/components/ChatWindow'
 import toast from 'react-hot-toast'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const router = useRouter()
   const { user: authUser, loading: authLoading } = useAuth()
   const {
@@ -156,5 +157,13 @@ export default function MessagesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function MessagesPage() {
+  return (
+    <ErrorBoundary>
+      <MessagesPageContent />
+    </ErrorBoundary>
   )
 } 

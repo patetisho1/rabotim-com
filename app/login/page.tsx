@@ -64,7 +64,22 @@ export default function LoginPage() {
       const { data, error } = await signIn(formData.email, formData.password)
       
       if (error) {
-        toast.error(error.message || 'Невалиден имейл или парола')
+        console.error('Login error:', error)
+        
+        // Проверка дали грешката е свързана с непотвърден имейл
+        if (error.message?.toLowerCase().includes('email') && 
+            (error.message?.toLowerCase().includes('confirm') || 
+             error.message?.toLowerCase().includes('verify'))) {
+          toast.error('Моля, потвърдете имейла си преди влизане', {
+            duration: 5000
+          })
+          toast('Моля, проверете имейла си за потвърждение. Ако не сте го получили, използвайте функцията "Забравена парола" за да получите нов имейл.', {
+            duration: 10000,
+            icon: '📧'
+          })
+        } else {
+          toast.error(error.message || 'Невалиден имейл или парола')
+        }
         return
       }
 

@@ -13,6 +13,7 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 const categories = [
   { value: 'repair', label: 'Ремонт' },
@@ -38,7 +39,7 @@ const locations = [
   { value: 'Друго', label: 'Друго' }
 ]
 
-export default function PostTaskPage() {
+function PostTaskPageContent() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -173,6 +174,16 @@ export default function PostTaskPage() {
     setIsSubmitting(true)
 
     try {
+      // Получаване на access token за автентикация
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Error getting session:', sessionError)
+        toast.error('Грешка при автентикация. Моля, опитайте отново или влезте в акаунта си.')
+        router.push('/login')
+        return
+      }
+
       // Качване на снимки в Supabase Storage
       let imageUrls: string[] = []
       if (images.length > 0) {
@@ -207,8 +218,10 @@ export default function PostTaskPage() {
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}` // Изпращаме access token в header
         },
+        credentials: 'include', // Важно: изпраща cookies за автентикация
         body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
@@ -524,5 +537,13 @@ export default function PostTaskPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function PostTaskPage() {
+  return (
+    <ErrorBoundary>
+      <PostTaskPageContent />
+    </ErrorBoundary>
   )
 } 

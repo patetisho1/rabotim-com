@@ -75,7 +75,9 @@ interface UserData {
   }
 }
 
-export default function ProfilePage() {
+import ErrorBoundary from '@/components/ErrorBoundary'
+
+function ProfilePageContent() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { getUserTasks } = useTasksAPI()
@@ -821,5 +823,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <ErrorBoundary>
+      <ProfilePageContent />
+    </ErrorBoundary>
   )
 } 

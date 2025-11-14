@@ -153,13 +153,16 @@
 
 ### Homepage Real Data
 - [x] Зареждане на реални статистики от API/Supabase (брой задачи, потребители, градове, завършени)
-- [ ] Зареждане на реални задачи за homepage вместо hardcoded данни
+- [x] Зареждане на реални задачи за homepage вместо hardcoded данни
 - [x] Зареждане на реални testimonials от базата данни
 - [x] Fallback към placeholder данни ако няма реални
 - [x] Loading states за всички async операции
 - [x] Създаден /api/testimonials endpoint за verified reviews
 - [x] Обновен TestimonialsSection да зарежда реални данни
-- **Приоритет:** Среден ✅ **ЧАСТИЧНО ЗАВЪРШЕНО** (остава зареждане на реални задачи)
+- [x] Добавен limit параметър в /api/tasks endpoint
+- [x] Интегриран OptimizedImage компонент в homepage task cards
+- [x] Добавен loading state и fallback UI за задачи
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
 
 ### Homepage Testimonials секция
 - [x] Използване на съществуващата reviews система (няма нужда от нова таблица)
@@ -170,16 +173,29 @@
 - [x] Fallback към hardcoded testimonials ако няма реални данни
 - **Приоритет:** Нисък (marketing) ✅ **ЗАВЪРШЕНО**
 
+### Homepage Hybrid Tasks
+- [x] Комбинация от реални и mock обяви за homepage
+- [x] Винаги показване на минимум 20 обяви на категория
+- [x] Реални обяви първо, допълване с mock данни
+- [x] "Демо обява" badge за mock обяви
+- [x] Правилни линкове - демо обяви сочат към `/tasks?category=...`
+- [x] Две части - Top Row (animate-scroll-left) и Bottom Row (animate-scroll-right)
+- [x] Условно рендиране - демо обяви използват `div onClick`, реални използват `Link`
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
+
 ### Error Boundary Implementation
-- [ ] Проверка дали ErrorBoundary компонент съществува
-- [ ] Обвиване на критични секции с ErrorBoundary:
+- [x] Проверка дали ErrorBoundary компонент съществува
+- [x] Обвиване на критични секции с ErrorBoundary:
   - Task detail page
   - Task creation form
   - Messaging компонент
   - Profile page
-- [ ] Fallback UI за критични грешки
-- [ ] Error reporting към logging система
-- **Приоритет:** Среден
+- [x] Fallback UI за критични грешки
+- [x] Error reporting към logging система
+- [x] Интеграция на ErrorBoundary с logger.ts
+- [x] Динамичен импорт на logger за избегване на SSR проблеми
+- [x] Опционално изпращане на грешки към /api/errors endpoint в production
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
 
 ### Testing Infrastructure
 - [ ] Setup на testing framework (Jest + React Testing Library)
@@ -201,10 +217,12 @@
 - **Приоритет:** Нисък (code quality)
 
 ### Tasks Page - Mock Data Cleanup
-- [ ] Премахване на `mockTasks` array в `app/tasks/page.tsx`
-- [ ] Използване само на реални данни от API
-- [ ] Fallback UI ако няма задачи
-- **Приоритет:** Среден
+- [x] Премахване на `mockTasks` array в `app/tasks/page.tsx`
+- [x] Използване само на реални данни от API
+- [x] Fallback UI ако няма задачи
+- [x] Подобрен empty state с CTA бутон "Публикувай първата задача"
+- [x] Бутон за изчистване на филтрите когато има активни филтри
+- **Приоритет:** Среден ✅ **ЗАВЪРШЕНО**
 
 ### API Routes - Standardized Error Responses
 - [ ] Проверка на всички API routes за консистентни error responses
