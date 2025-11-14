@@ -67,33 +67,15 @@ export default function LoginPage() {
         console.error('Login error:', error)
         
         // Проверка дали грешката е свързана с непотвърден имейл
-        if (error.message?.includes('email') && error.message?.includes('confirm')) {
+        if (error.message?.toLowerCase().includes('email') && 
+            (error.message?.toLowerCase().includes('confirm') || 
+             error.message?.toLowerCase().includes('verify'))) {
           toast.error('Моля, потвърдете имейла си преди влизане', {
             duration: 5000
           })
-          toast('Искате ли да изпратим отново имейл за потвърждение?', {
-            duration: 8000,
-            icon: '📧',
-            action: {
-              label: 'Изпрати',
-              onClick: async () => {
-                try {
-                  const { supabaseAuth } = await import('@/lib/supabase-auth')
-                  const { error: resendError } = await supabaseAuth.auth.resend({
-                    type: 'signup',
-                    email: formData.email
-                  })
-                  
-                  if (resendError) {
-                    toast.error('Грешка при изпращане на имейл')
-                  } else {
-                    toast.success('Имейл за потвърждение е изпратен!')
-                  }
-                } catch (err) {
-                  toast.error('Грешка при изпращане на имейл')
-                }
-              }
-            }
+          toast('Моля, проверете имейла си за потвърждение. Ако не сте го получили, използвайте функцията "Забравена парола" за да получите нов имейл.', {
+            duration: 10000,
+            icon: '📧'
           })
         } else {
           toast.error(error.message || 'Невалиден имейл или парола')
