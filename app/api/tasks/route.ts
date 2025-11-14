@@ -312,11 +312,33 @@ export async function POST(request: NextRequest) {
       issues.push('Нов профил – изисква се първоначален преглед')
     }
 
-    const moderationStatus = issues.length === 0 ? 'active' : 'pending'
-
-    // Използваме service role client за да обходим RLS при създаване на задача
+    // Използваме service role client за да обходим RLS при всички операции
     const { getServiceRoleClient } = await import('@/lib/supabase')
     const supabaseAdmin = getServiceRoleClient()
+
+    // Проверка на историята на потребителя (използваме service role client)
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('users')
+      .select('id, verified, created_at')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      const error = profileError instanceof Error ? profileError : new Error(String(profileError))
+      logger.warn('Error loading user profile for moderation', error, { userId: user.id })
+    }
+
+    const { count: tasksCount } = await supabaseAdmin
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    const userIsTrusted = Boolean(profile?.verified) || (tasksCount || 0) >= 5
+    if (!userIsTrusted) {
+      issues.push('Нов профил – изисква се първоначален преглед')
+    }
+
+    const moderationStatus = issues.length === 0 ? 'active' : 'pending'
 
     // Логване преди създаване на задача за диагностика
     logger.info('Creating task with service role client', {
