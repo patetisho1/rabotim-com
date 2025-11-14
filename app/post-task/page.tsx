@@ -210,6 +210,7 @@ function PostTaskPageContent() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include', // Важно: изпраща cookies за автентикация
         body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
