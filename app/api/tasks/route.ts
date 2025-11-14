@@ -156,28 +156,47 @@ export async function POST(request: NextRequest) {
             }
             const payload = JSON.parse(payloadString)
             const userId = payload.sub
-          
-          // Използваме service role client за да обходим RLS и да потвърдим user
-          const { getServiceRoleClient } = await import('@/lib/supabase')
-          const supabaseAdmin = getServiceRoleClient()
-          
-          const { data: userData, error: userError } = await supabaseAdmin
-            .from('users')
-            .select('id, email')
-            .eq('id', userId)
-            .single()
-          
-          if (userData && !userError) {
-            // Създаваме user обект от данните
-            user = {
-              id: userData.id,
-              email: userData.email,
-            } as any
-            authError = null
-          } else {
-            // Запазваме оригиналната грешка или създаваме нова AuthError
-            authError = authError || {
-              message: userError?.message || 'User not found',
+            
+            if (!userId) {
+              throw new Error('User ID not found in token payload')
+            }
+            
+            // Използваме service role client за да обходим RLS и да потвърдим user
+            const { getServiceRoleClient } = await import('@/lib/supabase')
+            const supabaseAdmin = getServiceRoleClient()
+            
+            const { data: userData, error: userError } = await supabaseAdmin
+              .from('users')
+              .select('id, email')
+              .eq('id', userId)
+              .single()
+            
+            if (userData && !userError) {
+              // Създаваме user обект от данните
+              user = {
+                id: userData.id,
+                email: userData.email,
+              } as any
+              authError = null
+            } else {
+              // Запазваме оригиналната грешка или създаваме нова AuthError
+              logger.warn('User not found in database for token user ID', new Error(userError?.message || 'User not found'), {
+                userId,
+                userError: userError?.message
+              })
+              authError = authError || {
+                message: userError?.message || 'User not found',
+                name: 'AuthError',
+                status: 401
+              } as any
+            }
+          } catch (parseError) {
+            logger.error('Error parsing JWT payload', parseError as Error, {
+              hasPayloadString: !!payloadString,
+              payloadStringLength: payloadString?.length
+            })
+            authError = {
+              message: (parseError as Error).message || 'Error parsing token',
               name: 'AuthError',
               status: 401
             } as any
