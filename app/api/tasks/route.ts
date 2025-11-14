@@ -131,10 +131,17 @@ export async function POST(request: NextRequest) {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
     if (sessionError || !session || !session.user) {
-      logger.error('Authentication failed in POST /api/tasks', sessionError, {
-        hasSession: !!session,
-        hasUser: !!session?.user
-      })
+      if (sessionError) {
+        logger.error('Authentication failed in POST /api/tasks', sessionError as Error, {
+          hasSession: !!session,
+          hasUser: !!session?.user
+        })
+      } else {
+        logger.warn('Authentication failed in POST /api/tasks - no session', {
+          hasSession: !!session,
+          hasUser: !!session?.user
+        })
+      }
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
