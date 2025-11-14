@@ -147,7 +147,7 @@ function PostTaskPageContent() {
 
     // Client-side validation (същите критерии като сървъра)
     const MIN_TITLE_LENGTH = 10
-    const MIN_DESCRIPTION_LENGTH = 80
+    const MIN_DESCRIPTION_LENGTH = 50
     const MIN_PRICE_VALUE = 5
     const bannedPatterns = [
       /https?:\/\//i,
@@ -381,7 +381,7 @@ function PostTaskPageContent() {
               required
             />
             <p className="text-sm text-gray-500 mt-1">
-              {formData.description.length} символа (минимум 20)
+              {formData.description.length} символа (минимум 50)
             </p>
           </div>
 

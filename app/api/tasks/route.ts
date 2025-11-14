@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
 
     // Допълнителни проверки
     const MIN_TITLE_LENGTH = 10
-    const MIN_DESCRIPTION_LENGTH = 80
+    const MIN_DESCRIPTION_LENGTH = 50
     const MIN_PRICE_VALUE = 5
     const bannedPatterns = [
       /https?:\/\//i,
