@@ -290,28 +290,6 @@ export async function POST(request: NextRequest) {
       issues.push('Открито е съдържание, изискващо модерация')
     }
 
-    // Проверка на историята на потребителя
-    const { data: profile, error: profileError } = await supabase
-      .from('users')
-      .select('id, verified, created_at')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError) {
-      const error = profileError instanceof Error ? profileError : new Error(String(profileError))
-      logger.warn('Error loading user profile for moderation', error, { userId: user.id })
-    }
-
-    const { count: tasksCount } = await supabase
-      .from('tasks')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-
-    const userIsTrusted = Boolean(profile?.verified) || (tasksCount || 0) >= 5
-    if (!userIsTrusted) {
-      issues.push('Нов профил – изисква се първоначален преглед')
-    }
-
     // Използваме service role client за да обходим RLS при всички операции
     const { getServiceRoleClient } = await import('@/lib/supabase')
     const supabaseAdmin = getServiceRoleClient()
