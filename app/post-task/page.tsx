@@ -39,6 +39,24 @@ const locations = [
   { value: 'Друго', label: 'Друго' }
 ]
 
+// Динамичен placeholder за описанието според категорията
+const getDescriptionPlaceholder = (category: string): string => {
+  const placeholders: Record<string, string> = {
+    'repair': 'Какъв ремонт ви трябва? Колко стаи, колко квадрата и сложност според вас. Бъдете възможно най-изчерпателни.',
+    'cleaning': 'Опишете площта, брой стаи и тип почистване (голямо/редовно). Моля, бъдете конкретни.',
+    'delivery': 'От къде до къде, какво се доставя и разстоянието. Трябва ли трета ръка?',
+    'tutoring': 'Какъв предмет/навык искате да се научи? За кого е (възраст/клас) и колко пъти седмично?',
+    'garden': 'Каква дейност ви трябва? Площ на градината, какво точно искате да се направи.',
+    'it-services': 'Какъв тип услуга ви трябва? (уеб сайт, софтуер, поддръжка, уроци) Опишете кратко проекта.',
+    'moving': 'От къде до къде, какво се премества и колко е обемът? Нужни ли са опаковъчни материали?',
+    'assembly': 'Какво трябва да се сглоби? (мебели, техника и т.н.) Имате ли инструкции?',
+    'care': 'Какъв тип грижа ви трябва? За кого е и колко часа на ден/седмица?',
+    'other': 'Опишете подробно какво ви трябва. Бъдете конкретни за да получите най-добрите предложения.'
+  }
+  
+  return placeholders[category] || 'Опишете подробно какво трябва да се направи. Бъдете възможно най-изчерпателни за да получите най-добрите предложения.'
+}
+
 function PostTaskPageContent() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -348,6 +366,26 @@ function PostTaskPageContent() {
       <div className="max-w-3xl mx-auto px-4">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
           
+          {/* Категория - ПЪРВО */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              Категория *
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Избери категория</option>
+              {categories.map(cat => (
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Заглавие */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -365,7 +403,7 @@ function PostTaskPageContent() {
             />
           </div>
 
-          {/* Описание */}
+          {/* Описание с динамичен placeholder */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
               Описание *
@@ -377,7 +415,7 @@ function PostTaskPageContent() {
               onChange={handleInputChange}
               rows={5}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Опишете подробно какво трябва да се направи..."
+              placeholder={getDescriptionPlaceholder(formData.category)}
               required
             />
             <p className="text-sm text-gray-500 mt-1">
@@ -437,45 +475,24 @@ function PostTaskPageContent() {
             </div>
           </div>
 
-          {/* Категория и Локация */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Категория *
-              </label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Избери категория</option>
-                {categories.map(cat => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                Локация *
-              </label>
-              <select
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Избери град</option>
-                {locations.map(loc => (
-                  <option key={loc.value} value={loc.value}>{loc.label}</option>
-                ))}
-              </select>
-            </div>
+          {/* Локация */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+              Локация *
+            </label>
+            <select
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Избери град</option>
+              {locations.map(loc => (
+                <option key={loc.value} value={loc.value}>{loc.label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Цена */}
