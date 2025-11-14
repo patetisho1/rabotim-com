@@ -145,11 +145,17 @@ export async function POST(request: NextRequest) {
         if (tokenParts.length === 3) {
           // Използваме atob за декодиране (работи и в браузър и в Node.js)
           const base64Payload = tokenParts[1]
-          const payloadString = typeof Buffer !== 'undefined' 
-            ? Buffer.from(base64Payload, 'base64').toString()
-            : atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))
-          const payload = JSON.parse(payloadString)
-          const userId = payload.sub
+          let payloadString: string
+          try {
+            // Първо опитваме с Buffer (Node.js)
+            if (typeof Buffer !== 'undefined') {
+              payloadString = Buffer.from(base64Payload, 'base64').toString()
+            } else {
+              // Fallback на atob (браузър/Edge runtime)
+              payloadString = atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))
+            }
+            const payload = JSON.parse(payloadString)
+            const userId = payload.sub
           
           // Използваме service role client за да обходим RLS и да потвърдим user
           const { getServiceRoleClient } = await import('@/lib/supabase')
