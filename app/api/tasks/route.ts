@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
         if (tokenParts.length === 3) {
           // Използваме atob за декодиране (работи и в браузър и в Node.js)
           const base64Payload = tokenParts[1]
-          let payloadString: string
+          let payloadString: string | undefined
           try {
             // Първо опитваме с Buffer (Node.js)
             if (typeof Buffer !== 'undefined') {
