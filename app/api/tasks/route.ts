@@ -164,14 +164,27 @@ export async function POST(request: NextRequest) {
             } as any
             authError = null
           } else {
-            authError = userError as Error || new Error('User not found')
+            // Запазваме оригиналната грешка или създаваме нова AuthError
+            authError = authError || {
+              message: userError?.message || 'User not found',
+              name: 'AuthError',
+              status: 401
+            } as any
           }
         } else {
-          authError = new Error('Invalid token format')
+          authError = {
+            message: 'Invalid token format',
+            name: 'AuthError',
+            status: 401
+          } as any
         }
       } catch (jwtError) {
         logger.error('Error decoding JWT token', jwtError as Error)
-        authError = jwtError as Error
+        authError = {
+          message: (jwtError as Error).message || 'Error decoding token',
+          name: 'AuthError',
+          status: 401
+        } as any
       }
     }
     
