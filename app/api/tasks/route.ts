@@ -276,10 +276,10 @@ export async function POST(request: NextRequest) {
     const issues: string[] = []
 
     if (normalizedTitle.length < MIN_TITLE_LENGTH) {
-      issues.push('Заглавието е твърде кратко')
+      issues.push(`Заглавието е твърде кратко (минимум ${MIN_TITLE_LENGTH} символа, имате ${normalizedTitle.length})`)
     }
     if (normalizedDescription.length < MIN_DESCRIPTION_LENGTH) {
-      issues.push('Описанието е твърде кратко')
+      issues.push(`Описанието е твърде кратко (минимум ${MIN_DESCRIPTION_LENGTH} символа, имате ${normalizedDescription.length})`)
     }
     if (numericPrice < MIN_PRICE_VALUE) {
       issues.push('Посочената цена е подозрително ниска')

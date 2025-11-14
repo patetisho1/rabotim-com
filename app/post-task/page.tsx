@@ -246,9 +246,12 @@ function PostTaskPageContent() {
       const moderationIssues = result?.moderation?.issues || []
 
       if (moderationStatus === 'pending') {
-        toast.success('Задачата е изпратена за преглед. Ще я публикуваме след проверка.')
-        moderationIssues.slice(0, 2).forEach((issue: string) =>
-          toast(issue, { icon: 'ℹ️', duration: 5000 })
+        toast.success('Задачата е изпратена за преглед. Ще я публикуваме след проверка.', {
+          duration: 6000
+        })
+        // Показваме всички проблеми за да знае потребителят какво да поправи
+        moderationIssues.forEach((issue: string) =>
+          toast(issue, { icon: 'ℹ️', duration: 8000 })
         )
         router.push('/profile?tab=taskGiver')
       } else if (createdTask?.id) {
