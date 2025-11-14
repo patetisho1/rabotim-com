@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, Briefcase, Wrench } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { supabaseAuth } from '@/lib/supabase-auth'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -102,6 +103,13 @@ export default function RegisterPage() {
       }
 
       if (data.user) {
+        console.log('Registration successful:', {
+          user: data.user.id,
+          email: data.user.email,
+          confirmed: !!data.user.email_confirmed_at,
+          hasSession: !!data.session
+        })
+
         // Проверяваме дали потребителят е вече потвърден
         if (data.user.email_confirmed_at) {
           toast.success('Регистрацията е успешна! Добре дошли!')
@@ -123,42 +131,48 @@ export default function RegisterPage() {
           }
           
           router.push('/')
-        } else {
-          // Ако email не е потвърден, провери дали confirmations са включени
-          // Ако не са, директно логни потребителя
-          if (data.session) {
-            // Session съществува - потвърждението не е задължително
-            toast.success('Регистрацията е успешна! Добре дошли!')
-            
-            // Изпращане на welcome email ако Resend е конфигуриран
-            try {
-              await fetch('/api/send-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  type: 'welcome',
-                  to: formData.email,
-                  name: `${formData.firstName} ${formData.lastName}`
-                })
-              })
-            } catch (emailError) {
-              console.log('Welcome email not sent:', emailError)
-            }
-            
-            router.push('/')
-          } else {
-            // Няма session и няма потвърждение - вероятно confirmations са включени, но SMTP не работи
-            toast.success('Регистрацията е успешна! Влезте в акаунта си.', {
-              duration: 5000,
-              icon: '⚠️'
-            })
-            toast('Имейл за потвърждение може да не е изпратен. Моля, опитайте да влезете с вашите данни.', {
-              duration: 8000,
-              icon: 'ℹ️'
-            })
-            router.push('/login')
-          }
+          return
         }
+
+        // Ако има session, значи потвърждението не е задължително
+        if (data.session) {
+          toast.success('Регистрацията е успешна! Добре дошли!')
+          
+          // Изпращане на welcome email ако Resend е конфигуриран
+          try {
+            await fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'welcome',
+                to: formData.email,
+                name: `${formData.firstName} ${formData.lastName}`
+              })
+            })
+          } catch (emailError) {
+            console.log('Welcome email not sent:', emailError)
+          }
+          
+          router.push('/')
+          return
+        }
+
+        // Няма session и няма потвърждение - вероятно confirmations са включени
+        // Supabase вече е изпратил имейл за потвърждение при signup
+        // Проверяваме дали трябва да изпратим повторно
+        console.log('No session after signup, email confirmation required')
+        
+        // Supabase автоматично изпраща имейл при signup, ако confirmations са включени
+        // Не е нужно да изпращаме повторно веднага
+        toast.success('Регистрацията е успешна!', {
+          duration: 4000
+        })
+        toast('Моля, проверете имейла си за потвърждение. След като потвърдите имейла си, ще можете да влезете в акаунта си.', {
+          duration: 10000,
+          icon: '📧'
+        })
+
+        router.push('/login')
         return
       }
 
