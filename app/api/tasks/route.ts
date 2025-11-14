@@ -314,8 +314,12 @@ export async function POST(request: NextRequest) {
 
     const moderationStatus = issues.length === 0 ? 'active' : 'pending'
 
+    // Използваме service role client за да обходим RLS при създаване на задача
+    const { getServiceRoleClient } = await import('@/lib/supabase')
+    const supabaseAdmin = getServiceRoleClient()
+
     // Създаване на задача
-    const { data: task, error: taskError } = await supabase
+    const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
       .insert({
         title: normalizedTitle,
