@@ -373,7 +373,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!task) {
-      logger.error('Task created but no data returned', { userId: user.id })
+      logger.error('Task created but no data returned', new Error('No task data returned after insert'), { userId: user.id })
       return NextResponse.json(
         { error: 'Задачата беше създадена, но не успяхме да я заредим' },
         { status: 500 }
