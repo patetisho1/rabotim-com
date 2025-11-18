@@ -102,6 +102,49 @@ export async function POST(request: NextRequest) {
             application_id: data.id 
           })
         }
+
+        // Създаване на conversation и начално съобщение между собственика на задачата и кандидата
+        try {
+          // Генериране на conversation_id като сортирани user IDs разделени с долна черта
+          const conversationId = [task.user_id, user_id].sort().join('_')
+          
+          // Начално съобщение от кандидата към собственика на задачата
+          const initialMessageContent = message 
+            ? `Кандидатствам за задачата "${task.title}".\n\n${message}`
+            : `Кандидатствам за задачата "${task.title}".`
+
+          const { error: messageError } = await supabaseAdmin
+            .from('messages')
+            .insert([{
+              conversation_id: conversationId,
+              sender_id: user_id, // Кандидатът изпраща първото съобщение
+              receiver_id: task.user_id, // Собственикът на задачата го получава
+              content: initialMessageContent,
+              read_at: null
+            }])
+
+          if (messageError) {
+            logger.warn('Error creating initial message for application', messageError, { 
+              task_id, 
+              user_id, 
+              application_id: data.id,
+              conversation_id: conversationId
+            })
+          } else {
+            logger.info('Initial conversation message created for application', { 
+              conversation_id: conversationId,
+              task_id, 
+              user_id, 
+              application_id: data.id 
+            })
+          }
+        } catch (messageErr) {
+          logger.warn('Exception creating initial message for application', messageErr as Error, { 
+            task_id, 
+            user_id, 
+            application_id: data.id 
+          })
+        }
       } catch (notificationErr) {
         logger.warn('Exception creating notification for application', notificationErr as Error, { 
           task_id, 
@@ -198,8 +241,11 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
+    // Използваме service role client за да bypass-нем RLS
+    const supabaseAdmin = getServiceRoleClient()
+
     // Проверка дали заявителя е собственик на задачата
-    const { data: task, error: taskError } = await supabase
+    const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
       .select('user_id, title, status')
       .eq('id', task_id)
@@ -219,7 +265,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Зареждаме кандидатурата и кандидата
-    const { data: application, error: applicationError } = await supabase
+    const { data: application, error: applicationError } = await supabaseAdmin
       .from('task_applications')
       .select('id, task_id, user_id, status')
       .eq('id', application_id)
@@ -231,7 +277,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Обновяваме статуса
-    const { data: updatedApplication, error: updateError } = await supabase
+    const { data: updatedApplication, error: updateError } = await supabaseAdmin
       .from('task_applications')
       .update({ status })
       .eq('id', application_id)
@@ -248,68 +294,131 @@ export async function PATCH(request: NextRequest) {
 
     // Ако статусът е accepted → отхвърляме всички останали кандидатури и обновяваме задачата
     if (status === 'accepted') {
-      const { error: rejectOthersError } = await supabase
+      // Отхвърляне на останалите кандидатури
+      const { error: rejectOthersError } = await supabaseAdmin
         .from('task_applications')
         .update({ status: 'rejected' })
         .eq('task_id', task_id)
         .neq('id', application_id)
+        .neq('status', 'rejected') // Само тези които все още не са отхвърлени
 
       if (rejectOthersError) {
         const error = rejectOthersError instanceof Error ? rejectOthersError : new Error(String(rejectOthersError))
         logger.warn('Error rejecting other applications', error, { task_id, application_id })
+      } else {
+        logger.info('Rejected other applications', { task_id, application_id, accepted_user_id: application.user_id })
       }
 
-      const { error: updateTaskStatusError } = await supabase
+      // Обновяване на статуса на задачата на 'in_progress'
+      const { error: updateTaskStatusError } = await supabaseAdmin
         .from('tasks')
-        .update({ status: 'assigned' })
+        .update({ status: 'in_progress' })
         .eq('id', task_id)
 
       if (updateTaskStatusError) {
         const error = updateTaskStatusError instanceof Error ? updateTaskStatusError : new Error(String(updateTaskStatusError))
-        logger.warn('Error updating task status', error, { task_id, status: 'assigned' })
+        logger.warn('Error updating task status to in_progress', error, { task_id })
+      } else {
+        logger.info('Task status updated to in_progress', { task_id, accepted_user_id: application.user_id })
+      }
+
+      // Създаване на нотификация за приетия кандидат
+      try {
+        const { data: taskOwner } = await supabaseAdmin
+          .from('users')
+          .select('full_name')
+          .eq('id', task.user_id)
+          .maybeSingle()
+
+        const { error: notificationError } = await supabaseAdmin
+          .from('notifications')
+          .insert([{
+            user_id: application.user_id,
+            type: 'application_accepted',
+            title: 'Кандидатурата ви е приета',
+            message: `${taskOwner?.full_name || 'Работодател'} прие кандидатурата ви за "${task.title}"`,
+            data: {
+              task_id,
+              application_id: application.id
+            },
+            read: false
+          }])
+
+        if (notificationError) {
+          logger.warn('Error creating acceptance notification', notificationError, { 
+            task_id, 
+            application_id, 
+            user_id: application.user_id 
+          })
+        }
+      } catch (notificationErr) {
+        logger.warn('Exception creating acceptance notification', notificationErr as Error, { 
+          task_id, 
+          application_id 
+        })
       }
     } else if (status === 'rejected') {
-      // Ако отказваме кандидатура и няма други приети → връщаме задачата в активна
-      const { data: acceptedApplications } = await supabase
-        .from('task_applications')
-        .select('id')
-        .eq('task_id', task_id)
-        .eq('status', 'accepted')
+      // Ако отказваме кандидатура и няма други приети → връщаме задачата в active (само ако вече е била in_progress)
+      if (task.status === 'in_progress') {
+        const { data: acceptedApplications } = await supabaseAdmin
+          .from('task_applications')
+          .select('id')
+          .eq('task_id', task_id)
+          .eq('status', 'accepted')
 
-      if (!acceptedApplications || acceptedApplications.length === 0) {
-        const { error: revertTaskStatusError } = await supabase
-          .from('tasks')
-          .update({ status: 'active' })
-          .eq('id', task_id)
+        if (!acceptedApplications || acceptedApplications.length === 0) {
+          const { error: revertTaskStatusError } = await supabaseAdmin
+            .from('tasks')
+            .update({ status: 'active' })
+            .eq('id', task_id)
 
-        if (revertTaskStatusError) {
-          const error = revertTaskStatusError instanceof Error ? revertTaskStatusError : new Error(String(revertTaskStatusError))
-          logger.warn('Error reverting task status', error, { task_id, status: 'active' })
+          if (revertTaskStatusError) {
+            const error = revertTaskStatusError instanceof Error ? revertTaskStatusError : new Error(String(revertTaskStatusError))
+            logger.warn('Error reverting task status to active', error, { task_id })
+          } else {
+            logger.info('Task status reverted to active', { task_id, rejected_application_id: application_id })
+          }
         }
       }
-    }
 
-    // Нотификация към кандидата
-    const { error: notificationError } = await supabase
-      .from('notifications')
-      .insert([{
-        user_id: application.user_id,
-        type: status === 'accepted' ? 'application_accepted' : 'application_rejected',
-        title: status === 'accepted' ? 'Кандидатурата е одобрена' : 'Кандидатурата е отхвърлена',
-        message: status === 'accepted'
-          ? `Вашата кандидатура за "${task.title}" беше одобрена.`
-          : `Вашата кандидатура за "${task.title}" беше отхвърлена.${reason ? ` Причина: ${reason}` : ''}`,
-        data: {
-          task_id,
-          application_id,
-          status,
-        },
-        read: false
-      }])
+      // Създаване на нотификация за отхвърления кандидат
+      try {
+        const { data: taskOwner } = await supabaseAdmin
+          .from('users')
+          .select('full_name')
+          .eq('id', task.user_id)
+          .maybeSingle()
 
-    if (notificationError) {
-      const error = notificationError instanceof Error ? notificationError : new Error(String(notificationError))
-      logger.warn('Error creating notification', error, { application_id, status })
+        const { error: notificationError } = await supabaseAdmin
+          .from('notifications')
+          .insert([{
+            user_id: application.user_id,
+            type: 'application_rejected',
+            title: 'Кандидатурата ви е отхвърлена',
+            message: reason 
+              ? `${taskOwner?.full_name || 'Работодател'} отхвърли кандидатурата ви за "${task.title}". Причина: ${reason}`
+              : `${taskOwner?.full_name || 'Работодател'} отхвърли кандидатурата ви за "${task.title}"`,
+            data: {
+              task_id,
+              application_id: application.id,
+              reason: reason || null
+            },
+            read: false
+          }])
+
+        if (notificationError) {
+          logger.warn('Error creating rejection notification', notificationError, { 
+            task_id, 
+            application_id, 
+            user_id: application.user_id 
+          })
+        }
+      } catch (notificationErr) {
+        logger.warn('Exception creating rejection notification', notificationErr as Error, { 
+          task_id, 
+          application_id 
+        })
+      }
     }
 
     logger.info('Application status updated', { application_id, status, task_id, requester_id })
