@@ -224,7 +224,7 @@ export default function TaskApplicantsPage() {
   }
 
   const handleContactApplicant = (userId: string) => {
-    router.push(`/messages?user=${userId}`)
+    router.push(`/messages?userId=${userId}`)
   }
 
   const handleViewProfile = (userId: string) => {
