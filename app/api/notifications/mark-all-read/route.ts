@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       .eq('read', false)
 
     if (error) {
-      logger.error('Error marking all notifications as read', { userId, error })
+      logger.error('Error marking all notifications as read', error instanceof Error ? error : new Error(String(error)), { userId })
       throw error
     }
 
