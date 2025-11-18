@@ -57,8 +57,7 @@ export async function getTaskCount(page: Page): Promise<number> {
   await page.waitForTimeout(1000);
   
   // Try to find task count or task cards
-  const taskCards = page.locator('[data-testid="task-card"], .task-card, article').all();
-  const count = await taskCards.length;
-  return count;
+  const taskCards = await page.locator('[data-testid="task-card"], .task-card, article').all();
+  return taskCards.length;
 }
 
