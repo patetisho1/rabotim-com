@@ -15,14 +15,19 @@ const NotificationsPage: React.FC = () => {
   const { user: authUser, loading: authLoading } = useAuth()
   const {
     notifications,
+    preferences,
     loading,
     error,
     markAsRead,
     markAllAsRead,
     togglePin,
     deleteNotification,
-    createNotification
+    createNotification,
+    updatePreferences,
+    refetchPreferences
   } = useNotifications(authUser?.id || '')
+  
+  const [preferencesLoading, setPreferencesLoading] = useState(false)
 
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'pinned' | 'settings'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -100,7 +105,65 @@ const NotificationsPage: React.FC = () => {
     { id: 'settings', label: 'Настройки', count: null, icon: Settings }
   ]
 
+  const handleUpdatePreferences = async (updates: Partial<NotificationPreferences>) => {
+    if (!preferences) return
+    
+    setPreferencesLoading(true)
+    try {
+      await updatePreferences({
+        ...preferences,
+        ...updates
+      })
+      toast.success('Настройките са обновени успешно')
+    } catch (err) {
+      toast.error('Грешка при обновяване на настройките')
+    } finally {
+      setPreferencesLoading(false)
+    }
+  }
+
+  const handleSubscribe = async () => {
+    try {
+      await handleUpdatePreferences({ push: true })
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const handleUnsubscribe = async () => {
+    try {
+      await handleUpdatePreferences({ push: false })
+      return true
+    } catch {
+      return false
+    }
+  }
+
   if (activeTab === 'settings') {
+    const defaultPreferences: NotificationPreferences = {
+      userId: authUser?.id || '',
+      email: true,
+      push: false,
+      inApp: true,
+      soundEnabled: true,
+      categories: {
+        communication: { email: true, push: false, inApp: true },
+        tasks: { email: true, push: false, inApp: true },
+        payments: { email: true, push: false, inApp: true },
+        system: { email: false, push: false, inApp: true },
+        security: { email: true, push: true, inApp: true },
+        achievements: { email: false, push: false, inApp: true }
+      },
+      quietHours: {
+        enabled: false,
+        start: '22:00',
+        end: '08:00',
+        timezone: 'Europe/Sofia'
+      },
+      frequency: 'immediate'
+    }
+
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 py-8">
@@ -113,34 +176,20 @@ const NotificationsPage: React.FC = () => {
             </p>
           </div>
 
-          <NotificationSettings
-            preferences={{
-              userId: 'user1',
-              email: true,
-              push: false,
-              inApp: true,
-              categories: {
-                communication: { email: true, push: false, inApp: true },
-                tasks: { email: true, push: false, inApp: true },
-                payments: { email: true, push: false, inApp: true },
-                system: { email: false, push: false, inApp: true },
-                security: { email: true, push: true, inApp: true },
-                achievements: { email: false, push: false, inApp: true }
-              },
-              quietHours: {
-                enabled: false,
-                start: '22:00',
-                end: '08:00',
-                timezone: 'Europe/Sofia'
-              },
-              frequency: 'immediate'
-            }}
-            onUpdatePreferences={() => {}}
-            isSubscribed={false}
-            onSubscribe={async () => true}
-            onUnsubscribe={async () => true}
-            error={error}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <NotificationSettings
+              preferences={preferences || defaultPreferences}
+              onUpdatePreferences={handleUpdatePreferences}
+              isSubscribed={preferences?.push || false}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+              error={error}
+            />
+          )}
         </div>
       </div>
     )

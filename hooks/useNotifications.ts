@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Notification as SupabaseNotification } from '@/lib/supabase'
-import { Notification } from '@/types/notification'
+import { Notification, NotificationPreferences } from '@/types/notification'
 
 export function useNotifications(userId: string) {
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -152,14 +153,56 @@ export function useNotifications(userId: string) {
     }
   }
 
+  const fetchPreferences = async () => {
+    try {
+      if (!userId) return
+
+      const response = await fetch('/api/notification-preferences')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch preferences')
+      }
+
+      const data: NotificationPreferences = await response.json()
+      setPreferences(data)
+    } catch (err) {
+      console.error('Error fetching preferences:', err)
+    }
+  }
+
+  const updatePreferences = async (updates: Partial<NotificationPreferences>) => {
+    try {
+      const response = await fetch('/api/notification-preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update preferences')
+      }
+
+      const data: NotificationPreferences = await response.json()
+      setPreferences(data)
+      return data
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      throw err
+    }
+  }
+
   useEffect(() => {
     if (userId) {
       fetchNotifications()
+      fetchPreferences()
     }
   }, [userId])
 
   return {
     notifications,
+    preferences,
     loading,
     error,
     refetch: fetchNotifications,
@@ -167,6 +210,8 @@ export function useNotifications(userId: string) {
     markAllAsRead,
     togglePin,
     deleteNotification,
-    createNotification
+    createNotification,
+    updatePreferences,
+    refetchPreferences: fetchPreferences
   }
 }
