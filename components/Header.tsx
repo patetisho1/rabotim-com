@@ -5,15 +5,18 @@ import { useRouter } from 'next/navigation'
 import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '@/hooks/useAuth'
+import { useNotifications } from '@/hooks/useNotifications'
 
 export default function Header() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
+  const { notifications } = useNotifications(authUser?.id || '')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState<'tasker' | 'poster'>('poster')
   const [favoritesCount, setFavoritesCount] = useState(0)
-  const [notificationsCount, setNotificationsCount] = useState(3)
+  
+  const notificationsCount = notifications.filter(n => !n.isRead).length
 
   useEffect(() => {
     // Автентикацията се управлява от useAuth hook

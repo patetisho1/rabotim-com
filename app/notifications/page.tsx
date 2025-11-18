@@ -22,7 +22,7 @@ const NotificationsPage: React.FC = () => {
     togglePin,
     deleteNotification,
     createNotification
-  } = useNotifications('user1') // Mock user ID for now
+  } = useNotifications(authUser?.id || '')
 
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'pinned' | 'settings'>('all')
   const [searchQuery, setSearchQuery] = useState('')

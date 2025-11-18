@@ -84,7 +84,7 @@ function ProfilePageContent() {
   const { userRatings, loadUserRatings, isLoading: ratingsLoading } = useRatings()
   const [user, setUser] = useState<UserData | null>(null)
   const [userTasks, setUserTasks] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard' | 'messages'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
   const userRatingSummary = authUser ? userRatings[authUser.id] : undefined
@@ -348,6 +348,19 @@ function ProfilePageContent() {
                     }`}
                   >
                     Общ преглед
+                  </button>
+                  <button
+                    onClick={() => router.push('/messages')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === 'messages'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <MessageCircle size={16} />
+                      Съобщения
+                    </div>
                   </button>
                   {user.roles.taskGiver && (
                     <button

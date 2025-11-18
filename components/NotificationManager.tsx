@@ -1,24 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Bell, X, CheckCircle, AlertCircle, Info, Clock, User, MessageCircle, Star, TrendingUp, Settings, Filter, Search, Archive, Trash2, MoreVertical, ArrowLeft, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Notification {
-  id: string
-  type: 'success' | 'error' | 'info' | 'warning'
-  title: string
-  message: string
-  timestamp: Date
-  isRead: boolean
-  action?: {
-    label: string
-    url: string
-  }
-  icon?: string
-  priority: 'low' | 'medium' | 'high'
-  category: 'task' | 'payment' | 'offer' | 'system' | 'reminder'
-}
+import { useAuth } from '@/hooks/useAuth'
+import { useNotifications } from '@/hooks/useNotifications'
+import { Notification } from '@/types/notification'
 
 interface NotificationManagerProps {
   onNotificationClick?: (notification: Notification) => void
@@ -31,10 +19,11 @@ export default function NotificationManager({
   maxNotifications = 20,
   className = ''
 }: NotificationManagerProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const router = useRouter()
+  const { user: authUser } = useAuth()
+  const { notifications, loading, markAsRead, deleteNotification, refetch } = useNotifications(authUser?.id || '')
+  
   const [showNotifications, setShowNotifications] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showSettings, setShowSettings] = useState(false)
@@ -42,22 +31,18 @@ export default function NotificationManager({
   const [swipeEnd, setSwipeEnd] = useState<{ x: number; y: number } | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
+  // Refresh notifications every 30 seconds
   useEffect(() => {
-    // Load notifications from localStorage
-    const savedNotifications = localStorage.getItem('notifications')
-    if (savedNotifications) {
-      const parsed = JSON.parse(savedNotifications)
-      setNotifications(parsed)
-      setUnreadCount(parsed.filter((n: Notification) => !n.isRead).length)
-    }
+    if (!authUser?.id) return
 
-    // Simulate real-time notifications
     const interval = setInterval(() => {
-      addRandomNotification()
-    }, 45000) // Every 45 seconds
+      refetch()
+    }, 30000) // Every 30 seconds
 
     return () => clearInterval(interval)
-  }, [])
+  }, [authUser?.id, refetch])
+
+  const unreadCount = notifications.filter(n => !n.isRead).length
 
   // Close panel when clicking outside
   useEffect(() => {
@@ -76,206 +61,117 @@ export default function NotificationManager({
     }
   }, [showNotifications])
 
-  const addRandomNotification = () => {
-    const notificationTypes = [
-      {
-        type: 'success' as const,
-        title: 'Нова оферта получена',
-        message: 'Получихте нова оферта за задачата "Почистване на апартамент" от 120 лв',
-        icon: 'offer',
-        priority: 'medium' as const,
-        category: 'offer' as const
-      },
-      {
-        type: 'info' as const,
-        title: 'Нова задача в района',
-        message: 'Нова задача публикувана близо до вас: "Ремонт на врата" - 80 лв',
-        icon: 'location',
-        priority: 'low' as const,
-        category: 'task' as const
-      },
-      {
-        type: 'warning' as const,
-        title: 'Напомняне за задача',
-        message: 'Задачата "Доставка на пакет" изтича след 2 часа',
-        icon: 'clock',
-          priority: 'high' as const,
-        category: 'reminder' as const
-      },
-      {
-        type: 'success' as const,
-        title: 'Плащане получено',
-        message: 'Получихте плащане от 150 лв за извършената работа',
-        icon: 'payment',
-        priority: 'medium' as const,
-        category: 'payment' as const
-      },
-      {
-        type: 'info' as const,
-          title: 'Нов рейтинг',
-        message: 'Получихте 5 звезди за задачата "Почистване на офис"',
-        icon: 'star',
-        priority: 'low' as const,
-        category: 'system' as const
-      }
-    ]
-
-    const randomType = notificationTypes[Math.floor(Math.random() * notificationTypes.length)]
-    
-    const newNotification: Notification = {
-      id: Date.now().toString(),
-      type: randomType.type,
-      title: randomType.title,
-      message: randomType.message,
-      timestamp: new Date(),
-      isRead: false,
-      icon: randomType.icon,
-      priority: randomType.priority,
-      category: randomType.category,
-      action: {
-        label: 'Преглед',
-        url: '/notifications'
-      }
-    }
-
-    addNotification(newNotification)
-  }
-
-  const addNotification = (notification: Notification) => {
-    setNotifications(prev => {
-      const updated = [notification, ...prev].slice(0, maxNotifications)
-      localStorage.setItem('notifications', JSON.stringify(updated))
-      return updated
-    })
-    
-    if (!notification.isRead) {
-      setUnreadCount(prev => prev + 1)
-    }
-
-    // Show toast notification
-    toast.custom((t) => (
-      <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
-        <div className="flex-1 w-0 p-4">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              {getNotificationIcon(notification)}
-            </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {notification.title}
-              </p>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                {notification.message}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex border-l border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] touch-manipulation"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      </div>
-    ), {
-      duration: 6000,
-      position: 'top-right'
-    })
-  }
-
   const getNotificationIcon = (notification: Notification) => {
     const iconClass = "w-8 h-8 rounded-full flex items-center justify-center"
     
-    switch (notification.icon) {
-      case 'offer':
-        return (
-          <div className={`${iconClass} bg-blue-100 dark:bg-blue-900/20`}>
-            <MessageCircle size={16} className="text-blue-600 dark:text-blue-400" />
-          </div>
-        )
-      case 'location':
-        return (
-          <div className={`${iconClass} bg-green-100 dark:bg-green-900/20`}>
-            <TrendingUp size={16} className="text-green-600 dark:text-green-400" />
-          </div>
-        )
-      case 'clock':
-        return (
-          <div className={`${iconClass} bg-yellow-100 dark:bg-yellow-900/20`}>
-            <Clock size={16} className="text-yellow-600 dark:text-yellow-400" />
-          </div>
-        )
-      case 'payment':
-        return (
-          <div className={`${iconClass} bg-green-100 dark:bg-green-900/20`}>
-            <CheckCircle size={16} className="text-green-600 dark:text-green-400" />
-          </div>
-        )
-      case 'star':
-        return (
-          <div className={`${iconClass} bg-purple-100 dark:bg-purple-900/20`}>
-            <Star size={16} className="text-purple-600 dark:text-purple-400" />
-          </div>
-        )
-      default:
-        return (
-          <div className={`${iconClass} bg-gray-100 dark:bg-gray-700`}>
-            <Bell size={16} className="text-gray-600 dark:text-gray-400" />
-          </div>
-        )
+    // Map notification types/categories to icons
+    if (notification.category === 'communication' || notification.type === 'message') {
+      return (
+        <div className={`${iconClass} bg-blue-100 dark:bg-blue-900/20`}>
+          <MessageCircle size={16} className="text-blue-600 dark:text-blue-400" />
+        </div>
+      )
+    }
+    
+    if (notification.category === 'tasks' || notification.type === 'task_update' || notification.type === 'task_assigned' || notification.type === 'task_completed') {
+      return (
+        <div className={`${iconClass} bg-green-100 dark:bg-green-900/20`}>
+          <TrendingUp size={16} className="text-green-600 dark:text-green-400" />
+        </div>
+      )
+    }
+    
+    if (notification.type === 'reminder') {
+      return (
+        <div className={`${iconClass} bg-yellow-100 dark:bg-yellow-900/20`}>
+          <Clock size={16} className="text-yellow-600 dark:text-yellow-400" />
+        </div>
+      )
+    }
+    
+    if (notification.category === 'payments' || notification.type === 'payment_received') {
+      return (
+        <div className={`${iconClass} bg-green-100 dark:bg-green-900/20`}>
+          <CheckCircle size={16} className="text-green-600 dark:text-green-400" />
+        </div>
+      )
+    }
+    
+    if (notification.type === 'rating_received' || notification.type === 'achievement') {
+      return (
+        <div className={`${iconClass} bg-purple-100 dark:bg-purple-900/20`}>
+          <Star size={16} className="text-purple-600 dark:text-purple-400" />
+        </div>
+      )
+    }
+    
+    return (
+      <div className={`${iconClass} bg-gray-100 dark:bg-gray-700`}>
+        <Bell size={16} className="text-gray-600 dark:text-gray-400" />
+      </div>
+    )
+  }
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markAsRead(id)
+    } catch (error) {
+      toast.error('Грешка при маркиране на известието')
     }
   }
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => {
-      const updated = prev.map(n => n.id === id ? { ...n, isRead: true } : n)
-      localStorage.setItem('notifications', JSON.stringify(updated))
-      return updated
-    })
-    setUnreadCount(prev => Math.max(0, prev - 1))
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: authUser?.id }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to mark all as read')
+      }
+
+      refetch()
+      toast.success('Всички известия са маркирани като прочетени')
+    } catch (error) {
+      toast.error('Грешка при маркиране на известията')
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications(prev => {
-      const updated = prev.map(n => ({ ...n, isRead: true }))
-      localStorage.setItem('notifications', JSON.stringify(updated))
-      return updated
-    })
-    setUnreadCount(0)
+  const handleDeleteNotification = async (id: string) => {
+    try {
+      await deleteNotification(id)
+      toast.success('Известието е изтрито')
+    } catch (error) {
+      toast.error('Грешка при изтриване на известието')
+    }
   }
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => {
-      const updated = prev.filter(n => n.id !== id)
-      localStorage.setItem('notifications', JSON.stringify(updated))
-      return updated
-    })
-    setUnreadCount(prev => {
-      const notification = notifications.find(n => n.id === id)
-      return notification && !notification.isRead ? Math.max(0, prev - 1) : prev
-    })
+  const clearAllNotifications = async () => {
+    if (!authUser?.id) return
+
+    try {
+      const unreadNotifications = notifications.filter(n => !n.isRead)
+      if (unreadNotifications.length > 0) {
+        await handleMarkAllAsRead()
+      }
+      toast.success('Всички известия са премахнати')
+    } catch (error) {
+      toast.error('Грешка при изчистване на известията')
+    }
   }
 
-  const clearAllNotifications = () => {
-    setNotifications([])
-    setUnreadCount(0)
-    localStorage.removeItem('notifications')
+  const archiveNotifications = async () => {
+    await handleMarkAllAsRead()
   }
 
-  const archiveNotifications = () => {
-    setNotifications(prev => {
-      const updated = prev.map(n => ({ ...n, isRead: true }))
-      localStorage.setItem('notifications', JSON.stringify(updated))
-      return updated
-    })
-    setUnreadCount(0)
-  }
-
-  const formatTime = (date: Date) => {
+  const formatTime = (date: Date | string) => {
+    const notificationDate = typeof date === 'string' ? new Date(date) : date
     const now = new Date()
-    const diff = now.getTime() - date.getTime()
+    const diff = now.getTime() - notificationDate.getTime()
     const minutes = Math.floor(diff / 60000)
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)
@@ -284,13 +180,15 @@ export default function NotificationManager({
     if (minutes < 60) return `преди ${minutes} мин`
     if (hours < 24) return `преди ${hours} ч`
     if (days < 7) return `преди ${days} дни`
-    return date.toLocaleDateString('bg-BG')
+    return notificationDate.toLocaleDateString('bg-BG')
   }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
+      case 'urgent':
       case 'high':
         return 'border-l-red-500'
+      case 'normal':
       case 'medium':
         return 'border-l-yellow-500'
       case 'low':
@@ -302,15 +200,16 @@ export default function NotificationManager({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'task':
+      case 'tasks':
         return 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400'
-      case 'payment':
+      case 'payments':
         return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400'
-      case 'offer':
+      case 'communication':
         return 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400'
       case 'system':
+      case 'achievements':
         return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
-      case 'reminder':
+      case 'security':
         return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400'
       default:
         return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
@@ -458,10 +357,12 @@ export default function NotificationManager({
                         !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
                       }`}
                       onClick={() => {
-                        markAsRead(notification.id)
+                        handleMarkAsRead(notification.id)
                         onNotificationClick?.(notification)
-                        if (notification.action?.url) {
-                          window.location.href = notification.action.url
+                        if (notification.actionUrl) {
+                          router.push(notification.actionUrl)
+                        } else {
+                          router.push('/notifications')
                         }
                       }}
                       onTouchStart={handleSwipeStart}
@@ -478,7 +379,13 @@ export default function NotificationManager({
                               </p>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(notification.category)}`}>
-                                  {notification.category}
+                                  {notification.category === 'tasks' ? 'Задачи' :
+                                   notification.category === 'payments' ? 'Плащания' :
+                                   notification.category === 'communication' ? 'Комуникация' :
+                                   notification.category === 'system' ? 'Система' :
+                                   notification.category === 'security' ? 'Сигурност' :
+                                   notification.category === 'achievements' ? 'Постижения' :
+                                   notification.category}
                                 </span>
                                 {!notification.isRead && (
                                   <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
@@ -488,7 +395,7 @@ export default function NotificationManager({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                deleteNotification(notification.id)
+                                handleDeleteNotification(notification.id)
                               }}
                               className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                             >
@@ -500,11 +407,11 @@ export default function NotificationManager({
                           </p>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {formatTime(notification.timestamp)}
+                              {formatTime(notification.createdAt)}
                             </span>
-                            {notification.action && (
+                            {notification.actionText && (
                               <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                {notification.action.label}
+                                {notification.actionText}
                               </span>
                             )}
                           </div>
@@ -526,7 +433,7 @@ export default function NotificationManager({
                   <div className="flex items-center gap-2">
                     {unreadCount > 0 && (
                       <button
-                        onClick={markAllAsRead}
+                        onClick={handleMarkAllAsRead}
                         className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                       >
                         Маркирай всички
