@@ -700,22 +700,29 @@ function TaskDetailPageContent() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {formatPrice(task.price, task.price_type)}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     {task.price_type === 'hourly' ? 'на час' : 'общо'}
                   </div>
-                  <div className="mt-2">
-                    <SocialShare
-                      url={`${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/task/${task.id}`}
-                      title={task.title}
-                      description={task.description.substring(0, 160)}
-                      hashtags={[task.category, task.location, 'работа', 'rabotim']}
-                      variant="compact"
-                    />
-                  </div>
                 </div>
+              </div>
+
+              {/* Share Button - Prominent Position */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="font-medium">{task.views_count || 0}</span> прегледа • 
+                  <span className="font-medium ml-1">{task.applications_count || 0}</span> кандидатури
+                </div>
+                <SocialShare
+                  url={`${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/task/${task.id}`}
+                  title={task.title}
+                  description={task.description.substring(0, 160)}
+                  hashtags={[task.category, task.location, 'работа', 'rabotim']}
+                  variant="compact"
+                  className="flex-shrink-0"
+                />
               </div>
 
               {/* Category */}
