@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import NotificationItem from '@/components/NotificationItem'
 import NotificationSettings from '@/components/NotificationSettings'
 import { Bell, Settings, Check, Trash2, Filter, Search, BarChart3, Pin } from 'lucide-react'
-import { Notification, NotificationCategory, NotificationPriority } from '@/types/notification'
+import { Notification, NotificationCategory, NotificationPriority, NotificationPreferences } from '@/types/notification'
 import toast from 'react-hot-toast'
 
 const NotificationsPage: React.FC = () => {
