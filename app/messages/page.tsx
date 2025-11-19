@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useMessages } from '@/hooks/useMessages'
 import { useAuth } from '@/hooks/useAuth'
 import ConversationList from '@/components/ConversationList'
@@ -11,6 +11,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 
 function MessagesPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user: authUser, loading: authLoading } = useAuth()
   const {
     conversations,
@@ -44,6 +45,56 @@ function MessagesPageContent() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [authUser, authLoading, router])
+
+  // Отваряне на conversation от userId параметър в URL
+  useEffect(() => {
+    if (authLoading || !authUser || isLoading) return
+
+    const userId = searchParams.get('userId')
+    if (!userId || userId === authUser.id) return
+
+    // Проверяваме дали вече има conversation с този потребител
+    const existingConversation = conversations.find(conv => 
+      conv.participants.includes(userId) && conv.participants.includes(authUser.id)
+    )
+
+    if (existingConversation) {
+      // Ако има, отваряме го
+      setCurrentConversation(existingConversation)
+      loadMessages(existingConversation.id)
+      markAsRead(existingConversation.id)
+      if (isMobile) {
+        setShowChat(true)
+      }
+    } else {
+      // Ако няма, създаваме нов conversation
+      const conversationId = [authUser.id, userId].sort().join('_')
+      createConversation(userId)
+      
+      // Създаваме conversation обект за да можем да го покажем
+      const newConversation = {
+        id: conversationId,
+        participants: [authUser.id, userId],
+        unreadCount: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        title: 'Нов разговор'
+      }
+      
+      setCurrentConversation(newConversation as any)
+      if (isMobile) {
+        setShowChat(true)
+      }
+    }
+
+    // Премахваме userId от URL след като го обработим
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.delete('userId')
+    const newUrl = newSearchParams.toString() 
+      ? `${window.location.pathname}?${newSearchParams.toString()}`
+      : window.location.pathname
+    router.replace(newUrl, { scroll: false })
+  }, [authUser, searchParams, conversations, isLoading, authLoading, loadMessages, markAsRead, setCurrentConversation, createConversation, router, isMobile])
 
   const handleSelectConversation = async (conversation: any) => {
     setCurrentConversation(conversation)

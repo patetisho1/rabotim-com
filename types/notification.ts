@@ -45,6 +45,7 @@ export interface NotificationPreferences {
   email: boolean
   push: boolean
   inApp: boolean
+  soundEnabled: boolean
   categories: {
     [key in NotificationCategory]: {
       email: boolean

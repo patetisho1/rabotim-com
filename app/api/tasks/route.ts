@@ -5,6 +5,10 @@ import { logger } from '@/lib/logger'
 import { handleApiError, AuthenticationError, ValidationError, ErrorMessages } from '@/lib/errors'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
+// Force dynamic rendering to prevent static generation errors
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: NextRequest) {
   try {
     // Rate limiting
@@ -143,30 +147,60 @@ export async function POST(request: NextRequest) {
         // Декодираме JWT за да получим user ID
         const tokenParts = accessToken.split('.')
         if (tokenParts.length === 3) {
-          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString())
-          const userId = payload.sub
-          
-          // Използваме service role client за да обходим RLS и да потвърдим user
-          const { getServiceRoleClient } = await import('@/lib/supabase')
-          const supabaseAdmin = getServiceRoleClient()
-          
-          const { data: userData, error: userError } = await supabaseAdmin
-            .from('users')
-            .select('id, email')
-            .eq('id', userId)
-            .single()
-          
-          if (userData && !userError) {
-            // Създаваме user обект от данните
-            user = {
-              id: userData.id,
-              email: userData.email,
-            } as any
-            authError = null
-          } else {
-            // Запазваме оригиналната грешка или създаваме нова AuthError
-            authError = authError || {
-              message: userError?.message || 'User not found',
+          // Използваме atob за декодиране (работи и в браузър и в Node.js)
+          const base64Payload = tokenParts[1]
+          let payloadString: string | undefined
+          try {
+            // Първо опитваме с Buffer (Node.js)
+            if (typeof Buffer !== 'undefined') {
+              payloadString = Buffer.from(base64Payload, 'base64').toString()
+            } else {
+              // Fallback на atob (браузър/Edge runtime)
+              payloadString = atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))
+            }
+            const payload = JSON.parse(payloadString)
+            const userId = payload.sub
+            
+            if (!userId) {
+              throw new Error('User ID not found in token payload')
+            }
+            
+            // Използваме service role client за да обходим RLS и да потвърдим user
+            const { getServiceRoleClient } = await import('@/lib/supabase')
+            const supabaseAdmin = getServiceRoleClient()
+            
+            const { data: userData, error: userError } = await supabaseAdmin
+              .from('users')
+              .select('id, email')
+              .eq('id', userId)
+              .single()
+            
+            if (userData && !userError) {
+              // Създаваме user обект от данните
+              user = {
+                id: userData.id,
+                email: userData.email,
+              } as any
+              authError = null
+            } else {
+              // Запазваме оригиналната грешка или създаваме нова AuthError
+              logger.warn('User not found in database for token user ID', new Error(userError?.message || 'User not found'), {
+                userId,
+                userError: userError?.message
+              })
+              authError = authError || {
+                message: userError?.message || 'User not found',
+                name: 'AuthError',
+                status: 401
+              } as any
+            }
+          } catch (parseError) {
+            logger.error('Error parsing JWT payload', parseError as Error, {
+              hasPayloadString: !!payloadString,
+              payloadStringLength: payloadString?.length
+            })
+            authError = {
+              message: (parseError as Error).message || 'Error parsing token',
               name: 'AuthError',
               status: 401
             } as any
@@ -229,7 +263,7 @@ export async function POST(request: NextRequest) {
 
     // Допълнителни проверки
     const MIN_TITLE_LENGTH = 10
-    const MIN_DESCRIPTION_LENGTH = 80
+    const MIN_DESCRIPTION_LENGTH = 50
     const MIN_PRICE_VALUE = 5
     const bannedPatterns = [
       /https?:\/\//i,
@@ -242,10 +276,10 @@ export async function POST(request: NextRequest) {
     const issues: string[] = []
 
     if (normalizedTitle.length < MIN_TITLE_LENGTH) {
-      issues.push('Заглавието е твърде кратко')
+      issues.push(`Заглавието е твърде кратко (минимум ${MIN_TITLE_LENGTH} символа, имате ${normalizedTitle.length})`)
     }
     if (normalizedDescription.length < MIN_DESCRIPTION_LENGTH) {
-      issues.push('Описанието е твърде кратко')
+      issues.push(`Описанието е твърде кратко (минимум ${MIN_DESCRIPTION_LENGTH} символа, имате ${normalizedDescription.length})`)
     }
     if (numericPrice < MIN_PRICE_VALUE) {
       issues.push('Посочената цена е подозрително ниска')
@@ -256,8 +290,12 @@ export async function POST(request: NextRequest) {
       issues.push('Открито е съдържание, изискващо модерация')
     }
 
-    // Проверка на историята на потребителя
-    const { data: profile, error: profileError } = await supabase
+    // Използваме service role client за да обходим RLS при всички операции
+    const { getServiceRoleClient } = await import('@/lib/supabase')
+    const supabaseAdmin = getServiceRoleClient()
+
+    // Проверка на историята на потребителя (използваме service role client)
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('users')
       .select('id, verified, created_at')
       .eq('id', user.id)
@@ -268,7 +306,7 @@ export async function POST(request: NextRequest) {
       logger.warn('Error loading user profile for moderation', error, { userId: user.id })
     }
 
-    const { count: tasksCount } = await supabase
+    const { count: tasksCount } = await supabaseAdmin
       .from('tasks')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
@@ -280,8 +318,27 @@ export async function POST(request: NextRequest) {
 
     const moderationStatus = issues.length === 0 ? 'active' : 'pending'
 
+    // Логване преди създаване на задача за диагностика
+    logger.info('Creating task with service role client', {
+      userId: user.id,
+      title: normalizedTitle.substring(0, 50),
+      category,
+      location,
+      price: numericPrice,
+      status: moderationStatus
+    })
+
     // Създаване на задача
-    const { data: task, error: taskError } = await supabase
+    logger.info('Attempting to insert task', {
+      userId: user.id,
+      title: normalizedTitle.substring(0, 30),
+      category,
+      location,
+      price: numericPrice,
+      status: moderationStatus
+    })
+
+    const { data: task, error: taskError } = await supabaseAdmin
       .from('tasks')
       .insert({
         title: normalizedTitle,
@@ -299,25 +356,33 @@ export async function POST(request: NextRequest) {
         applications_count: 0,
         views_count: 0
       })
-      .select(`
-        *,
-        profiles:users!tasks_user_id_fkey (
-          id,
-          full_name,
-          avatar_url,
-          verified
-        )
-      `)
+      .select('*')
       .single()
 
     if (taskError) {
-      logger.error('Error creating task', taskError, { userId: user.id, category, location })
+      logger.error('Error creating task', taskError, { 
+        userId: user.id, 
+        category, 
+        location,
+        errorCode: (taskError as any)?.code,
+        errorMessage: taskError.message,
+        errorDetails: (taskError as any)?.details,
+        errorHint: (taskError as any)?.hint
+      })
       return handleApiError(taskError, { endpoint: 'POST /api/tasks', userId: user.id })
     }
 
-    // Лог за модерация
+    if (!task) {
+      logger.error('Task created but no data returned', new Error('No task data returned after insert'), { userId: user.id })
+      return NextResponse.json(
+        { error: 'Задачата беше създадена, но не успяхме да я заредим' },
+        { status: 500 }
+      )
+    }
+
+    // Лог за модерация (използваме service role client)
     try {
-      await supabase.from('task_moderation_logs').insert({
+      await supabaseAdmin.from('task_moderation_logs').insert({
         task_id: task.id,
         moderated_by: null,
         action: issues.length === 0 ? 'auto_approved' : 'auto_review',
@@ -345,7 +410,21 @@ export async function POST(request: NextRequest) {
         issues
       } 
     }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
+    // Подробно логване за диагностика
+    console.error('Exception in POST /api/tasks:', {
+      error,
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+      cause: error?.cause
+    })
+    logger.error('Exception in POST /api/tasks', error as Error, { 
+      endpoint: 'POST /api/tasks',
+      errorMessage: error?.message,
+      errorName: error?.name,
+      errorStack: error?.stack
+    })
     return handleApiError(error, { endpoint: 'POST /api/tasks' })
   }
 }

@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { 
   ArrowLeft, MapPin, DollarSign, User, Star, Calendar, Clock,
-  MessageSquare, AlertCircle, Heart, Share2, Shield, CheckCircle
+  MessageSquare, AlertCircle, Heart, Share2, Shield, CheckCircle,
+  Edit, Eye, Trash2, Users
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { bg } from 'date-fns/locale'
@@ -425,6 +426,109 @@ function TaskDetailPageContent() {
   }
 
   const isTaskOwner = task?.user_id === authUser?.id
+  
+  // Favorite state
+  const [isFavorite, setIsFavorite] = useState(false)
+
+  useEffect(() => {
+    if (authUser && task?.id) {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+      setIsFavorite(favorites.includes(task.id))
+    }
+  }, [authUser, task?.id])
+
+  const handleToggleFavorite = () => {
+    if (!authUser) {
+      toast.error('Трябва да сте влезли в акаунта си за да добавите в любими')
+      router.push('/login')
+      return
+    }
+
+    if (!task?.id) return
+
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+    let newFavorites: string[]
+
+    if (isFavorite) {
+      newFavorites = favorites.filter((id: string) => id !== task.id)
+      toast.success('Премахната от любими')
+    } else {
+      newFavorites = [...favorites, task.id]
+      toast.success('Добавена в любими')
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(newFavorites))
+    setIsFavorite(!isFavorite)
+  }
+
+  const handleDeleteTask = async () => {
+    if (!task || !isTaskOwner) return
+
+    const confirmed = window.confirm('Сигурни ли сте, че искате да изтриете тази задача? Това действие не може да бъде отменено.')
+
+    if (!confirmed) return
+
+    try {
+      const response = await fetch(`/api/tasks/${task.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Грешка при изтриване на задачата')
+      }
+
+      toast.success('Задачата е изтрита успешно')
+      router.push('/my-tasks')
+    } catch (error: any) {
+      console.error('Error deleting task:', error)
+      toast.error(error.message || 'Грешка при изтриване на задачата')
+    }
+  }
+
+  const renderTaskStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: string; bgColor: string }> = {
+      'active': {
+        label: 'Активна',
+        color: 'text-green-700 dark:text-green-300',
+        bgColor: 'bg-green-100 dark:bg-green-900/30'
+      },
+      'pending': {
+        label: 'В очакване на одобрение',
+        color: 'text-orange-700 dark:text-orange-300',
+        bgColor: 'bg-orange-100 dark:bg-orange-900/30'
+      },
+      'in_progress': {
+        label: 'В процес',
+        color: 'text-blue-700 dark:text-blue-300',
+        bgColor: 'bg-blue-100 dark:bg-blue-900/30'
+      },
+      'completed': {
+        label: 'Завършена',
+        color: 'text-gray-700 dark:text-gray-300',
+        bgColor: 'bg-gray-100 dark:bg-gray-800'
+      },
+      'cancelled': {
+        label: 'Отменена',
+        color: 'text-red-700 dark:text-red-300',
+        bgColor: 'bg-red-100 dark:bg-red-900/30'
+      }
+    }
+
+    const config = statusConfig[status] || {
+      label: status,
+      color: 'text-gray-700 dark:text-gray-300',
+      bgColor: 'bg-gray-100 dark:bg-gray-800'
+    }
+
+    return (
+      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${config.bgColor} ${config.color}`}>
+        <Clock size={12} />
+        {config.label}
+      </span>
+    )
+  }
 
   const acceptedApplications = useMemo(
     () => applications.filter((application) => application.status === 'accepted'),
@@ -700,27 +804,85 @@ function TaskDetailPageContent() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {formatPrice(task.price, task.price_type)}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     {task.price_type === 'hourly' ? 'на час' : 'общо'}
                   </div>
-                  <div className="mt-2">
-                    <SocialShare
-                      url={`${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/task/${task.id}`}
-                      title={task.title}
-                      description={task.description.substring(0, 160)}
-                      hashtags={[task.category, task.location, 'работа', 'rabotim']}
-                      variant="compact"
-                    />
-                  </div>
                 </div>
               </div>
 
+              {/* Share Button - Prominent Position */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-medium">{task.views_count || 0}</span> прегледа • 
+                    <span className="font-medium ml-1">{task.applications_count || 0}</span> кандидатури
+                  </div>
+                  {renderTaskStatusBadge(task.status)}
+                </div>
+                <div className="flex items-center gap-2">
+                  {authUser && (
+                    <button
+                      onClick={handleToggleFavorite}
+                      className={`p-2 rounded-lg transition-colors ${
+                        isFavorite
+                          ? 'text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400'
+                          : 'text-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                      title={isFavorite ? 'Премахни от любими' : 'Добави в любими'}
+                    >
+                      <Heart size={18} className={isFavorite ? 'fill-current' : ''} />
+                    </button>
+                  )}
+                  <SocialShare
+                    url={`${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/task/${task.id}`}
+                    title={task.title}
+                    description={task.description.substring(0, 160)}
+                    hashtags={[task.category, task.location, 'работа', 'rabotim']}
+                    variant="compact"
+                    className="flex-shrink-0"
+                  />
+                </div>
+              </div>
+
+              {/* Owner Actions */}
+              {isTaskOwner && (
+                <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  {(task.status === 'active' || task.status === 'pending') && (
+                    <>
+                      <button
+                        onClick={() => router.push(`/task/${taskId}/edit`)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        <Edit size={16} />
+                        Редактирай
+                      </button>
+                      {task.applications_count === 0 && (
+                        <button
+                          onClick={handleDeleteTask}
+                          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                        >
+                          <Trash2 size={16} />
+                          Изтрий
+                        </button>
+                      )}
+                    </>
+                  )}
+                  <button
+                    onClick={() => router.push(`/task/${taskId}/applicants`)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  >
+                    <Users size={16} />
+                    Виж кандидатури ({task.applications_count || 0})
+                  </button>
+                </div>
+              )}
+
               {/* Category */}
               <div className="mb-4">
-                <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900/30 dark:text-blue-200">
                   {getCategoryLabel(task.category)}
                 </span>
               </div>

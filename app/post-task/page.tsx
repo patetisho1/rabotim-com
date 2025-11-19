@@ -39,6 +39,24 @@ const locations = [
   { value: 'Друго', label: 'Друго' }
 ]
 
+// Динамичен placeholder за описанието според категорията
+const getDescriptionPlaceholder = (category: string): string => {
+  const placeholders: Record<string, string> = {
+    'repair': 'Какъв ремонт ви трябва? Колко стаи, колко квадрата и сложност според вас. Бъдете възможно най-изчерпателни.',
+    'cleaning': 'Опишете площта, брой стаи и тип почистване (голямо/редовно). Моля, бъдете конкретни.',
+    'delivery': 'От къде до къде, какво се доставя и разстоянието. Трябва ли трета ръка?',
+    'tutoring': 'Какъв предмет/навык искате да се научи? За кого е (възраст/клас) и колко пъти седмично?',
+    'garden': 'Каква дейност ви трябва? Площ на градината, какво точно искате да се направи.',
+    'it-services': 'Какъв тип услуга ви трябва? (уеб сайт, софтуер, поддръжка, уроци) Опишете кратко проекта.',
+    'moving': 'От къде до къде, какво се премества и колко е обемът? Нужни ли са опаковъчни материали?',
+    'assembly': 'Какво трябва да се сглоби? (мебели, техника и т.н.) Имате ли инструкции?',
+    'care': 'Какъв тип грижа ви трябва? За кого е и колко часа на ден/седмица?',
+    'other': 'Опишете подробно какво ви трябва. Бъдете конкретни за да получите най-добрите предложения.'
+  }
+  
+  return placeholders[category] || 'Опишете подробно какво трябва да се направи. Бъдете възможно най-изчерпателни за да получите най-добрите предложения.'
+}
+
 function PostTaskPageContent() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -145,29 +163,70 @@ function PostTaskPageContent() {
       return
     }
 
-    // Валидация
-    if (!formData.title.trim() || formData.title.length < 5) {
-      toast.error('Заглавието трябва да е поне 5 символа')
-      return
+    // Client-side validation (същите критерии като сървъра)
+    const MIN_TITLE_LENGTH = 10
+    const MIN_DESCRIPTION_LENGTH = 50
+    const MIN_PRICE_VALUE = 5
+    const bannedPatterns = [
+      /https?:\/\//i,
+      /\bтелефон\b/i,
+      /\bwhatsapp\b/i,
+      /\bviber\b/i,
+      /\bemail\b/i
+    ]
+
+    const normalizedTitle = formData.title.trim()
+    const normalizedDescription = formData.description.trim()
+    const numericPrice = parseFloat(formData.price)
+
+    const validationIssues: string[] = []
+
+    // Проверки за задължителни полета
+    if (!normalizedTitle) {
+      validationIssues.push('Заглавието е задължително')
+    } else if (normalizedTitle.length < MIN_TITLE_LENGTH) {
+      validationIssues.push(`Заглавието е твърде кратко (минимум ${MIN_TITLE_LENGTH} символа, имате ${normalizedTitle.length})`)
     }
 
-    if (!formData.description.trim() || formData.description.length < 20) {
-      toast.error('Описанието трябва да е поне 20 символа')
-      return
+    if (!normalizedDescription) {
+      validationIssues.push('Описанието е задължително')
+    } else if (normalizedDescription.length < MIN_DESCRIPTION_LENGTH) {
+      validationIssues.push(`Описанието е твърде кратко (минимум ${MIN_DESCRIPTION_LENGTH} символа, имате ${normalizedDescription.length})`)
     }
 
     if (!formData.category) {
-      toast.error('Моля, изберете категория')
-      return
+      validationIssues.push('Моля, изберете категория')
     }
 
     if (!formData.location) {
-      toast.error('Моля, изберете локация')
-      return
+      validationIssues.push('Моля, изберете локация')
     }
 
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      toast.error('Моля, въведете валидна цена')
+    if (!formData.price || isNaN(numericPrice)) {
+      validationIssues.push('Моля, въведете валидна цена')
+    } else if (numericPrice < MIN_PRICE_VALUE) {
+      validationIssues.push(`Посочената цена е твърде ниска (минимум ${MIN_PRICE_VALUE} лв)`)
+    }
+
+    // Проверка за забранени думи
+    if (bannedPatterns.some(pattern => pattern.test(normalizedTitle) || pattern.test(normalizedDescription))) {
+      validationIssues.push('Съдържанието не може да включва URL-и, телефон, WhatsApp, Viber или email. Моля, използвайте формата за контакт в сайта.')
+    }
+
+    // Ако има проблеми, показваме ги всички и не изпращаме формата
+    if (validationIssues.length > 0) {
+      toast.error('Моля, коригирайте следните проблеми преди да публикувате:', {
+        duration: 5000
+      })
+      // Показваме всички проблеми един по един
+      validationIssues.forEach((issue, index) => {
+        setTimeout(() => {
+          toast(issue, { 
+            icon: '⚠️', 
+            duration: 6000 
+          })
+        }, index * 100) // Малко забавяне между съобщенията
+      })
       return
     }
 
@@ -246,9 +305,12 @@ function PostTaskPageContent() {
       const moderationIssues = result?.moderation?.issues || []
 
       if (moderationStatus === 'pending') {
-        toast.success('Задачата е изпратена за преглед. Ще я публикуваме след проверка.')
-        moderationIssues.slice(0, 2).forEach((issue: string) =>
-          toast(issue, { icon: 'ℹ️', duration: 5000 })
+        toast.success('Задачата е изпратена за преглед. Ще я публикуваме след проверка.', {
+          duration: 6000
+        })
+        // Показваме всички проблеми за да знае потребителят какво да поправи
+        moderationIssues.forEach((issue: string) =>
+          toast(issue, { icon: 'ℹ️', duration: 8000 })
         )
         router.push('/profile?tab=taskGiver')
       } else if (createdTask?.id) {
@@ -304,6 +366,26 @@ function PostTaskPageContent() {
       <div className="max-w-3xl mx-auto px-4">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
           
+          {/* Категория - ПЪРВО */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              Категория *
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Избери категория</option>
+              {categories.map(cat => (
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Заглавие */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -321,7 +403,7 @@ function PostTaskPageContent() {
             />
           </div>
 
-          {/* Описание */}
+          {/* Описание с динамичен placeholder */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
               Описание *
@@ -333,11 +415,11 @@ function PostTaskPageContent() {
               onChange={handleInputChange}
               rows={5}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Опишете подробно какво трябва да се направи..."
+              placeholder={getDescriptionPlaceholder(formData.category)}
               required
             />
             <p className="text-sm text-gray-500 mt-1">
-              {formData.description.length} символа (минимум 20)
+              {formData.description.length} символа (минимум 50)
             </p>
           </div>
 
@@ -393,45 +475,24 @@ function PostTaskPageContent() {
             </div>
           </div>
 
-          {/* Категория и Локация */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Категория *
-              </label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Избери категория</option>
-                {categories.map(cat => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                Локация *
-              </label>
-              <select
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Избери град</option>
-                {locations.map(loc => (
-                  <option key={loc.value} value={loc.value}>{loc.label}</option>
-                ))}
-              </select>
-            </div>
+          {/* Локация */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+              Локация *
+            </label>
+            <select
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Избери град</option>
+              {locations.map(loc => (
+                <option key={loc.value} value={loc.value}>{loc.label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Цена */}

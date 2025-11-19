@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Share2, Facebook, Twitter, Linkedin, MessageCircle, Copy, Check } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Share2, Facebook, Twitter, Linkedin, MessageCircle, Copy, Check, MessageSquare, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface SocialShareProps {
@@ -36,40 +36,63 @@ export default function SocialShare({
     const encodedUrl = encodeURIComponent(url)
     const encodedTitle = encodeURIComponent(title)
     const encodedDescription = encodeURIComponent(description)
+    const encodedHashtags = hashtags.map(tag => tag.replace(/#/g, '')).join(',')
 
     switch (platform) {
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`
         break
       case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&hashtags=${hashtags.join(',')}`
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&hashtags=${encodedHashtags}`
         break
       case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedDescription}`
         break
       case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`
+        shareUrl = `https://wa.me/?text=${encodedTitle}%0A%0A${encodedDescription}%0A%0A${encodedUrl}`
         break
       case 'telegram':
         shareUrl = `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`
         break
       case 'viber':
-        shareUrl = `viber://forward?text=${encodedTitle}%20${encodedUrl}`
+        // Viber mobile app uses viber:// protocol, web uses different approach
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          shareUrl = `viber://forward?text=${encodedTitle}%20${encodedUrl}`
+        } else {
+          // For desktop, copy to clipboard with Viber format
+          navigator.clipboard.writeText(`${title}\n\n${description}\n\n${url}`)
+          toast.success('Линкът е копиран в клипборда за Viber')
+          setIsOpen(false)
+          return
+        }
         break
       default:
         return
     }
 
-    if (platform === 'viber') {
-      // Viber doesn't work well with window.open, so we'll copy the text instead
-      navigator.clipboard.writeText(`${title} ${url}`)
-      toast.success('Линкът е копиран в клипборда за Viber')
+    if (platform === 'viber' && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      // Try to open Viber app, if it fails, copy to clipboard
+      window.location.href = shareUrl
+      setTimeout(() => {
+        navigator.clipboard.writeText(`${title}\n\n${description}\n\n${url}`)
+        toast.success('Ако Viber не се отвори, линкът е копиран в клипборда')
+      }, 500)
+      setIsOpen(false)
       return
     }
 
     window.open(shareUrl, '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes')
     setIsOpen(false)
-    toast.success(`Споделено в ${platform}`)
+    
+    const platformNames: Record<string, string> = {
+      'facebook': 'Facebook',
+      'twitter': 'Twitter/X',
+      'linkedin': 'LinkedIn',
+      'whatsapp': 'WhatsApp',
+      'telegram': 'Telegram',
+      'viber': 'Viber'
+    }
+    toast.success(`Отваряне на ${platformNames[platform] || platform}...`)
   }
 
   const handleCopyLink = async () => {
@@ -104,26 +127,39 @@ export default function SocialShare({
     {
       name: 'Facebook',
       icon: Facebook,
-      color: 'bg-blue-600 hover:bg-blue-700',
+      color: 'bg-[#1877F2] hover:bg-[#166FE5]',
       onClick: () => handleShare('facebook')
-    },
-    {
-      name: 'Twitter',
-      icon: Twitter,
-      color: 'bg-sky-500 hover:bg-sky-600',
-      onClick: () => handleShare('twitter')
     },
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      color: 'bg-blue-700 hover:bg-blue-800',
+      color: 'bg-[#0A66C2] hover:bg-[#095195]',
       onClick: () => handleShare('linkedin')
+    },
+    {
+      name: 'Twitter/X',
+      icon: Twitter,
+      color: 'bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200',
+      iconColor: 'text-white dark:text-black',
+      onClick: () => handleShare('twitter')
     },
     {
       name: 'WhatsApp',
       icon: MessageCircle,
-      color: 'bg-green-600 hover:bg-green-700',
+      color: 'bg-[#25D366] hover:bg-[#20BA5A]',
       onClick: () => handleShare('whatsapp')
+    },
+    {
+      name: 'Telegram',
+      icon: Send,
+      color: 'bg-[#0088cc] hover:bg-[#0077b5]',
+      onClick: () => handleShare('telegram')
+    },
+    {
+      name: 'Viber',
+      icon: MessageSquare,
+      color: 'bg-[#665CAC] hover:bg-[#5A5099]',
+      onClick: () => handleShare('viber')
     }
   ]
 
@@ -139,30 +175,85 @@ export default function SocialShare({
     )
   }
 
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
   if (variant === 'compact') {
     return (
-      <div className={`relative ${className}`}>
+      <div className={`relative ${className}`} ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Сподели задачата"
         >
           <Share2 className="h-4 w-4" />
           Сподели
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50">
-            <div className="flex gap-2">
+          <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50 min-w-[200px]">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Сподели в:
+              </h3>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm"
+                aria-label="Затвори"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-3">
               {socialButtons.map((button) => (
                 <button
                   key={button.name}
                   onClick={button.onClick}
-                  className={`p-2 rounded-lg text-white transition-colors ${button.color}`}
+                  className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-white transition-colors ${button.color} ${button.iconColor || ''}`}
                   title={button.name}
+                  aria-label={`Сподели в ${button.name}`}
                 >
-                  <button.icon className="h-4 w-4" />
+                  <button.icon className={`h-4 w-4 ${button.iconColor || ''}`} />
+                  <span className="text-[10px] font-medium">{button.name}</span>
                 </button>
               ))}
+            </div>
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
+              <button
+                onClick={handleCopyLink}
+                className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  copied
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Копирано!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Копирай линк
+                  </>
+                )}
+              </button>
             </div>
           </div>
         )}
@@ -199,9 +290,9 @@ export default function SocialShare({
               <button
                 key={button.name}
                 onClick={button.onClick}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${button.color}`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${button.color} ${button.iconColor || ''}`}
               >
-                <button.icon className="h-4 w-4" />
+                <button.icon className={`h-4 w-4 ${button.iconColor || ''}`} />
                 {button.name}
               </button>
             ))}
