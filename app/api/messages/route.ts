@@ -4,6 +4,9 @@ import { logger } from '@/lib/logger'
 import { handleApiError, ValidationError, ErrorMessages } from '@/lib/errors'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // GET /api/messages - Вземи разговори за потребител
 export async function GET(request: NextRequest) {
   try {
