@@ -58,4 +58,8 @@ jspm_packages/
 *.tgz
 
 # Yarn Integrity file
-.yarn-integrity 
+.yarn-integrity
+
+# Chat context backups
+CHAT_CONTEXT.backup.md
+*.backup.md 
