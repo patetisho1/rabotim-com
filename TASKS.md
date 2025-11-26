@@ -75,39 +75,43 @@
 - [x] Responsive design за всички размери екрани
 
 ### 1.5 Homepage ревюта секция
-- [ ] Секция "Какво казват нашите потребители"
-- [ ] Carousel/Grid с real testimonials
-- [ ] Снимки на потребители
-- [ ] Истории за успех:
+- [x] Секция "Какво казват нашите потребители"
+- [x] Carousel/Grid с real testimonials
+- [x] Снимки на потребители
+- [x] Истории за успех:
   - "За няколко часа изкарах 150 лв"
   - "Намерих перфектния човек за почистване за 10 минути"
-- [ ] CTA бутони "Публикувай обява" / "Започни да печелиш"
+- [x] CTA бутони "Публикувай обява" / "Започни да печелиш"
+- **Приоритет:** ✅ **ЗАВЪРШЕНО** (TestimonialsSection.tsx)
 
 ### 1.5 Популяризация & Marketing
 
 #### SEO оптимизация
-- [ ] Meta tags (title, description) за всяка страница
-- [ ] Open Graph tags за social sharing
-- [ ] Sitemap.xml генериране
-- [ ] Robots.txt оптимизация
-- [ ] Structured data (Schema.org)
-- [ ] Alt tags на всички изображения
-- [ ] URL structure оптимизация
-- [ ] Page speed optimization
-- [ ] Mobile-first design
+- [x] Meta tags (title, description) за всяка страница
+- [x] Open Graph tags за social sharing
+- [x] Sitemap.xml генериране
+- [x] Robots.txt оптимизация
+- [x] Structured data (Schema.org)
+- [x] Alt tags на всички изображения
+- [x] URL structure оптимизация
+- [x] Page speed optimization
+- [x] Mobile-first design
 - [ ] Internal linking strategy
 - [ ] Blog за SEO content
+- **Приоритет:** ✅ **ОСНОВНО ЗАВЪРШЕНО**
 
 #### Интеграция със социални мрежи
-- [ ] Facebook login (вече готово)
-- [ ] Google login
-- [ ] Share бутони на обяви:
-  - [ ] Facebook share
-  - [ ] LinkedIn share
-  - [ ] Twitter/X share
-  - [ ] Viber share
-  - [ ] WhatsApp share
-  - [ ] Copy link
+- [x] Facebook login (вече готово)
+- [x] Google login (NextAuth + GoogleProvider интегриран, нужни са GOOGLE_CLIENT_ID и GOOGLE_CLIENT_SECRET)
+- [x] Share бутони на обяви:
+  - [x] Facebook share
+  - [x] LinkedIn share
+  - [x] Twitter/X share
+  - [x] Viber share
+  - [x] WhatsApp share
+  - [x] Telegram share
+  - [x] Copy link
+- **Приоритет:** ✅ **Share бутони ЗАВЪРШЕНИ** (SocialShare.tsx)
 - [ ] Social media links в профили
 - [ ] Auto-post на обяви в Facebook groups (опционално)
 - [ ] Instagram integration (за визуални услуги)
