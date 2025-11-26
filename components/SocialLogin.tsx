@@ -23,24 +23,15 @@ export default function SocialLogin({
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(provider)
     try {
-      const result = await signIn(provider, {
-        redirect: false,
+      // OAuth providers require redirect: true
+      await signIn(provider, {
         callbackUrl: '/'
       })
-
-      if (result?.error) {
-        throw new Error(result.error)
-      }
-
-      if (result?.ok) {
-        toast.success(`Успешно влизане с ${provider}`)
-        onSuccess?.()
-      }
+      // Note: This code won't execute because signIn redirects to OAuth provider
     } catch (error: any) {
       console.error(`Error with ${provider} login:`, error)
       toast.error(`Грешка при влизане с ${provider}`)
       onError?.(error.message)
-    } finally {
       setIsLoading(null)
     }
   }
@@ -161,21 +152,13 @@ export function SocialProfileLinker() {
   const handleLinkAccount = async (provider: string) => {
     setIsLinking(provider)
     try {
-      // This would be implemented with NextAuth.js account linking
-      const result = await signIn(provider, {
-        redirect: false,
+      // OAuth providers require redirect
+      await signIn(provider, {
         callbackUrl: '/profile'
       })
-
-      if (result?.error) {
-        throw new Error(result.error)
-      }
-
-      toast.success(`Акаунтът е свързан с ${provider}`)
     } catch (error: any) {
       console.error(`Error linking ${provider}:`, error)
       toast.error(`Грешка при свързване с ${provider}`)
-    } finally {
       setIsLinking(null)
     }
   }
