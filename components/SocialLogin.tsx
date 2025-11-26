@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Facebook, Twitter, Github, Mail, ArrowRight } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { Facebook, Mail, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 
 interface SocialLoginProps {
@@ -19,15 +19,26 @@ export default function SocialLogin({
   onError
 }: SocialLoginProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
+  const { signInWithGoogle, signInWithFacebook } = useAuth()
 
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(provider)
     try {
-      // OAuth providers require redirect: true
-      await signIn(provider, {
-        callbackUrl: '/'
-      })
-      // Note: This code won't execute because signIn redirects to OAuth provider
+      let result
+      if (provider === 'google') {
+        result = await signInWithGoogle()
+      } else if (provider === 'facebook') {
+        result = await signInWithFacebook()
+      } else {
+        toast.error(`${provider} не е поддържан в момента`)
+        setIsLoading(null)
+        return
+      }
+
+      if (result?.error) {
+        throw result.error
+      }
+      // Supabase OAuth redirects automatically
     } catch (error: any) {
       console.error(`Error with ${provider} login:`, error)
       toast.error(`Грешка при влизане с ${provider}`)
@@ -48,12 +59,6 @@ export default function SocialLogin({
       icon: Facebook,
       color: 'bg-blue-600 hover:bg-blue-700',
       provider: 'facebook'
-    },
-    {
-      name: 'GitHub',
-      icon: Github,
-      color: 'bg-gray-800 hover:bg-gray-900',
-      provider: 'github'
     }
   ]
 
@@ -148,14 +153,16 @@ export default function SocialLogin({
 // Additional component for social profile linking
 export function SocialProfileLinker() {
   const [isLinking, setIsLinking] = useState<string | null>(null)
+  const { signInWithGoogle, signInWithFacebook } = useAuth()
 
   const handleLinkAccount = async (provider: string) => {
     setIsLinking(provider)
     try {
-      // OAuth providers require redirect
-      await signIn(provider, {
-        callbackUrl: '/profile'
-      })
+      if (provider === 'google') {
+        await signInWithGoogle()
+      } else if (provider === 'facebook') {
+        await signInWithFacebook()
+      }
     } catch (error: any) {
       console.error(`Error linking ${provider}:`, error)
       toast.error(`Грешка при свързване с ${provider}`)
@@ -165,8 +172,7 @@ export function SocialProfileLinker() {
 
   const linkedAccounts = [
     { provider: 'google', name: 'Google', icon: Mail, linked: false },
-    { provider: 'facebook', name: 'Facebook', icon: Facebook, linked: false },
-    { provider: 'github', name: 'GitHub', icon: Github, linked: false }
+    { provider: 'facebook', name: 'Facebook', icon: Facebook, linked: false }
   ]
 
   return (
