@@ -76,11 +76,13 @@
 - **Статус:** 🟢 ГОТОВО
 
 ### MVP-8: Onboarding Flow
-- [ ] Welcome screen след регистрация
-- [ ] Profile completion wizard
-- [ ] First task guidance
-- [ ] Tips/tooltips за нови потребители
-- **Статус:** 🔴 НЯМА
+- [x] Welcome screen след регистрация (WelcomeModal)
+- [x] Profile completion wizard (ProfileCompletionBanner)
+- [x] First task guidance (OnboardingTooltip)
+- [x] Tips/tooltips за нови потребители (predefined tours)
+- [x] Haptic feedback
+- [x] LocalStorage persistence
+- **Статус:** 🟢 ГОТОВО
 
 ### MVP-9: Error States & Empty States
 - [ ] Красиви empty states навсякъде
