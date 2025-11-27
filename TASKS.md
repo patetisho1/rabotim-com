@@ -58,12 +58,14 @@
 ## 🎯 MVP ВАЖНИ ЗАДАЧИ (Приоритет 2)
 
 ### MVP-6: Push Notifications
-- [ ] Firebase Cloud Messaging setup
-- [ ] Service worker за push
-- [ ] Permission prompt при вход
-- [ ] Push при нова кандидатура
-- [ ] Push при ново съобщение
-- **Статус:** 🔴 НЕ РАБОТИ
+- [x] Firebase Cloud Messaging setup (lib/firebase.ts)
+- [x] Service worker за push (firebase-messaging-sw.js)
+- [x] Permission prompt при вход (PushNotificationPrompt)
+- [x] Push при нова кандидатура (API ready)
+- [x] Push при ново съобщение (API ready)
+- [x] Foreground message handling
+- [x] usePushNotifications hook
+- **Статус:** 🟢 ГОТОВО
 
 ### MVP-7: Search & Discovery
 - [x] Autocomplete в търсенето (SearchAutocomplete component)
