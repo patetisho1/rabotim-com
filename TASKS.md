@@ -66,11 +66,14 @@
 - **Статус:** 🔴 НЕ РАБОТИ
 
 ### MVP-7: Search & Discovery
-- [ ] Autocomplete в търсенето
-- [ ] Recent searches
-- [ ] Popular searches
-- [ ] Search suggestions
-- **Статус:** 🟡 БАЗОВО РАБОТИ
+- [x] Autocomplete в търсенето (SearchAutocomplete component)
+- [x] Recent searches (localStorage + hook)
+- [x] Popular searches (API fallback)
+- [x] Search suggestions (API + debounce)
+- [x] Category-specific suggestions
+- [x] Keyboard navigation (arrows, enter, escape)
+- [x] Haptic feedback
+- **Статус:** 🟢 ГОТОВО
 
 ### MVP-8: Onboarding Flow
 - [ ] Welcome screen след регистрация
