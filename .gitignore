@@ -62,4 +62,11 @@ jspm_packages/
 
 # Chat context backups
 CHAT_CONTEXT.backup.md
-*.backup.md 
+*.backup.md
+
+# Test outputs
+playwright-report/
+test-results/
+test-results.json
+test-output.log
+test-analysis-report.txt
