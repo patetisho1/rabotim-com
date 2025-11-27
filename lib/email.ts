@@ -196,8 +196,140 @@ export const emailTemplates = {
         </div>
       </div>
     `
+  }),
+
+  applicationAccepted: (applicantName: string, taskTitle: string, taskOwnerName: string, taskId: string) => ({
+    subject: `🎉 Поздравления! Кандидатурата ви за "${taskTitle}" е приета`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); padding: 30px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 24px;">🎉 Поздравления!</h1>
+          <p style="margin: 10px 0 0; font-size: 16px;">Кандидатурата ви е приета</p>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333;">Здравейте, ${applicantName}!</h2>
+          <p style="color: #666; line-height: 1.6;">
+            <strong>${taskOwnerName}</strong> прие вашата кандидатура за задачата:
+          </p>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">${taskTitle}</h3>
+          </div>
+          
+          <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #2e7d32; margin: 0 0 10px;">📋 Следващи стъпки:</h4>
+            <ol style="color: #666; margin: 0; padding-left: 20px;">
+              <li>Свържете се с ${taskOwnerName} през съобщенията</li>
+              <li>Уточнете детайлите по задачата</li>
+              <li>Изпълнете задачата качествено</li>
+              <li>Маркирайте задачата като завършена</li>
+            </ol>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://rabotim.com'}/task/${taskId}" 
+               style="background: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin-right: 10px;">
+              Виж задачата
+            </a>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://rabotim.com'}/messages" 
+               style="background: #2196F3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Изпрати съобщение
+            </a>
+          </div>
+        </div>
+        
+        ${emailFooter()}
+      </div>
+    `
+  }),
+
+  applicationRejected: (applicantName: string, taskTitle: string, reason?: string) => ({
+    subject: `Кандидатурата ви за "${taskTitle}" не е приета`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #607D8B; padding: 30px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 24px;">Кандидатура не е приета</h1>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333;">Здравейте, ${applicantName}!</h2>
+          <p style="color: #666; line-height: 1.6;">
+            За съжаление, вашата кандидатура за следната задача не беше приета:
+          </p>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #607D8B; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">${taskTitle}</h3>
+            ${reason ? `<p style="color: #666; margin: 10px 0 0;"><strong>Причина:</strong> ${reason}</p>` : ''}
+          </div>
+          
+          <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1565c0; margin: 0 0 10px;">💡 Не се отчайвайте!</h4>
+            <p style="color: #666; margin: 0;">
+              В Rabotim.com има много други възможности. Разгледайте нови задачи и кандидатствайте отново!
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://rabotim.com'}/tasks" 
+               style="background: #2196F3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Разгледай нови задачи
+            </a>
+          </div>
+        </div>
+        
+        ${emailFooter()}
+      </div>
+    `
+  }),
+
+  newMessage: (recipientName: string, senderName: string, messagePreview: string) => ({
+    subject: `Ново съобщение от ${senderName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #9C27B0; padding: 20px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 20px;">💬 Ново съобщение</h1>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333;">Здравейте, ${recipientName}!</h2>
+          <p style="color: #666; line-height: 1.6;">
+            <strong>${senderName}</strong> ви изпрати съобщение:
+          </p>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #9C27B0; margin: 20px 0;">
+            <p style="color: #666; font-style: italic; margin: 0;">"${messagePreview.substring(0, 150)}${messagePreview.length > 150 ? '...' : ''}"</p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://rabotim.com'}/messages" 
+               style="background: #9C27B0; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Отговори
+            </a>
+          </div>
+        </div>
+        
+        ${emailFooter()}
+      </div>
+    `
   })
 }
+
+// Shared email footer with unsubscribe
+const emailFooter = () => `
+  <div style="background: #333; color: #999; padding: 20px; text-align: center; font-size: 12px;">
+    <p style="margin: 0 0 10px;">Rabotim.com - Свързваме хората за по-добър свят</p>
+    <p style="margin: 0;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://rabotim.com'}/profile#notifications" style="color: #999;">
+        Настройки за известия
+      </a>
+      &nbsp;|&nbsp;
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://rabotim.com'}/privacy-policy" style="color: #999;">
+        Поверителност
+      </a>
+    </p>
+  </div>
+`
 
 // Email service functions
 const checkResendAvailability = () => {
@@ -350,8 +482,89 @@ export const emailService = {
     }
   },
 
+  async sendApplicationAcceptedEmail(to: string, applicantName: string, taskTitle: string, taskOwnerName: string, taskId: string) {
+    const checkResult = checkResendAvailability()
+    if (checkResult) return checkResult
+
+    try {
+      const template = emailTemplates.applicationAccepted(applicantName, taskTitle, taskOwnerName, taskId)
+      
+      const { data, error } = await resend!.emails.send({
+        from: 'Rabotim.com <notifications@rabotim.com>',
+        to: [to],
+        subject: template.subject,
+        html: template.html,
+      })
+
+      if (error) {
+        console.error('Error sending application accepted email:', error)
+        return { success: false, error }
+      }
+
+      return { success: true, data }
+    } catch (error) {
+      console.error('Error sending application accepted email:', error)
+      return { success: false, error }
+    }
+  },
+
+  async sendApplicationRejectedEmail(to: string, applicantName: string, taskTitle: string, reason?: string) {
+    const checkResult = checkResendAvailability()
+    if (checkResult) return checkResult
+
+    try {
+      const template = emailTemplates.applicationRejected(applicantName, taskTitle, reason)
+      
+      const { data, error } = await resend!.emails.send({
+        from: 'Rabotim.com <notifications@rabotim.com>',
+        to: [to],
+        subject: template.subject,
+        html: template.html,
+      })
+
+      if (error) {
+        console.error('Error sending application rejected email:', error)
+        return { success: false, error }
+      }
+
+      return { success: true, data }
+    } catch (error) {
+      console.error('Error sending application rejected email:', error)
+      return { success: false, error }
+    }
+  },
+
+  async sendNewMessageEmail(to: string, recipientName: string, senderName: string, messagePreview: string) {
+    const checkResult = checkResendAvailability()
+    if (checkResult) return checkResult
+
+    try {
+      const template = emailTemplates.newMessage(recipientName, senderName, messagePreview)
+      
+      const { data, error } = await resend!.emails.send({
+        from: 'Rabotim.com <notifications@rabotim.com>',
+        to: [to],
+        subject: template.subject,
+        html: template.html,
+      })
+
+      if (error) {
+        console.error('Error sending new message email:', error)
+        return { success: false, error }
+      }
+
+      return { success: true, data }
+    } catch (error) {
+      console.error('Error sending new message email:', error)
+      return { success: false, error }
+    }
+  },
+
   // Bulk email for newsletter/marketing
   async sendBulkEmail(recipients: string[], subject: string, htmlContent: string) {
+    const checkResult = checkResendAvailability()
+    if (checkResult) return checkResult
+
     try {
       const { data, error } = await resend!.emails.send({
         from: 'Rabotim.com <newsletter@rabotim.com>',

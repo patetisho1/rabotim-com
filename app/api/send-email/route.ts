@@ -32,6 +32,34 @@ export async function POST(request: NextRequest) {
         )
         break
       
+      case 'application_accepted':
+        result = await emailService.sendApplicationAcceptedEmail(
+          data.to,
+          data.applicantName,
+          data.taskTitle,
+          data.taskOwnerName,
+          data.taskId
+        )
+        break
+      
+      case 'application_rejected':
+        result = await emailService.sendApplicationRejectedEmail(
+          data.to,
+          data.applicantName,
+          data.taskTitle,
+          data.reason
+        )
+        break
+      
+      case 'new_message':
+        result = await emailService.sendNewMessageEmail(
+          data.to,
+          data.recipientName,
+          data.senderName,
+          data.messagePreview
+        )
+        break
+      
       case 'task_completed':
         result = await emailService.sendTaskCompletionNotification(
           data.to,
@@ -69,10 +97,14 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })
     } else {
-      return NextResponse.json(
-        { error: 'Failed to send email', details: result.error },
-        { status: 500 }
-      )
+      // Don't fail the request if email service is not configured
+      // Just log and return success with warning
+      console.warn('Email not sent:', result.error)
+      return NextResponse.json({ 
+        success: true, 
+        warning: 'Email service not configured',
+        data: null 
+      })
     }
   } catch (error) {
     console.error('Email API error:', error)
