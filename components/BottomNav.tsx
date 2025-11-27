@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { Home, Search, PlusCircle, MessageCircle, User } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { haptics } from '@/lib/haptics'
 
 export default function BottomNav() {
   const pathname = usePathname()
@@ -44,6 +45,7 @@ export default function BottomNav() {
   ]
 
   const handleNavClick = (path: string, requiresAuth: boolean) => {
+    haptics.light() // Tactile feedback on tap
     if (requiresAuth && !user) {
       router.push('/login')
       return
@@ -72,7 +74,7 @@ export default function BottomNav() {
               <button
                 key={item.path}
                 onClick={() => handleNavClick(item.path, item.requiresAuth)}
-                className={`flex flex-col items-center justify-center gap-1 transition-colors touch-manipulation ${
+                className={`flex flex-col items-center justify-center gap-1 transition-colors touch-manipulation min-h-[48px] min-w-[48px] active:scale-95 ${
                   active
                     ? 'text-blue-600 dark:text-blue-400'
                     : 'text-gray-600 dark:text-gray-400'

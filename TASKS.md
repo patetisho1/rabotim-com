@@ -37,12 +37,13 @@
 - **Статус:** 🟢 ГОТОВО
 
 ### MVP-4: Mobile Experience Polish
-- [ ] Тест на всички flows на mobile
-- [ ] Fix на touch targets (мин. 44px)
-- [ ] Swipe gestures за navigation
-- [ ] Bottom sheet за филтри (вече има)
-- [ ] Fast tap response
-- **Статус:** 🟡 ЧАСТИЧНО
+- [x] Тест на всички flows на mobile
+- [x] Fix на touch targets (мин. 44px) - BottomNav, MobileFiltersSheet
+- [x] Swipe gestures за navigation (TaskCard вече има)
+- [x] Bottom sheet за филтри (MobileFiltersSheet)
+- [x] Fast tap response (active:scale, haptic feedback)
+- [x] Haptic feedback система (lib/haptics.ts)
+- **Статус:** 🟢 ГОТОВО
 
 ### MVP-5: Trust & Safety Basics
 - [ ] Phone verification при регистрация

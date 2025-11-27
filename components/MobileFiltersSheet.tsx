@@ -2,6 +2,7 @@
 
 import { X, Filter, Check } from 'lucide-react'
 import { useEffect } from 'react'
+import { haptics } from '@/lib/haptics'
 
 interface MobileFiltersSheetProps {
   isOpen: boolean
@@ -100,8 +101,8 @@ export default function MobileFiltersSheet({
                   return (
                     <button
                       key={category.value}
-                      onClick={() => onCategoryChange(category.name)}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border-2 transition-all touch-manipulation ${
+                      onClick={() => { haptics.selection(); onCategoryChange(category.name) }}
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border-2 transition-all touch-manipulation min-h-[44px] active:scale-[0.98] ${
                         isSelected
                           ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                           : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
@@ -128,8 +129,8 @@ export default function MobileFiltersSheet({
                   return (
                     <button
                       key={location}
-                      onClick={() => onLocationChange(location)}
-                      className={`px-3 py-2.5 rounded-lg border-2 transition-all touch-manipulation ${
+                      onClick={() => { haptics.selection(); onLocationChange(location) }}
+                      className={`px-3 py-2.5 rounded-lg border-2 transition-all touch-manipulation min-h-[44px] active:scale-[0.98] ${
                         isSelected
                           ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                           : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
@@ -155,8 +156,8 @@ export default function MobileFiltersSheet({
                   return (
                     <button
                       key={range}
-                      onClick={() => onPriceRangeChange(range)}
-                      className={`w-full px-4 py-3 rounded-lg border-2 transition-all text-left touch-manipulation ${
+                      onClick={() => { haptics.selection(); onPriceRangeChange(range) }}
+                      className={`w-full px-4 py-3 rounded-lg border-2 transition-all text-left touch-manipulation min-h-[48px] active:scale-[0.98] ${
                         isSelected
                           ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                           : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
