@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Script from 'next/script'
 
 interface GoogleAnalyticsProps {
@@ -7,6 +8,40 @@ interface GoogleAnalyticsProps {
 }
 
 export default function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
+  const [hasConsent, setHasConsent] = useState(false)
+
+  useEffect(() => {
+    // Check for analytics consent
+    const checkConsent = () => {
+      const consent = localStorage.getItem('cookie-consent')
+      if (consent) {
+        try {
+          const prefs = JSON.parse(consent)
+          setHasConsent(prefs.analytics === true)
+        } catch {
+          setHasConsent(false)
+        }
+      }
+    }
+
+    checkConsent()
+
+    // Listen for consent updates
+    const handleConsentUpdate = (event: CustomEvent) => {
+      setHasConsent(event.detail?.analytics === true)
+    }
+
+    window.addEventListener('cookieConsentUpdated', handleConsentUpdate as EventListener)
+    return () => {
+      window.removeEventListener('cookieConsentUpdated', handleConsentUpdate as EventListener)
+    }
+  }, [])
+
+  // Don't load GA if no consent
+  if (!hasConsent) {
+    return null
+  }
+
   return (
     <>
       <Script
@@ -24,6 +59,7 @@ export default function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
             gtag('config', '${gaId}', {
               page_title: document.title,
               page_location: window.location.href,
+              anonymize_ip: true
             });
           `,
         }}

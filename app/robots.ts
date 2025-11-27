@@ -18,7 +18,9 @@ export default function robots(): MetadataRoute.Robots {
           '/become-tasker',
           '/careers',
           '/ratings',
-          '/search'
+          '/search',
+          '/privacy-policy',
+          '/terms-of-service'
         ],
         disallow: [
           '/api/',
@@ -56,7 +58,9 @@ export default function robots(): MetadataRoute.Robots {
           '/become-tasker',
           '/careers',
           '/ratings',
-          '/search'
+          '/search',
+          '/privacy-policy',
+          '/terms-of-service'
         ],
         disallow: [
           '/api/',
