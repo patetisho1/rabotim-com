@@ -85,11 +85,12 @@
 - **Статус:** 🟢 ГОТОВО
 
 ### MVP-9: Error States & Empty States
-- [ ] Красиви empty states навсякъде
-- [ ] Helpful error messages
-- [ ] Retry бутони
-- [ ] Offline indicator
-- **Статус:** 🟡 ЧАСТИЧНО
+- [x] Красиви empty states (EmptyState компонент - 9 типа)
+- [x] Helpful error messages (ErrorState компонент - 7 типа)
+- [x] Retry бутони
+- [x] Offline indicator (auto-detect + reconnect)
+- [x] Haptic feedback
+- **Статус:** 🟢 ГОТОВО
 
 ---
 
