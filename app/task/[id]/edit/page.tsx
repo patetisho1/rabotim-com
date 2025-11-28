@@ -82,27 +82,40 @@ function EditTaskPageContent() {
 
   // Зареждане на задачата
   useEffect(() => {
-    if (taskId && user) {
+    if (taskId && user && !authLoading) {
       loadTask()
     }
-  }, [taskId, user])
+  }, [taskId, user, authLoading])
 
   const loadTask = async () => {
+    if (!user) {
+      console.error('User not loaded yet')
+      return
+    }
+    
     try {
       setIsLoading(true)
+      console.log('Loading task:', taskId, 'for user:', user.id)
+      
       const response = await fetch(`/api/tasks/${taskId}`, {
         credentials: 'include'
       })
 
+      console.log('Response status:', response.status)
+
       if (!response.ok) {
-        throw new Error('Грешка при зареждането на задачата')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API error:', errorData)
+        throw new Error(errorData.userMessage || 'Грешка при зареждането на задачата')
       }
 
       const data = await response.json()
       const task = data.task
+      
+      console.log('Task loaded:', task.id, 'owner:', task.user_id, 'current user:', user.id)
 
       // Проверка дали потребителят е собственик на задачата
-      if (task.user_id !== user?.id) {
+      if (task.user_id !== user.id) {
         toast.error('Нямате права да редактирате тази задача')
         router.push(`/task/${taskId}`)
         return
@@ -132,7 +145,6 @@ function EditTaskPageContent() {
     } catch (error: any) {
       console.error('Error loading task:', error)
       toast.error(error.message || 'Грешка при зареждането на задачата')
-      router.push(`/task/${taskId}`)
     } finally {
       setIsLoading(false)
     }
