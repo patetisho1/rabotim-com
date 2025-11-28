@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get unique user IDs
-    const userIds = [...new Set(matchingAlerts.map(a => a.user_id))]
+    const userIds = Array.from(new Set(matchingAlerts.map(a => a.user_id)))
 
     // Fetch user details
     const { data: users, error: usersError } = await supabase
