@@ -25,7 +25,7 @@ const fallbackTestimonials: Testimonial[] = [
   {
     id: '1',
     name: 'Мария Иванова',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
+    avatar: 'https://ui-avatars.com/api/?name=Maria+Ivanova&background=3b82f6&color=ffffff&size=100',
     role: 'task_giver',
     rating: 5,
     text: 'Намерих перфектния човек за почистване на апартамента за 10 минути! Платформата е изключително лесна за използване и качеството на работата беше отлично.',

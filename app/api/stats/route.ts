@@ -6,6 +6,9 @@ import { handleApiError } from '@/lib/errors'
 import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 import { getEnv } from '@/lib/env-validation'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * GET /api/stats
  * Returns platform statistics

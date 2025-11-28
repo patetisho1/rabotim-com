@@ -9,6 +9,7 @@ import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
 import AuthProvider from '@/providers/AuthProvider'
 import SPANavigation from '@/components/SPANavigation'
+import CookieConsent from '@/components/CookieConsent'
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
@@ -134,6 +135,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <BottomNav />
+            <CookieConsent />
           </SPANavigation>
         </AuthProvider>
         {/* <MobileNav /> */}

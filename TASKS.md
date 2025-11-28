@@ -1,5 +1,101 @@
 # Rabotim.com - Roadmap & Tasks
 
+---
+
+## 🚨 MVP КРИТИЧНИ ЗАДАЧИ (Приоритет 1)
+
+**Цел:** Минимално необходимото за реални потребители да използват платформата
+
+### MVP-1: Email Известия (КРИТИЧНО)
+- [x] Конфигуриране на Resend за production emails (lib/email.ts)
+- [x] Email при нова кандидатура за задача
+- [x] Email при приета/отхвърлена кандидатура  
+- [x] Email при ново съобщение (template готов)
+- [x] Email при завършена задача (template готов)
+- [x] Unsubscribe link във всеки email
+- [x] RESEND_API_KEY конфигуриран в .env.local
+- **Статус:** 🟢 НАПЪЛНО ГОТОВО
+- **Защо:** Без emails потребителите забравят платформата
+
+### MVP-2: Seed Data за Demo (КРИТИЧНО)
+- [x] 22 реалистични demo задачи (lib/seed-data.ts)
+- [x] Разпределение по категории и локации
+- [x] Demo потребителски профили с рейтинги
+- [x] "[Demo]" prefix на демо обявите
+- [x] API endpoint за seed/delete (/api/seed)
+- [ ] **ДЕЙСТВИЕ:** Извикай POST /api/seed за да създадеш данните
+- **Статус:** 🟢 ГОТОВО
+- **Защо:** Празният marketplace отблъсква потребители
+
+### MVP-3: Homepage Подобрения
+- [x] Clear value proposition в hero (animated text)
+- [x] "Как работи" секция с 3 стъпки
+- [x] Показване на активни задачи на homepage (real + demo)
+- [x] CTA бутони с ясни действия
+- [x] Social proof (брой задачи, потребители от API)
+- [x] Testimonials секция
+- **Статус:** 🟢 ГОТОВО
+
+### MVP-4: Mobile Experience Polish
+- [x] Тест на всички flows на mobile
+- [x] Fix на touch targets (мин. 44px) - BottomNav, MobileFiltersSheet
+- [x] Swipe gestures за navigation (TaskCard вече има)
+- [x] Bottom sheet за филтри (MobileFiltersSheet)
+- [x] Fast tap response (active:scale, haptic feedback)
+- [x] Haptic feedback система (lib/haptics.ts)
+- **Статус:** 🟢 ГОТОВО
+
+### MVP-5: Trust & Safety Basics
+- [ ] Phone verification при регистрация
+- [x] Report функция за обяви/потребители (API + UI)
+- [x] Block user функция (API)
+- [x] Terms acceptance при регистрация
+- [x] SQL миграция за reports & user_blocks таблици
+- **Статус:** 🟢 ГОТОВО (без phone verification)
+
+---
+
+## 🎯 MVP ВАЖНИ ЗАДАЧИ (Приоритет 2)
+
+### MVP-6: Push Notifications
+- [x] Firebase Cloud Messaging setup (lib/firebase.ts)
+- [x] Service worker за push (firebase-messaging-sw.js)
+- [x] Permission prompt при вход (PushNotificationPrompt)
+- [x] Push при нова кандидатура (API ready)
+- [x] Push при ново съобщение (API ready)
+- [x] Foreground message handling
+- [x] usePushNotifications hook
+- **Статус:** 🟢 ГОТОВО
+
+### MVP-7: Search & Discovery
+- [x] Autocomplete в търсенето (SearchAutocomplete component)
+- [x] Recent searches (localStorage + hook)
+- [x] Popular searches (API fallback)
+- [x] Search suggestions (API + debounce)
+- [x] Category-specific suggestions
+- [x] Keyboard navigation (arrows, enter, escape)
+- [x] Haptic feedback
+- **Статус:** 🟢 ГОТОВО
+
+### MVP-8: Onboarding Flow
+- [x] Welcome screen след регистрация (WelcomeModal)
+- [x] Profile completion wizard (ProfileCompletionBanner)
+- [x] First task guidance (OnboardingTooltip)
+- [x] Tips/tooltips за нови потребители (predefined tours)
+- [x] Haptic feedback
+- [x] LocalStorage persistence
+- **Статус:** 🟢 ГОТОВО
+
+### MVP-9: Error States & Empty States
+- [x] Красиви empty states (EmptyState компонент - 9 типа)
+- [x] Helpful error messages (ErrorState компонент - 7 типа)
+- [x] Retry бутони
+- [x] Offline indicator (auto-detect + reconnect)
+- [x] Haptic feedback
+- **Статус:** 🟢 ГОТОВО
+
+---
+
 ## 🎯 Core Концепция
 
 ### Основни принципи
@@ -75,39 +171,43 @@
 - [x] Responsive design за всички размери екрани
 
 ### 1.5 Homepage ревюта секция
-- [ ] Секция "Какво казват нашите потребители"
-- [ ] Carousel/Grid с real testimonials
-- [ ] Снимки на потребители
-- [ ] Истории за успех:
+- [x] Секция "Какво казват нашите потребители"
+- [x] Carousel/Grid с real testimonials
+- [x] Снимки на потребители
+- [x] Истории за успех:
   - "За няколко часа изкарах 150 лв"
   - "Намерих перфектния човек за почистване за 10 минути"
-- [ ] CTA бутони "Публикувай обява" / "Започни да печелиш"
+- [x] CTA бутони "Публикувай обява" / "Започни да печелиш"
+- **Приоритет:** ✅ **ЗАВЪРШЕНО** (TestimonialsSection.tsx)
 
 ### 1.5 Популяризация & Marketing
 
 #### SEO оптимизация
-- [ ] Meta tags (title, description) за всяка страница
-- [ ] Open Graph tags за social sharing
-- [ ] Sitemap.xml генериране
-- [ ] Robots.txt оптимизация
-- [ ] Structured data (Schema.org)
-- [ ] Alt tags на всички изображения
-- [ ] URL structure оптимизация
-- [ ] Page speed optimization
-- [ ] Mobile-first design
+- [x] Meta tags (title, description) за всяка страница
+- [x] Open Graph tags за social sharing
+- [x] Sitemap.xml генериране
+- [x] Robots.txt оптимизация
+- [x] Structured data (Schema.org)
+- [x] Alt tags на всички изображения
+- [x] URL structure оптимизация
+- [x] Page speed optimization
+- [x] Mobile-first design
 - [ ] Internal linking strategy
 - [ ] Blog за SEO content
+- **Приоритет:** ✅ **ОСНОВНО ЗАВЪРШЕНО**
 
 #### Интеграция със социални мрежи
-- [ ] Facebook login (вече готово)
-- [ ] Google login
-- [ ] Share бутони на обяви:
-  - [ ] Facebook share
-  - [ ] LinkedIn share
-  - [ ] Twitter/X share
-  - [ ] Viber share
-  - [ ] WhatsApp share
-  - [ ] Copy link
+- [x] Facebook login (вече готово)
+- [x] Google login (NextAuth + GoogleProvider интегриран, нужни са GOOGLE_CLIENT_ID и GOOGLE_CLIENT_SECRET)
+- [x] Share бутони на обяви:
+  - [x] Facebook share
+  - [x] LinkedIn share
+  - [x] Twitter/X share
+  - [x] Viber share
+  - [x] WhatsApp share
+  - [x] Telegram share
+  - [x] Copy link
+- **Приоритет:** ✅ **Share бутони ЗАВЪРШЕНИ** (SocialShare.tsx)
 - [ ] Social media links в профили
 - [ ] Auto-post на обяви в Facebook groups (опционално)
 - [ ] Instagram integration (за визуални услуги)

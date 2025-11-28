@@ -302,13 +302,13 @@ export default function Header() {
             <nav className="px-4 space-y-2 mb-6">
               <button
                 onClick={() => {
-                  setIsCategoriesDropdownOpen(true)
+                  router.push('/categories')
                   setIsMobileMenuOpen(false)
                 }}
                 className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
               >
                 <span className="font-medium">Категории</span>
-                <ChevronDown size={16} />
+                <ArrowRight size={16} />
               </button>
               
               <button

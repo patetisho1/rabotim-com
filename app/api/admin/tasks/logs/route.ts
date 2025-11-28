@@ -5,6 +5,9 @@ import { logger } from '@/lib/logger'
 import { handleApiError, AuthenticationError, AuthorizationError, ValidationError, ErrorMessages } from '@/lib/errors'
 import { rateLimit } from '@/lib/rate-limit'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url)

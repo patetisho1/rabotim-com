@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Facebook, Twitter, Github, Mail, ArrowRight } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { Facebook, Mail, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 
 interface SocialLoginProps {
@@ -19,28 +19,30 @@ export default function SocialLogin({
   onError
 }: SocialLoginProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
+  const { signInWithGoogle, signInWithFacebook } = useAuth()
 
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(provider)
     try {
-      const result = await signIn(provider, {
-        redirect: false,
-        callbackUrl: '/'
-      })
+      let result
+      if (provider === 'google') {
+        result = await signInWithGoogle()
+      } else if (provider === 'facebook') {
+        result = await signInWithFacebook()
+      } else {
+        toast.error(`${provider} не е поддържан в момента`)
+        setIsLoading(null)
+        return
+      }
 
       if (result?.error) {
-        throw new Error(result.error)
+        throw result.error
       }
-
-      if (result?.ok) {
-        toast.success(`Успешно влизане с ${provider}`)
-        onSuccess?.()
-      }
+      // Supabase OAuth redirects automatically
     } catch (error: any) {
       console.error(`Error with ${provider} login:`, error)
       toast.error(`Грешка при влизане с ${provider}`)
       onError?.(error.message)
-    } finally {
       setIsLoading(null)
     }
   }
@@ -57,12 +59,6 @@ export default function SocialLogin({
       icon: Facebook,
       color: 'bg-blue-600 hover:bg-blue-700',
       provider: 'facebook'
-    },
-    {
-      name: 'GitHub',
-      icon: Github,
-      color: 'bg-gray-800 hover:bg-gray-900',
-      provider: 'github'
     }
   ]
 
@@ -157,33 +153,26 @@ export default function SocialLogin({
 // Additional component for social profile linking
 export function SocialProfileLinker() {
   const [isLinking, setIsLinking] = useState<string | null>(null)
+  const { signInWithGoogle, signInWithFacebook } = useAuth()
 
   const handleLinkAccount = async (provider: string) => {
     setIsLinking(provider)
     try {
-      // This would be implemented with NextAuth.js account linking
-      const result = await signIn(provider, {
-        redirect: false,
-        callbackUrl: '/profile'
-      })
-
-      if (result?.error) {
-        throw new Error(result.error)
+      if (provider === 'google') {
+        await signInWithGoogle()
+      } else if (provider === 'facebook') {
+        await signInWithFacebook()
       }
-
-      toast.success(`Акаунтът е свързан с ${provider}`)
     } catch (error: any) {
       console.error(`Error linking ${provider}:`, error)
       toast.error(`Грешка при свързване с ${provider}`)
-    } finally {
       setIsLinking(null)
     }
   }
 
   const linkedAccounts = [
     { provider: 'google', name: 'Google', icon: Mail, linked: false },
-    { provider: 'facebook', name: 'Facebook', icon: Facebook, linked: false },
-    { provider: 'github', name: 'GitHub', icon: Github, linked: false }
+    { provider: 'facebook', name: 'Facebook', icon: Facebook, linked: false }
   ]
 
   return (

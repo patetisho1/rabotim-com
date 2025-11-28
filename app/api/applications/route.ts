@@ -103,6 +103,32 @@ export async function POST(request: NextRequest) {
           })
         }
 
+        // Изпращане на email нотификация към собственика на задачата
+        try {
+          const { data: taskOwner } = await supabaseAdmin
+            .from('users')
+            .select('email, full_name')
+            .eq('id', task.user_id)
+            .maybeSingle()
+
+          if (taskOwner?.email) {
+            await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/send-email`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'task_application',
+                to: taskOwner.email,
+                taskOwner: taskOwner.full_name || 'Потребител',
+                applicantName: applicant?.full_name || 'Потребител',
+                taskTitle: task.title
+              })
+            })
+            logger.info('New application email sent', { task_id, application_id: data.id, email: taskOwner.email })
+          }
+        } catch (emailErr) {
+          logger.warn('Error sending new application email', emailErr as Error, { task_id, application_id: data.id })
+        }
+
         // Създаване на conversation и начално съобщение между собственика на задачата и кандидата
         try {
           // Генериране на conversation_id като сортирани user IDs разделени с долна черта
@@ -351,6 +377,27 @@ export async function PATCH(request: NextRequest) {
             user_id: application.user_id 
           })
         }
+
+        // Изпращане на email нотификация
+        if (updatedApplication?.user?.email) {
+          try {
+            await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/send-email`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'application_accepted',
+                to: updatedApplication.user.email,
+                applicantName: updatedApplication.user.full_name || 'Потребител',
+                taskTitle: task.title,
+                taskOwnerName: taskOwner?.full_name || 'Работодател',
+                taskId: task_id
+              })
+            })
+            logger.info('Acceptance email sent', { task_id, application_id, email: updatedApplication.user.email })
+          } catch (emailErr) {
+            logger.warn('Error sending acceptance email', emailErr as Error, { task_id, application_id })
+          }
+        }
       } catch (notificationErr) {
         logger.warn('Exception creating acceptance notification', notificationErr as Error, { 
           task_id, 
@@ -412,6 +459,26 @@ export async function PATCH(request: NextRequest) {
             application_id, 
             user_id: application.user_id 
           })
+        }
+
+        // Изпращане на email нотификация
+        if (updatedApplication?.user?.email) {
+          try {
+            await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/send-email`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'application_rejected',
+                to: updatedApplication.user.email,
+                applicantName: updatedApplication.user.full_name || 'Потребител',
+                taskTitle: task.title,
+                reason: reason || undefined
+              })
+            })
+            logger.info('Rejection email sent', { task_id, application_id, email: updatedApplication.user.email })
+          } catch (emailErr) {
+            logger.warn('Error sending rejection email', emailErr as Error, { task_id, application_id })
+          }
         }
       } catch (notificationErr) {
         logger.warn('Exception creating rejection notification', notificationErr as Error, { 

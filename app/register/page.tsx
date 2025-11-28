@@ -6,6 +6,7 @@ import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, Briefcase
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabaseAuth } from '@/lib/supabase-auth'
+import SocialLogin from '@/components/SocialLogin'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -230,6 +231,26 @@ export default function RegisterPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {/* Social Login бутони */}
+          <div className="mb-6">
+            <SocialLogin 
+              variant="compact" 
+              onSuccess={() => router.push('/')}
+            />
+          </div>
+
+          {/* Разделител */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">
+                или се регистрирайте с имейл
+              </span>
+            </div>
+          </div>
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Имена */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
