@@ -312,10 +312,14 @@ function EditTaskPageContent() {
         images: allImages.length > 0 ? allImages : null
       }
 
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession()
+      
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
         },
         credentials: 'include',
         body: JSON.stringify(updateData),

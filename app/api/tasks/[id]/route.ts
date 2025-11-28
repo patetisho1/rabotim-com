@@ -96,10 +96,25 @@ export async function PUT(
       }
     )
 
-    // Проверка за автентикация
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Проверка за автентикация - първо опитваме с cookies
+    let user = null
+    const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser()
     
-    if (authError || !user) {
+    if (cookieUser) {
+      user = cookieUser
+    } else {
+      // Fallback: проверяваме Authorization header
+      const authHeader = request.headers.get('Authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token)
+        if (tokenUser && !tokenError) {
+          user = tokenUser
+        }
+      }
+    }
+    
+    if (!user) {
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
