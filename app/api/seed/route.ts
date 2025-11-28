@@ -26,16 +26,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if we already have demo data
-    const { count: existingTasksCount } = await supabase
+    const { count: existingDemoCount } = await supabase
       .from('tasks')
       .select('*', { count: 'exact', head: true })
-      .ilike('title', '%Demo%')
+      .eq('is_demo', true)
 
-    if (existingTasksCount && existingTasksCount > 0) {
+    if (existingDemoCount && existingDemoCount > 0) {
       return NextResponse.json({
         success: true,
-        message: 'Demo data already exists',
-        existing: true
+        message: `Demo data already exists (${existingDemoCount} demo tasks)`,
+        existing: true,
+        demoCount: existingDemoCount
       })
     }
 
@@ -115,13 +116,14 @@ export async function POST(request: NextRequest) {
     for (const taskData of seedTasks) {
       const randomUserId = userIds[Math.floor(Math.random() * userIds.length)]
       
-      // Add "[Demo]" prefix to identify demo tasks
+      // Mark as demo task with is_demo flag
       const { error: taskError } = await supabase
         .from('tasks')
         .insert({
           ...taskData,
           title: `[Demo] ${taskData.title}`,
           user_id: randomUserId,
+          is_demo: true, // Important: mark as demo
           created_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(), // Random date in last 7 days
           views_count: Math.floor(Math.random() * 50) + 5,
           applications_count: Math.floor(Math.random() * 8)
@@ -165,11 +167,11 @@ export async function DELETE(request: NextRequest) {
 
     const supabase = getServiceRoleClient()
 
-    // Delete demo tasks (those with [Demo] prefix)
+    // Delete demo tasks (those with is_demo = true)
     const { error: deleteTasksError, count: deletedTasks } = await supabase
       .from('tasks')
       .delete({ count: 'exact' })
-      .ilike('title', '[Demo]%')
+      .eq('is_demo', true)
 
     if (deleteTasksError) {
       return NextResponse.json(
