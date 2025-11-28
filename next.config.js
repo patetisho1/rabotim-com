@@ -31,12 +31,17 @@ const nextConfig = {
         hostname: 'localhost',
       },
     ],
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
+    // AVIF first for better compression, then WebP fallback
+    formats: ['image/avif', 'image/webp'],
+    // Longer cache for better performance
+    minimumCacheTTL: 31536000, // 1 year
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Optimized device sizes - removed very large sizes to reduce bundle
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    // Unoptimized for external images if needed
+    unoptimized: false,
   },
 
   // Оптимизации за кеширане
@@ -47,7 +52,17 @@ const nextConfig = {
 
   // Оптимизации за bundle size
   experimental: {
-    optimizePackageImports: ['lucide-react', '@supabase/supabase-js'],
+    optimizePackageImports: [
+      'lucide-react', 
+      '@supabase/supabase-js',
+      'react-hot-toast',
+      'date-fns',
+    ],
+  },
+  
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
 
   // Webpack оптимизации

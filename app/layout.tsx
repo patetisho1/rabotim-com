@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 // import PWAInstall from '@/components/PWAInstall'
@@ -10,6 +11,14 @@ import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/
 import AuthProvider from '@/providers/AuthProvider'
 import SPANavigation from '@/components/SPANavigation'
 import CookieConsent from '@/components/CookieConsent'
+
+// Optimize font loading with next/font
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+})
 // import MobileNav from '@/components/MobileNav'
 // import NotificationManager from '@/components/NotificationManager'
 
@@ -102,26 +111,33 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="bg">
+    <html lang="bg" className={inter.variable}>
       <head>
         {/* Preconnect to external domains for better performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://wwbxzkbilklullziiogr.supabase.co" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+        
+        {/* Preload critical hero image */}
+        <link 
+          rel="preload" 
+          href="/hero-image-dark.png" 
+          as="image" 
+          type="image/png"
+          fetchPriority="high"
+        />
         
         {/* Critical CSS inlining */}
         <style dangerouslySetInnerHTML={{
           __html: `
             /* Critical above-the-fold styles */
-            body { margin: 0; font-family: 'Inter', sans-serif; }
+            body { margin: 0; }
             .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
             @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
           `
         }} />
       </head>
-      <body>
+      <body className={inter.className}>
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
@@ -140,8 +156,6 @@ export default function RootLayout({
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
-        {/* Демо данни за тестване */}
-        <script src="/demo-data.js" />
         <Toaster
           position="top-center"
           toastOptions={{

@@ -1,16 +1,33 @@
 'use client'
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import SearchSection from '@/components/SearchSection'
-import TestimonialsSection from '@/components/TestimonialsSection'
 import { LazyWrapper } from '@/components/LazyComponents'
 import { LocalBusinessStructuredData, FAQStructuredData } from '@/components/StructuredData'
 
 import { Search, Plus, List, Users, MapPin, Star, Clock, CheckCircle, ArrowRight, Quote, DollarSign, Shield, Smartphone, TrendingUp, Heart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import OptimizedImage from '@/components/OptimizedImage'
+
+// Lazy load non-critical components
+const TestimonialsSection = dynamic(() => import('@/components/TestimonialsSection'), {
+  loading: () => (
+    <div className="py-12 md:py-20 bg-gray-50 animate-pulse">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-8"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1,2,3].map(i => (
+            <div key={i} className="bg-white rounded-xl p-6 h-48"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  ),
+  ssr: false
+})
 
 export default function HomePage() {
   const router = useRouter()
