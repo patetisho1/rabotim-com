@@ -33,17 +33,7 @@ export async function GET(
 
     const { data: task, error } = await supabase
       .from('tasks')
-      .select(`
-        *,
-        profiles!tasks_user_id_fkey (
-          id,
-          full_name,
-          avatar_url,
-          is_verified,
-          bio,
-          location
-        )
-      `)
+      .select('*')
       .eq('id', taskId)
       .single()
 
@@ -51,6 +41,20 @@ export async function GET(
       logger.error('Error fetching task', error, { taskId })
       throw new NotFoundError('Task not found', ErrorMessages.TASK_NOT_FOUND)
     }
+
+    // Fetch profile separately if user_id exists
+    let profile = null
+    if (task.user_id) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, is_verified, bio, location')
+        .eq('id', task.user_id)
+        .single()
+      profile = profileData
+    }
+    
+    // Add profile to task
+    const taskWithProfile = { ...task, profiles: profile }
 
     // Увеличаване на броя гледания
     await supabase
@@ -60,7 +64,7 @@ export async function GET(
 
     logger.info('Task fetched successfully', { taskId })
 
-    return NextResponse.json({ task })
+    return NextResponse.json({ task: taskWithProfile })
   } catch (error) {
     return handleApiError(error, { endpoint: 'GET /api/tasks/[id]', taskId })
   }
@@ -117,19 +121,11 @@ export async function PUT(
       throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
-    const { data: task, error } = await supabase
+    const { data: updatedTask, error } = await supabase
       .from('tasks')
       .update(body)
       .eq('id', taskId)
-      .select(`
-        *,
-        profiles!tasks_user_id_fkey (
-          id,
-          full_name,
-          avatar_url,
-          is_verified
-        )
-      `)
+      .select('*')
       .single()
 
     if (error) {
@@ -137,9 +133,20 @@ export async function PUT(
       return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
     }
 
+    // Fetch profile separately
+    let profile = null
+    if (updatedTask.user_id) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, is_verified')
+        .eq('id', updatedTask.user_id)
+        .single()
+      profile = profileData
+    }
+
     logger.info('Task updated successfully', { taskId, userId: user.id })
 
-    return NextResponse.json({ task })
+    return NextResponse.json({ task: { ...updatedTask, profiles: profile } })
   } catch (error) {
     return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
   }
