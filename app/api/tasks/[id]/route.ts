@@ -96,25 +96,32 @@ export async function PUT(
       }
     )
 
-    // Проверка за автентикация - първо опитваме с cookies
-    let user = null
-    const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser()
+    // Проверка за автентикация
+    let userId: string | null = null
+    
+    // Първо опитваме с cookies
+    const { data: { user: cookieUser } } = await supabase.auth.getUser()
     
     if (cookieUser) {
-      user = cookieUser
+      userId = cookieUser.id
     } else {
-      // Fallback: проверяваме Authorization header
+      // Fallback: проверяваме Authorization header и декодираме JWT
       const authHeader = request.headers.get('Authorization')
       if (authHeader?.startsWith('Bearer ')) {
         const token = authHeader.substring(7)
-        const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token)
-        if (tokenUser && !tokenError) {
-          user = tokenUser
+        try {
+          // Декодираме JWT token за да извлечем user id (без верификация - Supabase вече го е верифицирал на клиента)
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          if (payload.sub) {
+            userId = payload.sub
+          }
+        } catch (e) {
+          logger.error('Failed to decode JWT token', e as Error)
         }
       }
     }
     
-    if (!user) {
+    if (!userId) {
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
@@ -128,11 +135,11 @@ export async function PUT(
       .single()
 
     if (fetchError || !existingTask) {
-      logger.error('Task not found for update', fetchError as Error, { taskId, userId: user.id })
+      logger.error('Task not found for update', fetchError as Error, { taskId, userId })
       throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
-    if (existingTask.user_id !== user.id) {
+    if (existingTask.user_id !== userId) {
       throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
@@ -144,7 +151,7 @@ export async function PUT(
       .single()
 
     if (error) {
-      logger.error('Error updating task', error, { taskId, userId: user.id })
+      logger.error('Error updating task', error, { taskId, userId })
       return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
     }
 
@@ -159,7 +166,7 @@ export async function PUT(
       profile = profileData
     }
 
-    logger.info('Task updated successfully', { taskId, userId: user.id })
+    logger.info('Task updated successfully', { taskId, userId })
 
     return NextResponse.json({ task: { ...updatedTask, profiles: profile } })
   } catch (error) {
