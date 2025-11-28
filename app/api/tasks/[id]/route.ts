@@ -104,7 +104,7 @@ export async function PUT(
     
     if (cookieUser) {
       userId = cookieUser.id
-      logger.info('Auth via cookie', { userId })
+      logger.info('Auth via cookie', { userId: userId || 'unknown' })
     } else {
       // Fallback: проверяваме Authorization header и декодираме JWT
       const authHeader = request.headers.get('Authorization')
@@ -118,7 +118,7 @@ export async function PUT(
             const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'))
             if (payload.sub) {
               userId = payload.sub
-              logger.info('Auth via JWT token', { userId })
+              logger.info('Auth via JWT token', { userId: userId || 'unknown' })
             }
           }
         } catch (e) {
