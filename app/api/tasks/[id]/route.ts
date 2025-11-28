@@ -7,8 +7,10 @@ import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: taskId } = await params
+  
   try {
     // Rate limiting
     const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
@@ -42,11 +44,11 @@ export async function GET(
           location
         )
       `)
-      .eq('id', params.id)
+      .eq('id', taskId)
       .single()
 
     if (error) {
-      logger.error('Error fetching task', error, { taskId: params.id })
+      logger.error('Error fetching task', error, { taskId })
       throw new NotFoundError('Task not found', ErrorMessages.TASK_NOT_FOUND)
     }
 
@@ -54,20 +56,22 @@ export async function GET(
     await supabase
       .from('tasks')
       .update({ views_count: (task.views_count || 0) + 1 })
-      .eq('id', params.id)
+      .eq('id', taskId)
 
-    logger.info('Task fetched successfully', { taskId: params.id })
+    logger.info('Task fetched successfully', { taskId })
 
     return NextResponse.json({ task })
   } catch (error) {
-    return handleApiError(error, { endpoint: 'GET /api/tasks/[id]', taskId: params.id })
+    return handleApiError(error, { endpoint: 'GET /api/tasks/[id]', taskId })
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: taskId } = await params
+  
   try {
     // Rate limiting
     const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
@@ -101,11 +105,11 @@ export async function PUT(
     const { data: existingTask, error: fetchError } = await supabase
       .from('tasks')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', taskId)
       .single()
 
     if (fetchError || !existingTask) {
-      logger.error('Task not found for update', fetchError as Error, { taskId: params.id, userId: user.id })
+      logger.error('Task not found for update', fetchError as Error, { taskId, userId: user.id })
       throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
@@ -116,7 +120,7 @@ export async function PUT(
     const { data: task, error } = await supabase
       .from('tasks')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', taskId)
       .select(`
         *,
         profiles!tasks_user_id_fkey (
@@ -129,22 +133,24 @@ export async function PUT(
       .single()
 
     if (error) {
-      logger.error('Error updating task', error, { taskId: params.id, userId: user.id })
-      return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId: params.id })
+      logger.error('Error updating task', error, { taskId, userId: user.id })
+      return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
     }
 
-    logger.info('Task updated successfully', { taskId: params.id, userId: user.id })
+    logger.info('Task updated successfully', { taskId, userId: user.id })
 
     return NextResponse.json({ task })
   } catch (error) {
-    return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId: params.id })
+    return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: taskId } = await params
+  
   try {
     // Rate limiting
     const rateLimitResult = await rateLimit(request, rateLimitConfigs.api)
@@ -176,11 +182,11 @@ export async function DELETE(
     const { data: existingTask, error: fetchError } = await supabase
       .from('tasks')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', taskId)
       .single()
 
     if (fetchError || !existingTask) {
-      logger.error('Task not found for deletion', fetchError as Error, { taskId: params.id, userId: user.id })
+      logger.error('Task not found for deletion', fetchError as Error, { taskId, userId: user.id })
       throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
@@ -191,18 +197,18 @@ export async function DELETE(
     const { error } = await supabase
       .from('tasks')
       .delete()
-      .eq('id', params.id)
+      .eq('id', taskId)
 
     if (error) {
-      logger.error('Error deleting task', error, { taskId: params.id, userId: user.id })
-      return handleApiError(error, { endpoint: 'DELETE /api/tasks/[id]', taskId: params.id })
+      logger.error('Error deleting task', error, { taskId, userId: user.id })
+      return handleApiError(error, { endpoint: 'DELETE /api/tasks/[id]', taskId })
     }
 
-    logger.info('Task deleted successfully', { taskId: params.id, userId: user.id })
+    logger.info('Task deleted successfully', { taskId, userId: user.id })
 
     return NextResponse.json({ message: 'Task deleted successfully' })
   } catch (error) {
-    return handleApiError(error, { endpoint: 'DELETE /api/tasks/[id]', taskId: params.id })
+    return handleApiError(error, { endpoint: 'DELETE /api/tasks/[id]', taskId })
   }
 }
 
