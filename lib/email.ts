@@ -74,6 +74,59 @@ export const emailTemplates = {
     `
   }),
 
+  // Task Alert - когато нова задача съвпада с филтрите на потребител
+  taskAlertMatch: (recipientName: string, alertName: string, taskTitle: string, taskCategory: string, taskLocation: string, taskBudget: number, taskId: string) => ({
+    subject: `🔔 Нова задача съвпада с "${alertName}"`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 22px;">🔔 Нова подходяща задача!</h1>
+          <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">Известие: ${alertName}</p>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333; margin-top: 0;">Здравейте, ${recipientName}!</h2>
+          <p style="color: #666; line-height: 1.6;">
+            Намерихме задача, която отговаря на вашите критерии:
+          </p>
+          
+          <div style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #e0e0e0; margin: 20px 0;">
+            <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px;">${taskTitle}</h3>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+              <span style="background: #e3f2fd; color: #1565c0; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                📁 ${taskCategory}
+              </span>
+              <span style="background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                📍 ${taskLocation}
+              </span>
+              <span style="background: #fff3e0; color: #e65100; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold;">
+                💰 ${taskBudget} лв
+              </span>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/tasks/${taskId}" 
+               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+              Виж задачата и кандидатствай
+            </a>
+          </div>
+          
+          <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">
+            Това известие е изпратено защото сте се абонирали за нови задачи.
+            <br>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/notifications?tab=settings" style="color: #667eea;">Управление на известията</a>
+          </p>
+        </div>
+        
+        <div style="background: #333; color: white; padding: 20px; text-align: center;">
+          <p style="margin: 0; font-size: 14px;">Rabotim.com - Вашият помощник за почасова работа</p>
+        </div>
+      </div>
+    `
+  }),
+
   taskApplicationReceived: (taskOwner: string, applicantName: string, taskTitle: string) => ({
     subject: `Нов кандидат за "${taskTitle}"`,
     html: `
@@ -583,5 +636,72 @@ export const emailService = {
       console.error('Error sending bulk email:', error)
       return { success: false, error }
     }
+  },
+
+  // Task Alert - notify user about matching new task
+  async sendTaskAlertEmail(
+    to: string, 
+    recipientName: string, 
+    alertName: string, 
+    taskTitle: string, 
+    taskCategory: string, 
+    taskLocation: string, 
+    taskBudget: number, 
+    taskId: string
+  ) {
+    const checkResult = checkResendAvailability()
+    if (checkResult) return checkResult
+
+    try {
+      const template = emailTemplates.taskAlertMatch(
+        recipientName, 
+        alertName, 
+        taskTitle, 
+        taskCategory, 
+        taskLocation, 
+        taskBudget, 
+        taskId
+      )
+      
+      const { data, error } = await resend!.emails.send({
+        from: 'Rabotim.com <alerts@rabotim.com>',
+        to: [to],
+        subject: template.subject,
+        html: template.html,
+      })
+
+      if (error) {
+        console.error('Error sending task alert email:', error)
+        return { success: false, error }
+      }
+
+      return { success: true, data }
+    } catch (error) {
+      console.error('Error sending task alert email:', error)
+      return { success: false, error }
+    }
   }
+}
+
+// Export individual functions for convenience
+export async function sendTaskAlertEmail(
+  to: string, 
+  recipientName: string, 
+  alertName: string, 
+  taskTitle: string, 
+  taskCategory: string, 
+  taskLocation: string, 
+  taskBudget: number, 
+  taskId: string
+) {
+  return emailService.sendTaskAlertEmail(
+    to, 
+    recipientName, 
+    alertName, 
+    taskTitle, 
+    taskCategory, 
+    taskLocation, 
+    taskBudget, 
+    taskId
+  )
 }
