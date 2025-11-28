@@ -50,8 +50,9 @@ export async function GET(request: NextRequest) {
 
       const dbSuggestions = recentTasks?.map(t => t.title) || []
       
-      // Mix database results with popular
-      const suggestions = [...new Set([...dbSuggestions, ...popularSearches])].slice(0, limit)
+      // Mix database results with popular (use Array.from for ES5 compatibility)
+      const combined = [...dbSuggestions, ...popularSearches]
+      const suggestions = Array.from(new Set(combined)).slice(0, limit)
       
       return NextResponse.json({
         suggestions,
@@ -91,7 +92,8 @@ export async function GET(request: NextRequest) {
 
       if (matchingTasks) {
         const dbSuggestions = matchingTasks.map(t => t.title)
-        suggestions = [...new Set([...suggestions, ...dbSuggestions])].slice(0, limit)
+        const combined = [...suggestions, ...dbSuggestions]
+        suggestions = Array.from(new Set(combined)).slice(0, limit)
       }
     }
 

@@ -478,7 +478,7 @@ export const db = {
     }
     
     // Get unique sender IDs
-    const senderIds = [...new Set(messages.map(m => m.sender_id))]
+    const senderIds = Array.from(new Set(messages.map(m => m.sender_id)))
     
     // Fetch sender profiles
     const { data: profiles } = await supabase
