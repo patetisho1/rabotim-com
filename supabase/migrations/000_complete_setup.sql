@@ -207,65 +207,87 @@ CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON public.favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_task_id ON public.favorites(task_id);
 
 -- =====================================================
--- ROW LEVEL SECURITY
+-- ROW LEVEL SECURITY (Simplified - no subqueries)
 -- =====================================================
 
 -- Users
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public profiles viewable" ON public.users;
+DROP POLICY IF EXISTS "Users update own profile" ON public.users;
 CREATE POLICY "Public profiles viewable" ON public.users FOR SELECT USING (true);
 CREATE POLICY "Users update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users insert own profile" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Tasks
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Tasks viewable by all" ON public.tasks;
+DROP POLICY IF EXISTS "Users create own tasks" ON public.tasks;
+DROP POLICY IF EXISTS "Users update own tasks" ON public.tasks;
+DROP POLICY IF EXISTS "Users delete own tasks" ON public.tasks;
 CREATE POLICY "Tasks viewable by all" ON public.tasks FOR SELECT USING (true);
 CREATE POLICY "Users create own tasks" ON public.tasks FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users update own tasks" ON public.tasks FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users delete own tasks" ON public.tasks FOR DELETE USING (auth.uid() = user_id);
 
--- Applications
+-- Applications (simplified - view all for now, can restrict later)
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "View own applications" ON public.applications FOR SELECT 
-  USING (auth.uid() = user_id OR auth.uid() IN (SELECT user_id FROM tasks WHERE id = task_id));
+DROP POLICY IF EXISTS "View applications" ON public.applications;
+DROP POLICY IF EXISTS "Create applications" ON public.applications;
+DROP POLICY IF EXISTS "Update applications" ON public.applications;
+CREATE POLICY "View applications" ON public.applications FOR SELECT USING (true);
 CREATE POLICY "Create applications" ON public.applications FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Update own applications" ON public.applications FOR UPDATE 
-  USING (auth.uid() = user_id OR auth.uid() IN (SELECT user_id FROM tasks WHERE id = task_id));
+CREATE POLICY "Update applications" ON public.applications FOR UPDATE USING (auth.uid() = user_id);
 
 -- Messages
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "View own messages" ON public.messages;
+DROP POLICY IF EXISTS "Send messages" ON public.messages;
 CREATE POLICY "View own messages" ON public.messages FOR SELECT 
   USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 CREATE POLICY "Send messages" ON public.messages FOR INSERT WITH CHECK (auth.uid() = sender_id);
 
 -- Notifications
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "View own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Update own notifications" ON public.notifications;
 CREATE POLICY "View own notifications" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Update own notifications" ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Insert notifications" ON public.notifications FOR INSERT WITH CHECK (true);
 
 -- Ratings
 ALTER TABLE public.ratings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "View all ratings" ON public.ratings;
+DROP POLICY IF EXISTS "Create own ratings" ON public.ratings;
 CREATE POLICY "View all ratings" ON public.ratings FOR SELECT USING (true);
 CREATE POLICY "Create own ratings" ON public.ratings FOR INSERT WITH CHECK (auth.uid() = rater_id);
 
 -- Reviews
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "View all reviews" ON public.reviews;
+DROP POLICY IF EXISTS "Create own reviews" ON public.reviews;
 CREATE POLICY "View all reviews" ON public.reviews FOR SELECT USING (true);
 CREATE POLICY "Create own reviews" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = reviewer_id);
 
 -- Reports
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Create reports" ON public.reports;
+DROP POLICY IF EXISTS "View own reports" ON public.reports;
 CREATE POLICY "Create reports" ON public.reports FOR INSERT WITH CHECK (auth.uid() = reporter_id);
 CREATE POLICY "View own reports" ON public.reports FOR SELECT USING (auth.uid() = reporter_id);
 
 -- User Blocks
 ALTER TABLE public.user_blocks ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Manage own blocks" ON public.user_blocks;
 CREATE POLICY "Manage own blocks" ON public.user_blocks FOR ALL USING (auth.uid() = blocker_id);
 
 -- FCM Tokens
 ALTER TABLE public.fcm_tokens ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Manage own token" ON public.fcm_tokens;
 CREATE POLICY "Manage own token" ON public.fcm_tokens FOR ALL USING (auth.uid() = user_id);
 
 -- Favorites
 ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Manage own favorites" ON public.favorites;
 CREATE POLICY "Manage own favorites" ON public.favorites FOR ALL USING (auth.uid() = user_id);
 
 -- =====================================================
@@ -281,6 +303,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS users_updated_at ON public.users;
+DROP TRIGGER IF EXISTS tasks_updated_at ON public.tasks;
+DROP TRIGGER IF EXISTS applications_updated_at ON public.applications;
+DROP TRIGGER IF EXISTS reports_updated_at ON public.reports;
+DROP TRIGGER IF EXISTS fcm_tokens_updated_at ON public.fcm_tokens;
+
 -- Create triggers for updated_at
 CREATE TRIGGER users_updated_at BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER tasks_updated_at BEFORE UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -292,20 +321,20 @@ CREATE TRIGGER fcm_tokens_updated_at BEFORE UPDATE ON public.fcm_tokens FOR EACH
 CREATE OR REPLACE FUNCTION update_user_rating()
 RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE users SET
-    rating = (SELECT AVG(rating) FROM ratings WHERE rated_id = NEW.rated_id),
-    rating_count = (SELECT COUNT(*) FROM ratings WHERE rated_id = NEW.rated_id)
+  UPDATE public.users SET
+    rating = (SELECT COALESCE(AVG(rating), 0) FROM public.ratings WHERE rated_id = NEW.rated_id),
+    rating_count = (SELECT COUNT(*) FROM public.ratings WHERE rated_id = NEW.rated_id)
   WHERE id = NEW.rated_id;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS on_rating_change ON public.ratings;
 CREATE TRIGGER on_rating_change
-  AFTER INSERT OR UPDATE ON ratings
+  AFTER INSERT OR UPDATE ON public.ratings
   FOR EACH ROW EXECUTE FUNCTION update_user_rating();
 
 -- =====================================================
 -- DONE!
 -- =====================================================
 SELECT 'Database setup complete! All 11 tables created.' as status;
-

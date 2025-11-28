@@ -409,28 +409,54 @@ export const db = {
 
   // Messages
   async getConversations(userId: string) {
-    const { data, error } = await supabase
+    // First, get all messages for this user
+    const { data: messages, error: messagesError } = await supabase
       .from('messages')
-      .select(`
-        conversation_id,
-        sender:users!sender_id(id, full_name, avatar_url),
-        receiver:users!receiver_id(id, full_name, avatar_url),
-        content,
-        created_at
-      `)
+      .select('*')
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false })
     
-    if (error) throw error
+    if (messagesError) {
+      throw new Error(`Failed to fetch messages: ${messagesError.message || JSON.stringify(messagesError)}`)
+    }
+    
+    if (!messages || messages.length === 0) {
+      return []
+    }
+    
+    // Get unique participant IDs
+    const participantIds = new Set<string>()
+    messages.forEach(msg => {
+      if (msg.sender_id !== userId) participantIds.add(msg.sender_id)
+      if (msg.receiver_id !== userId) participantIds.add(msg.receiver_id)
+    })
+    
+    // Fetch participant profiles
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', Array.from(participantIds))
+    
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]))
     
     // Group by conversation
     const conversations = new Map()
-    data.forEach(msg => {
+    messages.forEach(msg => {
       if (!conversations.has(msg.conversation_id)) {
+        const participantId = msg.sender_id === userId ? msg.receiver_id : msg.sender_id
+        const participant = profileMap.get(participantId) || { 
+          id: participantId, 
+          full_name: 'Unknown User', 
+          avatar_url: null 
+        }
+        
         conversations.set(msg.conversation_id, {
           id: msg.conversation_id,
-          lastMessage: msg,
-          participant: (msg.sender as any).id === userId ? msg.receiver : msg.sender
+          lastMessage: {
+            content: msg.content,
+            created_at: msg.created_at
+          },
+          participant
         })
       }
     })
@@ -439,17 +465,37 @@ export const db = {
   },
 
   async getMessages(conversationId: string) {
-    const { data, error } = await supabase
+    const { data: messages, error } = await supabase
       .from('messages')
-      .select(`
-        *,
-        sender:users!sender_id(full_name, avatar_url)
-      `)
+      .select('*')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
     
     if (error) throw error
-    return data
+    
+    if (!messages || messages.length === 0) {
+      return []
+    }
+    
+    // Get unique sender IDs
+    const senderIds = [...new Set(messages.map(m => m.sender_id))]
+    
+    // Fetch sender profiles
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', senderIds)
+    
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]))
+    
+    // Attach sender info to each message
+    return messages.map(msg => ({
+      ...msg,
+      sender: profileMap.get(msg.sender_id) || { 
+        full_name: 'Unknown User', 
+        avatar_url: null 
+      }
+    }))
   },
 
   async sendMessage(message: Omit<Message, 'id' | 'created_at'>) {
