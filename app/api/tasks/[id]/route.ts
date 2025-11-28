@@ -149,6 +149,8 @@ export async function PUT(
       throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
+    logger.info('Attempting to update task', { taskId, userId, body: JSON.stringify(body).substring(0, 200) })
+    
     const { data: updatedTask, error } = await supabase
       .from('tasks')
       .update(body)
@@ -157,8 +159,18 @@ export async function PUT(
       .single()
 
     if (error) {
-      logger.error('Error updating task', error, { taskId, userId })
-      return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
+      logger.error('Error updating task', error, { 
+        taskId, 
+        userId: userId || 'unknown',
+        errorCode: error.code,
+        errorMessage: error.message,
+        errorDetails: error.details
+      })
+      return NextResponse.json({ 
+        error: error.message || 'Database error',
+        code: error.code,
+        details: error.details
+      }, { status: 500 })
     }
 
     // Fetch profile separately
