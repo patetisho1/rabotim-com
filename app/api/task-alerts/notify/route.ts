@@ -159,16 +159,20 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Update alert stats
-      supabase
-        .from('task_alerts')
-        .update({
-          matches_count: (alert as any).matches_count ? (alert as any).matches_count + 1 : 1,
-          last_notified_at: new Date().toISOString()
-        })
-        .eq('id', alert.id)
-        .then(() => {})
-        .catch(err => console.error('Failed to update alert stats:', err))
+      // Update alert stats (fire and forget)
+      ;(async () => {
+        try {
+          await supabase
+            .from('task_alerts')
+            .update({
+              matches_count: ((alert as any).matches_count || 0) + 1,
+              last_notified_at: new Date().toISOString()
+            })
+            .eq('id', alert.id)
+        } catch (err) {
+          console.error('Failed to update alert stats:', err)
+        }
+      })()
     }
 
     // Wait for all notifications to complete
