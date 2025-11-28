@@ -257,9 +257,12 @@ function EditTaskPageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    console.log('handleSubmit called', { formData, user: user?.id, taskId })
 
     // Client-side validation
     const validationIssues = validateForm()
+    console.log('Validation issues:', validationIssues)
     if (validationIssues.length > 0) {
       validationIssues.forEach(issue => {
         toast.error(issue)
