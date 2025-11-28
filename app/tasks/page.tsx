@@ -30,6 +30,8 @@ import toast from 'react-hot-toast'
 import TasksMap from '@/components/TasksMap'
 import MobileFiltersSheet from '@/components/MobileFiltersSheet'
 import SkeletonCard from '@/components/SkeletonCard'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import PopularCategories from '@/components/PopularCategories'
 
 // Task interface is imported from useTasksAPI
 
@@ -302,6 +304,18 @@ export default function TasksPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Breadcrumbs */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <Breadcrumbs 
+            items={[
+              { label: 'Задачи', href: '/tasks' },
+              ...(selectedCategory ? [{ label: selectedCategory, href: `/tasks?category=${selectedCategory}` }] : [])
+            ]}
+          />
         </div>
       </div>
 

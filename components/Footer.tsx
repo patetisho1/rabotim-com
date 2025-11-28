@@ -61,14 +61,14 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Популярни категории</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Услуги за майстори</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Почистващи услуги</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Доставни услуги</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Преместване</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Градински услуги</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Авто електрици</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Сглобяване</Link></li>
-              <li><Link href="/categories" className="hover:text-blue-200 transition-colors">Всички услуги</Link></li>
+              <li><Link href="/tasks?category=handyman" className="hover:text-blue-200 transition-colors">Майсторски услуги</Link></li>
+              <li><Link href="/tasks?category=cleaning" className="hover:text-blue-200 transition-colors">Почистване</Link></li>
+              <li><Link href="/tasks?category=delivery" className="hover:text-blue-200 transition-colors">Доставки</Link></li>
+              <li><Link href="/tasks?category=moving" className="hover:text-blue-200 transition-colors">Преместване</Link></li>
+              <li><Link href="/tasks?category=gardening" className="hover:text-blue-200 transition-colors">Градинарство</Link></li>
+              <li><Link href="/tasks?category=electrical" className="hover:text-blue-200 transition-colors">Електро услуги</Link></li>
+              <li><Link href="/tasks?category=plumbing" className="hover:text-blue-200 transition-colors">ВиК услуги</Link></li>
+              <li><Link href="/categories" className="hover:text-blue-200 transition-colors font-medium">Всички категории →</Link></li>
             </ul>
           </div>
 
@@ -76,14 +76,14 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Популярни локации</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">София</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Пловдив</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Варна</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Бургас</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Стара Загора</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Плевен</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Велико Търново</Link></li>
-              <li><Link href="/tasks" className="hover:text-blue-200 transition-colors">Видин</Link></li>
+              <li><Link href="/tasks?location=София" className="hover:text-blue-200 transition-colors">София</Link></li>
+              <li><Link href="/tasks?location=Пловдив" className="hover:text-blue-200 transition-colors">Пловдив</Link></li>
+              <li><Link href="/tasks?location=Варна" className="hover:text-blue-200 transition-colors">Варна</Link></li>
+              <li><Link href="/tasks?location=Бургас" className="hover:text-blue-200 transition-colors">Бургас</Link></li>
+              <li><Link href="/tasks?location=Стара Загора" className="hover:text-blue-200 transition-colors">Стара Загора</Link></li>
+              <li><Link href="/tasks?location=Плевен" className="hover:text-blue-200 transition-colors">Плевен</Link></li>
+              <li><Link href="/tasks?location=Велико Търново" className="hover:text-blue-200 transition-colors">Велико Търново</Link></li>
+              <li><Link href="/tasks?location=Русе" className="hover:text-blue-200 transition-colors">Русе</Link></li>
             </ul>
           </div>
         </div>
