@@ -317,6 +317,7 @@ function EditTaskPageContent() {
 
       // Get current session for auth header
       const { data: { session } } = await supabase.auth.getSession()
+      console.log('Session for update:', { hasSession: !!session, hasToken: !!session?.access_token })
       
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PUT',

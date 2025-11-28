@@ -104,19 +104,25 @@ export async function PUT(
     
     if (cookieUser) {
       userId = cookieUser.id
+      logger.info('Auth via cookie', { userId })
     } else {
       // Fallback: проверяваме Authorization header и декодираме JWT
       const authHeader = request.headers.get('Authorization')
+      logger.info('Checking auth header', { hasHeader: !!authHeader })
       if (authHeader?.startsWith('Bearer ')) {
         const token = authHeader.substring(7)
         try {
           // Декодираме JWT token за да извлечем user id (без верификация - Supabase вече го е верифицирал на клиента)
-          const payload = JSON.parse(atob(token.split('.')[1]))
-          if (payload.sub) {
-            userId = payload.sub
+          const parts = token.split('.')
+          if (parts.length === 3) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'))
+            if (payload.sub) {
+              userId = payload.sub
+              logger.info('Auth via JWT token', { userId })
+            }
           }
         } catch (e) {
-          logger.error('Failed to decode JWT token', e as Error)
+          logger.error('Failed to decode JWT token', e as Error, { token: token.substring(0, 20) + '...' })
         }
       }
     }
