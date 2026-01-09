@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 // GET /api/users - Вземи потребители (за админ или търсене)
 export async function GET(request: NextRequest) {
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Error fetching users:', error)
+    logger.error('Error fetching users', error as Error, { endpoint: 'GET /api/users' })
     return NextResponse.json(
       { error: 'Failed to fetch users' },
       { status: 500 }

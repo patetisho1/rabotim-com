@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,7 +62,7 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Database health check error:', error)
+    logger.error('Database health check error', error as Error, { endpoint: 'GET /api/health/database' })
     return NextResponse.json({
       success: false,
       error: 'Failed to check database health'

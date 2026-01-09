@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { PAYMENT_PLANS } from '@/lib/stripe'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       .eq('id', paymentId)
 
     if (updateError) {
-      console.error('Update payment error:', updateError)
+      logger.error('Update payment error', updateError, { paymentId, userId: user.id })
       return NextResponse.json(
         { success: false, error: 'Failed to update payment' },
         { status: 500 }
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Payment confirmation error:', error)
+    logger.error('Payment confirmation error', error as Error, { endpoint: 'POST /api/payments/confirm' })
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -102,10 +103,10 @@ async function handleSubscriptionPayment(supabase: any, userId: string, payment:
       })
 
     if (subscriptionError) {
-      console.error('Subscription creation error:', subscriptionError)
+      logger.error('Subscription creation error', subscriptionError, { userId, planId: payment.plan_id })
     }
   } catch (error) {
-    console.error('Handle subscription payment error:', error)
+    logger.error('Handle subscription payment error', error as Error, { userId, planId: payment.plan_id })
   }
 }
 
@@ -139,9 +140,9 @@ async function handleTaskPromotionPayment(supabase: any, userId: string, payment
       .eq('user_id', userId)
 
     if (taskUpdateError) {
-      console.error('Task promotion update error:', taskUpdateError)
+      logger.error('Task promotion update error', taskUpdateError, { userId, taskId: payment.task_id })
     }
   } catch (error) {
-    console.error('Handle task promotion payment error:', error)
+    logger.error('Handle task promotion payment error', error as Error, { userId, taskId: payment.task_id })
   }
 }

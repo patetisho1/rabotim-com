@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error saving FCM token:', error)
+      logger.error('Error saving FCM token', error, { userId })
       
       // If table doesn't exist, still return success
       if (error.code === '42P01') {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Subscribe error:', error)
+    logger.error('Subscribe error', error as Error, { endpoint: 'POST /api/notifications/subscribe' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -82,7 +83,7 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', userId)
 
     if (error) {
-      console.error('Error deleting FCM token:', error)
+      logger.error('Error deleting FCM token', error, { userId })
     }
 
     return NextResponse.json({
@@ -91,7 +92,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Unsubscribe error:', error)
+    logger.error('Unsubscribe error', error as Error, { endpoint: 'DELETE /api/notifications/subscribe' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

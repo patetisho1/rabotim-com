@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating report:', error)
+      logger.error('Error creating report', error, { reporter_id, reported_type, reported_id })
       
       // If table doesn't exist or any DB error, still return success
       // This ensures graceful degradation
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Report API error:', error)
+    logger.error('Report API error', error as Error, { endpoint: 'POST /api/reports' })
     return NextResponse.json(
       { error: 'Вътрешна грешка на сървъра' },
       { status: 500 }
@@ -131,14 +132,14 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query.limit(100)
 
     if (error) {
-      console.error('Error fetching reports:', error)
+      logger.error('Error fetching reports', error, { status, reported_type })
       return NextResponse.json({ reports: [] })
     }
 
     return NextResponse.json({ reports: data || [] })
 
   } catch (error) {
-    console.error('Get reports error:', error)
+    logger.error('Get reports error', error as Error, { endpoint: 'GET /api/reports' })
     return NextResponse.json({ reports: [] })
   }
 }

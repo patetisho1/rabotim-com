@@ -411,14 +411,6 @@ export async function POST(request: NextRequest) {
       } 
     }, { status: 201 })
   } catch (error: any) {
-    // Подробно логване за диагностика
-    console.error('Exception in POST /api/tasks:', {
-      error,
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name,
-      cause: error?.cause
-    })
     logger.error('Exception in POST /api/tasks', error as Error, { 
       endpoint: 'POST /api/tasks',
       errorMessage: error?.message,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 // POST /api/reviews/[id]/helpful - Маркирай отзив като полезен
 export async function POST(
@@ -14,7 +15,7 @@ export async function POST(
     const updatedReview = await db.updateReviewHelpful(id, increment)
     return NextResponse.json(updatedReview)
   } catch (error) {
-    console.error('Error updating review helpful count:', error)
+    logger.error('Error updating review helpful count', error as Error, { reviewId: params.id })
     return NextResponse.json(
       { error: 'Failed to update review helpful count' },
       { status: 500 }

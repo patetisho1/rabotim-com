@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 // GET /api/users/[id] - Вземи конкретен потребител
 export async function GET(
@@ -18,7 +19,7 @@ export async function GET(
 
     return NextResponse.json(user)
   } catch (error) {
-    console.error('Error fetching user:', error)
+    logger.error('Error fetching user', error as Error, { userId: params.id })
     return NextResponse.json(
       { error: 'Failed to fetch user' },
       { status: 500 }
@@ -45,7 +46,7 @@ export async function PUT(
     const user = await db.updateUser(params.id, updates)
     return NextResponse.json(user)
   } catch (error) {
-    console.error('Error updating user:', error)
+    logger.error('Error updating user', error as Error, { userId: params.id })
     return NextResponse.json(
       { error: 'Failed to update user' },
       { status: 500 }

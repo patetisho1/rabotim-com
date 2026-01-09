@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Star, Quote, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import OptimizedImage from './OptimizedImage'
+import { logger } from '@/lib/logger'
 
 interface Testimonial {
   id: string
@@ -108,7 +109,7 @@ export default function TestimonialsSection() {
           setTestimonials(fallbackTestimonials)
         }
       } catch (error) {
-        console.error('Error loading testimonials:', error)
+        logger.error('Error loading testimonials', error as Error)
         // Use fallback on error
         setTestimonials(fallbackTestimonials)
       } finally {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       .in('user_id', targetUserIds)
 
     if (error) {
-      console.error('Error fetching FCM tokens:', error)
+      logger.error('Error fetching FCM tokens', error, { targetUserIds })
       
       // If table doesn't exist
       if (error.code === '42P01') {
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     const serverKey = process.env.FIREBASE_SERVER_KEY
     
     if (!serverKey) {
-      console.log('FIREBASE_SERVER_KEY not configured')
+      logger.warn('FIREBASE_SERVER_KEY not configured', undefined, { endpoint: 'POST /api/notifications/send' })
       return NextResponse.json({
         success: true,
         sent: 0,
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
 
           return response.ok
         } catch (err) {
-          console.error('Error sending to token:', err)
+          logger.error('Error sending to token', err as Error)
           return false
         }
       })
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Send notification error:', error)
+    logger.error('Send notification error', error as Error, { endpoint: 'POST /api/notifications/send' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

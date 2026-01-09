@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { createPaymentIntent, PAYMENT_PLANS } from '@/lib/stripe'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (dbError) {
-      console.error('Database error:', dbError)
+      logger.error('Database error storing payment', dbError, { userId: user.id, planId })
       return NextResponse.json(
         { success: false, error: 'Failed to store payment' },
         { status: 500 }
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Payment intent creation error:', error)
+    logger.error('Payment intent creation error', error as Error, { endpoint: 'POST /api/payments/create-intent' })
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

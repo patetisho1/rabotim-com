@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -109,7 +110,7 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Error fetching admin stats:', error)
+    logger.error('Error fetching admin stats', error as Error, { endpoint: 'GET /api/admin/stats' })
     return NextResponse.json(
       { error: 'Възникна грешка при зареждането на статистиките' },
       { status: 500 }

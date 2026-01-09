@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 // POST /api/tasks/[id]/apply - Кандидатствай за задача
 export async function POST(
@@ -53,7 +54,7 @@ export async function POST(
 
     return NextResponse.json(data, { status: 201 })
   } catch (error) {
-    console.error('Error applying for task:', error)
+    logger.error('Error applying for task', error as Error, { taskId: params.id })
     return NextResponse.json(
       { error: 'Failed to apply for task' },
       { status: 500 }
