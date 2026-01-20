@@ -17,7 +17,8 @@ import {
   Clock,
   DollarSign,
   Briefcase,
-  Wrench
+  Wrench,
+  Share2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -28,6 +29,7 @@ import { Review } from '@/types/rating'
 import { formatDistanceToNow } from 'date-fns'
 import { bg } from 'date-fns/locale'
 import OptimizedImage from '@/components/OptimizedImage'
+import ShareButtons from '@/components/ShareButtons'
 
 interface UserProfile {
   id: number
@@ -62,6 +64,12 @@ export default function UserProfilePage() {
   const { reviews, isLoading: reviewsLoading, loadUserRatings } = useRatings()
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([])
   const [reviewFilter, setReviewFilter] = useState<'all' | 'verified' | '5' | '4' | '3' | '2' | '1'>('all')
+  const [showShareOptions, setShowShareOptions] = useState(false)
+  
+  // Generate shareable profile URL
+  const profileUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/user/${userId}` 
+    : `https://rabotim.com/user/${userId}`
 
   useEffect(() => {
     loadUserProfile()
@@ -334,7 +342,25 @@ export default function UserProfilePage() {
                   <Heart size={16} />
                   Добави в любими
                 </button>
+                <button
+                  onClick={() => setShowShareOptions(!showShareOptions)}
+                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Share2 size={16} />
+                  Сподели профила
+                </button>
               </div>
+
+              {/* Share Options */}
+              {showShareOptions && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <ShareButtons
+                    url={profileUrl}
+                    title={`Вижте профила на ${userProfile.name} в Rabotim.com`}
+                    description={`${userProfile.name} е изпълнител в Rabotim.com с рейтинг ${userProfile.rating}/5. ${userProfile.completedTasks} завършени задачи.`}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

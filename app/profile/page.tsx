@@ -30,7 +30,8 @@ import {
   ThumbsUp,
   Bell,
   Eye,
-  Search
+  Search,
+  Megaphone
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -550,7 +551,7 @@ function ProfilePageContent() {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <button
                         onClick={() => router.push('/post-task')}
                         className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
@@ -566,6 +567,14 @@ function ProfilePageContent() {
                         <Search className="h-6 w-6 mb-2" />
                         <h4 className="font-medium">Търси задачи</h4>
                         <p className="text-sm text-green-100">Намери работа за себе си</p>
+                      </button>
+                      <button
+                        onClick={() => router.push('/promote-profile')}
+                        className="p-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-left"
+                      >
+                        <Megaphone className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Рекламирай профила</h4>
+                        <p className="text-sm text-purple-100">Достигни до повече клиенти</p>
                       </button>
                     </div>
                   </div>

@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabaseAuth } from '@/lib/supabase-auth'
 import SocialLogin from '@/components/SocialLogin'
 import LocationSelector from '@/components/LocationSelector'
+import ShareProfileModal from '@/components/ShareProfileModal'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -15,6 +16,9 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [newUserId, setNewUserId] = useState<string | null>(null)
+  const [newUserName, setNewUserName] = useState('')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -136,7 +140,10 @@ export default function RegisterPage() {
             console.log('Welcome email not sent (Resend may not be configured):', emailError)
           }
           
-          router.push('/')
+          // Show share modal
+          setNewUserId(data.user.id)
+          setNewUserName(`${formData.firstName} ${formData.lastName}`)
+          setShowShareModal(true)
           return
         }
 
@@ -159,7 +166,10 @@ export default function RegisterPage() {
             console.log('Welcome email not sent:', emailError)
           }
           
-          router.push('/')
+          // Show share modal
+          setNewUserId(data.user.id)
+          setNewUserName(`${formData.firstName} ${formData.lastName}`)
+          setShowShareModal(true)
           return
         }
 
@@ -515,6 +525,21 @@ export default function RegisterPage() {
           </form>
         </div>
       </div>
+
+      {/* Share Profile Modal */}
+      <ShareProfileModal
+        isOpen={showShareModal}
+        onClose={() => {
+          setShowShareModal(false)
+          router.push('/')
+        }}
+        onSkip={() => {
+          setShowShareModal(false)
+          router.push('/')
+        }}
+        profileUrl={newUserId ? `${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/user/${newUserId}` : ''}
+        userName={newUserName}
+      />
     </div>
   )
 } 
