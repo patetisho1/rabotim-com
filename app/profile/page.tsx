@@ -37,6 +37,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useTasksAPI } from '@/hooks/useTasksAPI'
 import RatingDisplay from '@/components/RatingDisplay'
 import { useRatings } from '@/hooks/useRatings'
+import LocationSelector from '@/components/LocationSelector'
 
 interface UserData {
   id: number
@@ -87,6 +88,9 @@ function ProfilePageContent() {
   const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard' | 'messages'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [locationCity, setLocationCity] = useState('')
+  const [locationNeighborhood, setLocationNeighborhood] = useState('')
+  const [isSavingLocation, setIsSavingLocation] = useState(false)
   const userRatingSummary = authUser ? userRatings[authUser.id] : undefined
 
   useEffect(() => {
@@ -111,6 +115,12 @@ function ProfilePageContent() {
         console.log('Profile: loaded tasks =', tasks)
         setUserTasks(tasks)
         await loadUserRatings(authUser.id)
+        
+        // Load location from user metadata
+        const userCity = authUser.user_metadata?.city || ''
+        const userNeighborhood = authUser.user_metadata?.neighborhood || ''
+        setLocationCity(userCity)
+        setLocationNeighborhood(userNeighborhood)
         
         const userData: UserData = {
           id: 1, // Временно ID
@@ -143,7 +153,7 @@ function ProfilePageContent() {
           },
           profile: {
             bio: '',
-            location: '',
+            location: userCity + (userNeighborhood ? `, ${userNeighborhood}` : ''),
             avatar: '',
             joinDate: new Date(authUser.created_at).toLocaleDateString('bg-BG')
           }
@@ -161,6 +171,44 @@ function ProfilePageContent() {
     await signOut()
     router.push('/')
     toast.success('Успешно излязохте от акаунта')
+  }
+
+  const handleSaveLocation = async () => {
+    if (!authUser) return
+    
+    setIsSavingLocation(true)
+    try {
+      const response = await fetch(`/api/users/${authUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: locationCity || null,
+          neighborhood: locationNeighborhood || null
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save location')
+      }
+
+      toast.success('Местоположението е запазено успешно!')
+      
+      // Update local user data
+      if (user) {
+        setUser({
+          ...user,
+          profile: {
+            ...user.profile,
+            location: locationCity + (locationNeighborhood ? `, ${locationNeighborhood}` : '')
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error saving location:', error)
+      toast.error('Грешка при запазване на местоположението')
+    } finally {
+      setIsSavingLocation(false)
+    }
   }
 
   const handleDeleteTask = async (taskId: string) => {
@@ -802,6 +850,47 @@ function ProfilePageContent() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Местоположение */}
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h4 className="text-md font-medium text-gray-900">Местоположение</h4>
+                          <p className="text-sm text-gray-500">Задайте локация за локални обяви с предимство</p>
+                        </div>
+                        {user.profile.location && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 text-sm rounded-md">
+                            <MapPin size={14} />
+                            {user.profile.location}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <LocationSelector
+                        city={locationCity}
+                        neighborhood={locationNeighborhood}
+                        onCityChange={setLocationCity}
+                        onNeighborhoodChange={setLocationNeighborhood}
+                        showLabel={false}
+                      />
+                      
+                      <div className="mt-4">
+                        <button
+                          onClick={handleSaveLocation}
+                          disabled={isSavingLocation}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {isSavingLocation ? (
+                            <span className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Запазване...
+                            </span>
+                          ) : (
+                            'Запази местоположение'
+                          )}
+                        </button>
                       </div>
                     </div>
 

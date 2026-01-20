@@ -34,7 +34,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const { full_name, avatar_url, phone, location, bio } = body
+    const { full_name, avatar_url, phone, location, bio, city, neighborhood } = body
 
     const updates: any = {}
     if (full_name !== undefined) updates.full_name = full_name
@@ -42,9 +42,47 @@ export async function PUT(
     if (phone !== undefined) updates.phone = phone
     if (location !== undefined) updates.location = location
     if (bio !== undefined) updates.bio = bio
+    if (city !== undefined) updates.city = city
+    if (neighborhood !== undefined) updates.neighborhood = neighborhood
 
     const user = await db.updateUser(params.id, updates)
     return NextResponse.json(user)
+  } catch (error) {
+    logger.error('Error updating user', error as Error, { userId: params.id })
+    return NextResponse.json(
+      { error: 'Failed to update user' },
+      { status: 500 }
+    )
+  }
+}
+
+// PATCH /api/users/[id] - Частично обновяване на потребител
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await request.json()
+    const { full_name, avatar_url, phone, location, bio, city, neighborhood } = body
+
+    const updates: any = {}
+    if (full_name !== undefined) updates.full_name = full_name
+    if (avatar_url !== undefined) updates.avatar_url = avatar_url
+    if (phone !== undefined) updates.phone = phone
+    if (location !== undefined) updates.location = location
+    if (bio !== undefined) updates.bio = bio
+    if (city !== undefined) updates.city = city
+    if (neighborhood !== undefined) updates.neighborhood = neighborhood
+
+    // If city or neighborhood changed, update the combined location field
+    if (city !== undefined || neighborhood !== undefined) {
+      const newCity = city !== undefined ? city : ''
+      const newNeighborhood = neighborhood !== undefined ? neighborhood : ''
+      updates.location = newCity + (newNeighborhood ? `, ${newNeighborhood}` : '')
+    }
+
+    const user = await db.updateUser(params.id, updates)
+    return NextResponse.json({ success: true, user })
   } catch (error) {
     logger.error('Error updating user', error as Error, { userId: params.id })
     return NextResponse.json(

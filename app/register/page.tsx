@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, Briefcase, Wrench } from 'lucide-react'
+import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, Briefcase, Wrench, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabaseAuth } from '@/lib/supabase-auth'
 import SocialLogin from '@/components/SocialLogin'
+import LocationSelector from '@/components/LocationSelector'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -19,6 +20,8 @@ export default function RegisterPage() {
     lastName: '',
     email: '',
     phone: '',
+    city: '',
+    neighborhood: '',
     password: '',
     confirmPassword: '',
     agreeToTerms: false,
@@ -94,7 +97,9 @@ export default function RegisterPage() {
         formData.password,
         {
           full_name: `${formData.firstName} ${formData.lastName}`,
-          phone: formData.phone
+          phone: formData.phone,
+          city: formData.city || null,
+          neighborhood: formData.neighborhood || null
         }
       )
 
@@ -341,6 +346,16 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
+
+            {/* Местоположение */}
+            <LocationSelector
+              city={formData.city}
+              neighborhood={formData.neighborhood}
+              onCityChange={(city) => setFormData(prev => ({ ...prev, city }))}
+              onNeighborhoodChange={(neighborhood) => setFormData(prev => ({ ...prev, neighborhood }))}
+              required={false}
+              showLabel={true}
+            />
 
             {/* Роли */}
             <div>

@@ -32,6 +32,7 @@ import MobileFiltersSheet from '@/components/MobileFiltersSheet'
 import SkeletonCard from '@/components/SkeletonCard'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PopularCategories from '@/components/PopularCategories'
+import { useAuth } from '@/hooks/useAuth'
 
 // Task interface is imported from useTasksAPI
 
@@ -69,6 +70,7 @@ const priceRanges = [
 
 const sortOptions = [
   'Най-нови',
+  'Локални първи',
   'Най-висока цена',
   'Най-ниска цена',
   'Най-близки',
@@ -78,6 +80,7 @@ const sortOptions = [
 
 export default function TasksPage() {
   const router = useRouter()
+  const { user: authUser } = useAuth()
   const { tasks, loading, fetchTasks } = useTasksAPI()
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -87,6 +90,10 @@ export default function TasksPage() {
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<string[]>([])
+  
+  // Get user's location from auth metadata
+  const userCity = authUser?.user_metadata?.city || ''
+  const userNeighborhood = authUser?.user_metadata?.neighborhood || ''
 
   // Функция за получаване на икона според категорията
   const getCategoryIcon = (category: string) => {
@@ -151,7 +158,7 @@ export default function TasksPage() {
 
   useEffect(() => {
     filterTasks()
-  }, [searchQuery, selectedCategory, selectedLocation, selectedPriceRange, selectedSort, tasks])
+  }, [searchQuery, selectedCategory, selectedLocation, selectedPriceRange, selectedSort, tasks, userCity, userNeighborhood])
 
   const filterTasks = () => {
     let filtered = [...tasks]
@@ -199,6 +206,29 @@ export default function TasksPage() {
     switch (selectedSort) {
       case 'Най-нови':
         filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        break
+      case 'Локални първи':
+        // Prioritize local tasks based on user's city and neighborhood
+        if (userCity) {
+          filtered.sort((a, b) => {
+            const aIsLocal = a.location.includes(userCity)
+            const bIsLocal = b.location.includes(userCity)
+            const aIsNeighborhood = userNeighborhood ? a.location.includes(userNeighborhood) : false
+            const bIsNeighborhood = userNeighborhood ? b.location.includes(userNeighborhood) : false
+            
+            // Priority: same neighborhood > same city > other
+            if (aIsNeighborhood && !bIsNeighborhood) return -1
+            if (bIsNeighborhood && !aIsNeighborhood) return 1
+            if (aIsLocal && !bIsLocal) return -1
+            if (bIsLocal && !aIsLocal) return 1
+            
+            // If same locality, sort by date
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          })
+        } else {
+          // If no user location set, just sort by date
+          filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        }
         break
       case 'Най-висока цена':
         filtered.sort((a, b) => b.price - a.price)
