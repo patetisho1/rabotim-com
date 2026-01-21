@@ -42,7 +42,7 @@ export interface WorkingHours {
 }
 
 export interface SocialLink {
-  platform: 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'linkedin' | 'website' | 'other'
+  platform: 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'linkedin' | 'github' | 'website' | 'other'
   url: string
 }
 
