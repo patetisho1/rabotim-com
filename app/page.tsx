@@ -13,7 +13,7 @@ import Link from 'next/link'
 import OptimizedImage from '@/components/OptimizedImage'
 
 // Lazy load non-critical components
-const TestimonialsSection = dynamic(() => import('@/components/TestimonialsSection'), {
+const ProfessionalsShowcase = dynamic(() => import('@/components/ProfessionalsShowcase'), {
   loading: () => (
     <div className="py-12 md:py-20 bg-gray-50 animate-pulse">
       <div className="max-w-6xl mx-auto px-4">
@@ -1682,8 +1682,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
-        <TestimonialsSection />
+        {/* Professionals Showcase */}
+        <ProfessionalsShowcase />
 
       </main>
 
