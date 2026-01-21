@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating block:', error)
+      logger.error('Error creating block', error, { blocker_id, blocked_id })
       
       // Graceful degradation - return success even if DB fails
       return NextResponse.json({
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Block API error:', error)
+    logger.error('Block API error', error as Error, { endpoint: 'POST /api/blocks' })
     return NextResponse.json(
       { error: 'Вътрешна грешка на сървъра' },
       { status: 500 }
@@ -100,7 +101,7 @@ export async function DELETE(request: NextRequest) {
       .eq('blocked_id', blocked_id)
 
     if (error) {
-      console.error('Error removing block:', error)
+      logger.error('Error removing block', error, { blocker_id, blocked_id })
       return NextResponse.json(
         { error: 'Грешка при премахване на блокировката' },
         { status: 500 }
@@ -113,7 +114,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Unblock API error:', error)
+    logger.error('Unblock API error', error as Error, { endpoint: 'DELETE /api/blocks' })
     return NextResponse.json(
       { error: 'Вътрешна грешка на сървъра' },
       { status: 500 }
@@ -146,14 +147,14 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching blocks:', error)
+      logger.error('Error fetching blocks', error, { user_id })
       return NextResponse.json({ blocks: [] })
     }
 
     return NextResponse.json({ blocks: data || [] })
 
   } catch (error) {
-    console.error('Get blocks error:', error)
+    logger.error('Get blocks error', error as Error, { endpoint: 'GET /api/blocks' })
     return NextResponse.json({ blocks: [] })
   }
 }

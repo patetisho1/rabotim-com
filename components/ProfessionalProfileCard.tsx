@@ -113,7 +113,7 @@ export default function ProfessionalProfileCard({
           </div>
           <div className="text-right">
             <div className="text-lg font-bold text-green-600">
-              {profile.hourlyRate} лв/час
+              {profile.hourlyRate} €/час
             </div>
             <button
               onClick={handleViewProfile}
@@ -175,7 +175,7 @@ export default function ProfessionalProfileCard({
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-green-600 mb-1">
-                {profile.hourlyRate} лв/час
+                {profile.hourlyRate} €/час
               </div>
               <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                 <Clock className="h-4 w-4" />
@@ -345,7 +345,7 @@ export default function ProfessionalProfileCard({
         </div>
         <div className="text-right">
           <div className="text-xl font-bold text-green-600">
-            {profile.hourlyRate} лв/час
+            {profile.hourlyRate} €/час
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {profile.responseTime}

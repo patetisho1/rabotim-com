@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     if (demoError) {
       // If demo fetch fails, just return real tasks
-      console.error('Error fetching demo tasks:', demoError)
+      logger.error('Error fetching demo tasks', demoError, { category, location })
       return NextResponse.json({
         tasks: realTasks || [],
         meta: {
@@ -167,7 +168,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Mixed tasks API error:', error)
+    logger.error('Mixed tasks API error', error as Error, { endpoint: 'GET /api/tasks/mixed' })
     return NextResponse.json(
       { error: 'Failed to fetch tasks', details: String(error) },
       { status: 500 }

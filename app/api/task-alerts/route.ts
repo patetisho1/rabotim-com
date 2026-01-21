@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ alerts: alerts || [] })
 
   } catch (error) {
-    console.error('Get task alerts error:', error)
+    logger.error('Get task alerts error', error as Error, { endpoint: 'GET /api/task-alerts' })
     return NextResponse.json(
       { error: 'Грешка при зареждане на известията' },
       { status: 500 }
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Create task alert error:', error)
+      logger.error('Create task alert error', error, { userId: body.user_id })
       throw error
     }
 
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Create task alert error:', error)
+    logger.error('Create task alert error', error as Error, { endpoint: 'POST /api/task-alerts' })
     return NextResponse.json(
       { error: 'Грешка при създаване на известието' },
       { status: 500 }
@@ -175,7 +176,7 @@ export async function PUT(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Update task alert error:', error)
+    logger.error('Update task alert error', error as Error, { endpoint: 'PUT /api/task-alerts' })
     return NextResponse.json(
       { error: 'Грешка при обновяване на известието' },
       { status: 500 }
@@ -215,7 +216,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Delete task alert error:', error)
+    logger.error('Delete task alert error', error as Error, { endpoint: 'DELETE /api/task-alerts' })
     return NextResponse.json(
       { error: 'Грешка при изтриване на известието' },
       { status: 500 }
@@ -255,11 +256,11 @@ function generateAlertName(alert: TaskAlert): string {
 
   if (alert.min_budget > 0 || alert.max_budget < 999999) {
     if (alert.min_budget > 0 && alert.max_budget < 999999) {
-      parts.push(`${alert.min_budget}-${alert.max_budget} лв`)
+      parts.push(`${alert.min_budget}-${alert.max_budget} €`)
     } else if (alert.min_budget > 0) {
-      parts.push(`от ${alert.min_budget} лв`)
+      parts.push(`от ${alert.min_budget} €`)
     } else {
-      parts.push(`до ${alert.max_budget} лв`)
+      parts.push(`до ${alert.max_budget} €`)
     }
   }
 

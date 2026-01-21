@@ -74,7 +74,7 @@ const steps: Step[] = [
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Вашият приблизителен бюджет</h3>
           <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <div className="text-3xl font-bold text-green-600 mb-4">290 лв</div>
+            <div className="text-3xl font-bold text-green-600 mb-4">150 €</div>
             <div className="grid grid-cols-3 gap-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, '00', '000'].map((num) => (
                 <button key={num} className="bg-gray-100 hover:bg-gray-200 rounded-lg p-2 text-sm font-medium text-gray-700">
@@ -104,9 +104,9 @@ const steps: Step[] = [
         </div>
         <div className="space-y-3">
           {[
-            { name: 'Иван Д.', rating: '4.9', price: '250 лв', avatar: '👨‍🔧' },
-            { name: 'Петър М.', rating: '4.8', price: '280 лв', avatar: '👨‍💼' },
-            { name: 'Стоян К.', rating: '4.7', price: '220 лв', avatar: '👨‍🔨' }
+            { name: 'Иван Д.', rating: '4.9', price: '125 €', avatar: '👨‍🔧' },
+            { name: 'Петър М.', rating: '4.8', price: '140 €', avatar: '👨‍💼' },
+            { name: 'Стоян К.', rating: '4.7', price: '110 €', avatar: '👨‍🔨' }
           ].map((offer, index) => (
             <div key={index} className="bg-white rounded-lg p-3 border border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -287,9 +287,9 @@ const workerSteps: Step[] = [
         </div>
         <div className="space-y-3">
           {[
-            { title: 'Почистване на апартамент', location: 'София, Лозенец', price: '25 лв/час' },
-            { title: 'Ремонт на баня', location: 'Пловдив, Център', price: '1500 лв' },
-            { title: 'Разходка с куче', location: 'Варна, Морска градина', price: '20 лв/час' }
+            { title: 'Почистване на апартамент', location: 'София, Лозенец', price: '15 €/час' },
+            { title: 'Ремонт на баня', location: 'Пловдив, Център', price: '750 €' },
+            { title: 'Разходка с куче', location: 'Варна, Морска градина', price: '10 €/час' }
           ].map((task, index) => (
             <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
               <p className="font-medium text-gray-800 text-sm">{task.title}</p>
@@ -313,7 +313,7 @@ const workerSteps: Step[] = [
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Вашите приходи</h3>
           <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-green-600 mb-2">2,450 лв</div>
+            <div className="text-2xl font-bold text-green-600 mb-2">1,250 €</div>
             <p className="text-sm text-gray-600 mb-3">Общо изкарани този месец</p>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">

@@ -228,7 +228,7 @@ export default function BoostSystem() {
 
             <div className="flex items-center justify-between mb-4">
               <span className="text-2xl font-bold text-gray-900">
-                {option.price} лв
+                {option.price} €
               </span>
               <span className="text-sm text-gray-500">
                 {option.duration}
@@ -304,7 +304,7 @@ export default function BoostSystem() {
                 </p>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="font-semibold text-gray-900">
-                    Цена: {boostOptions.find(b => b.id === selectedBoost)?.price} лв
+                    Цена: {boostOptions.find(b => b.id === selectedBoost)?.price} €
                   </p>
                   <p className="text-sm text-gray-600">
                     Продължителност: {boostOptions.find(b => b.id === selectedBoost)?.duration}

@@ -209,7 +209,7 @@ export default function TaskCard({ task, showActions = true, onFavoriteToggle }:
   }
 
   const formatPrice = (price: number, priceType: string) => {
-    return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
+    return priceType === 'hourly' ? `${price} €/час` : `${price} €`
   }
 
   const formatDate = (dateString: string) => {

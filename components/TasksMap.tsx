@@ -74,8 +74,8 @@ export default function TasksMap({ tasks, selectedLocation, onTaskClick, height 
   }
 
   const formatPrice = (price: number, priceType: string) => {
-    if (priceType === 'hourly') return `${price} лв/час`
-    return `${price} лв`
+    if (priceType === 'hourly') return `${price} €/час`
+    return `${price} €`
   }
 
   if (!isClient) {

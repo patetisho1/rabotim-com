@@ -91,7 +91,7 @@ export default function SettingsPanel({
   ]
 
   const currencies = [
-    { code: 'BGN', name: 'Български лев (лв)' },
+    { code: 'EUR', name: 'Евро (€)' },
     { code: 'EUR', name: 'Евро (€)' },
     { code: 'USD', name: 'US Dollar ($)' }
   ]

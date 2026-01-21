@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { emailService } from '@/lib/email'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -99,7 +100,8 @@ export async function POST(request: NextRequest) {
     } else {
       // Don't fail the request if email service is not configured
       // Just log and return success with warning
-      console.warn('Email not sent:', result.error)
+      const errorMessage = typeof result.error === 'string' ? result.error : 'Unknown error'
+      logger.warn('Email not sent', new Error(errorMessage), { emailType: type as string })
       return NextResponse.json({ 
         success: true, 
         warning: 'Email service not configured',
@@ -107,7 +109,7 @@ export async function POST(request: NextRequest) {
       })
     }
   } catch (error) {
-    console.error('Email API error:', error)
+    logger.error('Email API error', error as Error, { endpoint: 'POST /api/send-email' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

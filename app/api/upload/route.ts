@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Upload error:', error)
+      logger.error('Upload error', error, { folder, fileName: file.name })
       return NextResponse.json(
         { error: 'Failed to upload file' },
         { status: 500 }
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Upload error:', error)
+    logger.error('Upload error', error as Error, { endpoint: 'POST /api/upload' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -104,7 +105,7 @@ export async function DELETE(request: NextRequest) {
       .remove([filePath])
 
     if (error) {
-      console.error('Delete error:', error)
+      logger.error('Delete file error', error, { filePath })
       return NextResponse.json(
         { error: 'Failed to delete file' },
         { status: 500 }
@@ -113,7 +114,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete error:', error)
+    logger.error('Delete file error', error as Error, { endpoint: 'DELETE /api/upload' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

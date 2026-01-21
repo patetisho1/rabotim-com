@@ -212,7 +212,7 @@ export default function TaskAlertForm({
       <div className="mb-6">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           <DollarSign className="h-4 w-4" />
-          Бюджет (лв)
+          Бюджет (€)
         </label>
         <div className="flex items-center gap-3">
           <input

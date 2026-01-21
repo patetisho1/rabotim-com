@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Search suggestions error:', error)
+    logger.error('Search suggestions error', error as Error, { endpoint: 'GET /api/search/suggestions' })
     
     // Return popular searches on error
     return NextResponse.json({

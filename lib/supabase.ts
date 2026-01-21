@@ -50,6 +50,8 @@ export interface User {
   avatar_url?: string
   phone?: string
   location?: string
+  city?: string
+  neighborhood?: string
   bio?: string
   rating: number
   total_reviews: number

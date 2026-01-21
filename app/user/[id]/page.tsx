@@ -17,7 +17,8 @@ import {
   Clock,
   DollarSign,
   Briefcase,
-  Wrench
+  Wrench,
+  Share2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -28,6 +29,7 @@ import { Review } from '@/types/rating'
 import { formatDistanceToNow } from 'date-fns'
 import { bg } from 'date-fns/locale'
 import OptimizedImage from '@/components/OptimizedImage'
+import ShareButtons from '@/components/ShareButtons'
 
 interface UserProfile {
   id: number
@@ -62,6 +64,12 @@ export default function UserProfilePage() {
   const { reviews, isLoading: reviewsLoading, loadUserRatings } = useRatings()
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([])
   const [reviewFilter, setReviewFilter] = useState<'all' | 'verified' | '5' | '4' | '3' | '2' | '1'>('all')
+  const [showShareOptions, setShowShareOptions] = useState(false)
+  
+  // Generate shareable profile URL
+  const profileUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/user/${userId}` 
+    : `https://rabotim.com/user/${userId}`
 
   useEffect(() => {
     loadUserProfile()
@@ -252,7 +260,7 @@ export default function UserProfilePage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Общо изкарани</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userProfile.totalEarnings} лв</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userProfile.totalEarnings} €</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Скорост на отговор</span>
@@ -334,7 +342,25 @@ export default function UserProfilePage() {
                   <Heart size={16} />
                   Добави в любими
                 </button>
+                <button
+                  onClick={() => setShowShareOptions(!showShareOptions)}
+                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Share2 size={16} />
+                  Сподели профила
+                </button>
               </div>
+
+              {/* Share Options */}
+              {showShareOptions && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <ShareButtons
+                    url={profileUrl}
+                    title={`Вижте профила на ${userProfile.name} в Rabotim.com`}
+                    description={`${userProfile.name} е изпълнител в Rabotim.com с рейтинг ${userProfile.rating}/5. ${userProfile.completedTasks} завършени задачи.`}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -405,7 +431,7 @@ export default function UserProfilePage() {
                           <DollarSign className="h-8 w-8 text-green-600" />
                           <div>
                             <p className="text-sm text-green-700 dark:text-green-300">Общо изкарани</p>
-                            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{userProfile.totalEarnings} лв</p>
+                            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{userProfile.totalEarnings} €</p>
                           </div>
                         </div>
                       </div>
@@ -447,7 +473,7 @@ export default function UserProfilePage() {
                               </div>
                             </div>
                             <div className="text-right ml-4">
-                              <p className="font-semibold text-gray-900 dark:text-gray-100">{task.price} лв</p>
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">{task.price} €</p>
                               <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
                               <span className={`inline-block px-2 py-1 text-xs rounded-full mt-2 ${
                                 task.status === 'active' ? 'bg-green-100 text-green-800' :

@@ -237,7 +237,7 @@ function EditTaskPageContent() {
 
     const price = Number(formData.price)
     if (isNaN(price) || price < MIN_PRICE_VALUE) {
-      issues.push('Посочената цена е подозрително ниска (минимум 5 лв)')
+      issues.push('Посочената цена е подозрително ниска (минимум 5 €)')
     }
 
     const bannedPatterns = [
@@ -257,9 +257,12 @@ function EditTaskPageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    console.log('handleSubmit called', { formData, user: user?.id, taskId })
 
     // Client-side validation
     const validationIssues = validateForm()
+    console.log('Validation issues:', validationIssues)
     if (validationIssues.length > 0) {
       validationIssues.forEach(issue => {
         toast.error(issue)
@@ -312,10 +315,15 @@ function EditTaskPageContent() {
         images: allImages.length > 0 ? allImages : null
       }
 
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Session for update:', { hasSession: !!session, hasToken: !!session?.access_token })
+      
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
         },
         credentials: 'include',
         body: JSON.stringify(updateData),
@@ -546,7 +554,7 @@ function EditTaskPageContent() {
                   required
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  лв
+                  €
                 </span>
               </div>
             </div>

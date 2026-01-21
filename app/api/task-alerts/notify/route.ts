@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
 import { sendTaskAlertEmail } from '@/lib/email'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
       .in('id', userIds)
 
     if (usersError || !users) {
-      console.error('Error fetching users:', usersError)
+      logger.error('Error fetching users for alerts', usersError, { userIds })
       return NextResponse.json({ 
         success: true, 
         notified: 0,
@@ -154,7 +155,7 @@ export async function POST(request: NextRequest) {
           ).then(() => {
             notifiedCount++
           }).catch(err => {
-            console.error(`Failed to send alert email to ${user.email}:`, err)
+            logger.error('Failed to send alert email', err as Error, { email: user.email, taskId: body.taskId })
           })
         )
       }
@@ -170,7 +171,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', alert.id)
         } catch (err) {
-          console.error('Failed to update alert stats:', err)
+          logger.error('Failed to update alert stats', err as Error, { alertId: alert.id })
         }
       })()
     }
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Notify task alerts error:', error)
+    logger.error('Notify task alerts error', error as Error, { endpoint: 'POST /api/task-alerts/notify' })
     return NextResponse.json(
       { error: 'Грешка при изпращане на известия' },
       { status: 500 }

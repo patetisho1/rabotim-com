@@ -30,13 +30,16 @@ import {
   ThumbsUp,
   Bell,
   Eye,
-  Search
+  Search,
+  Megaphone,
+  Crown
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { useTasksAPI } from '@/hooks/useTasksAPI'
 import RatingDisplay from '@/components/RatingDisplay'
 import { useRatings } from '@/hooks/useRatings'
+import LocationSelector from '@/components/LocationSelector'
 
 interface UserData {
   id: number
@@ -87,6 +90,9 @@ function ProfilePageContent() {
   const [activeTab, setActiveTab] = useState<'overview' | 'taskGiver' | 'taskExecutor' | 'settings' | 'dashboard' | 'messages'>('dashboard')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [locationCity, setLocationCity] = useState('')
+  const [locationNeighborhood, setLocationNeighborhood] = useState('')
+  const [isSavingLocation, setIsSavingLocation] = useState(false)
   const userRatingSummary = authUser ? userRatings[authUser.id] : undefined
 
   useEffect(() => {
@@ -111,6 +117,12 @@ function ProfilePageContent() {
         console.log('Profile: loaded tasks =', tasks)
         setUserTasks(tasks)
         await loadUserRatings(authUser.id)
+        
+        // Load location from user metadata
+        const userCity = authUser.user_metadata?.city || ''
+        const userNeighborhood = authUser.user_metadata?.neighborhood || ''
+        setLocationCity(userCity)
+        setLocationNeighborhood(userNeighborhood)
         
         const userData: UserData = {
           id: 1, // Временно ID
@@ -143,7 +155,7 @@ function ProfilePageContent() {
           },
           profile: {
             bio: '',
-            location: '',
+            location: userCity + (userNeighborhood ? `, ${userNeighborhood}` : ''),
             avatar: '',
             joinDate: new Date(authUser.created_at).toLocaleDateString('bg-BG')
           }
@@ -161,6 +173,44 @@ function ProfilePageContent() {
     await signOut()
     router.push('/')
     toast.success('Успешно излязохте от акаунта')
+  }
+
+  const handleSaveLocation = async () => {
+    if (!authUser) return
+    
+    setIsSavingLocation(true)
+    try {
+      const response = await fetch(`/api/users/${authUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: locationCity || null,
+          neighborhood: locationNeighborhood || null
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save location')
+      }
+
+      toast.success('Местоположението е запазено успешно!')
+      
+      // Update local user data
+      if (user) {
+        setUser({
+          ...user,
+          profile: {
+            ...user.profile,
+            location: locationCity + (locationNeighborhood ? `, ${locationNeighborhood}` : '')
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error saving location:', error)
+      toast.error('Грешка при запазване на местоположението')
+    } finally {
+      setIsSavingLocation(false)
+    }
   }
 
   const handleDeleteTask = async (taskId: string) => {
@@ -292,7 +342,7 @@ function ProfilePageContent() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-blue-700">Общо похарчени:</span>
-                        <span className="font-semibold">{user.taskGiver.totalSpent} лв</span>
+                        <span className="font-semibold">{user.taskGiver.totalSpent} €</span>
                       </div>
                     </div>
                   </div>
@@ -308,7 +358,7 @@ function ProfilePageContent() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-green-700">Общо изкарани:</span>
-                        <span className="font-semibold">{user.taskExecutor.totalEarnings} лв</span>
+                        <span className="font-semibold">{user.taskExecutor.totalEarnings} €</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-green-700">Рейтинг:</span>
@@ -444,7 +494,7 @@ function ProfilePageContent() {
                           <DollarSign className="h-8 w-8 text-purple-600" />
                           <div>
                             <p className="text-sm text-purple-700">Общо изкарани</p>
-                            <p className="text-2xl font-bold text-purple-900">{user.taskExecutor.totalEarnings} лв</p>
+                            <p className="text-2xl font-bold text-purple-900">{user.taskExecutor.totalEarnings} €</p>
                           </div>
                         </div>
                       </div>
@@ -484,7 +534,7 @@ function ProfilePageContent() {
                                     <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="font-semibold text-gray-900">{task.price} €</p>
                                     <p className="text-sm text-gray-500">{task.status}</p>
                                   </div>
                                 </div>
@@ -502,7 +552,7 @@ function ProfilePageContent() {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <button
                         onClick={() => router.push('/post-task')}
                         className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
@@ -518,6 +568,22 @@ function ProfilePageContent() {
                         <Search className="h-6 w-6 mb-2" />
                         <h4 className="font-medium">Търси задачи</h4>
                         <p className="text-sm text-green-100">Намери работа за себе си</p>
+                      </button>
+                      <button
+                        onClick={() => router.push('/profile/professional')}
+                        className="p-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-colors text-left"
+                      >
+                        <Crown className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Професионален профил</h4>
+                        <p className="text-sm text-yellow-100">Създай своя мини-сайт</p>
+                      </button>
+                      <button
+                        onClick={() => router.push('/promote-profile')}
+                        className="p-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-left"
+                      >
+                        <Megaphone className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Рекламирай профила</h4>
+                        <p className="text-sm text-purple-100">Достигни до повече клиенти</p>
                       </button>
                     </div>
                   </div>
@@ -648,7 +714,7 @@ function ProfilePageContent() {
                           <div className="text-sm text-blue-700">Завършени задачи</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-blue-900">{user.taskGiver.totalSpent} лв</div>
+                          <div className="text-2xl font-bold text-blue-900">{user.taskGiver.totalSpent} €</div>
                           <div className="text-sm text-blue-700">Общо похарчени</div>
                         </div>
                       </div>
@@ -679,7 +745,7 @@ function ProfilePageContent() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                   <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="font-semibold text-gray-900">{task.price} €</p>
                                     <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
                                   </div>
                                   <div className="flex gap-2">
@@ -742,7 +808,7 @@ function ProfilePageContent() {
                           <div className="text-sm text-green-700">Завършени задачи</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-green-900">{user.taskExecutor.totalEarnings} лв</div>
+                          <div className="text-2xl font-bold text-green-900">{user.taskExecutor.totalEarnings} €</div>
                           <div className="text-sm text-green-700">Общо изкарани</div>
                         </div>
                         <div>
@@ -802,6 +868,47 @@ function ProfilePageContent() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Местоположение */}
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h4 className="text-md font-medium text-gray-900">Местоположение</h4>
+                          <p className="text-sm text-gray-500">Задайте локация за локални обяви с предимство</p>
+                        </div>
+                        {user.profile.location && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 text-sm rounded-md">
+                            <MapPin size={14} />
+                            {user.profile.location}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <LocationSelector
+                        city={locationCity}
+                        neighborhood={locationNeighborhood}
+                        onCityChange={setLocationCity}
+                        onNeighborhoodChange={setLocationNeighborhood}
+                        showLabel={false}
+                      />
+                      
+                      <div className="mt-4">
+                        <button
+                          onClick={handleSaveLocation}
+                          disabled={isSavingLocation}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {isSavingLocation ? (
+                            <span className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Запазване...
+                            </span>
+                          ) : (
+                            'Запази местоположение'
+                          )}
+                        </button>
                       </div>
                     </div>
 

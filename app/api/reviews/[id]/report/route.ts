@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 // POST /api/reviews/[id]/report - Докладвай отзив
 export async function POST(
@@ -12,7 +13,7 @@ export async function POST(
     const updatedReview = await db.reportReview(id)
     return NextResponse.json(updatedReview)
   } catch (error) {
-    console.error('Error reporting review:', error)
+    logger.error('Error reporting review', error as Error, { reviewId: params.id })
     return NextResponse.json(
       { error: 'Failed to report review' },
       { status: 500 }

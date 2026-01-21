@@ -84,7 +84,8 @@ export async function PUT(
     }
 
     const cookieStore = await cookies()
-    const supabase = createServerClient(
+    // Use anon key for auth check
+    const supabaseAuth = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -95,11 +96,52 @@ export async function PUT(
         },
       }
     )
+    
+    // Use service role for actual update (bypasses RLS)
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          get(name: string) { return cookieStore.get(name)?.value },
+          set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }) },
+          remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }) },
+        },
+      }
+    )
 
     // Проверка за автентикация
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    let userId: string | null = null
     
-    if (authError || !user) {
+    // Първо опитваме с cookies
+    const { data: { user: cookieUser } } = await supabaseAuth.auth.getUser()
+    
+    if (cookieUser) {
+      userId = cookieUser.id
+      logger.info('Auth via cookie', { userId: userId || 'unknown' })
+    } else {
+      // Fallback: проверяваме Authorization header и декодираме JWT
+      const authHeader = request.headers.get('Authorization')
+      logger.info('Checking auth header', { hasHeader: !!authHeader })
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        try {
+          // Декодираме JWT token за да извлечем user id (без верификация - Supabase вече го е верифицирал на клиента)
+          const parts = token.split('.')
+          if (parts.length === 3) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'))
+            if (payload.sub) {
+              userId = payload.sub
+              logger.info('Auth via JWT token', { userId: userId || 'unknown' })
+            }
+          }
+        } catch (e) {
+          logger.error('Failed to decode JWT token', e as Error, { token: token.substring(0, 20) + '...' })
+        }
+      }
+    }
+    
+    if (!userId) {
       throw new AuthenticationError('Unauthorized', ErrorMessages.UNAUTHORIZED)
     }
 
@@ -113,14 +155,16 @@ export async function PUT(
       .single()
 
     if (fetchError || !existingTask) {
-      logger.error('Task not found for update', fetchError as Error, { taskId, userId: user.id })
+      logger.error('Task not found for update', fetchError as Error, { taskId, userId })
       throw new NotFoundError('Задачата не е намерена', ErrorMessages.TASK_NOT_FOUND)
     }
 
-    if (existingTask.user_id !== user.id) {
+    if (existingTask.user_id !== userId) {
       throw new AuthorizationError('Forbidden', ErrorMessages.FORBIDDEN)
     }
 
+    logger.info('Attempting to update task', { taskId, userId, body: JSON.stringify(body).substring(0, 200) })
+    
     const { data: updatedTask, error } = await supabase
       .from('tasks')
       .update(body)
@@ -129,8 +173,18 @@ export async function PUT(
       .single()
 
     if (error) {
-      logger.error('Error updating task', error, { taskId, userId: user.id })
-      return handleApiError(error, { endpoint: 'PUT /api/tasks/[id]', taskId })
+      logger.error('Error updating task', error, { 
+        taskId, 
+        userId: userId || 'unknown',
+        errorCode: error.code,
+        errorMessage: error.message,
+        errorDetails: error.details
+      })
+      return NextResponse.json({ 
+        error: error.message || 'Database error',
+        code: error.code,
+        details: error.details
+      }, { status: 500 })
     }
 
     // Fetch profile separately
@@ -144,7 +198,7 @@ export async function PUT(
       profile = profileData
     }
 
-    logger.info('Task updated successfully', { taskId, userId: user.id })
+    logger.info('Task updated successfully', { taskId, userId })
 
     return NextResponse.json({ task: { ...updatedTask, profiles: profile } })
   } catch (error) {

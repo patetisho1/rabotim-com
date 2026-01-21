@@ -32,6 +32,7 @@ import MobileFiltersSheet from '@/components/MobileFiltersSheet'
 import SkeletonCard from '@/components/SkeletonCard'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PopularCategories from '@/components/PopularCategories'
+import { useAuth } from '@/hooks/useAuth'
 
 // Task interface is imported from useTasksAPI
 
@@ -60,15 +61,16 @@ const locations = [
 
 const priceRanges = [
   'Всяка цена',
-  'До 50 лв',
-  '50-100 лв',
-  '100-200 лв',
-  '200-500 лв',
-  'Над 500 лв'
+  'До 50 €',
+  '50-100 €',
+  '100-200 €',
+  '200-500 €',
+  'Над 500 €'
 ]
 
 const sortOptions = [
   'Най-нови',
+  'Локални първи',
   'Най-висока цена',
   'Най-ниска цена',
   'Най-близки',
@@ -78,6 +80,7 @@ const sortOptions = [
 
 export default function TasksPage() {
   const router = useRouter()
+  const { user: authUser } = useAuth()
   const { tasks, loading, fetchTasks } = useTasksAPI()
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -87,6 +90,10 @@ export default function TasksPage() {
   const [selectedSort, setSelectedSort] = useState('Най-нови')
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<string[]>([])
+  
+  // Get user's location from auth metadata
+  const userCity = authUser?.user_metadata?.city || ''
+  const userNeighborhood = authUser?.user_metadata?.neighborhood || ''
 
   // Функция за получаване на икона според категорията
   const getCategoryIcon = (category: string) => {
@@ -151,7 +158,7 @@ export default function TasksPage() {
 
   useEffect(() => {
     filterTasks()
-  }, [searchQuery, selectedCategory, selectedLocation, selectedPriceRange, selectedSort, tasks])
+  }, [searchQuery, selectedCategory, selectedLocation, selectedPriceRange, selectedSort, tasks, userCity, userNeighborhood])
 
   const filterTasks = () => {
     let filtered = [...tasks]
@@ -177,19 +184,19 @@ export default function TasksPage() {
     // Филтър по цена
     if (selectedPriceRange && selectedPriceRange !== 'Всяка цена') {
       switch (selectedPriceRange) {
-        case 'До 50 лв':
+        case 'До 50 €':
           filtered = filtered.filter(task => task.price <= 50)
           break
-        case '50-100 лв':
+        case '50-100 €':
           filtered = filtered.filter(task => task.price >= 50 && task.price <= 100)
           break
-        case '100-200 лв':
+        case '100-200 €':
           filtered = filtered.filter(task => task.price >= 100 && task.price <= 200)
           break
-        case '200-500 лв':
+        case '200-500 €':
           filtered = filtered.filter(task => task.price >= 200 && task.price <= 500)
           break
-        case 'Над 500 лв':
+        case 'Над 500 €':
           filtered = filtered.filter(task => task.price > 500)
           break
       }
@@ -199,6 +206,29 @@ export default function TasksPage() {
     switch (selectedSort) {
       case 'Най-нови':
         filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        break
+      case 'Локални първи':
+        // Prioritize local tasks based on user's city and neighborhood
+        if (userCity) {
+          filtered.sort((a, b) => {
+            const aIsLocal = a.location.includes(userCity)
+            const bIsLocal = b.location.includes(userCity)
+            const aIsNeighborhood = userNeighborhood ? a.location.includes(userNeighborhood) : false
+            const bIsNeighborhood = userNeighborhood ? b.location.includes(userNeighborhood) : false
+            
+            // Priority: same neighborhood > same city > other
+            if (aIsNeighborhood && !bIsNeighborhood) return -1
+            if (bIsNeighborhood && !aIsNeighborhood) return 1
+            if (aIsLocal && !bIsLocal) return -1
+            if (bIsLocal && !aIsLocal) return 1
+            
+            // If same locality, sort by date
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          })
+        } else {
+          // If no user location set, just sort by date
+          filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        }
         break
       case 'Най-висока цена':
         filtered.sort((a, b) => b.price - a.price)
@@ -241,7 +271,7 @@ export default function TasksPage() {
 
 
   const formatPrice = (price: number, priceType: string) => {
-    return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
+    return priceType === 'hourly' ? `${price} €/час` : `${price} €`
   }
 
   const formatDate = (dateString: string | undefined) => {

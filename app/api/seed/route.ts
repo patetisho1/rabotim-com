@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
 import { seedTasks, seedUsers } from '@/lib/seed-data'
+import { logger } from '@/lib/logger'
 
 // Only allow in development or with secret key
 const SEED_SECRET = process.env.SEED_SECRET || 'dev-seed-secret'
@@ -143,7 +144,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Seed error:', error)
+    logger.error('Seed error', error as Error, { endpoint: 'POST /api/seed' })
     return NextResponse.json(
       { error: 'Failed to seed database', details: String(error) },
       { status: 500 }
@@ -186,7 +187,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Delete seed error:', error)
+    logger.error('Delete seed error', error as Error, { endpoint: 'DELETE /api/seed' })
     return NextResponse.json(
       { error: 'Failed to delete seed data', details: String(error) },
       { status: 500 }

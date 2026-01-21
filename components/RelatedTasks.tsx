@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Clock, ArrowRight } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface Task {
   id: string
@@ -76,7 +77,7 @@ export default function RelatedTasks({
         
         setTasks(filtered)
       } catch (error) {
-        console.error('Error fetching related tasks:', error)
+        logger.error('Error fetching related tasks', error as Error)
         setTasks([])
       } finally {
         setLoading(false)
@@ -155,7 +156,7 @@ export default function RelatedTasks({
                     {task.location}
                   </span>
                   <span className="font-semibold text-green-600 dark:text-green-400">
-                    {task.budget} лв
+                    {task.budget} €
                   </span>
                 </div>
               </div>

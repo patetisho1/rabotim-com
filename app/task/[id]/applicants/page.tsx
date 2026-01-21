@@ -416,7 +416,7 @@ export default function TaskApplicantsPage() {
                             Предложена цена:
                           </span>
                           <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {applicant.proposed_price.toFixed(2)} лв
+                            {applicant.proposed_price.toFixed(2)} €
                           </span>
                         </div>
                       )}

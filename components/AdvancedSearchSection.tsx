@@ -84,7 +84,7 @@ export default function AdvancedSearchSection({ onSearch, className = '' }: Adva
     { key: 'urgentOnly', label: 'Спешни', icon: Zap, color: 'text-red-500' },
     { key: 'today', label: 'Днес', icon: Clock, color: 'text-blue-500' },
     { key: 'highRating', label: '4+ звезди', icon: Star, color: 'text-yellow-500' },
-    { key: 'lowPrice', label: 'До 50 лв', icon: MapPin, color: 'text-green-500' }
+    { key: 'lowPrice', label: 'До 50 €', icon: MapPin, color: 'text-green-500' }
   ]
 
   const handleSubmit = (e: React.FormEvent) => {
