@@ -33,6 +33,7 @@ export default function PremiumFeatures({
       features: [
         'Премиум профил с портфолио',
         'Приоритет в търсенето',
+        '5 промотирани обяви на месец',
         'До 10 заявки на ден',
         'Основни статистики',
         'Email поддръжка'
@@ -45,6 +46,7 @@ export default function PremiumFeatures({
       period: 'month',
       features: [
         'Всичко от Basic',
+        '10 промотирани обяви на месец',
         'Неограничени заявки',
         'Разширени статистики',
         'VIP поддръжка',
@@ -61,12 +63,13 @@ export default function PremiumFeatures({
       period: 'month',
       features: [
         'Всичко от Professional',
+        '20 промотирани обяви на месец',
         'Персонализиран профил',
         'API достъп',
-        'Беликети',
-        'Персональен мениджър',
+        'Бял етикет (white label)',
+        'Персонален мениджър',
         'Приоритетна поддръжка 24/7',
-        'Анализ на конкурентството'
+        'Анализ на конкурентите'
       ],
       isRecommended: true
     }
@@ -106,7 +109,7 @@ export default function PremiumFeatures({
     {
       icon: Shield,
       title: 'Застраховка на работата',
-      description: 'Защита за вашите проекти с покритие до 10,000 лв',
+      description: 'Защита за вашите проекти с покритие до 5,000 €',
       benefits: ['Финансова защита', 'Спокойствие', 'Доверие от клиентите']
     }
   ]
@@ -167,7 +170,7 @@ export default function PremiumFeatures({
           </div>
         </div>
         <button className="w-full bg-white text-orange-600 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-          Станете премиум за 19.99 лв/месец
+          Станете премиум за 19.99 €/месец
         </button>
       </div>
     )
@@ -239,12 +242,12 @@ export default function PremiumFeatures({
                     {selectedPeriod === 'year' ? Math.round(plan.price * 12 * 0.8) : plan.price}
                   </span>
                   <span className="text-gray-600 dark:text-gray-400 ml-2">
-                    лв/{selectedPeriod === 'year' ? 'година' : 'месец'}
+                    €/{selectedPeriod === 'year' ? 'година' : 'месец'}
                   </span>
                 </div>
                 {selectedPeriod === 'year' && (
                   <p className="text-sm text-green-600 font-medium">
-                    Спестете {Math.round(plan.price * 12 * 0.2)} лв годишно!
+                    Спестете {Math.round(plan.price * 12 * 0.2)} € годишно!
                   </p>
                 )}
               </div>
