@@ -336,81 +336,130 @@ export default function ProfessionalProfilesCatalog({
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 md:space-y-6 ${className}`}>
       {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Търси по име, професия, град..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            />
+      <div className="bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        {/* Search */}
+        <div className="relative mb-3 md:mb-0">
+          <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Търси по име, професия, град..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-200 dark:border-gray-600 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+        </div>
+
+        {/* Mobile Filters - Horizontal scroll */}
+        <div className="flex gap-2 overflow-x-auto pb-1 md:hidden scrollbar-hide">
+          <select
+            value={selectedProfession}
+            onChange={(e) => setSelectedProfession(e.target.value)}
+            className="flex-shrink-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Категория</option>
+            {professionCategories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.nameBg}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="flex-shrink-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Град</option>
+            {BULGARIAN_CITIES.map(city => (
+              <option key={city.name} value={city.name}>{city.name}</option>
+            ))}
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="flex-shrink-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          >
+            <option value="view_count">Популярност</option>
+            <option value="rating">Рейтинг</option>
+            <option value="reviews">Отзиви</option>
+          </select>
+
+          {/* View Mode Toggle */}
+          <div className="flex-shrink-0 flex border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
+            >
+              <Grid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
+            >
+              <List className="h-4 w-4" />
+            </button>
           </div>
+        </div>
 
-          {/* Quick Filters */}
-          <div className="flex gap-2 flex-wrap">
-            <select
-              value={selectedProfession}
-              onChange={(e) => setSelectedProfession(e.target.value)}
-              className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {/* Desktop Filters */}
+        <div className="hidden md:flex gap-4 mt-4">
+          <select
+            value={selectedProfession}
+            onChange={(e) => setSelectedProfession(e.target.value)}
+            className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Всички категории</option>
+            {professionCategories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.icon} {cat.nameBg}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Всички градове</option>
+            {BULGARIAN_CITIES.map(city => (
+              <option key={city.name} value={city.name}>{city.name}</option>
+            ))}
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="view_count">Популярност</option>
+            <option value="rating">Рейтинг</option>
+            <option value="reviews">Отзиви</option>
+          </select>
+
+          {/* View Mode Toggle */}
+          <div className="flex border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden ml-auto">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-3 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
             >
-              <option value="">Всички категории</option>
-              {professionCategories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.icon} {cat.nameBg}</option>
-              ))}
-            </select>
-
-            <select
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <Grid className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-3 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
             >
-              <option value="">Всички градове</option>
-              {BULGARIAN_CITIES.map(city => (
-                <option key={city.name} value={city.name}>{city.name}</option>
-              ))}
-            </select>
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="view_count">Популярност</option>
-              <option value="rating">Рейтинг</option>
-              <option value="reviews">Отзиви</option>
-            </select>
-
-            {/* View Mode Toggle */}
-            <div className="flex border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-3 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
-              >
-                <Grid className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-3 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
-              >
-                <List className="h-5 w-5" />
-              </button>
-            </div>
+              <List className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
 
       {/* Results Count & Legend */}
-      <div className="flex items-center justify-between">
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="flex items-center justify-between px-1">
+        <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
           Намерени <span className="font-semibold text-gray-900 dark:text-gray-100">{sortedProfiles.length}</span> професионалисти
         </p>
-        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="hidden md:flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
             <Crown className="h-4 w-4 text-yellow-500" /> Premium
           </span>
@@ -442,22 +491,22 @@ export default function ProfessionalProfilesCatalog({
           </button>
         </div>
       ) : (
-        <div className={`grid gap-6 ${
+        <div className={`grid gap-3 md:gap-6 ${
           viewMode === 'grid' 
-            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
             : 'grid-cols-1'
         }`}>
           {sortedProfiles.map((profile) => (
             <div
               key={profile.id}
               onClick={() => handleProfileClick(profile.username)}
-              className={`bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer group ${
+              className={`bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer group ${
                 viewMode === 'list' ? 'flex' : ''
               }`}
             >
               {/* Cover Image */}
               <div 
-                className={`relative ${viewMode === 'list' ? 'w-48 flex-shrink-0' : 'h-32'}`}
+                className={`relative ${viewMode === 'list' ? 'w-28 md:w-48 flex-shrink-0' : 'h-28 md:h-32'}`}
                 style={{
                   backgroundImage: profile.cover_image 
                     ? `linear-gradient(to bottom, transparent, rgba(0,0,0,0.6)), url(${profile.cover_image})`
@@ -467,59 +516,59 @@ export default function ProfessionalProfilesCatalog({
                 }}
               >
                 {/* Badges */}
-                <div className="absolute top-3 left-3 flex gap-2">
+                <div className="absolute top-2 md:top-3 left-2 md:left-3 flex gap-1 md:gap-2">
                   {profile.is_premium && (
-                    <span className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-medium rounded-full">
-                      <Crown size={12} /> Pro
+                    <span className="flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 bg-yellow-500 text-white text-[10px] md:text-xs font-medium rounded-full">
+                      <Crown size={10} className="md:w-3 md:h-3" /> Pro
                     </span>
                   )}
                   {profile.user?.verified && (
-                    <span className="flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
-                      <Shield size={12} />
+                    <span className="flex items-center gap-0.5 px-1.5 md:px-2 py-0.5 md:py-1 bg-green-500 text-white text-[10px] md:text-xs font-medium rounded-full">
+                      <Shield size={10} className="md:w-3 md:h-3" />
                     </span>
                   )}
                 </div>
 
                 {/* Category Badge */}
-                <div className="absolute bottom-3 left-3">
-                  <span className="px-2 py-1 bg-white/90 dark:bg-gray-800/90 text-xs font-medium rounded-full">
+                <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3">
+                  <span className="px-1.5 md:px-2 py-0.5 md:py-1 bg-white/90 dark:bg-gray-800/90 text-[10px] md:text-xs font-medium rounded-full">
                     {getProfessionIcon(profile.profession)} {getProfessionName(profile.profession)}
                   </span>
                 </div>
               </div>
 
               {/* Content */}
-              <div className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-center' : ''}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors">
+              <div className={`p-3 md:p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-center' : ''}`}>
+                <div className="flex items-start justify-between mb-1 md:mb-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-sm md:text-base text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors truncate">
                       {profile.display_name}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 truncate">
                       {profile.profession_title}
                     </p>
                   </div>
                   {profile.user?.rating && (
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star size={14} className="text-yellow-500 fill-current" />
+                    <div className="flex items-center gap-0.5 md:gap-1 text-xs md:text-sm ml-2 flex-shrink-0">
+                      <Star size={12} className="md:w-[14px] md:h-[14px] text-yellow-500 fill-current" />
                       <span className="font-medium">{profile.user.rating.toFixed(1)}</span>
-                      <span className="text-gray-500">({profile.user.total_reviews})</span>
+                      <span className="text-gray-500 hidden sm:inline">({profile.user.total_reviews})</span>
                     </div>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+                <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-2 md:mb-3">
                   {profile.tagline}
                 </p>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                    <MapPin size={14} />
-                    {profile.city}{profile.neighborhood ? `, ${profile.neighborhood}` : ''}
+                  <div className="flex items-center gap-1 text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                    <MapPin size={12} className="md:w-[14px] md:h-[14px]" />
+                    <span className="truncate max-w-[100px] md:max-w-none">{profile.city}</span>
                   </div>
 
                   {profile.services[0] && (
-                    <div className="text-sm font-medium" style={{ color: profile.primary_color || '#3B82F6' }}>
+                    <div className="text-xs md:text-sm font-medium" style={{ color: profile.primary_color || '#3B82F6' }}>
                       от {profile.services[0].price} €
                     </div>
                   )}
@@ -527,7 +576,7 @@ export default function ProfessionalProfilesCatalog({
 
                 {/* Stats for list view */}
                 {viewMode === 'list' && (
-                  <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                  <div className="hidden md:flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                     <span className="flex items-center gap-1 text-sm text-gray-500">
                       <Eye size={14} /> {profile.view_count} прегледа
                     </span>
@@ -540,7 +589,7 @@ export default function ProfessionalProfilesCatalog({
 
               {/* Arrow for list view */}
               {viewMode === 'list' && (
-                <div className="flex items-center px-4">
+                <div className="hidden md:flex items-center px-4">
                   <ChevronRight size={20} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
                 </div>
               )}
@@ -550,16 +599,16 @@ export default function ProfessionalProfilesCatalog({
       )}
 
       {/* CTA for non-premium users */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 md:p-8 text-white text-center">
-        <h3 className="text-xl md:text-2xl font-bold mb-2">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl md:rounded-2xl p-4 md:p-8 text-white text-center">
+        <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2">
           Искаш и ти да си тук?
         </h3>
-        <p className="text-blue-100 mb-4 max-w-2xl mx-auto">
-          Създай професионален профил и бъди намерен от клиенти, търсещи твоите услуги
+        <p className="text-xs md:text-base text-blue-100 mb-3 md:mb-4 max-w-2xl mx-auto">
+          Създай профил и бъди намерен от клиенти
         </p>
         <button
           onClick={() => router.push('/premium')}
-          className="px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+          className="px-4 md:px-6 py-2 md:py-3 bg-white text-blue-600 rounded-lg md:rounded-xl font-semibold hover:bg-blue-50 transition-colors text-sm md:text-base"
         >
           Стани Premium
         </button>

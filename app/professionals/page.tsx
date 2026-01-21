@@ -43,26 +43,33 @@ export default function ProfessionalsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">
+        <div className="max-w-6xl mx-auto px-4 py-8 md:py-16">
+          <div className="text-center max-w-3xl mx-auto mb-6 md:mb-10">
+            <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-4">
               Намери професионалист
             </h1>
-            <p className="text-lg md:text-xl text-blue-100">
-              Разгледай верифицирани професионалисти и намери точния човек за твоята задача
+            <p className="text-sm md:text-xl text-blue-100">
+              Верифицирани професионалисти за твоята задача
             </p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {stats.map((stat, index) => (
+          {/* Stats - Simplified on mobile */}
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4 max-w-4xl mx-auto">
+            {stats.slice(0, 2).map((stat, index) => (
               <div 
                 key={index} 
-                className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center"
+                className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 text-center"
               >
-                <div className={`inline-flex p-2 rounded-lg bg-white/20 mb-2`}>
-                  <stat.icon className="h-5 w-5" />
-                </div>
+                <div className="text-xl md:text-2xl font-bold">{stat.value}</div>
+                <div className="text-xs md:text-sm text-blue-200">{stat.label}</div>
+              </div>
+            ))}
+            {/* Show all stats on desktop, only first 2 on mobile */}
+            {stats.slice(2).map((stat, index) => (
+              <div 
+                key={index + 2} 
+                className="hidden md:block bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center"
+              >
                 <div className="text-2xl font-bold">{stat.value}</div>
                 <div className="text-sm text-blue-200">{stat.label}</div>
               </div>
@@ -72,12 +79,30 @@ export default function ProfessionalsPage() {
       </div>
 
       {/* Quick Categories */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-6">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-4 md:py-6">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4 uppercase tracking-wider">
+          <h2 className="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 md:mb-4 uppercase tracking-wider">
             Популярни категории
           </h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          {/* Mobile: Grid layout, Desktop: Horizontal scroll */}
+          <div className="grid grid-cols-4 gap-2 md:hidden">
+            {popularCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  initialProfession === cat.id
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                }`}
+              >
+                <span className="text-2xl mb-1">{cat.icon}</span>
+                <span className="text-xs font-medium text-center leading-tight">{cat.name}</span>
+              </button>
+            ))}
+          </div>
+          {/* Desktop: Horizontal scroll */}
+          <div className="hidden md:flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {popularCategories.map((cat) => (
               <button
                 key={cat.id}
@@ -109,27 +134,26 @@ export default function ProfessionalsPage() {
 
       {/* Bottom CTA */}
       <div className="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+          <div className="text-center md:text-left md:grid md:grid-cols-2 md:gap-8 md:items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className="text-xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 md:mb-4">
                 Ти си професионалист?
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Присъедини се към нашата мрежа от верифицирани специалисти. 
-                Получи достъп до хиляди потенциални клиенти и развий бизнеса си.
+              <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4 md:mb-6">
+                Присъедини се и получи достъп до хиляди потенциални клиенти.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                 <button
                   onClick={() => router.push('/premium')}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                  className="flex items-center justify-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-blue-600 text-white rounded-lg md:rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm md:text-base"
                 >
-                  <Crown size={18} />
+                  <Crown size={16} className="md:w-[18px] md:h-[18px]" />
                   Стани Premium
                 </button>
                 <button
                   onClick={() => router.push('/profile/professional')}
-                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="px-5 md:px-6 py-2.5 md:py-3 border border-gray-300 dark:border-gray-600 rounded-lg md:rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm md:text-base"
                 >
                   Създай профил
                 </button>
