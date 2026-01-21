@@ -31,8 +31,8 @@ export default function PremiumFeatures({
       price: 9.99,
       period: 'month',
       features: [
+        'Листване в каталога "Професионалисти"',
         'Премиум профил с портфолио',
-        'Приоритет в търсенето',
         '5 промотирани обяви на месец',
         'До 10 заявки на ден',
         'Основни статистики',
@@ -84,9 +84,9 @@ export default function PremiumFeatures({
     },
     {
       icon: Zap,
-      title: 'Приоритет в търсенето',
-      description: 'Вашият профил се показва първи в резултатите от търсенето',
-      benefits: ['Повече видимост', 'Повече заявки', 'По-бързо намиране на клиенти']
+      title: 'Листване в каталога',
+      description: 'Профилът ви се показва в каталога "Професионалисти" и е видим за клиенти',
+      benefits: ['Директни запитвания', 'Видимост без обяви', 'Клиентите ви намират лесно']
     },
     {
       icon: Star,
@@ -148,11 +148,11 @@ export default function PremiumFeatures({
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
-            <span className="text-sm">Приоритет в търсенето</span>
+            <span className="text-sm">Листване в каталога</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
-            <span className="text-sm">Промоция на профила</span>
+            <span className="text-sm">Професионален профил</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
@@ -160,7 +160,7 @@ export default function PremiumFeatures({
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
-            <span className="text-sm">Разширени статистики</span>
+            <span className="text-sm">Промотирани обяви</span>
           </div>
         </div>
         <button className="w-full bg-white text-orange-600 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
