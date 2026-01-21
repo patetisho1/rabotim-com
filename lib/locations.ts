@@ -218,3 +218,10 @@ export const getNeighborhoodsByCity = (cityName: string): string[] => {
   return city ? city.neighborhoods : []
 }
 
+// Alias for backwards compatibility - used in professional profile editor
+export const cities = BULGARIAN_CITIES.map(city => ({
+  name: city.name,
+  value: city.name,
+  neighborhoods: city.neighborhoods
+}))
+
