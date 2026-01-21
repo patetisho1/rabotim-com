@@ -214,7 +214,7 @@ export default function CraftTemplate({
                         {profile.showPrices && (
                           <div className="text-right ml-4">
                             <p className="text-xl font-bold" style={{ color: primaryColor }}>
-                              {service.price} лв
+                              {service.price} €
                             </p>
                             <p className="text-xs text-gray-500">
                               {service.priceType === 'hourly' && 'на час'}

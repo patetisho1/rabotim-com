@@ -111,7 +111,7 @@ export default function AdvancedFilters({ onFiltersChange, isOpen, onToggle }: A
       if (loc) active.push(loc.name)
     }
     if (filters.priceRange.min > 0 || filters.priceRange.max < 10000) {
-      active.push(`Цена: ${filters.priceRange.min}-${filters.priceRange.max} лв.`)
+      active.push(`Цена: ${filters.priceRange.min}-${filters.priceRange.max} €`)
     }
     if (filters.priceType !== 'all') {
       active.push(filters.priceType === 'hourly' ? 'На час' : 'Фиксирана')
@@ -307,7 +307,7 @@ export default function AdvancedFilters({ onFiltersChange, isOpen, onToggle }: A
         {/* Price Range */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Ценови диапазон (лв.)
+            Ценови диапазон (€)
           </label>
           <div className="grid grid-cols-2 gap-4">
             <div>

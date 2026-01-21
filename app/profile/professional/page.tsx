@@ -721,7 +721,7 @@ export default function ProfessionalProfileEditor() {
                         <div className="flex gap-2">
                           <div className="flex-1">
                             <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-                              Цена (лв)
+                              Цена (€)
                             </label>
                             <input
                               type="number"

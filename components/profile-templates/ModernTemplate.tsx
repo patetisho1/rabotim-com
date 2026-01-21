@@ -175,7 +175,7 @@ export default function ModernTemplate({
                     {profile.showPrices && (
                       <div className="text-right ml-4">
                         <p className="text-2xl font-bold" style={{ color: primaryColor }}>
-                          {service.price} лв
+                          {service.price} €
                         </p>
                         <p className="text-xs text-gray-500">
                           {service.priceType === 'hourly' && 'на час'}

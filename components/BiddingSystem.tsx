@@ -239,7 +239,7 @@ export default function BiddingSystem({
               {bids.length > 0 ? Math.min(...bids.map(b => b.amount)) : 0}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Най-ниска оферта (лв.)
+              Най-ниска оферта (€)
             </div>
           </div>
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -247,7 +247,7 @@ export default function BiddingSystem({
               {bids.length > 0 ? Math.max(...bids.map(b => b.amount)) : 0}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Най-висока оферта (лв.)
+              Най-висока оферта (€)
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@ export default function BiddingSystem({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Вашата цена (лв.)
+                  Вашата цена (€)
                 </label>
                 <input
                   type="number"
@@ -276,7 +276,7 @@ export default function BiddingSystem({
                   required
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Бюджет: {taskBudget.min} - {taskBudget.max} лв.
+                  Бюджет: {taskBudget.min} - {taskBudget.max} €
                 </p>
               </div>
               
@@ -394,7 +394,7 @@ export default function BiddingSystem({
               
               <div className="text-right">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {bid.amount} лв.
+                  {bid.amount} €
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {taskBudget.type === 'hourly' ? 'на час' : 'общо'}

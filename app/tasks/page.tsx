@@ -61,11 +61,11 @@ const locations = [
 
 const priceRanges = [
   'Всяка цена',
-  'До 50 лв',
-  '50-100 лв',
-  '100-200 лв',
-  '200-500 лв',
-  'Над 500 лв'
+  'До 50 €',
+  '50-100 €',
+  '100-200 €',
+  '200-500 €',
+  'Над 500 €'
 ]
 
 const sortOptions = [
@@ -184,19 +184,19 @@ export default function TasksPage() {
     // Филтър по цена
     if (selectedPriceRange && selectedPriceRange !== 'Всяка цена') {
       switch (selectedPriceRange) {
-        case 'До 50 лв':
+        case 'До 50 €':
           filtered = filtered.filter(task => task.price <= 50)
           break
-        case '50-100 лв':
+        case '50-100 €':
           filtered = filtered.filter(task => task.price >= 50 && task.price <= 100)
           break
-        case '100-200 лв':
+        case '100-200 €':
           filtered = filtered.filter(task => task.price >= 100 && task.price <= 200)
           break
-        case '200-500 лв':
+        case '200-500 €':
           filtered = filtered.filter(task => task.price >= 200 && task.price <= 500)
           break
-        case 'Над 500 лв':
+        case 'Над 500 €':
           filtered = filtered.filter(task => task.price > 500)
           break
       }
@@ -271,7 +271,7 @@ export default function TasksPage() {
 
 
   const formatPrice = (price: number, priceType: string) => {
-    return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
+    return priceType === 'hourly' ? `${price} €/час` : `${price} €`
   }
 
   const formatDate = (dateString: string | undefined) => {

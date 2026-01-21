@@ -291,7 +291,7 @@ export default function SavedProviders({
                 <div>
                   <div className="text-gray-500 dark:text-gray-400">Сума</div>
                   <div className="font-medium text-gray-900 dark:text-white">
-                    {provider.lastTaskAmount} лв.
+                    {provider.lastTaskAmount} €
                   </div>
                 </div>
               </div>

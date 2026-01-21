@@ -223,10 +223,10 @@ export default function SavedSearches({ onSearchSelect, showTitle = true, maxIte
                         <DollarSign size={14} />
                         <span>
                           {search.priceMin && search.priceMax 
-                            ? `${search.priceMin} - ${search.priceMax} лв`
+                            ? `${search.priceMin} - ${search.priceMax} €`
                             : search.priceMin 
-                              ? `от ${search.priceMin} лв`
-                              : `до ${search.priceMax} лв`
+                              ? `от ${search.priceMin} €`
+                              : `до ${search.priceMax} €`
                           }
                         </span>
                       </div>

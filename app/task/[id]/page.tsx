@@ -397,9 +397,9 @@ function TaskDetailPageContent() {
 
   const formatPrice = (price: number, priceType: string) => {
     if (priceType === 'hourly') {
-      return `${price} лв/час`
+      return `${price} €/час`
     }
-    return `${price} лв`
+    return `${price} €`
   }
 
   const formatRelativeTime = (dateString: string) => {
@@ -582,7 +582,7 @@ function TaskDetailPageContent() {
       applicationActionId === application.id && applicationActionStatus === 'rejected'
     const proposedPriceLabel =
       application.proposed_price !== null && application.proposed_price !== undefined
-        ? `${Number(application.proposed_price).toFixed(2)} лв`
+        ? `${Number(application.proposed_price).toFixed(2)} €`
         : null
 
     const cardClasses = [

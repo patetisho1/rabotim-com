@@ -221,7 +221,7 @@ export default function MyTasksPage() {
   }
 
   const formatPrice = (price: number, priceType: string) => {
-    return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
+    return priceType === 'hourly' ? `${price} €/час` : `${price} €`
   }
 
   // Status definitions

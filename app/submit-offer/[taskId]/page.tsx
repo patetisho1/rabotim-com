@@ -97,7 +97,7 @@ export default function SubmitOfferPage() {
       }
 
       if (parseFloat(formData.proposedPrice) < 5) {
-        toast.error('Минималната цена е 5 лв')
+        toast.error('Минималната цена е 5 €')
         return
       }
 
@@ -142,7 +142,7 @@ export default function SubmitOfferPage() {
   }
 
   const formatPrice = (price: number, priceType: string | undefined) => {
-    return priceType === 'hourly' ? `${price} лв/час` : `${price} лв`
+    return priceType === 'hourly' ? `${price} €/час` : `${price} €`
   }
 
   const formatDate = (dateString: string | undefined) => {
@@ -302,7 +302,7 @@ export default function SubmitOfferPage() {
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-600 flex items-center">
-                      {task.price_type === 'hourly' ? 'лв/час' : 'лв'}
+                      {task.price_type === 'hourly' ? '€/час' : '€'}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">

@@ -566,7 +566,7 @@ export default function TaskManagement() {
                         <div className="flex items-center gap-1">
                           <DollarSign size={14} className="text-gray-500" />
                           <span className="text-sm font-medium text-gray-900">
-                            {task.price} лв
+                            {task.price} €
                           </span>
                           <span className="text-xs text-gray-500">
                             ({task.price_type === 'hourly' ? 'на час' : 'общо'})

@@ -342,7 +342,7 @@ function ProfilePageContent() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-blue-700">Общо похарчени:</span>
-                        <span className="font-semibold">{user.taskGiver.totalSpent} лв</span>
+                        <span className="font-semibold">{user.taskGiver.totalSpent} €</span>
                       </div>
                     </div>
                   </div>
@@ -358,7 +358,7 @@ function ProfilePageContent() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-green-700">Общо изкарани:</span>
-                        <span className="font-semibold">{user.taskExecutor.totalEarnings} лв</span>
+                        <span className="font-semibold">{user.taskExecutor.totalEarnings} €</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-green-700">Рейтинг:</span>
@@ -494,7 +494,7 @@ function ProfilePageContent() {
                           <DollarSign className="h-8 w-8 text-purple-600" />
                           <div>
                             <p className="text-sm text-purple-700">Общо изкарани</p>
-                            <p className="text-2xl font-bold text-purple-900">{user.taskExecutor.totalEarnings} лв</p>
+                            <p className="text-2xl font-bold text-purple-900">{user.taskExecutor.totalEarnings} €</p>
                           </div>
                         </div>
                       </div>
@@ -534,7 +534,7 @@ function ProfilePageContent() {
                                     <p className="text-sm text-gray-600">{task.category} • {task.location}</p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="font-semibold text-gray-900">{task.price} €</p>
                                     <p className="text-sm text-gray-500">{task.status}</p>
                                   </div>
                                 </div>
@@ -714,7 +714,7 @@ function ProfilePageContent() {
                           <div className="text-sm text-blue-700">Завършени задачи</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-blue-900">{user.taskGiver.totalSpent} лв</div>
+                          <div className="text-2xl font-bold text-blue-900">{user.taskGiver.totalSpent} €</div>
                           <div className="text-sm text-blue-700">Общо похарчени</div>
                         </div>
                       </div>
@@ -745,7 +745,7 @@ function ProfilePageContent() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                   <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{task.price} лв</p>
+                                    <p className="font-semibold text-gray-900">{task.price} €</p>
                                     <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
                                   </div>
                                   <div className="flex gap-2">
@@ -808,7 +808,7 @@ function ProfilePageContent() {
                           <div className="text-sm text-green-700">Завършени задачи</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-green-900">{user.taskExecutor.totalEarnings} лв</div>
+                          <div className="text-2xl font-bold text-green-900">{user.taskExecutor.totalEarnings} €</div>
                           <div className="text-sm text-green-700">Общо изкарани</div>
                         </div>
                         <div>

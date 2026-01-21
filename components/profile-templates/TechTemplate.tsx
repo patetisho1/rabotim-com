@@ -190,7 +190,7 @@ export default function TechTemplate({
                             <p>
                               <span className="text-purple-400">price:</span> 
                               <span style={{ color: primaryColor }}> {service.price}</span>
-                              <span className="text-gray-500"> // лв</span>
+                              <span className="text-gray-500"> // €</span>
                             </p>
                           )}
                         </div>

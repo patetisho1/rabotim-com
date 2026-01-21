@@ -183,8 +183,8 @@ export default function MyApplicationsPage() {
   }
 
   const formatPrice = (price: number, priceType: string) => {
-    if (priceType === 'hourly') return `${price} лв/час`
-    return `${price} лв`
+    if (priceType === 'hourly') return `${price} €/час`
+    return `${price} €`
   }
 
   const handleViewTask = (taskId: string) => {

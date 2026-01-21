@@ -101,7 +101,7 @@ export const emailTemplates = {
                 📍 ${taskLocation}
               </span>
               <span style="background: #fff3e0; color: #e65100; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold;">
-                💰 ${taskBudget} лв
+                💰 ${taskBudget} €
               </span>
             </div>
           </div>

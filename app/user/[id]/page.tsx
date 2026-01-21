@@ -260,7 +260,7 @@ export default function UserProfilePage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Общо изкарани</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userProfile.totalEarnings} лв</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{userProfile.totalEarnings} €</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Скорост на отговор</span>
@@ -431,7 +431,7 @@ export default function UserProfilePage() {
                           <DollarSign className="h-8 w-8 text-green-600" />
                           <div>
                             <p className="text-sm text-green-700 dark:text-green-300">Общо изкарани</p>
-                            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{userProfile.totalEarnings} лв</p>
+                            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{userProfile.totalEarnings} €</p>
                           </div>
                         </div>
                       </div>
@@ -473,7 +473,7 @@ export default function UserProfilePage() {
                               </div>
                             </div>
                             <div className="text-right ml-4">
-                              <p className="font-semibold text-gray-900 dark:text-gray-100">{task.price} лв</p>
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">{task.price} €</p>
                               <p className="text-sm text-gray-500">{task.price_type === 'hourly' ? 'на час' : 'общо'}</p>
                               <span className={`inline-block px-2 py-1 text-xs rounded-full mt-2 ${
                                 task.status === 'active' ? 'bg-green-100 text-green-800' :

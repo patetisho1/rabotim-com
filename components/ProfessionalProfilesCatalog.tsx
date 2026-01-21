@@ -451,7 +451,7 @@ export default function ProfessionalProfilesCatalog({
 
                   {profile.services[0] && (
                     <div className="text-sm font-medium" style={{ color: profile.primary_color || '#3B82F6' }}>
-                      от {profile.services[0].price} лв
+                      от {profile.services[0].price} €
                     </div>
                   )}
                 </div>

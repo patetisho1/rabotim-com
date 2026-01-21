@@ -182,7 +182,7 @@ export default function RatingSystem({
                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mt-1">
                   <span className="flex items-center gap-1">
                     <DollarSign size={14} />
-                    {taskAmount} лв.
+                    {taskAmount} €
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock size={14} />

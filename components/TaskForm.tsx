@@ -101,7 +101,7 @@ export default function TaskForm({
     }
 
     if (formData.budget.type === 'fixed' && formData.budget.amount && formData.budget.amount < 5) {
-      newErrors.budget = 'Минималният бюджет е 5 лв'
+      newErrors.budget = 'Минималният бюджет е 5 €'
     }
 
     if (!formData.deadline) {
@@ -366,7 +366,7 @@ export default function TaskForm({
             {formData.budget.type !== 'negotiable' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Бюджет (лв) *
+                  Бюджет (€) *
                 </label>
                 <div className="flex gap-2">
                   <div className="flex-1">

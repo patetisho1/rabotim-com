@@ -192,7 +192,7 @@ export default function FitnessTemplate({
                         <div className="text-right">
                           <p className="text-4xl font-black" style={{ color: primaryColor }}>
                             {service.price}
-                            <span className="text-lg text-gray-500 ml-1">лв</span>
+                            <span className="text-lg text-gray-500 ml-1">€</span>
                           </p>
                         </div>
                       )}

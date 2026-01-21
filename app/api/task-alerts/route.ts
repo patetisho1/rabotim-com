@@ -256,11 +256,11 @@ function generateAlertName(alert: TaskAlert): string {
 
   if (alert.min_budget > 0 || alert.max_budget < 999999) {
     if (alert.min_budget > 0 && alert.max_budget < 999999) {
-      parts.push(`${alert.min_budget}-${alert.max_budget} лв`)
+      parts.push(`${alert.min_budget}-${alert.max_budget} €`)
     } else if (alert.min_budget > 0) {
-      parts.push(`от ${alert.min_budget} лв`)
+      parts.push(`от ${alert.min_budget} €`)
     } else {
-      parts.push(`до ${alert.max_budget} лв`)
+      parts.push(`до ${alert.max_budget} €`)
     }
   }
 

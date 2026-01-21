@@ -166,7 +166,7 @@ export default function BoldTemplate({
                       </div>
                       {profile.showPrices && (
                         <span className="text-3xl font-bold" style={{ color: primaryColor }}>
-                          {service.price} лв
+                          {service.price} €
                         </span>
                       )}
                     </button>

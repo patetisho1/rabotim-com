@@ -40,9 +40,9 @@ const fallbackTestimonials: Testimonial[] = [
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
     role: 'task_executor',
     rating: 5,
-    text: 'За няколко часа изкарах 150 лв! Rabotim.com ми помогна да си осигуря допълнителен доход по удобен начин. Препоръчвам на всички!',
+    text: 'За няколко часа изкарах 75 €! Rabotim.com ми помогна да си осигуря допълнителен доход по удобен начин. Препоръчвам на всички!',
     task: 'Ремонт на кухня',
-    earnings: '150 лв',
+    earnings: '75 €',
     timeframe: 'няколко часа',
     verified: true
   },
@@ -54,7 +54,7 @@ const fallbackTestimonials: Testimonial[] = [
     rating: 5,
     text: 'Като студентка, Rabotim ми дава възможност да работя гъвкаво и да си изкарвам джобни пари. Намирам задачи всеки ден!',
     task: 'Обучение по английски',
-    earnings: '200+ лв/седмица',
+    earnings: '100+ €/седмица',
     timeframe: 'гъвкаво',
     verified: true
   },

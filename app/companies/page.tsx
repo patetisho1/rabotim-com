@@ -331,7 +331,7 @@ export default function CompaniesPage() {
                     Professional
                   </h3>
                   <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    99 лв/месец
+                    49 €/месец
                   </div>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -361,7 +361,7 @@ export default function CompaniesPage() {
                     Enterprise
                   </h3>
                   <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    299 лв/месец
+                    149 €/месец
                   </div>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-center gap-2 text-gray-600 dark:text-gray-400">

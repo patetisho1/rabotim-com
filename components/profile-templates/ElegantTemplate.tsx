@@ -230,7 +230,7 @@ export default function ElegantTemplate({
                         <div className="text-right">
                           <p className="text-2xl font-light" style={{ color: primaryColor }}>
                             {service.price}
-                            <span className="text-sm text-gray-500 ml-1">лв</span>
+                            <span className="text-sm text-gray-500 ml-1">€</span>
                           </p>
                         </div>
                       )}

@@ -237,7 +237,7 @@ function EditTaskPageContent() {
 
     const price = Number(formData.price)
     if (isNaN(price) || price < MIN_PRICE_VALUE) {
-      issues.push('Посочената цена е подозрително ниска (минимум 5 лв)')
+      issues.push('Посочената цена е подозрително ниска (минимум 5 €)')
     }
 
     const bannedPatterns = [
@@ -554,7 +554,7 @@ function EditTaskPageContent() {
                   required
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  лв
+                  €
                 </span>
               </div>
             </div>

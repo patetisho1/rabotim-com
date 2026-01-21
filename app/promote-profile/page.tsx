@@ -254,7 +254,7 @@ export default function PromoteProfilePage() {
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-gray-100">Задайте бюджет</h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Започнете с малък дневен бюджет от 5-10 лв. и увеличете при добри резултати.
+                          Започнете с малък дневен бюджет от 5-10 € и увеличете при добри резултати.
                         </p>
                       </div>
                     </div>
@@ -374,7 +374,7 @@ export default function PromoteProfilePage() {
                       Започнете с малък бюджет
                     </h4>
                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                      Започнете с 5-10 лв. на ден и увеличете при добри резултати. Тествайте различни аудитории.
+                      Започнете с 5-10 € на ден и увеличете при добри резултати. Тествайте различни аудитории.
                     </p>
                   </div>
 
@@ -417,7 +417,7 @@ export default function PromoteProfilePage() {
                       <p className="text-xs text-gray-600 dark:text-gray-400">запитвания/ден</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">* При бюджет от 10 лв./ден. Резултатите може да варират.</p>
+                  <p className="text-xs text-gray-500 mt-2">* При бюджет от 10 €/ден. Резултатите може да варират.</p>
                 </div>
               </div>
             )}

@@ -167,7 +167,7 @@ export default function ClassicTemplate({
                         </td>
                         {profile.showPrices && (
                           <td className="py-4 text-right font-medium" style={{ color: primaryColor }}>
-                            {service.price} лв
+                            {service.price} €
                           </td>
                         )}
                       </tr>

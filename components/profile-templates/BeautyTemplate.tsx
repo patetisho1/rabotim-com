@@ -193,7 +193,7 @@ export default function BeautyTemplate({
                     {profile.showPrices && (
                       <div className="text-right">
                         <p className="text-xl font-light" style={{ color: primaryColor }}>
-                          {service.price} лв
+                          {service.price} €
                         </p>
                       </div>
                     )}

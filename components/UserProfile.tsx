@@ -268,7 +268,7 @@ export default function UserProfile({
             
             <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {editData.totalEarnings} лв
+                {editData.totalEarnings} €
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Общо печалби</div>
             </div>

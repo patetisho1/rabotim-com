@@ -107,7 +107,7 @@ export default function AdminStats({ period = 'month' }: AdminStatsProps) {
         
         <StatsCard
           title="Общо приходи"
-          value={`${stats.revenue.total.toLocaleString()} лв`}
+          value={`${stats.revenue.total.toLocaleString()} €`}
           change={8.7}
           changeType="increase"
           icon={<DollarSign size={24} className="text-yellow-600" />}

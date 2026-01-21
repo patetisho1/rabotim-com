@@ -154,7 +154,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Общи приходи</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.totalRevenue || 0} лв</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.totalRevenue || 0} €</p>
             </div>
             <DollarSign className="h-8 w-8 text-yellow-600" />
           </div>
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex items-center gap-2 ml-2">
                         <span className="text-sm font-medium text-gray-900">
-                          {task.price} лв
+                          {task.price} €
                         </span>
                         {getStatusIcon(task.status)}
                       </div>

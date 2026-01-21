@@ -202,7 +202,7 @@ export default function TaskAnalyticsPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Цена</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                  {task.price} лв
+                  {task.price} €
                 </p>
               </div>
               <div className="bg-orange-100 dark:bg-orange-900 rounded-full p-3">

@@ -205,7 +205,7 @@ function PostTaskPageContent() {
     if (!formData.price || isNaN(numericPrice)) {
       validationIssues.push('Моля, въведете валидна цена')
     } else if (numericPrice < MIN_PRICE_VALUE) {
-      validationIssues.push(`Посочената цена е твърде ниска (минимум ${MIN_PRICE_VALUE} лв)`)
+      validationIssues.push(`Посочената цена е твърде ниска (минимум ${MIN_PRICE_VALUE} €)`)
     }
 
     // Проверка за забранени думи
@@ -499,7 +499,7 @@ function PostTaskPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                Цена (лв) *
+                Цена (€) *
               </label>
               <div className="relative">
                 <input

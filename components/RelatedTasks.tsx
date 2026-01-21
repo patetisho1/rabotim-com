@@ -156,7 +156,7 @@ export default function RelatedTasks({
                     {task.location}
                   </span>
                   <span className="font-semibold text-green-600 dark:text-green-400">
-                    {task.budget} лв
+                    {task.budget} €
                   </span>
                 </div>
               </div>
