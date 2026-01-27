@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { 
   MapPin, Phone, Mail, Clock, Star, CheckCircle, Share2, 
-  MessageCircle, Hammer, Award, Heart
+  MessageCircle, Hammer, Award, Heart, Calendar
 } from 'lucide-react'
 import { TemplateProps } from './TemplateRenderer'
 
@@ -118,11 +118,26 @@ export default function CraftTemplate({
               </div>
 
               {/* CTA */}
-              <div className="flex justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
+                {profile.acceptOnlineBooking && onBook && (
+                  <button
+                    onClick={onBook}
+                    className="flex items-center gap-2 px-8 py-3 rounded-lg text-white font-medium transition-all hover:shadow-lg"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    <Calendar size={18} />
+                    Запази час
+                  </button>
+                )}
                 <button
                   onClick={onContact}
-                  className="flex items-center gap-2 px-8 py-3 rounded-lg text-white font-medium transition-all hover:shadow-lg"
-                  style={{ backgroundColor: primaryColor }}
+                  className={`flex items-center gap-2 px-8 py-3 rounded-lg font-medium transition-all hover:shadow-lg ${
+                    profile.acceptOnlineBooking && onBook ? 'border-2 text-gray-700' : 'text-white'
+                  }`}
+                  style={profile.acceptOnlineBooking && onBook 
+                    ? { borderColor: primaryColor, color: primaryColor } 
+                    : { backgroundColor: primaryColor }
+                  }
                 >
                   <MessageCircle size={18} />
                   Поискай оферта

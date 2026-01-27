@@ -119,17 +119,34 @@ export default function ElegantTemplate({
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
+            {profile.acceptOnlineBooking && onBook && (
+              <button
+                onClick={onBook}
+                className="flex items-center gap-2 px-8 py-4 rounded-full text-white font-medium transition-all hover:scale-105"
+                style={{ 
+                  backgroundColor: primaryColor,
+                  boxShadow: `0 10px 40px ${primaryColor}40`
+                }}
+              >
+                <Calendar size={18} />
+                Запазете час
+              </button>
+            )}
             <button
               onClick={onContact}
-              className="flex items-center gap-2 px-8 py-4 rounded-full text-white font-medium transition-all hover:scale-105"
-              style={{ 
-                backgroundColor: primaryColor,
-                boxShadow: `0 10px 40px ${primaryColor}40`
-              }}
+              className={`flex items-center gap-2 px-8 py-4 rounded-full font-medium transition-all hover:scale-105 ${
+                profile.acceptOnlineBooking && onBook 
+                  ? 'border' 
+                  : 'text-white'
+              }`}
+              style={profile.acceptOnlineBooking && onBook 
+                ? { borderColor: `${primaryColor}50`, color: primaryColor }
+                : { backgroundColor: primaryColor, boxShadow: `0 10px 40px ${primaryColor}40` }
+              }
             >
               <MessageCircle size={18} />
-              Запазете час
+              Свържете се
             </button>
             <button
               onClick={onShare}

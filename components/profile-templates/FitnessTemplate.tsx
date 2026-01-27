@@ -90,14 +90,28 @@ export default function FitnessTemplate({
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
+              {profile.acceptOnlineBooking && onBook && (
+                <button
+                  onClick={onBook}
+                  className="flex items-center gap-2 px-8 py-4 rounded-none text-black font-bold uppercase tracking-wide transition-transform hover:scale-105"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  <Calendar size={20} />
+                  Запази час
+                </button>
+              )}
               <button
                 onClick={onContact}
-                className="flex items-center gap-2 px-8 py-4 rounded-none text-black font-bold uppercase tracking-wide transition-transform hover:scale-105"
-                style={{ backgroundColor: primaryColor }}
+                className={`flex items-center gap-2 px-8 py-4 rounded-none font-bold uppercase tracking-wide transition-transform hover:scale-105 ${
+                  profile.acceptOnlineBooking && onBook 
+                    ? 'border-2 border-white/30 text-white hover:bg-white/10' 
+                    : 'text-black'
+                }`}
+                style={!(profile.acceptOnlineBooking && onBook) ? { backgroundColor: primaryColor } : {}}
               >
-                <Zap size={20} />
-                Започни сега
+                <MessageCircle size={20} />
+                Контакт
               </button>
               <button
                 onClick={onShare}
