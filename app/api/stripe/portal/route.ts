@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { getServiceRoleClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const stripe = getStripe()
     const supabase = getServiceRoleClient()
 
     // Get user's Stripe customer ID

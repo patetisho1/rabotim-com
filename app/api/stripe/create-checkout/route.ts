@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe, PREMIUM_PLANS, PlanId, getStripePriceId } from '@/lib/stripe'
+import { getStripe, PREMIUM_PLANS, PlanId, getStripePriceId } from '@/lib/stripe'
 import { getServiceRoleClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     const plan = PREMIUM_PLANS[planId as PlanId]
+    const stripe = getStripe()
     
     // Get or create Stripe Price ID
     let priceId = getStripePriceId(planId as PlanId)

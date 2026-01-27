@@ -1,10 +1,22 @@
 import Stripe from 'stripe'
 
-// Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-09-30.clover',
-  typescript: true,
-})
+// Server-side Stripe instance - lazy initialization to avoid build errors
+let stripeInstance: Stripe | null = null
+
+export function getStripe(): Stripe {
+  if (!stripeInstance) {
+    const secretKey = process.env.STRIPE_SECRET_KEY
+    if (!secretKey) {
+      throw new Error('STRIPE_SECRET_KEY is not configured. Please add it to your environment variables.')
+    }
+    stripeInstance = new Stripe(secretKey, {
+      apiVersion: '2025-09-30.clover',
+      typescript: true,
+    })
+  }
+  return stripeInstance
+}
+
 
 // Premium plan configuration
 export const PREMIUM_PLANS = {
@@ -158,7 +170,8 @@ export async function createPaymentIntent(
   }
 ): Promise<{ success: boolean; clientSecret?: string; paymentIntentId?: string; error?: string }> {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
+    const stripeClient = getStripe()
+    const paymentIntent = await stripeClient.paymentIntents.create({
       amount,
       currency,
       metadata: {

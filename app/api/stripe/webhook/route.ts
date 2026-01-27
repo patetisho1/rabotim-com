@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe, PlanId } from '@/lib/stripe'
+import { getStripe, PlanId } from '@/lib/stripe'
 import { getServiceRoleClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import Stripe from 'stripe'
@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     let event: Stripe.Event
+    const stripe = getStripe()
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
