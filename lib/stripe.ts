@@ -24,18 +24,19 @@ export const PREMIUM_PLANS = {
     id: 'basic',
     name: 'Basic',
     description: 'Основен премиум план за професионалисти',
-    price: 2900, // in cents (29.00 EUR)
+    price: 2900, // in cents (29 EUR)
     currency: 'eur',
     interval: 'month' as const,
     features: [
       'Листване в каталога „Професионалисти"',
-      'До 5 директни заявки на ден',
+      'Премиум профил с портфолио',
       '5 промотирани обяви на месец',
+      'До 10 заявки на ден',
       'Основни статистики',
       'Email поддръжка',
     ],
     limits: {
-      dailyContacts: 5,
+      dailyContacts: 10,
       monthlyPromotedListings: 5,
     }
   },
@@ -43,15 +44,17 @@ export const PREMIUM_PLANS = {
     id: 'professional',
     name: 'Professional',
     description: 'Професионален план с неограничени заявки',
-    price: 3900, // in cents (39.00 EUR)
+    price: 3900, // in cents (39 EUR)
     currency: 'eur',
     interval: 'month' as const,
     features: [
-      'Листване в каталога „Професионалисти"',
-      'Неограничени директни заявки',
+      'Всичко от Basic',
       '10 промотирани обяви на месец',
+      'Неограничени заявки',
       'Разширени статистики',
-      'Приоритетна поддръжка',
+      'VIP поддръжка',
+      'Промоция на профила',
+      'Приоритетен отговор',
       'Календар за резервации',
     ],
     limits: {
@@ -64,21 +67,22 @@ export const PREMIUM_PLANS = {
     id: 'enterprise',
     name: 'Enterprise',
     description: 'Корпоративен план за екипи',
-    price: 8900, // in cents (89.00 EUR)
+    price: 8900, // in cents (89 EUR)
     currency: 'eur',
     interval: 'month' as const,
     features: [
       'Всичко от Professional',
-      'До 5 под-акаунта (служители)',
-      '15 промотирани обяви на месец',
-      'Персонален мениджър',
+      '20 промотирани обяви на месец',
+      'Персонализиран профил',
       'API достъп',
-      'Приоритетна 24/7 поддръжка',
       'Бял етикет (white label)',
+      'Персонален мениджър',
+      'Приоритетна поддръжка 24/7',
+      'Анализ на конкурентите',
     ],
     limits: {
       dailyContacts: -1, // unlimited
-      monthlyPromotedListings: 15,
+      monthlyPromotedListings: 20,
       subAccounts: 5,
     }
   }

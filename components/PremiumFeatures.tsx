@@ -76,7 +76,7 @@ export default function PremiumFeatures({
     {
       id: 'basic',
       name: 'Basic',
-      price: 9.99,
+      price: 29,
       period: 'month',
       features: [
         'Листване в каталога "Професионалисти"',
@@ -90,7 +90,7 @@ export default function PremiumFeatures({
     {
       id: 'professional',
       name: 'Professional',
-      price: 19.99,
+      price: 39,
       period: 'month',
       features: [
         'Всичко от Basic',
@@ -107,7 +107,7 @@ export default function PremiumFeatures({
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 39.99,
+      price: 89,
       period: 'month',
       features: [
         'Всичко от Professional',
@@ -222,7 +222,7 @@ export default function PremiumFeatures({
               Зареждане...
             </span>
           ) : (
-            'Станете премиум за 19.99 €/месец'
+            'Станете премиум за 39 €/месец'
           )}
         </button>
       </div>
