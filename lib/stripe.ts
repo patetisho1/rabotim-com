@@ -1,100 +1,172 @@
 import Stripe from 'stripe'
 
-// Initialize Stripe with test keys
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_your_test_key_here', {
+// Server-side Stripe instance
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-09-30.clover',
+  typescript: true,
 })
 
-// Stripe publishable key for frontend
-export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_test_key_here'
+// Premium plan configuration
+export const PREMIUM_PLANS = {
+  basic: {
+    id: 'basic',
+    name: 'Basic',
+    description: 'Основен премиум план за професионалисти',
+    price: 2900, // in cents (29.00 EUR)
+    currency: 'eur',
+    interval: 'month' as const,
+    features: [
+      'Листване в каталога „Професионалисти"',
+      'До 5 директни заявки на ден',
+      '5 промотирани обяви на месец',
+      'Основни статистики',
+      'Email поддръжка',
+    ],
+    limits: {
+      dailyContacts: 5,
+      monthlyPromotedListings: 5,
+    }
+  },
+  professional: {
+    id: 'professional',
+    name: 'Professional',
+    description: 'Професионален план с неограничени заявки',
+    price: 3900, // in cents (39.00 EUR)
+    currency: 'eur',
+    interval: 'month' as const,
+    features: [
+      'Листване в каталога „Професионалисти"',
+      'Неограничени директни заявки',
+      '10 промотирани обяви на месец',
+      'Разширени статистики',
+      'Приоритетна поддръжка',
+      'Календар за резервации',
+    ],
+    limits: {
+      dailyContacts: -1, // unlimited
+      monthlyPromotedListings: 10,
+    },
+    popular: true, // Mark as most popular
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'Корпоративен план за екипи',
+    price: 8900, // in cents (89.00 EUR)
+    currency: 'eur',
+    interval: 'month' as const,
+    features: [
+      'Всичко от Professional',
+      'До 5 под-акаунта (служители)',
+      '15 промотирани обяви на месец',
+      'Персонален мениджър',
+      'API достъп',
+      'Приоритетна 24/7 поддръжка',
+      'Бял етикет (white label)',
+    ],
+    limits: {
+      dailyContacts: -1, // unlimited
+      monthlyPromotedListings: 15,
+      subAccounts: 5,
+    }
+  }
+} as const
 
-// Payment plans configuration
+export type PlanId = keyof typeof PREMIUM_PLANS
+
+// Get Stripe Price ID from environment or create dynamically
+export function getStripePriceId(planId: PlanId): string {
+  const envKey = `STRIPE_PRICE_${planId.toUpperCase()}`
+  return process.env[envKey] || ''
+}
+
+// Format price for display
+export function formatPrice(cents: number, currency: string = 'eur'): string {
+  return new Intl.NumberFormat('bg-BG', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  }).format(cents / 100)
+}
+
+// Calculate yearly price with discount
+export function getYearlyPrice(monthlyPriceCents: number, discountPercent: number = 20): number {
+  const yearlyWithoutDiscount = monthlyPriceCents * 12
+  const discount = yearlyWithoutDiscount * (discountPercent / 100)
+  return Math.round(yearlyWithoutDiscount - discount)
+}
+
+// =========================================
+// PAYMENT PLANS - for one-time payments (task promotions, etc.)
+// =========================================
+
 export const PAYMENT_PLANS = {
-  // Task promotion plans
-  VIP_TASK: {
-    id: 'vip_task',
-    name: 'VIP Task Promotion',
-    description: 'Make your task stand out with VIP promotion',
-    price: 2990, // 29.90 BGN in stotinki
-    currency: 'bgn',
-    duration: 7, // days
-    features: ['Top placement', 'Highlighted design', 'Priority support']
+  TOP_TASK: {
+    id: 'top_task',
+    name: 'Базово промотиране',
+    description: 'Покажи задачата си на повече хора',
+    price: 299, // 2.99 EUR in cents
+    currency: 'eur',
+    duration: 3, // days
+    features: [
+      'Промотиране за 3 дни',
+      'Показване в началото на списъка',
+      'До 2x повече кандидати',
+    ],
   },
   FEATURED_TASK: {
     id: 'featured_task',
-    name: 'Featured Task Promotion',
-    description: 'Get more visibility with featured promotion',
-    price: 1990, // 19.90 BGN in stotinki
-    currency: 'bgn',
-    duration: 5, // days
-    features: ['Featured placement', 'Enhanced visibility', 'Better reach']
+    name: 'Професионално промотиране',
+    description: 'Максимална видимост за твоята задача',
+    price: 699, // 6.99 EUR in cents
+    currency: 'eur',
+    duration: 7, // days
+    features: [
+      'Промотиране за 7 дни',
+      'Показване в началото + специален badge',
+      'До 5x повече кандидати',
+      'Изпращане в имейл бюлетин',
+    ],
   },
-  TOP_TASK: {
-    id: 'top_task',
-    name: 'Top Task Promotion',
-    description: 'Boost your task to the top',
-    price: 990, // 9.90 BGN in stotinki
-    currency: 'bgn',
-    duration: 3, // days
-    features: ['Top placement', 'Increased views', 'Better engagement']
+  VIP_TASK: {
+    id: 'vip_task',
+    name: 'Премиум промотиране',
+    description: 'Най-мощното промотиране за спешни задачи',
+    price: 1299, // 12.99 EUR in cents
+    currency: 'eur',
+    duration: 14, // days
+    features: [
+      'Промотиране за 14 дни',
+      'Показване в началото + премиум badge',
+      'До 10x повече кандидати',
+      'Изпращане в имейл бюлетин',
+      'Показване на началната страница',
+    ],
   },
-  
-  // Premium user plans
-  PREMIUM_USER_MONTHLY: {
-    id: 'premium_user_monthly',
-    name: 'Premium User (Monthly)',
-    description: 'Premium features for one month',
-    price: 1990, // 19.90 BGN in stotinki
-    currency: 'bgn',
-    interval: 'month',
-    features: ['Unlimited task posts', 'Advanced analytics', 'Priority support', 'Custom branding']
-  },
-  PREMIUM_USER_YEARLY: {
-    id: 'premium_user_yearly',
-    name: 'Premium User (Yearly)',
-    description: 'Premium features for one year',
-    price: 19900, // 199.00 BGN in stotinki
-    currency: 'bgn',
-    interval: 'year',
-    features: ['Unlimited task posts', 'Advanced analytics', 'Priority support', 'Custom branding', '2 months free']
-  }
-}
+} as const
 
-// Payment status types
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled'
+export type PaymentPlanId = keyof typeof PAYMENT_PLANS
 
-// Payment types
-export type PaymentType = 'task_promotion' | 'premium_subscription' | 'one_time_payment'
-
-// Payment interface
-export interface Payment {
-  id: string
-  userId: string
-  taskId?: string
-  type: PaymentType
-  planId: string
-  amount: number
-  currency: string
-  status: PaymentStatus
-  stripePaymentIntentId?: string
-  stripeSubscriptionId?: string
-  createdAt: string
-  updatedAt: string
-  expiresAt?: string
-  metadata?: Record<string, any>
-}
-
-// Create payment intent
+// Create a payment intent for one-time payments
 export async function createPaymentIntent(
   amount: number,
-  currency: string = 'bgn',
-  metadata: Record<string, any> = {}
-) {
+  currency: string,
+  metadata: {
+    userId: string
+    planId: string
+    planName?: string
+    description?: string
+  }
+): Promise<{ success: boolean; clientSecret?: string; paymentIntentId?: string; error?: string }> {
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
-      metadata,
+      metadata: {
+        userId: metadata.userId,
+        planId: metadata.planId,
+        planName: metadata.planName || '',
+        description: metadata.description || '',
+      },
       automatic_payment_methods: {
         enabled: true,
       },
@@ -102,59 +174,14 @@ export async function createPaymentIntent(
 
     return {
       success: true,
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      clientSecret: paymentIntent.client_secret || undefined,
+      paymentIntentId: paymentIntent.id,
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating payment intent:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error.message || 'Failed to create payment intent',
     }
-  }
-}
-
-// Create subscription
-export async function createSubscription(
-  customerId: string,
-  priceId: string,
-  metadata: Record<string, any> = {}
-) {
-  try {
-    const subscription = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [{ price: priceId }],
-      metadata,
-      payment_behavior: 'default_incomplete',
-      payment_settings: { save_default_payment_method: 'on_subscription' },
-      expand: ['latest_invoice.payment_intent'],
-    })
-
-    return {
-      success: true,
-      subscriptionId: subscription.id,
-      clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret
-    }
-  } catch (error) {
-    console.error('Error creating subscription:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }
-  }
-}
-
-// Verify webhook signature
-export function verifyWebhookSignature(payload: string, signature: string) {
-  try {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-    if (!webhookSecret) {
-      throw new Error('Webhook secret not configured')
-    }
-
-    return stripe.webhooks.constructEvent(payload, signature, webhookSecret)
-  } catch (error) {
-    console.error('Error verifying webhook signature:', error)
-    throw error
   }
 }

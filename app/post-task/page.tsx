@@ -14,6 +14,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import PromoteTaskModal from '@/components/PromoteTaskModal'
 
 const categories = [
   { value: 'repair', label: 'Ремонт' },
@@ -75,6 +76,9 @@ function PostTaskPageContent() {
   
   const [images, setImages] = useState<File[]>([])
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [showPromoteModal, setShowPromoteModal] = useState(false)
+  const [createdTaskId, setCreatedTaskId] = useState<string>('')
+  const [createdTaskTitle, setCreatedTaskTitle] = useState<string>('')
 
   // File upload handlers
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -315,7 +319,10 @@ function PostTaskPageContent() {
         router.push('/profile?tab=taskGiver')
       } else if (createdTask?.id) {
         toast.success('Задачата е публикувана успешно!')
-        router.push(`/task/${createdTask.id}`)
+        // Show promotion modal instead of immediate redirect
+        setCreatedTaskId(createdTask.id)
+        setCreatedTaskTitle(formData.title.trim())
+        setShowPromoteModal(true)
       } else {
         toast.success('Задачата е записана.')
         router.push('/profile?tab=taskGiver')
@@ -597,6 +604,14 @@ function PostTaskPageContent() {
           </div>
         </form>
       </div>
+
+      {/* Promote Task Modal */}
+      <PromoteTaskModal
+        isOpen={showPromoteModal}
+        onClose={() => setShowPromoteModal(false)}
+        taskId={createdTaskId}
+        taskTitle={createdTaskTitle}
+      />
     </div>
   )
 }
