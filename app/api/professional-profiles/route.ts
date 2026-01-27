@@ -30,7 +30,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ profile: data || null })
     }
 
-    // Otherwise, list all published profiles
+    // Otherwise, list all published profiles from PAID premium users only
+    // Profiles are only shown if is_premium is true (set when user pays)
     let query = serviceClient
       .from('professional_profiles')
       .select(`
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
         user:users(full_name, avatar_url, rating, verified)
       `)
       .eq('is_published', true)
+      .eq('is_premium', true) // Only show paid/premium profiles
       .order('view_count', { ascending: false })
       .range(offset, offset + limit - 1)
 

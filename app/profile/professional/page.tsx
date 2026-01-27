@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
+import { useAccountMode } from '@/contexts/AccountModeContext'
 import { 
   ProfessionalProfile, 
   ServiceItem,
@@ -51,6 +52,7 @@ const dayTranslations: Record<string, string> = {
 export default function ProfessionalProfileEditor() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
+  const { professionalStatus, refreshStatus } = useAccountMode()
   
   const [profile, setProfile] = useState<ProfessionalProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -197,6 +199,9 @@ export default function ProfessionalProfileEditor() {
         throw new Error(data.error || 'Failed to save profile')
       }
 
+      // Refresh the professional status after saving
+      await refreshStatus()
+      
       toast.success('Профилът е запазен успешно!')
     } catch (error: any) {
       toast.error(error.message || 'Грешка при запазване на профила')
@@ -394,24 +399,57 @@ export default function ProfessionalProfileEditor() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Premium Banner (if not premium) */}
-        <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl p-4 mb-6 text-white">
-          <div className="flex items-center gap-3">
-            <Crown size={24} />
-            <div className="flex-1">
-              <h3 className="font-semibold">Премиум функции</h3>
-              <p className="text-sm text-yellow-100">
-                Надграден с премиум шаблони, приоритет в търсенето и повече функции
-              </p>
+        {/* Profile Status Banner */}
+        {professionalStatus.isActive ? (
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 mb-6 text-white">
+            <div className="flex items-center gap-3">
+              <CheckCircle size={24} />
+              <div className="flex-1">
+                <h3 className="font-semibold">Профилът е активен</h3>
+                <p className="text-sm text-green-100">
+                  Профилът ти се показва в каталога „Професионалисти". 
+                  {professionalStatus.planType && ` План: ${professionalStatus.planType.charAt(0).toUpperCase() + professionalStatus.planType.slice(1)}`}
+                </p>
+              </div>
+              {profileUrl && (
+                <a
+                  href={profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-green-600 rounded-lg font-medium hover:bg-green-50 transition-colors"
+                >
+                  <ExternalLink size={16} />
+                  Отвори профила
+                </a>
+              )}
             </div>
-            <button 
-              onClick={() => router.push('/premium')}
-              className="px-4 py-2 bg-white text-orange-600 rounded-lg font-medium hover:bg-yellow-50 transition-colors"
-            >
-              Надгради
-            </button>
           </div>
-        </div>
+        ) : (
+          <div className="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl p-4 mb-6 text-white">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <AlertCircle size={24} />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold">Профилът е в режим „Чернова"</h3>
+                    <span className="px-2 py-0.5 bg-white/20 rounded text-xs font-medium">Не е активен</span>
+                  </div>
+                  <p className="text-sm text-yellow-100 mt-1">
+                    Попълни профила и избери план, за да се покажеш в каталога с професионалисти. 
+                    Клиентите ще могат да те намерят и да се свържат директно с теб.
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => router.push('/premium')}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white text-orange-600 rounded-lg font-medium hover:bg-yellow-50 transition-colors whitespace-nowrap"
+              >
+                <Crown size={18} />
+                Активирай от 29€/мес
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
