@@ -4,6 +4,52 @@
 
 ---
 
+## 🔴 НЕЗАВЪРШЕНИ ЗАДАЧИ - Stripe Webhook (Приоритет 0)
+
+**Добавено:** 2026-01-27 (вечер)
+
+### Проблем
+Stripe webhook връща **HTTP 400** с грешка за signature verification:
+```
+"Webhook Error: No signatures found matching the expected signature for payload"
+```
+
+### Какво е направено:
+- ✅ Stripe акаунт създаден (sandbox mode)
+- ✅ Stripe ключове добавени в Vercel:
+  - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = `pk_test_51SuFVM4HQobTF7g5...`
+  - `STRIPE_SECRET_KEY` = `sk_test_51SuFVM4HQobTF7g5...`
+- ✅ Webhook endpoint създаден: `elegant-legacy`
+- ✅ Webhook URL: `https://rabotim-com-git-staging-tihomirs-projects-850a4235.vercel.app/api/stripe/webhook`
+- ✅ Vercel Protection Bypass token добавен към URL
+- ✅ `STRIPE_WEBHOOK_SECRET` добавен в Vercel = `whsec_Zw1ahBMxDNTEB3YkEa9LfHMvv9Ye841J`
+- ✅ Тестови плащания минават успешно в Stripe
+- ✅ Success страница `/premium/success` работи
+
+### Какво НЕ работи:
+- ❌ Webhook signature verification fails (HTTP 400)
+- ❌ Premium статусът не се обновява в базата данни
+- ❌ Профилът остава "Чернова" след плащане
+
+### Възможни причини:
+1. Vercel Protection може да модифицира request body
+2. Webhook secret mismatch (въпреки че е правилен)
+3. API version mismatch между Stripe и кода
+
+### Следващи стъпки за дебъгване:
+- [ ] Временно изключи Vercel Deployment Protection за staging
+- [ ] Премахни `?x-vercel-protection-bypass=...` от webhook URL
+- [ ] Провери Vercel Logs за детайлна грешка
+- [ ] Провери дали `stripe.webhooks.constructEvent()` получава правилния raw body
+- [ ] Тествай с `stripe listen --forward-to localhost:3000/api/stripe/webhook` локално
+
+### Файлове за преглед:
+- `app/api/stripe/webhook/route.ts` - webhook handler
+- `lib/stripe.ts` - Stripe конфигурация
+- `sql/stripe_migration.sql` - database schema
+
+---
+
 ## 🚨 MVP КРИТИЧНИ ЗАДАЧИ (Приоритет 1)
 
 **Цел:** Минимално необходимото за реални потребители да използват платформата
