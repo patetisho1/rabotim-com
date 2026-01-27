@@ -54,10 +54,43 @@ export default function BookingForm({
   // Get minimum date (today)
   const today = new Date().toISOString().split('T')[0]
 
-  // Generate time slots
+  // Day name mapping
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+  // Get working hours for selected date
+  const getWorkingHoursForDate = (dateString: string) => {
+    if (!dateString || workingHours.length === 0) return null
+    const date = new Date(dateString)
+    const dayName = dayNames[date.getDay()]
+    return workingHours.find(wh => wh.day === dayName)
+  }
+
+  // Check if a date is a working day
+  const isWorkingDay = (dateString: string) => {
+    const wh = getWorkingHoursForDate(dateString)
+    return wh?.isOpen ?? true // Default to open if no working hours defined
+  }
+
+  // Generate time slots based on working hours for selected date
   const generateTimeSlots = () => {
-    const slots = []
-    for (let hour = 8; hour < 20; hour++) {
+    const slots: string[] = []
+    const wh = getWorkingHoursForDate(formData.bookingDate)
+    
+    // Default hours if no working hours defined or day is open
+    let startHour = 8
+    let endHour = 20
+    
+    if (wh && wh.isOpen && wh.openTime && wh.closeTime) {
+      const [openH] = wh.openTime.split(':').map(Number)
+      const [closeH] = wh.closeTime.split(':').map(Number)
+      startHour = openH
+      endHour = closeH
+    } else if (wh && !wh.isOpen) {
+      // Day is closed, no slots
+      return []
+    }
+    
+    for (let hour = startHour; hour < endHour; hour++) {
       for (let min = 0; min < 60; min += 30) {
         const time = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`
         slots.push(time)
@@ -209,7 +242,7 @@ export default function BookingForm({
               required
               min={today}
               value={formData.bookingDate}
-              onChange={(e) => setFormData(prev => ({ ...prev, bookingDate: e.target.value }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, bookingDate: e.target.value, startTime: '' }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -218,17 +251,23 @@ export default function BookingForm({
               <Clock className="w-4 h-4 inline mr-1" />
               Час *
             </label>
-            <select
-              required
-              value={formData.startTime}
-              onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Изберете час</option>
-              {timeSlots.map(time => (
-                <option key={time} value={time}>{time}</option>
-              ))}
-            </select>
+            {formData.bookingDate && timeSlots.length === 0 ? (
+              <div className="px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                Неработен ден
+              </div>
+            ) : (
+              <select
+                required
+                value={formData.startTime}
+                onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Изберете час</option>
+                {timeSlots.map(time => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 
