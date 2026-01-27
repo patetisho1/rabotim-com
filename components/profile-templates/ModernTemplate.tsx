@@ -20,7 +20,7 @@ const socialIcons: Record<string, string> = {
 
 export default function ModernTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'gallery' | 'about' | 'contact'>('services')
   const primaryColor = profile.primaryColor || templateConfig.primaryColor
@@ -88,11 +88,25 @@ export default function ModernTemplate({
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
+                {profile.acceptOnlineBooking && onBook && (
+                  <button
+                    onClick={onBook}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl text-white font-medium transition-all hover:scale-105 shadow-lg"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    <Calendar size={18} />
+                    Запази час
+                  </button>
+                )}
                 <button
                   onClick={onContact}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-white font-medium transition-all hover:scale-105 shadow-lg"
-                  style={{ backgroundColor: primaryColor }}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 ${
+                    profile.acceptOnlineBooking && onBook 
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      : 'text-white shadow-lg'
+                  }`}
+                  style={!(profile.acceptOnlineBooking && onBook) ? { backgroundColor: primaryColor } : {}}
                 >
                   <MessageCircle size={18} />
                   Свържи се

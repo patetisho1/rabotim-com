@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { TemplateRenderer } from '@/components/profile-templates'
 import ShareButtons from '@/components/ShareButtons'
+import BookingModal from '@/components/BookingModal'
 import { 
   ProfessionalProfile, 
   profileTemplates,
@@ -22,8 +23,11 @@ export default function PublicProfilePage() {
   const [profile, setProfile] = useState<ProfessionalProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showBookingModal, setShowBookingModal] = useState(false)
   const [userRating, setUserRating] = useState(0)
   const [reviewCount, setReviewCount] = useState(0)
+  const [professionalId, setProfessionalId] = useState<string>('')
+  const [professionalUserId, setProfessionalUserId] = useState<string>('')
 
   useEffect(() => {
     loadProfile()
@@ -37,6 +41,14 @@ export default function PublicProfilePage() {
       if (response.ok) {
         const data = await response.json()
         setProfile(data.profile)
+        
+        // Set IDs for booking
+        if (data.profile?.id) {
+          setProfessionalId(data.profile.id)
+        }
+        if (data.profile?.userId) {
+          setProfessionalUserId(data.profile.userId)
+        }
         
         // Set rating from user data if available
         if (data.user) {
@@ -676,6 +688,14 @@ export default function PublicProfilePage() {
     setShowShareModal(true)
   }
 
+  const handleBook = () => {
+    if (!profile?.acceptOnlineBooking) {
+      toast.error('Този професионалист не приема онлайн резервации')
+      return
+    }
+    setShowBookingModal(true)
+  }
+
   const profileUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/p/${username}` 
     : `https://rabotim.com/p/${username}`
@@ -721,6 +741,7 @@ export default function PublicProfilePage() {
         profile={profile}
         onContact={handleContact}
         onShare={handleShare}
+        onBook={profile.acceptOnlineBooking ? handleBook : undefined}
         userRating={userRating}
         reviewCount={reviewCount}
       />
@@ -747,6 +768,24 @@ export default function PublicProfilePage() {
             />
           </div>
         </div>
+      )}
+
+      {/* Booking Modal */}
+      {profile.acceptOnlineBooking && (
+        <BookingModal
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+          professionalId={professionalId || 'demo-id'}
+          professionalUserId={professionalUserId || 'demo-user-id'}
+          professionalName={profile.displayName}
+          services={profile.services.map(s => ({
+            id: s.id,
+            name: s.name,
+            price: s.price,
+            priceType: s.priceType,
+            duration: s.duration ? parseInt(s.duration) : 60
+          }))}
+        />
       )}
     </>
   )

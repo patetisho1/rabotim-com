@@ -14,7 +14,7 @@ const dayTranslations: Record<string, string> = {
 
 export default function ElegantTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'gallery' | 'about' | 'contact'>('services')
   const primaryColor = profile.primaryColor || '#7C3AED' // Purple

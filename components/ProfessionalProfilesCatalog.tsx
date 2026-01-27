@@ -30,7 +30,7 @@ interface ProfessionalProfileData {
   user?: {
     full_name: string
     avatar_url: string
-    rating: number
+  rating: number
     total_reviews: number
     verified: boolean
   }
@@ -288,21 +288,21 @@ export default function ProfessionalProfilesCatalog({
       profile.tagline.toLowerCase().includes(query) ||
       profile.city.toLowerCase().includes(query)
     )
-  })
+    })
 
-  // Sort profiles
+    // Sort profiles
   const sortedProfiles = [...filteredProfiles].sort((a, b) => {
-    switch (sortBy) {
+      switch (sortBy) {
       case 'view_count':
         return b.view_count - a.view_count
-      case 'rating':
+        case 'rating':
         return (b.user?.rating || 0) - (a.user?.rating || 0)
-      case 'reviews':
+        case 'reviews':
         return (b.user?.total_reviews || 0) - (a.user?.total_reviews || 0)
-      default:
-        return 0
-    }
-  })
+        default:
+          return 0
+      }
+    })
 
   const handleProfileClick = (username: string) => {
     router.push(`/p/${username}`)
@@ -319,17 +319,17 @@ export default function ProfessionalProfilesCatalog({
   if (isLoading) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
             <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 animate-pulse">
               <div className="h-32 bg-gray-200 dark:bg-gray-700"></div>
               <div className="p-4">
                 <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-2"></div>
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3"></div>
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     )
@@ -339,17 +339,17 @@ export default function ProfessionalProfilesCatalog({
     <div className={`space-y-4 md:space-y-6 ${className}`}>
       {/* Search and Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-        {/* Search */}
+          {/* Search */}
         <div className="relative mb-3 md:mb-0">
           <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-          <input
-            type="text"
+            <input
+              type="text"
             placeholder="Търси по име, професия, град..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-200 dark:border-gray-600 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-          />
-        </div>
+            />
+          </div>
 
         {/* Mobile Filters - Horizontal scroll */}
         <div className="flex gap-2 overflow-x-auto pb-1 md:hidden scrollbar-hide">
@@ -404,7 +404,7 @@ export default function ProfessionalProfilesCatalog({
 
         {/* Desktop Filters */}
         <div className="hidden md:flex gap-4 mt-4">
-          <select
+              <select
             value={selectedProfession}
             onChange={(e) => setSelectedProfession(e.target.value)}
             className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -412,10 +412,10 @@ export default function ProfessionalProfilesCatalog({
             <option value="">Всички категории</option>
             {professionCategories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.icon} {cat.nameBg}</option>
-            ))}
-          </select>
+                ))}
+              </select>
 
-          <select
+              <select
             value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
             className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -423,18 +423,18 @@ export default function ProfessionalProfilesCatalog({
             <option value="">Всички градове</option>
             {BULGARIAN_CITIES.map(city => (
               <option key={city.name} value={city.name}>{city.name}</option>
-            ))}
-          </select>
+                ))}
+              </select>
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
             className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="view_count">Популярност</option>
             <option value="rating">Рейтинг</option>
             <option value="reviews">Отзиви</option>
-          </select>
+              </select>
 
           {/* View Mode Toggle */}
           <div className="flex border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden ml-auto">
@@ -450,8 +450,8 @@ export default function ProfessionalProfilesCatalog({
             >
               <List className="h-5 w-5" />
             </button>
+            </div>
           </div>
-        </div>
       </div>
 
       {/* Results Count & Legend */}
@@ -492,13 +492,13 @@ export default function ProfessionalProfilesCatalog({
         </div>
       ) : (
         <div className={`grid gap-3 md:gap-6 ${
-          viewMode === 'grid' 
+        viewMode === 'grid' 
             ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-            : 'grid-cols-1'
-        }`}>
+          : 'grid-cols-1'
+      }`}>
           {sortedProfiles.map((profile) => (
             <div
-              key={profile.id}
+            key={profile.id}
               onClick={() => handleProfileClick(profile.username)}
               className={`bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer group ${
                 viewMode === 'list' ? 'flex' : ''
@@ -527,7 +527,7 @@ export default function ProfessionalProfilesCatalog({
                       <Shield size={10} className="md:w-3 md:h-3" />
                     </span>
                   )}
-                </div>
+      </div>
 
                 {/* Category Badge */}
                 <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3">
@@ -535,7 +535,7 @@ export default function ProfessionalProfilesCatalog({
                     {getProfessionIcon(profile.profession)} {getProfessionName(profile.profession)}
                   </span>
                 </div>
-              </div>
+          </div>
 
               {/* Content */}
               <div className={`p-3 md:p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-center' : ''}`}>
@@ -543,7 +543,7 @@ export default function ProfessionalProfilesCatalog({
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-sm md:text-base text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors truncate">
                       {profile.display_name}
-                    </h3>
+          </h3>
                     <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 truncate">
                       {profile.profession_title}
                     </p>
@@ -591,8 +591,8 @@ export default function ProfessionalProfilesCatalog({
               {viewMode === 'list' && (
                 <div className="hidden md:flex items-center px-4">
                   <ChevronRight size={20} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
-                </div>
-              )}
+        </div>
+      )}
             </div>
           ))}
         </div>

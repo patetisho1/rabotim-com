@@ -9,7 +9,7 @@ import { TemplateProps } from './TemplateRenderer'
 
 export default function BoldTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'gallery' | 'about' | 'contact'>('services')
   const [expandedService, setExpandedService] = useState<string | null>(null)

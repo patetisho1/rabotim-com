@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight } from 'lucide-react'
+import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight, Calendar } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import AccountModeSwitch from './AccountModeSwitch'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useAccountMode } from '@/contexts/AccountModeContext'
 
 export default function Header() {
   const router = useRouter()
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { notifications } = useNotifications(authUser?.id || '')
+  const { mode: accountMode } = useAccountMode()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
@@ -198,6 +200,16 @@ export default function Header() {
                   >
                     Моите кандидатури
                   </button>
+                  {/* Резервации - за професионален режим */}
+                  {accountMode === 'professional' && (
+                    <button
+                      onClick={() => router.push('/bookings')}
+                      className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                    >
+                      <Calendar size={16} />
+                      Резервации
+                    </button>
+                  )}
                 </>
               )}
 
@@ -366,6 +378,22 @@ export default function Header() {
                     <span className="font-medium">Моите кандидатури</span>
                     <ArrowRight size={16} />
                   </button>
+                  {/* Резервации - за професионален режим */}
+                  {accountMode === 'professional' && (
+                    <button
+                      onClick={() => {
+                        router.push('/bookings')
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="flex items-center justify-between w-full text-left px-4 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[56px] touch-manipulation"
+                    >
+                      <span className="font-medium flex items-center gap-2">
+                        <Calendar size={18} />
+                        Резервации
+                      </span>
+                      <ArrowRight size={16} />
+                    </button>
+                  )}
                 </>
               )}
               

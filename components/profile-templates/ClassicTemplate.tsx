@@ -14,7 +14,7 @@ const dayTranslations: Record<string, string> = {
 
 export default function ClassicTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'about' | 'contact'>('services')
   const primaryColor = profile.primaryColor || '#1F2937' // Dark gray
