@@ -102,6 +102,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if this is a demo profile (non-UUID format)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(body.professionalId) || !uuidRegex.test(body.professionalUserId)) {
+      return NextResponse.json(
+        { error: 'Това е демонстрационен профил. Резервации се поддържат само за реални професионалисти.' },
+        { status: 400 }
+      )
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(body.clientEmail)) {
