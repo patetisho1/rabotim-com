@@ -30,13 +30,13 @@ export const PREMIUM_PLANS = {
     features: [
       'Листване в каталога „Професионалисти"',
       'Премиум профил с портфолио',
+      'До 5 директни заявки на ден',
       '5 промотирани обяви на месец',
-      'До 10 заявки на ден',
       'Основни статистики',
       'Email поддръжка',
     ],
     limits: {
-      dailyContacts: 10,
+      dailyContacts: 5,
       monthlyPromotedListings: 5,
     }
   },
@@ -49,8 +49,8 @@ export const PREMIUM_PLANS = {
     interval: 'month' as const,
     features: [
       'Всичко от Basic',
+      'Неограничени директни заявки',
       '10 промотирани обяви на месец',
-      'Неограничени заявки',
       'Разширени статистики',
       'VIP поддръжка',
       'Промоция на профила',
@@ -66,17 +66,17 @@ export const PREMIUM_PLANS = {
   enterprise: {
     id: 'enterprise',
     name: 'Enterprise',
-    description: 'Корпоративен план за екипи',
+    description: 'Корпоративен план за екипи с под-акаунти',
     price: 8900, // in cents (89 EUR)
     currency: 'eur',
     interval: 'month' as const,
     features: [
       'Всичко от Professional',
+      'До 5 под-акаунта (служители)',
       '20 промотирани обяви на месец',
-      'Персонализиран профил',
+      'Персонален мениджър',
       'API достъп',
       'Бял етикет (white label)',
-      'Персонален мениджър',
       'Приоритетна поддръжка 24/7',
       'Анализ на конкурентите',
     ],
