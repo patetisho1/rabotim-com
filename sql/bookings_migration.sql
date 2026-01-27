@@ -1,27 +1,27 @@
--- =====================================================
--- Bookings/Reservations System Migration
--- =====================================================
+-- =============================================
+-- Bookings Migration for Rabotim.com
 -- Run this in Supabase SQL Editor
+-- =============================================
 
 -- Create bookings table
-CREATE TABLE IF NOT EXISTS public.bookings (
+CREATE TABLE IF NOT EXISTS bookings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   
-  -- Who is being booked
-  professional_id UUID NOT NULL REFERENCES public.professional_profiles(id) ON DELETE CASCADE,
+  -- Professional reference
+  professional_id UUID NOT NULL,
   professional_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   
-  -- Who is making the booking
+  -- Client info
   client_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   client_name VARCHAR(100) NOT NULL,
   client_email VARCHAR(255) NOT NULL,
   client_phone VARCHAR(30),
   
-  -- Booking details
-  service_name VARCHAR(200),
-  service_id VARCHAR(50), -- Reference to service in professional's services array
+  -- Service info
+  service_id VARCHAR(50),
+  service_name VARCHAR(150),
   
-  -- Date and time
+  -- Booking time
   booking_date DATE NOT NULL,
   start_time TIME NOT NULL,
   end_time TIME,
@@ -34,15 +34,11 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   client_notes TEXT,
   professional_notes TEXT,
   
-  -- Pricing (optional)
+  -- Price
   estimated_price DECIMAL(10, 2),
-  currency VARCHAR(3) DEFAULT 'EUR',
+  final_price DECIMAL(10, 2),
   
-  -- Calendar sync
-  google_event_id VARCHAR(255),
-  outlook_event_id VARCHAR(255),
-  
-  -- Notifications tracking
+  -- Notifications
   client_notified_at TIMESTAMP WITH TIME ZONE,
   professional_notified_at TIMESTAMP WITH TIME ZONE,
   reminder_sent_at TIMESTAMP WITH TIME ZONE,
@@ -54,126 +50,94 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   cancelled_at TIMESTAMP WITH TIME ZONE,
   completed_at TIMESTAMP WITH TIME ZONE,
   
+  -- Cancellation
+  cancellation_reason TEXT,
+  cancelled_by UUID REFERENCES auth.users(id),
+  
   -- Constraints
   CONSTRAINT valid_status CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed', 'no_show')),
-  CONSTRAINT valid_booking_date CHECK (booking_date >= CURRENT_DATE)
+  CONSTRAINT valid_duration CHECK (duration_minutes > 0 AND duration_minutes <= 480),
+  CONSTRAINT valid_booking_date CHECK (booking_date >= CURRENT_DATE - INTERVAL '1 day')
 );
 
--- Create indexes for faster lookups
-CREATE INDEX IF NOT EXISTS idx_bookings_professional_id ON public.bookings(professional_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_professional_user_id ON public.bookings(professional_user_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_client_user_id ON public.bookings(client_user_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_date ON public.bookings(booking_date);
-CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
-CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON public.bookings(created_at);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_bookings_professional_user_id ON bookings(professional_user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_client_user_id ON bookings(client_user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_professional_id ON bookings(professional_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_booking_date ON bookings(booking_date);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON bookings(created_at DESC);
+
+-- Composite index for common queries
+CREATE INDEX IF NOT EXISTS idx_bookings_professional_date_status 
+  ON bookings(professional_user_id, booking_date, status);
 
 -- Enable RLS
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 
 -- Professionals can view their own bookings
-CREATE POLICY "Professionals can view own bookings"
-  ON public.bookings FOR SELECT
-  TO authenticated
-  USING (professional_user_id = auth.uid());
+CREATE POLICY "Professionals can view their bookings"
+  ON bookings FOR SELECT
+  USING (auth.uid() = professional_user_id);
 
 -- Clients can view their own bookings
-CREATE POLICY "Clients can view own bookings"
-  ON public.bookings FOR SELECT
-  TO authenticated
-  USING (client_user_id = auth.uid());
+CREATE POLICY "Clients can view their bookings"
+  ON bookings FOR SELECT
+  USING (auth.uid() = client_user_id);
 
--- Anyone can create a booking (for non-logged in clients too)
+-- Anyone can create a booking (clients booking professionals)
 CREATE POLICY "Anyone can create bookings"
-  ON public.bookings FOR INSERT
-  TO anon, authenticated
+  ON bookings FOR INSERT
   WITH CHECK (true);
 
--- Professionals can update their bookings
-CREATE POLICY "Professionals can update own bookings"
-  ON public.bookings FOR UPDATE
-  TO authenticated
-  USING (professional_user_id = auth.uid());
+-- Professionals can update their bookings (confirm, cancel, etc.)
+CREATE POLICY "Professionals can update their bookings"
+  ON bookings FOR UPDATE
+  USING (auth.uid() = professional_user_id);
 
 -- Clients can update their own bookings (cancel)
-CREATE POLICY "Clients can update own bookings"
-  ON public.bookings FOR UPDATE
-  TO authenticated
-  USING (client_user_id = auth.uid());
+CREATE POLICY "Clients can update their bookings"
+  ON bookings FOR UPDATE
+  USING (auth.uid() = client_user_id AND status = 'pending');
+
+-- Only professionals can delete bookings
+CREATE POLICY "Professionals can delete their bookings"
+  ON bookings FOR DELETE
+  USING (auth.uid() = professional_user_id);
 
 -- Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_bookings_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
+  
+  -- Set confirmed_at when status changes to confirmed
+  IF NEW.status = 'confirmed' AND OLD.status != 'confirmed' THEN
+    NEW.confirmed_at = NOW();
+  END IF;
+  
+  -- Set cancelled_at when status changes to cancelled
+  IF NEW.status = 'cancelled' AND OLD.status != 'cancelled' THEN
+    NEW.cancelled_at = NOW();
+  END IF;
+  
+  -- Set completed_at when status changes to completed
+  IF NEW.status = 'completed' AND OLD.status != 'completed' THEN
+    NEW.completed_at = NOW();
+  END IF;
+  
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger
-DROP TRIGGER IF EXISTS update_bookings_updated_at ON public.bookings;
-CREATE TRIGGER update_bookings_updated_at
-  BEFORE UPDATE ON public.bookings
+-- Create trigger for updated_at and status timestamps
+DROP TRIGGER IF EXISTS bookings_updated_at ON bookings;
+CREATE TRIGGER bookings_updated_at
+  BEFORE UPDATE ON bookings
   FOR EACH ROW
   EXECUTE FUNCTION update_bookings_updated_at();
 
--- =====================================================
--- Availability slots table (optional - for working hours)
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS public.availability_slots (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  professional_id UUID NOT NULL REFERENCES public.professional_profiles(id) ON DELETE CASCADE,
-  
-  -- Day of week (0=Sunday, 1=Monday, etc.) or specific date
-  day_of_week INTEGER, -- 0-6 for recurring
-  specific_date DATE, -- For one-time availability
-  
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
-  
-  is_available BOOLEAN DEFAULT true,
-  
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
-  CONSTRAINT valid_day_of_week CHECK (day_of_week IS NULL OR (day_of_week >= 0 AND day_of_week <= 6)),
-  CONSTRAINT either_day_or_date CHECK (
-    (day_of_week IS NOT NULL AND specific_date IS NULL) OR
-    (day_of_week IS NULL AND specific_date IS NOT NULL)
-  )
-);
-
-CREATE INDEX IF NOT EXISTS idx_availability_professional ON public.availability_slots(professional_id);
-CREATE INDEX IF NOT EXISTS idx_availability_day ON public.availability_slots(day_of_week);
-CREATE INDEX IF NOT EXISTS idx_availability_date ON public.availability_slots(specific_date);
-
--- Enable RLS
-ALTER TABLE public.availability_slots ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies for availability
-CREATE POLICY "Anyone can view availability"
-  ON public.availability_slots FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
-CREATE POLICY "Professionals can manage own availability"
-  ON public.availability_slots FOR ALL
-  TO authenticated
-  USING (
-    professional_id IN (
-      SELECT id FROM public.professional_profiles WHERE user_id = auth.uid()
-    )
-  );
-
--- =====================================================
--- Grant permissions
--- =====================================================
-
-GRANT SELECT, INSERT, UPDATE ON public.bookings TO anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.bookings TO authenticated;
-GRANT SELECT ON public.availability_slots TO anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.availability_slots TO authenticated;
-
-SELECT 'Bookings migration completed successfully!' as status;
-
+-- Success message
+SELECT 'Bookings migration completed successfully!' as message;
