@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import AccountModeSwitch from './AccountModeSwitch'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
 
@@ -13,7 +14,6 @@ export default function Header() {
   const { notifications } = useNotifications(authUser?.id || '')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<'tasker' | 'poster'>('poster')
   const [favoritesCount, setFavoritesCount] = useState(0)
   
   const notificationsCount = notifications.filter(n => !n.isRead).length
@@ -215,6 +215,9 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-4">
             {authUser ? (
               <div className="flex items-center space-x-3">
+                {/* Account Mode Switch - Normal/Professional */}
+                <AccountModeSwitch />
+                
                 <button
                   onClick={() => router.push('/notifications')}
                   className="p-2 rounded relative min-h-[44px] min-w-[44px] flex items-center justify-center"

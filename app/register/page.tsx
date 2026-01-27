@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, Briefcase, Wrench, MapPin } from 'lucide-react'
+import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabaseAuth } from '@/lib/supabase-auth'
@@ -29,10 +29,7 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
     agreeToTerms: false,
-    roles: {
-      taskGiver: false,
-      taskExecutor: false
-    }
+    aboutMe: '' // Кратко описание - какво предлагаш / с какво се занимаваш
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,12 +81,6 @@ export default function RegisterPage() {
         }
       }
 
-      // Валидация на ролите
-      if (!formData.roles.taskGiver && !formData.roles.taskExecutor) {
-        toast.error('Трябва да изберете поне една роля')
-        return
-      }
-
       if (!formData.agreeToTerms) {
         toast.error('Трябва да се съгласите с условията за ползване')
         return
@@ -103,7 +94,8 @@ export default function RegisterPage() {
           full_name: `${formData.firstName} ${formData.lastName}`,
           phone: formData.phone,
           city: formData.city || null,
-          neighborhood: formData.neighborhood || null
+          neighborhood: formData.neighborhood || null,
+          about_me: formData.aboutMe || null
         }
       )
 
@@ -206,21 +198,10 @@ export default function RegisterPage() {
     const { name, value, type } = e.target
     const checked = (e.target as HTMLInputElement).checked
     
-    if (name.startsWith('roles.')) {
-      const roleName = name.split('.')[1]
-      setFormData(prev => ({
-        ...prev,
-        roles: {
-          ...prev.roles,
-          [roleName]: checked
-        }
-      }))
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }))
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
   }
 
   return (
@@ -367,45 +348,26 @@ export default function RegisterPage() {
               showLabel={true}
             />
 
-            {/* Роли */}
+            {/* За мен - опционално */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Как искате да използвате платформата? *
+              <label htmlFor="aboutMe" className="block text-sm font-medium text-gray-700">
+                С какво се занимавате? <span className="text-gray-400 font-normal">(опционално)</span>
               </label>
-              <div className="space-y-3">
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    name="roles.taskGiver"
-                    checked={formData.roles.taskGiver}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <div className="ml-3 flex items-center">
-                    <Briefcase className="h-5 w-5 text-blue-600 mr-2" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">Даващ задачи</div>
-                      <div className="text-sm text-gray-500">Публикувайте задачи и намерете изпълнители</div>
-                    </div>
-                  </div>
-                </label>
-
-                <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    name="roles.taskExecutor"
-                    checked={formData.roles.taskExecutor}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                  />
-                  <div className="ml-3 flex items-center">
-                    <Wrench className="h-5 w-5 text-green-600 mr-2" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">Изпълнител</div>
-                      <div className="text-sm text-gray-500">Изпълнявайте задачи и изкаравайте пари</div>
-                    </div>
-                  </div>
-                </label>
+              <p className="text-xs text-gray-500 mb-2">
+                Кратко описание на вашите услуги или умения. Можете да го добавите и по-късно.
+              </p>
+              <div className="mt-1">
+                <textarea
+                  id="aboutMe"
+                  name="aboutMe"
+                  rows={2}
+                  maxLength={200}
+                  value={formData.aboutMe}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  placeholder="напр. Майстор на ремонти, Почистване на домове, Уроци по математика..."
+                />
+                <p className="text-xs text-gray-400 mt-1 text-right">{formData.aboutMe.length}/200</p>
               </div>
             </div>
 

@@ -36,7 +36,7 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string, userData?: { full_name?: string; phone?: string; city?: string | null; neighborhood?: string | null }) => {
+  const signUp = async (email: string, password: string, userData?: { full_name?: string; phone?: string; city?: string | null; neighborhood?: string | null; about_me?: string | null }) => {
     setLoading(true)
     try {
       const { data, error } = await supabaseAuth.auth.signUp({
