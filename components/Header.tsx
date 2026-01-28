@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight, Calendar } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import AccountModeSwitch from './AccountModeSwitch'
