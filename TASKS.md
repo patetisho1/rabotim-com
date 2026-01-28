@@ -4,7 +4,57 @@
 
 ---
 
-## 🔴 НЕЗАВЪРШЕНИ ЗАДАЧИ - Stripe Webhook (Приоритет 0)
+## 🔴 НЕЗАВЪРШЕНИ ЗАДАЧИ (Приоритет 0)
+
+**Последна актуализация:** 2026-01-28
+
+### 1. Email регистрация на Production не работи
+
+**Проблем:** Verification email не се изпраща при регистрация на production.
+
+**Какво е направено:**
+- ✅ `RESEND_API_KEY` е в Vercel environment variables
+- ✅ Supabase SMTP Settings са конфигурирани с Resend
+- ❌ **Sender email address** е `noreply@yourdomain.com` - трябва да се смени!
+
+**Следващи стъпки:**
+- [ ] В **Supabase** → **Authentication** → **SMTP Settings**:
+  - Смени **Sender email address** на `onboarding@resend.dev` (за тест)
+  - Кликни **Save changes**
+- [ ] Тествай регистрация на production
+- [ ] (По-късно) Добави `rabotim.com` домейн в Resend и смени sender email
+
+---
+
+### 2. Stripe Webhook - НОВ secret е конфигуриран
+
+**Статус:** ✅ Готово, но не е тестван
+
+**Какво е направено:**
+- ✅ Нов webhook endpoint създаден: `vibrant-celebration`
+- ✅ Нов secret: `whsec_sk2LalLtGoOFCU3IeGi1DQkMJmkORI84`
+- ✅ Events: checkout.session.completed, subscription.*, invoice.*
+- ⏳ `STRIPE_WEBHOOK_SECRET` трябва да се обнови в Vercel (ако не е)
+
+**Следващи стъпки:**
+- [ ] Провери дали `STRIPE_WEBHOOK_SECRET` в Vercel е обновен с новия secret
+- [ ] Redeploy production ако е нужно
+- [ ] Тествай плащане на production
+
+---
+
+### 3. Production Deployment
+
+**Статус:** ⏳ PR #15 е готов за merge
+
+**Следващи стъпки:**
+- [ ] Merge PR #15 (staging → main) ако не е merge-нат
+- [ ] Изчакай Vercel да deploy-не production
+- [ ] Тествай на https://rabotim-com.vercel.app
+
+---
+
+## 🔴 СТАРИ ЗАДАЧИ - Stripe Webhook (Приоритет 0)
 
 **Добавено:** 2026-01-27 (вечер)
 
