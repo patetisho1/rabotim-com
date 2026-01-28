@@ -198,3 +198,34 @@ export function createCustomMockUser(overrides: Partial<typeof MOCK_USER>) {
   return { ...MOCK_USER, ...overrides };
 }
 
+/**
+ * Dismisses the cookie consent banner if present
+ * Sets localStorage to prevent it from showing again
+ * 
+ * @param page - Playwright page object
+ */
+export async function dismissCookieConsent(page: Page): Promise<void> {
+  // Set cookie consent in localStorage before any page load
+  await page.addInitScript(() => {
+    localStorage.setItem('cookie-consent', JSON.stringify({
+      necessary: true,
+      functional: true,
+      analytics: false,
+      marketing: false
+    }));
+    localStorage.setItem('cookie-consent-date', new Date().toISOString());
+  });
+}
+
+/**
+ * Complete mock auth setup with cookie consent dismissed
+ * Use this for most test scenarios to avoid cookie banner blocking
+ * 
+ * @param page - Playwright page object
+ */
+export async function setupMockAuthWithCookies(page: Page): Promise<void> {
+  await dismissCookieConsent(page);
+  await injectMockAuth(page);
+  await mockSupabaseAuthAPI(page);
+}
+

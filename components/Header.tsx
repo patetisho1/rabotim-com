@@ -86,8 +86,9 @@ export default function Header() {
               </button>
               
               {/* Категории бутон */}
-              <div className="relative">
-                <button
+              <div className="relative" data-tour="categories">
+                <Link
+                  href="/categories"
                   onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
                   onMouseLeave={() => {
                     setTimeout(() => {
@@ -100,7 +101,7 @@ export default function Header() {
                 >
                   Категории
                   <ChevronDown size={16} className="ml-1" />
-                </button>
+                </Link>
                 
                 {/* Dropdown Menu */}
                 {isCategoriesDropdownOpen && (

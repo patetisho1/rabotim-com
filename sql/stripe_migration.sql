@@ -63,3 +63,4 @@ CREATE TRIGGER update_payments_updated_at
 -- Success message
 SELECT 'Stripe migration completed successfully!' as message;
 
+

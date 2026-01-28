@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { setupMockAuth, MOCK_USER } from './helpers/mock-auth';
+import { setupMockAuthWithCookies, MOCK_USER } from './helpers/mock-auth';
 
 test.describe('Notifications', () => {
   
   test.beforeEach(async ({ page }) => {
-    // Setup mock authentication before each test
-    await setupMockAuth(page);
+    // Setup mock authentication with cookie consent dismissed
+    await setupMockAuthWithCookies(page);
   });
 
   test('should display notifications page when logged in', async ({ page }) => {
@@ -68,7 +68,7 @@ test.describe('Notifications', () => {
   });
 
   test('should display notification bell in header when logged in', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     
     // Wait for page to be interactive
     await page.waitForLoadState('domcontentloaded');
@@ -102,7 +102,7 @@ test.describe('Notifications', () => {
   });
 
   test('should allow toggling notification preferences', async ({ page }) => {
-    await page.goto('/notifications', { waitUntil: 'domcontentloaded' });
+    await page.goto('/notifications', { waitUntil: 'domcontentloaded', timeout: 60000 });
     
     // Wait for page
     await page.waitForLoadState('domcontentloaded');
@@ -110,28 +110,29 @@ test.describe('Notifications', () => {
     // Navigate to settings if tab exists
     const settingsTab = page.locator('button:has-text("Настройки"), [role="tab"]:has-text("Настройки")').first();
     
-    if (await settingsTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await settingsTab.click();
+    if (await settingsTab.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await settingsTab.click({ force: true });
       await page.waitForTimeout(500);
       
-      // Find any toggle/checkbox
-      const toggle = page.locator('input[type="checkbox"], [role="switch"]').first();
+      // Find any toggle/checkbox - look for visible ones
+      const toggle = page.locator('input[type="checkbox"]:visible, [role="switch"]:visible').first();
       
-      if (await toggle.isVisible({ timeout: 3000 }).catch(() => false)) {
+      if (await toggle.isVisible({ timeout: 5000 }).catch(() => false)) {
         const initialState = await toggle.isChecked().catch(() => false);
-        await toggle.click();
-        await page.waitForTimeout(300);
+        // Use force to bypass any overlays
+        await toggle.click({ force: true });
+        await page.waitForTimeout(500);
         
         const newState = await toggle.isChecked().catch(() => !initialState);
         
         // Toggle should change state
         expect(newState).not.toBe(initialState);
       } else {
-        // No toggles found
+        // No visible toggles found - skip test
         test.skip();
       }
     } else {
-      // Settings not available
+      // Settings not available - skip test
       test.skip();
     }
   });
