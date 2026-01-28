@@ -22,7 +22,7 @@ Stripe webhook връща **HTTP 400** с грешка за signature verificati
 - ✅ Webhook endpoint създаден: `elegant-legacy`
 - ✅ Webhook URL: `https://rabotim-com-git-staging-tihomirs-projects-850a4235.vercel.app/api/stripe/webhook`
 - ✅ Vercel Protection Bypass token добавен към URL
-- ✅ `STRIPE_WEBHOOK_SECRET` добавен в Vercel = `whsec_Zw1ahBMxDNTEB3YkEa9LfHMvv9Ye841J`
+- ✅ `STRIPE_WEBHOOK_SECRET` добавен в Vercel (secret hidden)
 - ✅ Тестови плащания минават успешно в Stripe
 - ✅ Success страница `/premium/success` работи
 

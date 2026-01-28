@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getServiceRoleClient } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,8 +10,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 })
     }
 
+    // Use service role client for server-side queries (bypasses RLS)
+    const serviceClient = getServiceRoleClient()
+
     // Check if user has a professional profile (draft or active)
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await serviceClient
       .from('professional_profiles')
       .select('id, is_published, is_premium')
       .eq('user_id', userId)
@@ -23,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check user's premium status
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await serviceClient
       .from('users')
       .select('is_premium, premium_until, premium_type')
       .eq('id', userId)
