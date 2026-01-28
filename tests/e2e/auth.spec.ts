@@ -1,18 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { setupMockAuth, MOCK_USER, clearMockAuth } from './helpers/mock-auth';
-
-// Helper to dismiss cookie consent if present
-async function dismissCookieConsent(page: any) {
-  const consentButton = page.locator('button:has-text("Приемам"), button:has-text("Настройки"), [data-testid="cookie-accept"]').first();
-  if (await consentButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await consentButton.click();
-    await page.waitForTimeout(500);
-  }
-}
+import { setupMockAuthWithCookies, MOCK_USER, clearMockAuth, dismissCookieConsent } from './helpers/mock-auth';
 
 test.describe('Authentication', () => {
   
   test.describe('Public Auth Pages', () => {
+    
+    test.beforeEach(async ({ page }) => {
+      // Dismiss cookie consent before each public auth test
+      await dismissCookieConsent(page);
+    });
     
     test('should display login page correctly', async ({ page }) => {
       // Use waitUntil: 'domcontentloaded' for faster loading
@@ -43,9 +39,6 @@ test.describe('Authentication', () => {
     test('should show error for invalid login credentials', async ({ page }) => {
       await page.goto('/login', { waitUntil: 'domcontentloaded' });
       
-      // Dismiss cookie consent if present
-      await dismissCookieConsent(page);
-      
       // Wait for form to be ready
       await page.waitForSelector('input[type="email"]', { timeout: 15000 });
       
@@ -68,9 +61,6 @@ test.describe('Authentication', () => {
 
     test('should navigate to login from home page', async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      
-      // Dismiss cookie consent if present
-      await dismissCookieConsent(page);
       
       // Wait for page to load
       await page.waitForLoadState('domcontentloaded');
@@ -101,9 +91,6 @@ test.describe('Authentication', () => {
 
     test('should navigate to register from login page', async ({ page }) => {
       await page.goto('/login', { waitUntil: 'domcontentloaded' });
-      
-      // Dismiss cookie consent if present
-      await dismissCookieConsent(page);
       
       // Wait for page to load
       await page.waitForSelector('input[type="email"]', { timeout: 15000 });
@@ -139,8 +126,8 @@ test.describe('Authentication', () => {
   test.describe('Authenticated State (Mock)', () => {
     
     test('should access protected route with mock auth', async ({ page }) => {
-      // Setup mock authentication
-      await setupMockAuth(page);
+      // Setup mock authentication with cookie consent
+      await setupMockAuthWithCookies(page);
       
       // Navigate to protected route
       await page.goto('/my-tasks', { waitUntil: 'domcontentloaded' });
@@ -159,7 +146,7 @@ test.describe('Authentication', () => {
     });
 
     test('should have mock user data in localStorage', async ({ page }) => {
-      await setupMockAuth(page);
+      await setupMockAuthWithCookies(page);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       
       // Verify mock session is set
@@ -177,7 +164,7 @@ test.describe('Authentication', () => {
     });
 
     test('should clear mock auth properly', async ({ page }) => {
-      await setupMockAuth(page);
+      await setupMockAuthWithCookies(page);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       
       // Clear mock auth

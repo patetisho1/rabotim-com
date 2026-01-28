@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { 
   MapPin, Phone, Mail, Clock, Star, CheckCircle, Share2, 
-  MessageCircle, Briefcase, Award
+  MessageCircle, Briefcase, Award, Calendar
 } from 'lucide-react'
 import { TemplateProps } from './TemplateRenderer'
 
@@ -14,7 +14,7 @@ const dayTranslations: Record<string, string> = {
 
 export default function ClassicTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'about' | 'contact'>('services')
   const primaryColor = profile.primaryColor || '#1F2937' // Dark gray
@@ -85,11 +85,28 @@ export default function ClassicTemplate({
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
+                {profile.acceptOnlineBooking && onBook && (
+                  <button
+                    onClick={onBook}
+                    className="flex items-center gap-2 px-6 py-3 text-white rounded-sm font-medium hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    <Calendar size={18} />
+                    Запази час
+                  </button>
+                )}
                 <button
                   onClick={onContact}
-                  className="flex items-center gap-2 px-6 py-3 text-white rounded-sm font-medium hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: primaryColor }}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-sm font-medium transition-opacity ${
+                    profile.acceptOnlineBooking && onBook 
+                      ? 'border-2 hover:bg-gray-50' 
+                      : 'text-white hover:opacity-90'
+                  }`}
+                  style={profile.acceptOnlineBooking && onBook 
+                    ? { borderColor: primaryColor, color: primaryColor }
+                    : { backgroundColor: primaryColor }
+                  }
                 >
                   <MessageCircle size={18} />
                   Свържете се

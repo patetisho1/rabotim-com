@@ -79,16 +79,18 @@ export default function CookieConsent() {
 
   return (
     <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-        onClick={() => setShowSettings(false)}
-      />
+      {/* Backdrop - only show when settings are open */}
+      {showSettings && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          onClick={() => setShowSettings(false)}
+        />
+      )}
 
       {/* Cookie Banner */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 pointer-events-none">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden pointer-events-auto">
             {/* Main Banner */}
             {!showSettings ? (
               <div className="p-6">

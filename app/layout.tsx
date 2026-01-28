@@ -9,6 +9,7 @@ import BottomNav from '@/components/BottomNav'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
 import AuthProvider from '@/providers/AuthProvider'
+import { AccountModeProvider } from '@/contexts/AccountModeContext'
 import SPANavigation from '@/components/SPANavigation'
 import CookieConsent from '@/components/CookieConsent'
 
@@ -144,15 +145,17 @@ export default function RootLayout({
         <OrganizationStructuredData />
         <WebSiteStructuredData />
         <AuthProvider>
-          <SPANavigation>
-            <Header />
-            <main className="pb-safe">
-              {children}
-            </main>
-            <Footer />
-            <BottomNav />
-            <CookieConsent />
-          </SPANavigation>
+          <AccountModeProvider>
+            <SPANavigation>
+              <Header />
+              <main className="pb-safe">
+                {children}
+              </main>
+              <Footer />
+              <BottomNav />
+              <CookieConsent />
+            </SPANavigation>
+          </AccountModeProvider>
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}

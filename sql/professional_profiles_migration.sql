@@ -169,3 +169,5 @@ INSERT INTO professional_profiles (
 
 SELECT 'Professional profiles migration completed successfully!' as message;
 
+
+

@@ -141,14 +141,14 @@ export default function PaymentModal({
                   <span className="text-2xl font-bold text-blue-600">
                     {(plan.price / 100).toFixed(2)} {plan.currency.toUpperCase()}
                   </span>
-                  {'duration' in plan && plan.duration && (
+                  {'duration' in plan && typeof (plan as any).duration === 'number' && (
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {plan.duration} days
+                      {(plan as any).duration} дни
                     </span>
                   )}
-                  {'interval' in plan && plan.interval && (
+                  {'interval' in plan && typeof (plan as any).interval === 'string' && (
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      per {plan.interval}
+                      на {(plan as any).interval === 'month' ? 'месец' : 'година'}
                     </span>
                   )}
                 </div>

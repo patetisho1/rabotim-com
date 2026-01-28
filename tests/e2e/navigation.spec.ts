@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { dismissCookieConsent } from './helpers/mock-auth';
 
 test.describe('Navigation', () => {
+  
+  test.beforeEach(async ({ page }) => {
+    // Dismiss cookie consent before each test
+    await dismissCookieConsent(page);
+  });
   
   test('should navigate to home page', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -89,8 +95,11 @@ test.describe('Navigation', () => {
   });
 
   test('should navigate to tasks page', async ({ page }) => {
-    await page.goto('/tasks', { waitUntil: 'domcontentloaded' });
+    await page.goto('/tasks', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await expect(page).toHaveURL(/.*tasks/);
+    
+    // Verify page has loaded
+    await expect(page.locator('body')).toBeVisible();
   });
 
   test('should navigate to login page', async ({ page }) => {

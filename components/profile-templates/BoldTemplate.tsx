@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { 
   MapPin, Phone, Mail, Clock, Star, Share2, 
-  MessageCircle, ArrowRight, ChevronDown
+  MessageCircle, ArrowRight, ChevronDown, Calendar
 } from 'lucide-react'
 import { TemplateProps } from './TemplateRenderer'
 
 export default function BoldTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'gallery' | 'about' | 'contact'>('services')
   const [expandedService, setExpandedService] = useState<string | null>(null)
@@ -86,14 +86,31 @@ export default function BoldTemplate({
           </div>
 
           {/* CTA */}
-          <button
-            onClick={onContact}
-            className="group inline-flex items-center gap-3 px-10 py-5 text-xl font-bold uppercase tracking-wide transition-all hover:gap-5"
-            style={{ backgroundColor: primaryColor }}
-          >
-            Свържи се
-            <ArrowRight size={24} className="transition-transform group-hover:translate-x-2" />
-          </button>
+          <div className="flex flex-wrap justify-center gap-4">
+            {profile.acceptOnlineBooking && onBook && (
+              <button
+                onClick={onBook}
+                className="group inline-flex items-center gap-3 px-10 py-5 text-xl font-bold uppercase tracking-wide transition-all hover:gap-5"
+                style={{ backgroundColor: primaryColor }}
+              >
+                <Calendar size={24} />
+                Запази час
+              </button>
+            )}
+            <button
+              onClick={onContact}
+              className={`group inline-flex items-center gap-3 px-10 py-5 text-xl font-bold uppercase tracking-wide transition-all hover:gap-5 ${
+                profile.acceptOnlineBooking && onBook ? 'border-2' : ''
+              }`}
+              style={profile.acceptOnlineBooking && onBook 
+                ? { borderColor: primaryColor, color: primaryColor }
+                : { backgroundColor: primaryColor }
+              }
+            >
+              Свържи се
+              <ArrowRight size={24} className="transition-transform group-hover:translate-x-2" />
+            </button>
+          </div>
         </div>
 
         {/* Scroll indicator */}

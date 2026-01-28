@@ -19,6 +19,7 @@ import { ImageGallerySkeleton, UserAvatarSkeleton } from '@/components/SkeletonL
 import DynamicMetaTags from '@/components/DynamicMetaTags'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { useRatings } from '@/hooks/useRatings'
+import PromoteTaskBanner from '@/components/PromoteTaskBanner'
 
 interface Task {
   id: string
@@ -921,6 +922,18 @@ function TaskDetailPageContent() {
                 </p>
               </div>
             </div>
+
+            {/* Promote Task Banner - for task owners */}
+            {task.user_id === authUser?.id && task.status === 'active' && (
+              <PromoteTaskBanner
+                taskId={task.id}
+                viewCount={task.views_count}
+                applicationCount={task.applications_count}
+                daysOld={Math.floor((Date.now() - new Date(task.created_at).getTime()) / (1000 * 60 * 60 * 24))}
+                isOwner={true}
+                isPromoted={false}
+              />
+            )}
 
             {/* Applications */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">

@@ -15,6 +15,7 @@ interface TemplateRendererProps {
   isPreview?: boolean
   onContact?: () => void
   onShare?: () => void
+  onBook?: () => void
   userRating?: number
   reviewCount?: number
 }
@@ -24,6 +25,7 @@ export default function TemplateRenderer({
   isPreview = false,
   onContact,
   onShare,
+  onBook,
   userRating = 0,
   reviewCount = 0
 }: TemplateRendererProps) {
@@ -37,6 +39,7 @@ export default function TemplateRenderer({
     isPreview,
     onContact,
     onShare,
+    onBook,
     userRating,
     reviewCount
   }
@@ -76,7 +79,10 @@ export interface TemplateProps {
   isPreview: boolean
   onContact?: () => void
   onShare?: () => void
+  onBook?: () => void
   userRating: number
   reviewCount: number
 }
+
+
 

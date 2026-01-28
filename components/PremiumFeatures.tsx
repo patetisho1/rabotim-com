@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Crown, Zap, Star, Shield, TrendingUp, Users, Clock, CheckCircle, ArrowRight, Sparkles } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Crown, Zap, Star, Shield, TrendingUp, Users, Clock, CheckCircle, ArrowRight, Sparkles, Loader2 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface PremiumPlan {
   id: string
@@ -22,19 +24,65 @@ export default function PremiumFeatures({
   className = '', 
   variant = 'default' 
 }: PremiumFeaturesProps) {
+  const router = useRouter()
+  const { user } = useAuth()
   const [selectedPeriod, setSelectedPeriod] = useState<'month' | 'year'>('month')
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+
+  const handleSelectPlan = async (planId: string) => {
+    // If user is not logged in, redirect to login
+    if (!user) {
+      router.push(`/login?redirect=/premium&plan=${planId}`)
+      return
+    }
+
+    setLoadingPlan(planId)
+
+    try {
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId,
+          userId: user.id,
+          userEmail: user.email,
+          billingInterval: selectedPeriod,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error)
+      alert('Възникна грешка. Моля, опитайте отново.')
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
 
   const premiumPlans: PremiumPlan[] = [
     {
       id: 'basic',
       name: 'Basic',
-      price: 9.99,
+      price: 29,
       period: 'month',
       features: [
         'Листване в каталога "Професионалисти"',
         'Премиум профил с портфолио',
+        'До 5 директни заявки на ден',
         '5 промотирани обяви на месец',
-        'До 10 заявки на ден',
         'Основни статистики',
         'Email поддръжка'
       ]
@@ -42,12 +90,12 @@ export default function PremiumFeatures({
     {
       id: 'professional',
       name: 'Professional',
-      price: 19.99,
+      price: 39,
       period: 'month',
       features: [
         'Всичко от Basic',
+        'Неограничени директни заявки',
         '10 промотирани обяви на месец',
-        'Неограничени заявки',
         'Разширени статистики',
         'VIP поддръжка',
         'Промоция на профила',
@@ -59,15 +107,15 @@ export default function PremiumFeatures({
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 39.99,
+      price: 89,
       period: 'month',
       features: [
         'Всичко от Professional',
+        'До 5 под-акаунта (служители)',
         '20 промотирани обяви на месец',
-        'Персонализиран профил',
+        'Персонален мениджър',
         'API достъп',
         'Бял етикет (white label)',
-        'Персонален мениджър',
         'Приоритетна поддръжка 24/7',
         'Анализ на конкурентите'
       ],
@@ -163,8 +211,19 @@ export default function PremiumFeatures({
             <span className="text-sm">Промотирани обяви</span>
           </div>
         </div>
-        <button className="w-full bg-white text-orange-600 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-          Станете премиум за 19.99 €/месец
+        <button 
+          onClick={() => handleSelectPlan('professional')}
+          disabled={loadingPlan !== null}
+          className="w-full bg-white text-orange-600 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loadingPlan === 'professional' ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Зареждане...
+            </span>
+          ) : (
+            'Станете премиум за 39 €/месец'
+          )}
         </button>
       </div>
     )
@@ -256,13 +315,22 @@ export default function PremiumFeatures({
               </ul>
 
               <button
-                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+                onClick={() => handleSelectPlan(plan.id)}
+                disabled={loadingPlan !== null}
+                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   plan.isPopular
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                Изберете план
+                {loadingPlan === plan.id ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Зареждане...
+                  </span>
+                ) : (
+                  'Изберете план'
+                )}
               </button>
             </div>
           ))}
@@ -368,11 +436,27 @@ export default function PremiumFeatures({
           Присъединете се към хилядите премиум изпълнители, които увеличават доходите си с нашите функции
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="float-left bg-white text-blue-600 py-3 px-8 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2">
-            Станете премиум
-            <ArrowRight className="h-5 w-5" />
+          <button 
+            onClick={() => handleSelectPlan('professional')}
+            disabled={loadingPlan !== null}
+            className="bg-white text-blue-600 py-3 px-8 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loadingPlan === 'professional' ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Зареждане...
+              </>
+            ) : (
+              <>
+                Станете премиум
+                <ArrowRight className="h-5 w-5" />
+              </>
+            )}
           </button>
-          <button className="float-left border-2 border-white text-white py-3 px-8 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+          <button 
+            onClick={() => router.push('/premium')}
+            className="border-2 border-white text-white py-3 px-8 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+          >
             Вижте плановете
           </button>
         </div>

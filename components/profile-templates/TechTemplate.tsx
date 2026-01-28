@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { 
   MapPin, Phone, Mail, Clock, Star, CheckCircle, Share2, 
-  MessageCircle, Terminal, Code, Cpu, Database, Globe
+  MessageCircle, Terminal, Code, Cpu, Database, Globe, Calendar
 } from 'lucide-react'
 import { TemplateProps } from './TemplateRenderer'
 
@@ -14,7 +14,7 @@ const dayTranslations: Record<string, string> = {
 
 export default function TechTemplate({ 
   profile, templateConfig, professionConfig, isPreview,
-  onContact, onShare, userRating, reviewCount 
+  onContact, onShare, onBook, userRating, reviewCount 
 }: TemplateProps) {
   const [activeSection, setActiveSection] = useState<'services' | 'gallery' | 'about' | 'contact'>('services')
   const primaryColor = profile.primaryColor || '#06B6D4' // Cyan
@@ -77,11 +77,28 @@ export default function TechTemplate({
               {profile.tagline}
             </p>
 
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
+              {profile.acceptOnlineBooking && onBook && (
+                <button
+                  onClick={onBook}
+                  className="flex items-center gap-2 px-6 py-3 font-medium transition-all hover:bg-opacity-90"
+                  style={{ backgroundColor: primaryColor, color: '#0a0a0f' }}
+                >
+                  <Calendar size={18} />
+                  ./book --schedule
+                </button>
+              )}
               <button
                 onClick={onContact}
-                className="flex items-center gap-2 px-6 py-3 font-medium transition-all hover:bg-opacity-90"
-                style={{ backgroundColor: primaryColor, color: '#0a0a0f' }}
+                className={`flex items-center gap-2 px-6 py-3 font-medium transition-all ${
+                  profile.acceptOnlineBooking && onBook 
+                    ? 'border hover:bg-white/5' 
+                    : 'hover:bg-opacity-90'
+                }`}
+                style={profile.acceptOnlineBooking && onBook 
+                  ? { borderColor: primaryColor, color: primaryColor }
+                  : { backgroundColor: primaryColor, color: '#0a0a0f' }
+                }
               >
                 <Terminal size={18} />
                 ./contact --now
