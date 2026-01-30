@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
+  const { resetPassword } = useAuth()
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
@@ -16,43 +18,27 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true)
 
     try {
-      // Валидация
       if (!email.trim()) {
         toast.error('Моля, въведете имейл адрес')
         return
       }
 
-      // Валидация на email формат
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(email)) {
         toast.error('Моля, въведете валиден имейл адрес')
         return
       }
 
-      // Проверка дали потребителят съществува
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const userExists = users.find((user: any) => user.email === email)
-      
-      if (!userExists) {
-        toast.error('Потребител с този имейл адрес не е намерен')
+      // Supabase изпраща имейл за възстановяване само ако акаунтът съществува (не разкриваме дали имейлът е регистриран)
+      const { error } = await resetPassword(email.trim())
+
+      if (error) {
+        toast.error(error.message || 'Възникна грешка при изпращането')
         return
       }
 
-      // Симулация на изпращане на email
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Запазване на заявката за възстановяване
-      const resetRequests = JSON.parse(localStorage.getItem('resetRequests') || '[]')
-      resetRequests.push({
-        email,
-        token: Math.random().toString(36).substring(2, 15),
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 часа
-      })
-      localStorage.setItem('resetRequests', JSON.stringify(resetRequests))
-
       setIsEmailSent(true)
-      toast.success('Email за възстановяване е изпратен!')
+      toast.success('Ако имейлът е регистриран, ще получите линк за възстановяване.')
     } catch (error) {
       toast.error('Възникна грешка при изпращането')
     } finally {
@@ -61,10 +47,15 @@ export default function ForgotPasswordPage() {
   }
 
   const handleResendEmail = async () => {
+    if (!email.trim()) return
     setIsSubmitting(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success('Email е изпратен отново!')
+      const { error } = await resetPassword(email.trim())
+      if (error) {
+        toast.error(error.message || 'Грешка при изпращането')
+        return
+      }
+      toast.success('Линкът е изпратен отново. Проверете пощата си.')
     } catch (error) {
       toast.error('Грешка при изпращането')
     } finally {
@@ -136,13 +127,13 @@ export default function ForgotPasswordPage() {
             
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Email е изпратен!
+                Проверете пощата си
               </h3>
               <p className="text-gray-600 mb-4">
-                Изпратихме линк за възстановяване на паролата на <strong>{email}</strong>
+                Ако имейлът <strong>{email}</strong> е регистриран в нашата система, изпратихме линк за възстановяване на паролата.
               </p>
               <p className="text-sm text-gray-500">
-                Проверете вашата поща и следвайте инструкциите в email-а
+                Проверете входящата поща и спам папката и следвайте инструкциите в имейла.
               </p>
             </div>
 
