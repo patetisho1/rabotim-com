@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { emailService } from '@/lib/email'
 import { logger } from '@/lib/logger'
-import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
-  const rateLimitResult = await rateLimit(request, rateLimitConfigs.sendEmail)
-  if (rateLimitResult.limited) {
-    return rateLimitResult.response!
-  }
-
   try {
     const body = await request.json()
     const { type, ...data } = body

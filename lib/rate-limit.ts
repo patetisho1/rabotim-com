@@ -206,13 +206,6 @@ export const rateLimitConfigs = {
     windowMs: 1 * 60 * 1000, // 1 minute
     maxRequests: 60, // 60 requests per minute
     message: 'Твърде много заявки. Моля опитайте след 1 минута.'
-  },
-
-  // Имейл изпращане – да не претоварваме доставчика (и да имаме ясно наше съобщение, не от Resend)
-  sendEmail: {
-    windowMs: 1 * 60 * 1000, // 1 minute
-    maxRequests: 20, // 20 emails per minute per client
-    message: 'Твърде много имейли за кратко време. Моля изчакайте около минута и опитайте отново.'
   }
 }
 
