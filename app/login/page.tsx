@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Mail, Eye, EyeOff, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -9,9 +9,11 @@ import SocialLogin from '@/components/SocialLogin'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { signIn, signInWithGoogle, signInWithFacebook, loading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showPasswordResetMessage, setShowPasswordResetMessage] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -145,9 +147,22 @@ export default function LoginPage() {
     })
   }
 
+  useEffect(() => {
+    if (searchParams.get('password_reset') === '1') {
+      setShowPasswordResetMessage(true)
+      toast.success('Паролата е сменена успешно. Влезте с новата си парола.')
+    }
+  }, [searchParams])
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {showPasswordResetMessage && (
+          <div className="rounded-md bg-green-50 border border-green-200 p-4 text-sm text-green-800">
+            Паролата е сменена успешно. Влезте с новата си парола по-долу.
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center">
           <button

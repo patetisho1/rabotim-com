@@ -49,8 +49,10 @@ export default function ResetPasswordPage() {
         return
       }
       setIsSuccess(true)
-      toast.success('Паролата е сменена успешно.')
-      setTimeout(() => router.push('/login'), 2000)
+      toast.success('Паролата е сменена. Сега влезте с новата си парола.')
+      // Изход от акаунта – потребителят не остава „влязъл“, трябва да влезе с новата парола
+      await supabaseAuth.auth.signOut()
+      setTimeout(() => router.push('/login?password_reset=1'), 1500)
     } catch (error) {
       toast.error('Възникна грешка при смяната на паролата')
     } finally {
@@ -93,7 +95,7 @@ export default function ResetPasswordPage() {
             <CheckCircle size={32} className="text-success-600" />
           </div>
           <h2 className="text-xl font-semibold text-gray-900">Паролата е сменена</h2>
-          <p className="text-gray-600">Пренасочване към входа...</p>
+          <p className="text-gray-600">Ще бъдете пренасочени към входа. Влезте с новата си парола.</p>
         </div>
       </div>
     )
@@ -109,9 +111,9 @@ export default function ResetPasswordPage() {
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Нова парола</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Възстановяване на парола</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Въведете новата парола за акаунта си
+            Вие сте тук след линк от имейла. Задайте нова парола по-долу. След запазване ще бъдете пренасочени към входа – влезте с новата си парола.
           </p>
         </div>
 
