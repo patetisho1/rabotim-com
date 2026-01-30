@@ -33,7 +33,9 @@ export default function ForgotPasswordPage() {
       const { error } = await resetPassword(email.trim())
 
       if (error) {
-        toast.error(error.message || 'Възникна грешка при изпращането')
+        const msg = error.message || ''
+        const isRateLimit = /rate limit|limit exceeded|too many|превишен|лимит/i.test(msg)
+        toast.error(isRateLimit ? 'Твърде много опити за кратко време. Моля изчакайте няколко минути и опитайте отново.' : (msg || 'Възникна грешка при изпращането'))
         return
       }
 
@@ -52,7 +54,9 @@ export default function ForgotPasswordPage() {
     try {
       const { error } = await resetPassword(email.trim())
       if (error) {
-        toast.error(error.message || 'Грешка при изпращането')
+        const msg = error.message || ''
+        const isRateLimit = /rate limit|limit exceeded|too many|превишен|лимит/i.test(msg)
+        toast.error(isRateLimit ? 'Твърде много опити за кратко време. Моля изчакайте няколко минути.' : (msg || 'Грешка при изпращането'))
         return
       }
       toast.success('Линкът е изпратен отново. Проверете пощата си.')
