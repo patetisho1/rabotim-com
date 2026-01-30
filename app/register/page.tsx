@@ -110,7 +110,7 @@ export default function RegisterPage() {
       // Supabase при съществуващ имейл не връща грешка (защита срещу изброяване); identities е празен
       if (data?.user && (!data.user.identities || data.user.identities.length === 0)) {
         setShowDuplicateEmailMessage(true)
-        toast.error('Този имейл вече е регистриран. Можете да нулирате паролата си по-долу.', { duration: 6000 })
+        toast.error('Този имейл вече е регистриран. Вижте съобщението по-долу за „Забравена парола“.', { duration: 6000 })
         return
       }
 
@@ -259,11 +259,10 @@ export default function RegisterPage() {
 
           {showDuplicateEmailMessage && (
             <div className="mb-4 rounded-md bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
-              <p className="font-medium">Този имейл вече е регистриран.</p>
-              <p className="mt-1">
-                Ако не помните паролата си,{' '}
+              <p>
+                Този имейл вече е регистриран. Ако сте забравили паролата си, използвайте линка{' '}
                 <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 underline">
-                  нулирайте я тук
+                  Забравена парола
                 </Link>
                 .
               </p>
