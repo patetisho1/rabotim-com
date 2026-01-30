@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { User, Session } from '@supabase/supabase-js'
 import { supabaseAuth } from '@/lib/supabase-auth'
 
 export function useAuth() {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
@@ -24,17 +26,20 @@ export function useAuth() {
 
     getInitialSession()
 
-    // Listen for auth changes
+    // Listen for auth changes – при PASSWORD_RECOVERY винаги пренасочваме към страницата за нова парола
     const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session)
         setUser(session?.user || null)
         setLoading(false)
+        if (event === 'PASSWORD_RECOVERY') {
+          router.replace('/reset-password')
+        }
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [router])
 
   const signUp = async (email: string, password: string, userData?: { full_name?: string; phone?: string; city?: string | null; neighborhood?: string | null; about_me?: string | null }) => {
     setLoading(true)
