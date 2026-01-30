@@ -2,11 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
+/**
+ * Callback само за password reset – Supabase препраща тук след клик на линка от имейла.
+ * Обменя code за сесия и винаги пренасочва към /reset-password (без да разчитаме на query params).
+ */
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const nextUrl = requestUrl.searchParams.get('next') // за password reset: ?next=/reset-password
-  const type = requestUrl.searchParams.get('type') // recovery = password reset
 
   if (code) {
     const cookieStore = cookies()
@@ -30,13 +32,5 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  // При password reset (recovery) или явно next=/reset-password → страница за нова парола
-  if (type === 'recovery' || nextUrl === '/reset-password') {
-    return NextResponse.redirect(`${requestUrl.origin}/reset-password`)
-  }
-  if (nextUrl && nextUrl.startsWith('/')) {
-    return NextResponse.redirect(`${requestUrl.origin}${nextUrl}`)
-  }
-
-  return NextResponse.redirect(`${requestUrl.origin}/`)
+  return NextResponse.redirect(`${requestUrl.origin}/reset-password`)
 }

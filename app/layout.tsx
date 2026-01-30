@@ -3,15 +3,11 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import ToastProvider from '@/components/ToastProvider'
 // import PWAInstall from '@/components/PWAInstall'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import BottomNav from '@/components/BottomNav'
+import AppShell from '@/components/AppShell'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
 import AuthProvider from '@/providers/AuthProvider'
 import { AccountModeProvider } from '@/contexts/AccountModeContext'
-import SPANavigation from '@/components/SPANavigation'
-import CookieConsent from '@/components/CookieConsent'
 
 // Optimize font loading with next/font
 const inter = Inter({
@@ -146,15 +142,7 @@ export default function RootLayout({
         <WebSiteStructuredData />
         <AuthProvider>
           <AccountModeProvider>
-            <SPANavigation>
-              <Header />
-              <main className="pb-safe">
-                {children}
-              </main>
-              <Footer />
-              <BottomNav />
-              <CookieConsent />
-            </SPANavigation>
+            <AppShell>{children}</AppShell>
           </AccountModeProvider>
         </AuthProvider>
         {/* <MobileNav /> */}

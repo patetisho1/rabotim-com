@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { ArrowLeft, Mail, Eye, EyeOff, Lock, User, Phone, CheckCircle, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -19,6 +20,7 @@ export default function RegisterPage() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [newUserId, setNewUserId] = useState<string | null>(null)
   const [newUserName, setNewUserName] = useState('')
+  const [showDuplicateEmailMessage, setShowDuplicateEmailMessage] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -35,6 +37,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setShowDuplicateEmailMessage(false)
 
     try {
       // Валидация
@@ -101,6 +104,13 @@ export default function RegisterPage() {
 
       if (error) {
         toast.error(error.message || 'Грешка при регистрацията')
+        return
+      }
+
+      // Supabase при съществуващ имейл не връща грешка (защита срещу изброяване); identities е празен
+      if (data?.user && (!data.user.identities || data.user.identities.length === 0)) {
+        setShowDuplicateEmailMessage(true)
+        toast.error('Този имейл вече е регистриран. Вижте съобщението по-долу за „Забравена парола“.', { duration: 6000 })
         return
       }
 
@@ -246,6 +256,18 @@ export default function RegisterPage() {
               </span>
             </div>
           </div>
+
+          {showDuplicateEmailMessage && (
+            <div className="mb-4 rounded-md bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+              <p>
+                Този имейл вече е регистриран. Ако сте забравили паролата си, използвайте линка{' '}
+                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 underline">
+                  Забравена парола
+                </Link>
+                .
+              </p>
+            </div>
+          )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Имена */}

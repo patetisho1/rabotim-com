@@ -96,17 +96,15 @@ export async function POST(request: NextRequest) {
     }
 
     if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
+      return NextResponse.json({ success: true, data: (result as { success: true; data: unknown }).data })
     } else {
-      // Don't fail the request if email service is not configured
-      // Just log and return success with warning
-      const errorMessage = typeof result.error === 'string' ? result.error : 'Unknown error'
+      const err = (result as { success: false; error: string }).error
+      const errorMessage = typeof err === 'string' ? err : 'Временна грешка при изпращане.'
       logger.warn('Email not sent', new Error(errorMessage), { emailType: type as string })
-      return NextResponse.json({ 
-        success: true, 
-        warning: 'Email service not configured',
-        data: null 
-      })
+      return NextResponse.json(
+        { success: false, error: errorMessage },
+        { status: 503 }
+      )
     }
   } catch (error) {
     logger.error('Email API error', error as Error, { endpoint: 'POST /api/send-email' })
