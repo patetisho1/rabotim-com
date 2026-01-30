@@ -6,6 +6,7 @@ import Footer from './Footer'
 import BottomNav from './BottomNav'
 import CookieConsent from './CookieConsent'
 import SPANavigation from './SPANavigation'
+import PasswordRecoveryListener from './PasswordRecoveryListener'
 
 const AUTH_ONLY_PATHS = ['/reset-password', '/forgot-password']
 
@@ -19,6 +20,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SPANavigation>
+      <PasswordRecoveryListener />
       <Header />
       <main className="pb-safe">{children}</main>
       <Footer />
