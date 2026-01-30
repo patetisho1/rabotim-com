@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
+      return NextResponse.json({ success: true, data: (result as { success: true; data: unknown }).data })
     } else {
       const errorMessage = typeof result.error === 'string' ? result.error : 'Временна грешка при изпращане.'
       logger.warn('Email not sent', new Error(errorMessage), { emailType: type as string })
