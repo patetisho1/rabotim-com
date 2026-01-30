@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { emailService } from '@/lib/email'
 import { logger } from '@/lib/logger'
+import { rateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  const rateLimitResult = await rateLimit(request, rateLimitConfigs.sendEmail)
+  if (rateLimitResult.limited) {
+    return rateLimitResult.response!
+  }
+
   try {
     const body = await request.json()
     const { type, ...data } = body
@@ -98,15 +104,12 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })
     } else {
-      // Don't fail the request if email service is not configured
-      // Just log and return success with warning
-      const errorMessage = typeof result.error === 'string' ? result.error : 'Unknown error'
+      const errorMessage = typeof result.error === 'string' ? result.error : 'Временна грешка при изпращане.'
       logger.warn('Email not sent', new Error(errorMessage), { emailType: type as string })
-      return NextResponse.json({ 
-        success: true, 
-        warning: 'Email service not configured',
-        data: null 
-      })
+      return NextResponse.json(
+        { success: false, error: errorMessage },
+        { status: 503 }
+      )
     }
   } catch (error) {
     logger.error('Email API error', error as Error, { endpoint: 'POST /api/send-email' })

@@ -393,6 +393,16 @@ const checkResendAvailability = () => {
   return null
 }
 
+/** Нормализира грешка от Resend към потребителско съобщение (на български). */
+function normalizeResendError(error: unknown): string {
+  if (typeof error === 'string') return error
+  const msg = (error as { message?: string })?.message ?? ''
+  if (/rate limit|too many requests/i.test(msg)) {
+    return 'Твърде много имейли за кратко време. Моля изчакайте около минута и опитайте отново.'
+  }
+  return msg || 'Временна грешка при изпращане на имейл. Моля опитайте по-късно.'
+}
+
 export const emailService = {
   async sendWelcomeEmail(to: string, name: string) {
     const checkResult = checkResendAvailability()
@@ -410,13 +420,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending welcome email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending welcome email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -433,13 +443,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending task notification:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending task notification:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -456,13 +466,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending application notification:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending application notification:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -479,13 +489,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending completion notification:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending completion notification:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -502,13 +512,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending rating notification:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending rating notification:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -525,13 +535,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending password reset email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending password reset email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -551,13 +561,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending application accepted email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending application accepted email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -577,13 +587,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending application rejected email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending application rejected email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -603,13 +613,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending new message email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending new message email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -628,13 +638,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending bulk email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending bulk email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   },
 
@@ -672,13 +682,13 @@ export const emailService = {
 
       if (error) {
         console.error('Error sending task alert email:', error)
-        return { success: false, error }
+        return { success: false, error: normalizeResendError(error) }
       }
 
       return { success: true, data }
     } catch (error) {
       console.error('Error sending task alert email:', error)
-      return { success: false, error }
+      return { success: false, error: normalizeResendError(error) }
     }
   }
 }
