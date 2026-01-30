@@ -104,7 +104,8 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       return NextResponse.json({ success: true, data: (result as { success: true; data: unknown }).data })
     } else {
-      const errorMessage = typeof result.error === 'string' ? result.error : 'Временна грешка при изпращане.'
+      const err = (result as { success: false; error: string }).error
+      const errorMessage = typeof err === 'string' ? err : 'Временна грешка при изпращане.'
       logger.warn('Email not sent', new Error(errorMessage), { emailType: type as string })
       return NextResponse.json(
         { success: false, error: errorMessage },
