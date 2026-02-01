@@ -131,7 +131,7 @@ export default function PWAInstall({ onInstall, onDismiss }: PWAInstallProps) {
                   Добави Rabotim на началния екран
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Натисни <strong>Share</strong> (иконата за споделяне) долу в Safari и избери <strong>„Добави към начален екран“</strong>. Ще се появи икона като приложение.
+                  <strong>Safari:</strong> Share (□↑) → „Добави към начален екран“. <strong>Chrome:</strong> менюто (⋮) → „Добави към начален екран“. Ще се появи икона като приложение.
                 </p>
               </div>
             </div>
