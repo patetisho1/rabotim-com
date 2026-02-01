@@ -1,48 +1,40 @@
 # Настройка на имейла за „Забравена парола“ в Supabase
 
-## Проблем
+## Как работи flow-ът
 
-Линкът в имейла за reset парола в момента води само към:
-
-`https://[project].supabase.co/auth/v1/verify?token=...`
-
-Това е **без** параметър `redirect_to`. След верификация Supabase пренасочва към **Site URL** (началната страница), затова потребителят влиза директно в акаунта вместо на страница за нова парола.
+1. Потребителят въвежда имейл на `/forgot-password` и получава имейл от Supabase.
+2. Линкът в имейла води до Supabase, след верификация Supabase пренасочва към **нашата страница** с токена в **hash** (`#access_token=...&type=recovery`). Hash-ът се вижда само в браузъра.
+3. Приложението използва страница **`/auth/recovery`**, която чете hash-а, оставя Supabase да зададе сесията и след това пренасочва към `/reset-password`, където потребителят въвежда нова парола.
 
 ## Решение
 
-В **Supabase Dashboard** → **Authentication** → **Email Templates** → **Reset Password** линкът в шаблона **трябва** да използва пълния confirmation URL, който включва и `redirect_to`.
+### 1. Email шаблон в Supabase
 
-### Какво да има в шаблона
+В **Supabase Dashboard** → **Authentication** → **Email Templates** → **Reset Password** линкът трябва да използва **`{{ .ConfirmationURL }}`**:
 
-Линкът в имейла трябва да е чрез **`{{ .ConfirmationURL }}`**, а не чрез ръчно сглобен URL само с token.
-
-**Правилно** (препоръчително):
+**Правилно:**
 
 ```html
 <p><a href="{{ .ConfirmationURL }}">Възстанови парола</a></p>
 ```
 
-**Грешно** (това води до линк без redirect_to и после редирект към началната страница):
+**Грешно** (води до линк без redirect и потребителят влиза директно в акаунта):
 
 ```html
-<p><a href="https://wwbxzkbilklullziiogr.supabase.co/auth/v1/verify?token={{ .TokenHash }}">Reset Password</a></p>
+<p><a href="https://[project].supabase.co/auth/v1/verify?token={{ .TokenHash }}">Reset Password</a></p>
 ```
 
-### Защо
+`{{ .ConfirmationURL }}` включва и `redirect_to`, който подаваме в кода (`redirectTo: '.../auth/recovery'`).
 
-- `{{ .ConfirmationURL }}` се генерира от Supabase и включва:
-  - `token`
-  - `type=recovery`
-  - **`redirect_to`** – URL-ът, който подаваме в `resetPasswordForEmail(..., { redirectTo: '.../auth/reset-password-callback' })`
-- Когато потребителят кликне този линк, след верификация Supabase го пренасочва към `redirect_to` (нашата страница `/auth/reset-password-callback`), откъдето вече го водим към `/reset-password`.
+### 2. URL Configuration (задължително)
 
-### URL Configuration
+В **Authentication** → **URL Configuration** → **Redirect URLs** трябва да е добавен URL за **`/auth/recovery`**:
 
-В **Authentication** → **URL Configuration** → **Redirect URLs** трябва да са добавени:
+- Production: `https://rabotim-com.vercel.app/auth/recovery` (или вашият домейн)
+- Staging/local: `http://localhost:3000/auth/recovery` и съответният staging URL
 
-- `https://rabotim-com.vercel.app/auth/reset-password-callback`
-- (за staging) съответният staging URL за `auth/reset-password-callback`
+Без този URL Supabase няма да пренасочи към `/auth/recovery` и потребителят може да попадне на началната страница и да изглежда „влязъл“ вместо да види форма за нова парола.
 
-## Допълнително (fallback в приложението)
+### 3. Fallback в приложението
 
-В приложението е добавен `PasswordRecoveryListener`: ако все пак потребителят попадне на началната страница с hash `#...type=recovery...` или получи събитието `PASSWORD_RECOVERY`, веднага се пренасочва към `/reset-password`. Така дори при грешен шаблон в имейла flow-ът работи след първото зареждане на страницата.
+`PasswordRecoveryListener` при зареждане проверява за `type=recovery` в hash-а и при събитие `PASSWORD_RECOVERY` пренасочва към `/reset-password`. Така дори ако потребителят попадне на друга страница с hash-а, flow-ът продължава да работи.
