@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import ToastProvider from '@/components/ToastProvider'
-// import PWAInstall from '@/components/PWAInstall'
+import PWAInstall from '@/components/PWAInstall'
 import AppShell from '@/components/AppShell'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
@@ -110,6 +110,12 @@ export default function RootLayout({
   return (
     <html lang="bg" className={inter.variable}>
       <head>
+        {/* PWA: manifest + iOS Add to Home Screen */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Rabotim.com" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
         {/* Preconnect to external domains for better performance */}
         <link rel="preconnect" href="https://wwbxzkbilklullziiogr.supabase.co" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
@@ -154,7 +160,7 @@ export default function RootLayout({
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
         <ToastProvider />
-        {/* <PWAInstall /> */}
+        <PWAInstall />
         
         {/* Service Worker Registration */}
         <script
