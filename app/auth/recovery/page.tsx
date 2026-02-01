@@ -6,8 +6,9 @@ import { supabaseAuth } from '@/lib/supabase-auth'
 
 /**
  * Страница само за линка от имейла за забравена парола.
- * Supabase препраща тук с hash (#access_token=...&type=recovery).
- * Hash-ът се вижда само в браузъра – тук го обработваме и пренасочваме към /reset-password.
+ * Supabase може да препраща с:
+ * - hash (#access_token=...&type=recovery) – обработваме тук и пренасочваме към /reset-password
+ * - query (?code=...) – пренасочваме към /auth/reset-password-callback, където сървърът обменя code за сесия
  */
 export default function AuthRecoveryPage() {
   const router = useRouter()
@@ -17,9 +18,18 @@ export default function AuthRecoveryPage() {
     if (typeof window === 'undefined' || redirected.current) return
 
     const hash = window.location.hash || ''
-    const isRecovery = hash.includes('type=recovery')
+    const search = window.location.search || ''
+    const isRecoveryHash = hash.includes('type=recovery')
+    const hasCode = typeof URLSearchParams !== 'undefined' && new URLSearchParams(search).has('code')
 
-    if (!isRecovery) {
+    // Ако има ?code=... (PKCE), сървърният route обменя code за сесия и редиректва към /reset-password
+    if (hasCode) {
+      router.replace(`/auth/reset-password-callback${search}`)
+      redirected.current = true
+      return
+    }
+
+    if (!isRecoveryHash) {
       router.replace('/')
       redirected.current = true
       return
