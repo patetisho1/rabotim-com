@@ -18,13 +18,36 @@ export default function ResetPasswordPage() {
   const [hasSession, setHasSession] = useState<boolean | null>(null)
 
   useEffect(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash || '' : ''
+    const hasRecoveryHash = hash.includes('type=recovery') || hash.includes('access_token')
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+
     supabaseAuth.auth.getSession().then(({ data: { session } }) => {
-      setHasSession(!!session)
+      if (session) {
+        setHasSession(true)
+        return
+      }
+      // Ако има hash от линка за reset, изчакваме Supabase да обработи токена преди да покажем „Невалиден линк“
+      if (hasRecoveryHash) {
+        timeoutId = setTimeout(() => {
+          supabaseAuth.auth.getSession().then(({ data: { session: s } }) => {
+            setHasSession(!!s)
+          })
+        }, 3000)
+        return
+      }
+      setHasSession(false)
     })
+
     const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange((_event, session) => {
       setHasSession(!!session)
     })
-    return () => subscription.unsubscribe()
+
+    return () => {
+      subscription.unsubscribe()
+      if (timeoutId) clearTimeout(timeoutId)
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
