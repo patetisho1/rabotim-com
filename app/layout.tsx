@@ -135,6 +135,12 @@ export default function RootLayout({
         }} />
       </head>
       <body className={inter.className}>
+        {/* Redirect password-reset link (hash type=recovery) to /reset-password before React – Supabase may send user to / with hash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var h=window.location.hash||'';if(h.indexOf('type=recovery')!==-1){window.location.replace(window.location.origin+'/reset-password'+h);}})();`,
+          }}
+        />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
