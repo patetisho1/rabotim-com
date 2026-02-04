@@ -407,15 +407,14 @@ export default function ProfessionalProfileEditor() {
             
             <div className="flex items-center gap-2">
               {profileUrl && (
-                <a
-                  href={profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => window.open(`${profileUrl}?v=${Date.now()}`, '_blank', 'noopener,noreferrer')}
                   className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
                   <Eye size={18} />
                   <span className="hidden sm:inline">Преглед</span>
-                </a>
+                </button>
               )}
               <button
                 onClick={handleSave}

@@ -24,6 +24,7 @@ export interface TemplateProps {
   onOrderArt?: () => void
   userRating: number
   reviewCount: number
+  isPreview?: boolean
 }
 
 const templateMap = {
@@ -46,7 +47,8 @@ export default function TemplateRenderer({
   onBook,
   onOrderArt,
   userRating,
-  reviewCount
+  reviewCount,
+  isPreview
 }: Omit<TemplateProps, 'templateConfig' | 'professionConfig'>) {
   const templateId = profile.template || 'modern'
   const TemplateComponent = templateMap[templateId] || ModernTemplate
@@ -55,6 +57,12 @@ export default function TemplateRenderer({
 
   return (
     <>
+      {/* При преглед показваме кой шаблон се използва (за проверка) */}
+      {isPreview && templateConfig && (
+        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-center py-2 px-4 text-sm font-medium">
+          Преглед · Шаблон: <span className="font-semibold">{templateConfig.nameBg}</span>
+        </div>
+      )}
       {/* Artist CTA: show when profile is artist and onOrderArt is provided */}
       {profile.isArtist && onOrderArt && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">

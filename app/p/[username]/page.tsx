@@ -37,7 +37,8 @@ export default function PublicProfilePage() {
   const loadProfile = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/professional-profiles/${username}`, { cache: 'no-store' })
+      const cacheBust = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('v') || Date.now() : Date.now()
+      const response = await fetch(`/api/professional-profiles/${username}?v=${cacheBust}`, { cache: 'no-store' })
       
       if (response.ok) {
         const data = await response.json()
@@ -760,6 +761,7 @@ export default function PublicProfilePage() {
         onOrderArt={profile.isArtist ? handleOrderArt : undefined}
         userRating={userRating}
         reviewCount={reviewCount}
+        isPreview={isPreview}
       />
 
       {/* Share Modal */}

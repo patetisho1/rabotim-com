@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
       tagline: profile.tagline,
       profession: profile.profession,
       profession_title: profile.professionTitle,
-      template: profile.template,
+      template: profile.template ?? 'modern',
       primary_color: profile.primaryColor,
       cover_image: profile.coverImage,
       about_me: profile.aboutMe,
