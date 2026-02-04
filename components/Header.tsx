@@ -199,16 +199,6 @@ export default function Header() {
                   >
                     Моите кандидатури
                   </button>
-                  {/* Резервации - за професионален режим */}
-                  {accountMode === 'professional' && (
-                    <button
-                      onClick={() => router.push('/bookings')}
-                      className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                    >
-                      <Calendar size={16} />
-                      Резервации
-                    </button>
-                  )}
                 </>
               )}
 
