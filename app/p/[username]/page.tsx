@@ -37,7 +37,7 @@ export default function PublicProfilePage() {
   const loadProfile = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/professional-profiles/${username}`)
+      const response = await fetch(`/api/professional-profiles/${username}`, { cache: 'no-store' })
       
       if (response.ok) {
         const data = await response.json()

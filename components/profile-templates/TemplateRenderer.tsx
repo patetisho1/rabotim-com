@@ -35,8 +35,8 @@ const templateMap = {
   beauty: BeautyTemplate,
   tech: TechTemplate,
   craft: CraftTemplate,
-  creative: ModernTemplate,
-  professional: ModernTemplate
+  creative: ElegantTemplate,
+  professional: ClassicTemplate
 } as const
 
 export default function TemplateRenderer({
