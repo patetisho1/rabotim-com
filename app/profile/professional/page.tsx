@@ -64,6 +64,9 @@ export default function ProfessionalProfileEditor() {
   const [usernameError, setUsernameError] = useState<string | null>(null)
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [checkingUsername, setCheckingUsername] = useState(false)
+  const [displayNameError, setDisplayNameError] = useState<string | null>(null)
+  const [displayNameAvailable, setDisplayNameAvailable] = useState<boolean | null>(null)
+  const [checkingDisplayName, setCheckingDisplayName] = useState(false)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -153,23 +156,49 @@ export default function ProfessionalProfileEditor() {
     setUsernameError(null)
     setCheckingUsername(true)
     try {
-      const response = await fetch(`/api/professional-profiles/${username}`)
+      const params = new URLSearchParams({ username, userId: user?.id ?? '' })
+      const response = await fetch(`/api/professional-profiles/check-username?${params}`)
       const data = await response.json()
-      
-      if (response.status === 404) {
+      if (data.available) {
         setUsernameAvailable(true)
         setUsernameError(null)
-      } else if (data.profile) {
-        // Check if it's our own profile
-        // For now, assume it's taken
+      } else {
         setUsernameAvailable(false)
-        setUsernameError('Това потребителско име е заето')
+        setUsernameError(data.error || 'Това потребителско име е заето')
       }
     } catch (error) {
       setUsernameAvailable(true)
       setUsernameError(null)
     } finally {
       setCheckingUsername(false)
+    }
+  }
+
+  const checkDisplayNameAvailability = async (displayName: string) => {
+    const trimmed = (displayName || '').trim()
+    if (!trimmed) {
+      setDisplayNameError(null)
+      setDisplayNameAvailable(null)
+      return
+    }
+    setCheckingDisplayName(true)
+    setDisplayNameError(null)
+    try {
+      const params = new URLSearchParams({ displayName: trimmed, userId: user?.id ?? '' })
+      const response = await fetch(`/api/professional-profiles/check-display-name?${params}`)
+      const data = await response.json()
+      if (data.available) {
+        setDisplayNameAvailable(true)
+        setDisplayNameError(null)
+      } else {
+        setDisplayNameAvailable(false)
+        setDisplayNameError(data.error || 'Това име за показване е заето')
+      }
+    } catch {
+      setDisplayNameAvailable(true)
+      setDisplayNameError(null)
+    } finally {
+      setCheckingDisplayName(false)
     }
   }
 
@@ -532,13 +561,35 @@ export default function ProfessionalProfileEditor() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Име за показване *
                 </label>
-                <input
-                  type="text"
-                  value={profile.displayName}
-                  onChange={(e) => updateProfile({ displayName: e.target.value })}
-                  placeholder="Иван Петров"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={profile.displayName}
+                    onChange={(e) => {
+                      updateProfile({ displayName: e.target.value })
+                      setDisplayNameError(null)
+                      setDisplayNameAvailable(null)
+                    }}
+                    onBlur={() => checkDisplayNameAvailability(profile.displayName || '')}
+                    placeholder="Иван Петров"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                  />
+                  {checkingDisplayName && (
+                    <Loader2 size={18} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400" />
+                  )}
+                  {!checkingDisplayName && displayNameAvailable === true && (
+                    <CheckCircle size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />
+                  )}
+                  {!checkingDisplayName && displayNameAvailable === false && (
+                    <AlertCircle size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500" />
+                  )}
+                </div>
+                {displayNameError && (
+                  <p className="mt-1 text-sm text-red-500">{displayNameError}</p>
+                )}
+                {displayNameAvailable && !displayNameError && (
+                  <p className="mt-1 text-sm text-green-500">✓ Името е свободно</p>
+                )}
               </div>
 
               {/* Profession Category */}

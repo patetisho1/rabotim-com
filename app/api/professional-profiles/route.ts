@@ -90,20 +90,54 @@ export async function POST(request: NextRequest) {
     }
 
     const serviceClient = getServiceRoleClient()
+    const usernameLower = profile.username?.toLowerCase()
 
-    // Check if username is already taken (by another user)
-    if (profile.username) {
+    // Username: reserved only for premium. Non-premium profiles can be "taken over".
+    if (usernameLower) {
       const { data: existingProfile } = await serviceClient
         .from('professional_profiles')
-        .select('user_id')
-        .eq('username', profile.username.toLowerCase())
+        .select('id, user_id, is_premium')
+        .eq('username', usernameLower)
         .single()
 
       if (existingProfile && existingProfile.user_id !== userId) {
-        return NextResponse.json(
-          { error: 'Това потребителско име е заето' },
-          { status: 409 }
-        )
+        const ownerIsPremium = existingProfile.is_premium === true
+        if (ownerIsPremium) {
+          return NextResponse.json(
+            { error: 'Това потребителско име е заето от премиум акаунт' },
+            { status: 409 }
+          )
+        }
+        // Free the username: clear it from the non-premium profile so current user can take it
+        await serviceClient
+          .from('professional_profiles')
+          .update({ username: null, updated_at: new Date().toISOString() })
+          .eq('id', existingProfile.id)
+      }
+    }
+
+    // Display name: reserved only for premium (same logic as username). Case-insensitive match.
+    const displayNameTrimmed = typeof profile.displayName === 'string' ? profile.displayName.trim() : ''
+    if (displayNameTrimmed) {
+      const { data: rows } = await serviceClient
+        .from('professional_profiles')
+        .select('id, user_id, is_premium, display_name')
+        .not('display_name', 'is', null)
+      const existingDisplay = (rows || []).find(
+        (p) => p.display_name && String(p.display_name).toLowerCase() === displayNameTrimmed.toLowerCase()
+      )
+      if (existingDisplay && existingDisplay.user_id !== userId) {
+        const ownerIsPremium = existingDisplay.is_premium === true
+        if (ownerIsPremium) {
+          return NextResponse.json(
+            { error: 'Това име за показване е заето от премиум акаунт' },
+            { status: 409 }
+          )
+        }
+        await serviceClient
+          .from('professional_profiles')
+          .update({ display_name: null, updated_at: new Date().toISOString() })
+          .eq('id', existingDisplay.id)
       }
     }
 

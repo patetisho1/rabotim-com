@@ -28,6 +28,7 @@ export default function PublicProfilePage() {
   const [reviewCount, setReviewCount] = useState(0)
   const [professionalId, setProfessionalId] = useState<string>('')
   const [professionalUserId, setProfessionalUserId] = useState<string>('')
+  const [isPreview, setIsPreview] = useState(false)
 
   useEffect(() => {
     loadProfile()
@@ -41,6 +42,7 @@ export default function PublicProfilePage() {
       if (response.ok) {
         const data = await response.json()
         setProfile(data.profile)
+        setIsPreview(!!data.isPreview)
         
         // Set IDs for booking
         if (data.profile?.id) {
@@ -56,6 +58,7 @@ export default function PublicProfilePage() {
           setReviewCount(data.user.total_reviews || 0)
         }
       } else if (response.status === 404) {
+        setIsPreview(false)
         // Demo profile for testing
         setProfile(getDemoProfile(username))
         setUserRating(4.9)
@@ -741,6 +744,14 @@ export default function PublicProfilePage() {
 
   return (
     <>
+      {isPreview && (
+        <div className="bg-amber-100 dark:bg-amber-900/30 border-b border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-100">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-center gap-2 text-sm font-medium">
+            <span>Преглед</span>
+            <span className="opacity-75">– профилът не е публичен и не се вижда от други. Активирайте премиум, за да го публикувате.</span>
+          </div>
+        </div>
+      )}
       <TemplateRenderer
         profile={profile}
         onContact={handleContact}
