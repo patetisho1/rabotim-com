@@ -21,7 +21,6 @@ import {
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
-import { useAccountMode } from '@/contexts/AccountModeContext'
 import { 
   ProfessionalProfile, 
   ServiceItem,
@@ -55,7 +54,6 @@ const dayTranslations: Record<string, string> = {
 export default function ProfessionalProfileEditor() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { professionalStatus, refreshStatus } = useAccountMode()
   
   const [profile, setProfile] = useState<ProfessionalProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -235,9 +233,6 @@ export default function ProfessionalProfileEditor() {
         throw new Error(data.error || 'Failed to save profile')
       }
 
-      // Refresh the professional status after saving
-      await refreshStatus()
-      
       toast.success('Профилът е запазен успешно!')
       return true
     } catch (error: any) {
@@ -450,15 +445,14 @@ export default function ProfessionalProfileEditor() {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Profile Status Banner */}
-        {professionalStatus.isActive ? (
+        {profile?.isPublished ? (
           <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 mb-6 text-white">
             <div className="flex items-center gap-3">
               <CheckCircle size={24} />
               <div className="flex-1">
                 <h3 className="font-semibold">Профилът е активен</h3>
                 <p className="text-sm text-green-100">
-                  Профилът ти се показва в каталога „Професионалисти". 
-                  {professionalStatus.planType && ` План: ${professionalStatus.planType.charAt(0).toUpperCase() + professionalStatus.planType.slice(1)}`}
+                  Профилът ти се показва в каталога „Професионалисти”.
                 </p>
               </div>
               {profileUrl && (
