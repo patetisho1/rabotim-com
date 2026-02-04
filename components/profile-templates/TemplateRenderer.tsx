@@ -24,7 +24,6 @@ export interface TemplateProps {
   onOrderArt?: () => void
   userRating: number
   reviewCount: number
-  isPreview?: boolean
 }
 
 const templateMap = {
