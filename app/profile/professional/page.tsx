@@ -14,9 +14,12 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Palette,
+  CreditCard
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useAccountMode } from '@/contexts/AccountModeContext'
 import { 
@@ -57,7 +60,7 @@ export default function ProfessionalProfileEditor() {
   const [profile, setProfile] = useState<ProfessionalProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<'basic' | 'services' | 'gallery' | 'contact' | 'settings'>('basic')
+  const [activeTab, setActiveTab] = useState<'basic' | 'services' | 'gallery' | 'artist' | 'contact' | 'settings'>('basic')
   const [usernameError, setUsernameError] = useState<string | null>(null)
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [checkingUsername, setCheckingUsername] = useState(false)
@@ -112,6 +115,9 @@ export default function ProfessionalProfileEditor() {
           showPhone: data.profile.show_phone ?? true,
           showEmail: data.profile.show_email ?? true,
           acceptOnlineBooking: data.profile.accept_online_booking || false,
+          isArtist: data.profile.is_artist ?? false,
+          revolutEnabled: data.profile.revolut_enabled ?? false,
+          revolutBarcodeUrl: data.profile.revolut_barcode_url ?? null,
           createdAt: data.profile.created_at || new Date().toISOString(),
           updatedAt: data.profile.updated_at || new Date().toISOString()
         })
@@ -458,6 +464,7 @@ export default function ProfessionalProfileEditor() {
               { id: 'basic', label: 'Основни' },
               { id: 'services', label: 'Услуги' },
               { id: 'gallery', label: 'Галерия' },
+              { id: 'artist', label: 'Художник' },
               { id: 'contact', label: 'Контакти' },
               { id: 'settings', label: 'Настройки' }
             ].map((tab) => (
@@ -829,6 +836,110 @@ export default function ProfessionalProfileEditor() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Artist Tab - Premium for artists: paintings/portraits, Revolut */}
+          {activeTab === 'artist' && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Palette size={24} className="text-amber-600" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Профил за художник
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Включете тази опция, ако приемате поръчки за картини или портрети по снимка. Клиентите ще могат да попълнят форма за поръчка с тип, размер и референтна снимка.
+              </p>
+
+              <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Профил за художник</p>
+                  <p className="text-sm text-gray-500">Приемам поръчки за картини / портрети по снимка</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={profile.isArtist ?? false}
+                  onChange={(e) => updateProfile({ isArtist: e.target.checked })}
+                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </label>
+
+              {(profile.isArtist ?? false) && (
+                <>
+                  <div className="flex justify-end">
+                    <Link
+                      href="/profile/orders"
+                      className="text-sm text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                    >
+                      Преглед на поръчките
+                      <ExternalLink size={14} />
+                    </Link>
+                  </div>
+                  <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <CreditCard size={18} />
+                        Плащане с Revolut
+                      </p>
+                      <p className="text-sm text-gray-500">Показвам баркод/линк за плащане с Revolut при поръчка</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={profile.revolutEnabled ?? false}
+                      onChange={(e) => updateProfile({ revolutEnabled: e.target.checked })}
+                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </label>
+
+                  {(profile.revolutEnabled ?? false) && (
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Снимка / URL на Revolut баркод
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          type="url"
+                          value={profile.revolutBarcodeUrl || ''}
+                          onChange={(e) => updateProfile({ revolutBarcodeUrl: e.target.value || null })}
+                          placeholder="https://... или качете снимка по-долу"
+                          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        />
+                        <label className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <ImageIcon size={18} />
+                          <span>Качи снимка</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (!file) return
+                              const formData = new FormData()
+                              formData.append('file', file)
+                              formData.append('folder', 'revolut')
+                              try {
+                                const res = await fetch('/api/upload', { method: 'POST', body: formData })
+                                const data = await res.json()
+                                if (data?.file?.url) updateProfile({ revolutBarcodeUrl: data.file.url })
+                                else toast.error('Грешка при качване')
+                              } catch {
+                                toast.error('Грешка при качване')
+                              }
+                              e.target.value = ''
+                            }}
+                          />
+                        </label>
+                      </div>
+                      {profile.revolutBarcodeUrl && (
+                        <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg inline-block">
+                          <img src={profile.revolutBarcodeUrl} alt="Revolut баркод" className="max-h-24 object-contain" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

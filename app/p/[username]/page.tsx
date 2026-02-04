@@ -735,6 +735,10 @@ export default function PublicProfilePage() {
     )
   }
 
+  const handleOrderArt = () => {
+    router.push(`/p/${username}/order`)
+  }
+
   return (
     <>
       <TemplateRenderer
@@ -742,6 +746,7 @@ export default function PublicProfilePage() {
         onContact={handleContact}
         onShare={handleShare}
         onBook={profile.acceptOnlineBooking ? handleBook : undefined}
+        onOrderArt={profile.isArtist ? handleOrderArt : undefined}
         userRating={userRating}
         reviewCount={reviewCount}
       />

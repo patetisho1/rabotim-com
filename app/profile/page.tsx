@@ -32,7 +32,8 @@ import {
   Eye,
   Search,
   Megaphone,
-  Crown
+  Crown,
+  Palette
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
@@ -576,6 +577,14 @@ function ProfilePageContent() {
                         <Crown className="h-6 w-6 mb-2" />
                         <h4 className="font-medium">Професионален профил</h4>
                         <p className="text-sm text-yellow-100">Създай своя мини-сайт</p>
+                      </button>
+                      <button
+                        onClick={() => router.push('/profile/orders')}
+                        className="p-4 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-left"
+                      >
+                        <Palette className="h-6 w-6 mb-2" />
+                        <h4 className="font-medium">Мои поръчки</h4>
+                        <p className="text-sm text-amber-100">Поръчки за картини и портрети</p>
                       </button>
                       <button
                         onClick={() => router.push('/promote-profile')}

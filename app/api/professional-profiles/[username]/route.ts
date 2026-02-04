@@ -42,6 +42,7 @@ export async function GET(
 
     // Transform database format to frontend format
     const profile: ProfessionalProfile = {
+      id: profileData.id,
       username: profileData.username,
       displayName: profileData.display_name || profileData.user?.full_name || username,
       tagline: profileData.tagline || '',
@@ -72,6 +73,9 @@ export async function GET(
       showPhone: profileData.show_phone ?? true,
       showEmail: profileData.show_email ?? true,
       acceptOnlineBooking: profileData.accept_online_booking ?? false,
+      isArtist: profileData.is_artist ?? false,
+      revolutEnabled: profileData.revolut_enabled ?? false,
+      revolutBarcodeUrl: profileData.revolut_barcode_url ?? null,
       createdAt: profileData.created_at,
       updatedAt: profileData.updated_at
     }

@@ -144,6 +144,9 @@ export async function POST(request: NextRequest) {
       show_phone: profile.showPhone,
       show_email: profile.showEmail,
       accept_online_booking: profile.acceptOnlineBooking,
+      is_artist: profile.isArtist ?? false,
+      revolut_enabled: profile.revolutEnabled ?? false,
+      revolut_barcode_url: profile.revolutBarcodeUrl ?? null,
       updated_at: new Date().toISOString()
     }
 

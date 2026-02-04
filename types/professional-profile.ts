@@ -55,6 +55,7 @@ export interface Certification {
 }
 
 export interface ProfessionalProfile {
+  id?: string // DB id (for artist orders)
   // Basic Info
   username: string // URL slug - e.g., "fitnessGuru" -> rabotim.com/p/fitnessGuru
   displayName: string
@@ -102,6 +103,11 @@ export interface ProfessionalProfile {
   showPhone: boolean
   showEmail: boolean
   acceptOnlineBooking: boolean
+
+  // Artist premium: картини по поръчка, Revolut
+  isArtist?: boolean
+  revolutEnabled?: boolean
+  revolutBarcodeUrl?: string | null
   
   createdAt: string
   updatedAt: string
