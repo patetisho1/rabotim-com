@@ -150,6 +150,7 @@ export default function ProfessionalProfileEditor() {
       return
     }
 
+    setUsernameError(null)
     setCheckingUsername(true)
     try {
       const response = await fetch(`/api/professional-profiles/${username}`)
