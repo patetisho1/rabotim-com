@@ -654,38 +654,64 @@ export default function ProfessionalProfileEditor() {
                 />
               </div>
 
-              {/* Template Selection */}
+              {/* Template Selection - всички опции са премиум, избираеми за преглед */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Шаблон
                 </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  Изберете шаблон и прегледайте профила си. Всички шаблони са част от премиум акаунта.
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {profileTemplates.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => updateProfile({ template: template.id })}
-                      disabled={template.isPremium}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        profile.template === template.id
-                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      } ${template.isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <div 
-                        className="w-8 h-8 rounded-full mx-auto mb-2"
-                        style={{ backgroundColor: template.primaryColor }}
-                      />
-                      <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                        {template.nameBg}
-                      </p>
-                      {template.isPremium && (
-                        <span className="text-xs text-yellow-600 flex items-center justify-center gap-1 mt-1">
+                  {profileTemplates.map((template, index) => {
+                    const isSelected = profile.template === template.id
+                    const primary = template.primaryColor || '#3B82F6'
+                    const secondary = template.secondaryColor || primary
+                    const iconShapes = ['rounded-full', 'rounded-xl', 'rounded-lg', 'rounded-full', 'rounded-2xl', 'rounded-full', 'rounded-lg', 'rounded-xl', 'rounded-full'] as const
+                    const iconShape = iconShapes[index % iconShapes.length]
+                    return (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => updateProfile({ template: template.id })}
+                        className={`
+                          relative p-4 rounded-xl border-2 transition-all duration-200
+                          hover:scale-[1.02] hover:shadow-md
+                          ${!isSelected ? 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600' : ''}
+                        `}
+                        style={isSelected ? {
+                          borderColor: primary,
+                          backgroundColor: `${primary}18`,
+                          boxShadow: `0 4px 12px ${primary}30`
+                        } : {
+                          background: `linear-gradient(135deg, ${primary}0a 0%, ${secondary}06 100%)`
+                        }}
+                      >
+                        <div
+                          className={`w-10 h-10 mx-auto mb-2 flex items-center justify-center ${iconShape}`}
+                          style={{
+                            backgroundColor: primary,
+                            boxShadow: isSelected ? `0 4px 14px ${primary}50` : undefined
+                          }}
+                        />
+                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                          {template.nameBg}
+                        </p>
+                        <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1 mt-1">
                           <Crown size={12} />
-                          Premium
+                          Премиум
                         </span>
-                      )}
-                    </button>
-                  ))}
+                        {isSelected && (
+                          <div
+                            className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs"
+                            style={{ backgroundColor: primary }}
+                          >
+                            ✓
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
