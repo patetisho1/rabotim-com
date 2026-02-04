@@ -202,20 +202,20 @@ export default function ProfessionalProfileEditor() {
     }
   }
 
-  const handleSave = async () => {
-    if (!user || !profile) return
+  const handleSave = async (): Promise<boolean> => {
+    if (!user || !profile) return false
 
     if (!profile.username) {
       toast.error('Моля, въведете потребителско име')
       setActiveTab('basic')
-      return
+      return false
     }
 
     const validation = validateUsername(profile.username)
     if (!validation.valid) {
       toast.error(validation.error || 'Невалидно потребителско име')
       setActiveTab('basic')
-      return
+      return false
     }
 
     setIsSaving(true)
@@ -239,10 +239,24 @@ export default function ProfessionalProfileEditor() {
       await refreshStatus()
       
       toast.success('Профилът е запазен успешно!')
+      return true
     } catch (error: any) {
       toast.error(error.message || 'Грешка при запазване на профила')
+      return false
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handlePreview = async () => {
+    if (!profile?.username) {
+      toast.error('Въведете потребителско име и запазете, за да прегледате')
+      return
+    }
+    const ok = await handleSave()
+    if (ok) {
+      const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/p/${profile.username}?v=${Date.now()}`
+      window.open(url, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -409,8 +423,9 @@ export default function ProfessionalProfileEditor() {
               {profileUrl && (
                 <button
                   type="button"
-                  onClick={() => window.open(`${profileUrl}?v=${Date.now()}`, '_blank', 'noopener,noreferrer')}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  onClick={handlePreview}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
                 >
                   <Eye size={18} />
                   <span className="hidden sm:inline">Преглед</span>
@@ -658,8 +673,11 @@ export default function ProfessionalProfileEditor() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Шаблон
                 </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                   Изберете шаблон и прегледайте профила си. Всички шаблони са част от премиум акаунта.
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-400 mb-3">
+                  При преглед ще видите различно оформление: цветове, подредба и стил (напр. Модерен – светъл, Ударен – тъмен с червен акцент, Класически – кадифе/сив). Натиснете „Преглед” – промените се запазват и отваря се избраният шаблон.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {profileTemplates.map((template, index) => {
