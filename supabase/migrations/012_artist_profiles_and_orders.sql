@@ -79,7 +79,7 @@ DROP TRIGGER IF EXISTS trigger_artist_orders_updated_at ON public.artist_orders;
 CREATE TRIGGER trigger_artist_orders_updated_at
   BEFORE UPDATE ON public.artist_orders
   FOR EACH ROW
-  EXECUTE FUNCTION update_artist_orders_updated_at();
+  EXECUTE PROCEDURE update_artist_orders_updated_at();
 
 GRANT ALL ON public.artist_orders TO authenticated;
 GRANT SELECT, INSERT ON public.artist_orders TO anon;
