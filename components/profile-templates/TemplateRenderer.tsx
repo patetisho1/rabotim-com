@@ -1,6 +1,8 @@
 'use client'
 
-import { ProfessionalProfile, ProfileTemplate, profileTemplates, professionCategories } from '@/types/professional-profile'
+import { ProfessionalProfile } from '@/types/professional-profile'
+import { ProfileTemplateConfig } from '@/types/professional-profile'
+import { profileTemplates, professionCategories } from '@/types/professional-profile'
 import ModernTemplate from './ModernTemplate'
 import ClassicTemplate from './ClassicTemplate'
 import BoldTemplate from './BoldTemplate'
@@ -9,80 +11,93 @@ import FitnessTemplate from './FitnessTemplate'
 import BeautyTemplate from './BeautyTemplate'
 import TechTemplate from './TechTemplate'
 import CraftTemplate from './CraftTemplate'
+import { Palette } from 'lucide-react'
 
-interface TemplateRendererProps {
-  profile: ProfessionalProfile
-  isPreview?: boolean
-  onContact?: () => void
-  onShare?: () => void
-  onBook?: () => void
-  userRating?: number
-  reviewCount?: number
-}
-
-export default function TemplateRenderer({ 
-  profile, 
-  isPreview = false,
-  onContact,
-  onShare,
-  onBook,
-  userRating = 0,
-  reviewCount = 0
-}: TemplateRendererProps) {
-  const templateConfig = profileTemplates.find(t => t.id === profile.template) || profileTemplates[0]
-  const professionConfig = professionCategories.find(p => p.id === profile.profession)
-  
-  const commonProps = {
-    profile,
-    templateConfig,
-    professionConfig,
-    isPreview,
-    onContact,
-    onShare,
-    onBook,
-    userRating,
-    reviewCount
-  }
-
-  // Render template based on type
-  switch (profile.template) {
-    case 'modern':
-      return <ModernTemplate {...commonProps} />
-    case 'classic':
-      return <ClassicTemplate {...commonProps} />
-    case 'bold':
-      return <BoldTemplate {...commonProps} />
-    case 'elegant':
-      return <ElegantTemplate {...commonProps} />
-    case 'fitness':
-      return <FitnessTemplate {...commonProps} />
-    case 'beauty':
-      return <BeautyTemplate {...commonProps} />
-    case 'tech':
-      return <TechTemplate {...commonProps} />
-    case 'craft':
-      return <CraftTemplate {...commonProps} />
-    case 'creative':
-      return <BoldTemplate {...commonProps} /> // Use Bold as fallback
-    case 'professional':
-      return <ClassicTemplate {...commonProps} /> // Use Classic as fallback
-    default:
-      return <ModernTemplate {...commonProps} />
-  }
-}
-
-// Export common types for templates
 export interface TemplateProps {
   profile: ProfessionalProfile
-  templateConfig: typeof profileTemplates[0]
-  professionConfig?: typeof professionCategories[0]
-  isPreview: boolean
-  onContact?: () => void
-  onShare?: () => void
+  templateConfig: ProfileTemplateConfig
+  professionConfig: (typeof professionCategories)[number] | undefined
+  isPreview?: boolean
+  onContact: () => void
+  onShare: () => void
   onBook?: () => void
+  onOrderArt?: () => void
   userRating: number
   reviewCount: number
 }
 
+const templateMap = {
+  modern: ModernTemplate,
+  classic: ClassicTemplate,
+  bold: BoldTemplate,
+  elegant: ElegantTemplate,
+  fitness: FitnessTemplate,
+  beauty: BeautyTemplate,
+  tech: TechTemplate,
+  craft: CraftTemplate,
+  creative: ElegantTemplate,
+  professional: ClassicTemplate
+} as const
 
+export default function TemplateRenderer({
+  profile,
+  onContact,
+  onShare,
+  onBook,
+  onOrderArt,
+  userRating,
+  reviewCount,
+  isPreview
+}: Omit<TemplateProps, 'templateConfig' | 'professionConfig'>) {
+  const templateId = profile.template || 'modern'
+  const TemplateComponent = templateMap[templateId] || ModernTemplate
+  const templateConfig = profileTemplates.find((t) => t.id === templateId) || profileTemplates[0]
+  const professionConfig = professionCategories.find((c) => c.id === profile.profession)
 
+  return (
+    <>
+      {/* При преглед показваме кой шаблон се използва (за проверка) */}
+      {isPreview && templateConfig && (
+        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-center py-2 px-4 text-sm font-medium">
+          Преглед · Шаблон: <span className="font-semibold">{templateConfig.nameBg}</span>
+        </div>
+      )}
+      {/* Artist CTA: show when profile is artist and onOrderArt is provided */}
+      {profile.isArtist && onOrderArt && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-800/50 flex items-center justify-center">
+                <Palette size={20} className="text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">Картини по поръчка</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Портрети и картини по снимка</p>
+              </div>
+            </div>
+            <button
+              onClick={onOrderArt}
+              className="px-6 py-3 rounded-xl font-medium bg-amber-500 hover:bg-amber-600 text-white transition-colors shadow-md flex items-center gap-2"
+            >
+              <Palette size={18} />
+              Поръчай картина
+            </button>
+          </div>
+        </div>
+      )}
+
+      <TemplateComponent
+        profile={profile}
+        templateConfig={templateConfig}
+        professionConfig={professionConfig}
+        isPreview={false}
+        onContact={onContact}
+        onShare={onShare}
+        onBook={onBook}
+        onOrderArt={onOrderArt}
+        userRating={userRating}
+        reviewCount={reviewCount}
+      />
+    </>
+  )
+}

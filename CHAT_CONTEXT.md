@@ -1,6 +1,6 @@
 # 💬 Chat Context - Rabotim.com Project
 
-**Последно обновен:** $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+**Последно обновен:** 2025-01-30
 **Проект:** Rabotim.com - Българска платформа за задачи и freelancing
 
 ---
@@ -210,6 +210,27 @@ npm run build
 ---
 
 ## 🎯 Последни Промени
+
+### Текущо състояние (staging, януари 2025)
+
+**Премахнати функционалности (опростяване на продукта):**
+- **Bookings** – премахнати API routes (`/api/bookings`, `/api/bookings/[id]`), компонент `BookingForm`, `sql/bookings_migration.sql`
+- **Stripe плащания** – премахнати `/api/stripe/create-checkout`, `/api/stripe/portal`, `/api/stripe/webhook`, `lib/stripe-client.ts`, `app/premium/success`, `sql/stripe_migration.sql`
+- **Account mode** – премахнати `AccountModeSwitch`, `contexts/AccountModeContext.tsx`
+- **Профилни шаблони** – премахнат `TemplateRenderer`; останалите шаблони (Beauty, Bold, Classic, Craft, Elegant, Fitness, Modern, Tech) са променени
+- **Други** – премахнати `app/api/professional-profiles/status`, `lib/confetti.ts`
+
+**Променени/актуализирани:**
+- `app/layout.tsx`, `app/post-task/page.tsx`, `app/register/page.tsx`, `app/task/[id]/page.tsx`, `app/profile/professional/page.tsx`, `app/p/[username]/page.tsx`
+- `components/Header.tsx`, `components/PremiumFeatures.tsx`, `components/ProfessionalProfilesCatalog.tsx`
+- Всички profile templates в `components/profile-templates/`
+- `hooks/useAuth.ts`
+
+**Важно:** Работи се по клон **staging**. След загуба на чат – отвори този файл с **@CHAT_CONTEXT.md** в нов чат или кажи „възстанови контекста от CHAT_CONTEXT.md“.
+
+---
+
+### По-стари промени
 
 ### Test Improvements (Commit: 0531b59)
 - Подобрени helper функции с retry логика

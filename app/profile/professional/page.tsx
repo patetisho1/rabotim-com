@@ -14,9 +14,12 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Palette,
+  CreditCard
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useAccountMode } from '@/contexts/AccountModeContext'
 import { 
@@ -57,10 +60,13 @@ export default function ProfessionalProfileEditor() {
   const [profile, setProfile] = useState<ProfessionalProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<'basic' | 'services' | 'gallery' | 'contact' | 'settings'>('basic')
+  const [activeTab, setActiveTab] = useState<'basic' | 'services' | 'gallery' | 'artist' | 'contact' | 'settings'>('basic')
   const [usernameError, setUsernameError] = useState<string | null>(null)
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [checkingUsername, setCheckingUsername] = useState(false)
+  const [displayNameError, setDisplayNameError] = useState<string | null>(null)
+  const [displayNameAvailable, setDisplayNameAvailable] = useState<boolean | null>(null)
+  const [checkingDisplayName, setCheckingDisplayName] = useState(false)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -112,6 +118,9 @@ export default function ProfessionalProfileEditor() {
           showPhone: data.profile.show_phone ?? true,
           showEmail: data.profile.show_email ?? true,
           acceptOnlineBooking: data.profile.accept_online_booking || false,
+          isArtist: data.profile.is_artist ?? false,
+          revolutEnabled: data.profile.revolut_enabled ?? false,
+          revolutBarcodeUrl: data.profile.revolut_barcode_url ?? null,
           createdAt: data.profile.created_at || new Date().toISOString(),
           updatedAt: data.profile.updated_at || new Date().toISOString()
         })
@@ -144,19 +153,18 @@ export default function ProfessionalProfileEditor() {
       return
     }
 
+    setUsernameError(null)
     setCheckingUsername(true)
     try {
-      const response = await fetch(`/api/professional-profiles/${username}`)
+      const params = new URLSearchParams({ username, userId: user?.id ?? '' })
+      const response = await fetch(`/api/professional-profiles/check-username?${params}`)
       const data = await response.json()
-      
-      if (response.status === 404) {
+      if (data.available) {
         setUsernameAvailable(true)
         setUsernameError(null)
-      } else if (data.profile) {
-        // Check if it's our own profile
-        // For now, assume it's taken
+      } else {
         setUsernameAvailable(false)
-        setUsernameError('Това потребителско име е заето')
+        setUsernameError(data.error || 'Това потребителско име е заето')
       }
     } catch (error) {
       setUsernameAvailable(true)
@@ -166,20 +174,48 @@ export default function ProfessionalProfileEditor() {
     }
   }
 
-  const handleSave = async () => {
-    if (!user || !profile) return
+  const checkDisplayNameAvailability = async (displayName: string) => {
+    const trimmed = (displayName || '').trim()
+    if (!trimmed) {
+      setDisplayNameError(null)
+      setDisplayNameAvailable(null)
+      return
+    }
+    setCheckingDisplayName(true)
+    setDisplayNameError(null)
+    try {
+      const params = new URLSearchParams({ displayName: trimmed, userId: user?.id ?? '' })
+      const response = await fetch(`/api/professional-profiles/check-display-name?${params}`)
+      const data = await response.json()
+      if (data.available) {
+        setDisplayNameAvailable(true)
+        setDisplayNameError(null)
+      } else {
+        setDisplayNameAvailable(false)
+        setDisplayNameError(data.error || 'Това име за показване е заето')
+      }
+    } catch {
+      setDisplayNameAvailable(true)
+      setDisplayNameError(null)
+    } finally {
+      setCheckingDisplayName(false)
+    }
+  }
+
+  const handleSave = async (): Promise<boolean> => {
+    if (!user || !profile) return false
 
     if (!profile.username) {
       toast.error('Моля, въведете потребителско име')
       setActiveTab('basic')
-      return
+      return false
     }
 
     const validation = validateUsername(profile.username)
     if (!validation.valid) {
       toast.error(validation.error || 'Невалидно потребителско име')
       setActiveTab('basic')
-      return
+      return false
     }
 
     setIsSaving(true)
@@ -203,10 +239,24 @@ export default function ProfessionalProfileEditor() {
       await refreshStatus()
       
       toast.success('Профилът е запазен успешно!')
+      return true
     } catch (error: any) {
       toast.error(error.message || 'Грешка при запазване на профила')
+      return false
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handlePreview = async () => {
+    if (!profile?.username) {
+      toast.error('Въведете потребителско име и запазете, за да прегледате')
+      return
+    }
+    const ok = await handleSave()
+    if (ok) {
+      const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://rabotim.com'}/p/${profile.username}?v=${Date.now()}`
+      window.open(url, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -371,15 +421,15 @@ export default function ProfessionalProfileEditor() {
             
             <div className="flex items-center gap-2">
               {profileUrl && (
-                <a
-                  href={profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                <button
+                  type="button"
+                  onClick={handlePreview}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
                 >
                   <Eye size={18} />
                   <span className="hidden sm:inline">Преглед</span>
-                </a>
+                </button>
               )}
               <button
                 onClick={handleSave}
@@ -458,6 +508,7 @@ export default function ProfessionalProfileEditor() {
               { id: 'basic', label: 'Основни' },
               { id: 'services', label: 'Услуги' },
               { id: 'gallery', label: 'Галерия' },
+              { id: 'artist', label: 'Художник' },
               { id: 'contact', label: 'Контакти' },
               { id: 'settings', label: 'Настройки' }
             ].map((tab) => (
@@ -524,13 +575,35 @@ export default function ProfessionalProfileEditor() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Име за показване *
                 </label>
-                <input
-                  type="text"
-                  value={profile.displayName}
-                  onChange={(e) => updateProfile({ displayName: e.target.value })}
-                  placeholder="Иван Петров"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={profile.displayName}
+                    onChange={(e) => {
+                      updateProfile({ displayName: e.target.value })
+                      setDisplayNameError(null)
+                      setDisplayNameAvailable(null)
+                    }}
+                    onBlur={() => checkDisplayNameAvailability(profile.displayName || '')}
+                    placeholder="Иван Петров"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                  />
+                  {checkingDisplayName && (
+                    <Loader2 size={18} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400" />
+                  )}
+                  {!checkingDisplayName && displayNameAvailable === true && (
+                    <CheckCircle size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />
+                  )}
+                  {!checkingDisplayName && displayNameAvailable === false && (
+                    <AlertCircle size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500" />
+                  )}
+                </div>
+                {displayNameError && (
+                  <p className="mt-1 text-sm text-red-500">{displayNameError}</p>
+                )}
+                {displayNameAvailable && !displayNameError && (
+                  <p className="mt-1 text-sm text-green-500">✓ Името е свободно</p>
+                )}
               </div>
 
               {/* Profession Category */}
@@ -595,38 +668,67 @@ export default function ProfessionalProfileEditor() {
                 />
               </div>
 
-              {/* Template Selection */}
+              {/* Template Selection - всички опции са премиум, избираеми за преглед */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Шаблон
                 </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  Изберете шаблон и прегледайте профила си. Всички шаблони са част от премиум акаунта.
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-400 mb-3">
+                  При преглед ще видите различно оформление: цветове, подредба и стил (напр. Модерен – светъл, Ударен – тъмен с червен акцент, Класически – кадифе/сив). Натиснете „Преглед” – промените се запазват и отваря се избраният шаблон.
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {profileTemplates.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => updateProfile({ template: template.id })}
-                      disabled={template.isPremium}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        profile.template === template.id
-                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      } ${template.isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <div 
-                        className="w-8 h-8 rounded-full mx-auto mb-2"
-                        style={{ backgroundColor: template.primaryColor }}
-                      />
-                      <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                        {template.nameBg}
-                      </p>
-                      {template.isPremium && (
-                        <span className="text-xs text-yellow-600 flex items-center justify-center gap-1 mt-1">
+                  {profileTemplates.map((template, index) => {
+                    const isSelected = profile.template === template.id
+                    const primary = template.primaryColor || '#3B82F6'
+                    const secondary = template.secondaryColor || primary
+                    const iconShapes = ['rounded-full', 'rounded-xl', 'rounded-lg', 'rounded-full', 'rounded-2xl', 'rounded-full', 'rounded-lg', 'rounded-xl', 'rounded-full'] as const
+                    const iconShape = iconShapes[index % iconShapes.length]
+                    return (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => updateProfile({ template: template.id })}
+                        className={`
+                          relative p-4 rounded-xl border-2 transition-all duration-200
+                          hover:scale-[1.02] hover:shadow-md
+                          ${!isSelected ? 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600' : ''}
+                        `}
+                        style={isSelected ? {
+                          borderColor: primary,
+                          backgroundColor: `${primary}18`,
+                          boxShadow: `0 4px 12px ${primary}30`
+                        } : {
+                          background: `linear-gradient(135deg, ${primary}0a 0%, ${secondary}06 100%)`
+                        }}
+                      >
+                        <div
+                          className={`w-10 h-10 mx-auto mb-2 flex items-center justify-center ${iconShape}`}
+                          style={{
+                            backgroundColor: primary,
+                            boxShadow: isSelected ? `0 4px 14px ${primary}50` : undefined
+                          }}
+                        />
+                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                          {template.nameBg}
+                        </p>
+                        <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1 mt-1">
                           <Crown size={12} />
-                          Premium
+                          Премиум
                         </span>
-                      )}
-                    </button>
-                  ))}
+                        {isSelected && (
+                          <div
+                            className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs"
+                            style={{ backgroundColor: primary }}
+                          >
+                            ✓
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -829,6 +931,110 @@ export default function ProfessionalProfileEditor() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Artist Tab - Premium for artists: paintings/portraits, Revolut */}
+          {activeTab === 'artist' && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Palette size={24} className="text-amber-600" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Профил за художник
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Включете тази опция, ако приемате поръчки за картини или портрети по снимка. Клиентите ще могат да попълнят форма за поръчка с тип, размер и референтна снимка.
+              </p>
+
+              <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Профил за художник</p>
+                  <p className="text-sm text-gray-500">Приемам поръчки за картини / портрети по снимка</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={profile.isArtist ?? false}
+                  onChange={(e) => updateProfile({ isArtist: e.target.checked })}
+                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </label>
+
+              {(profile.isArtist ?? false) && (
+                <>
+                  <div className="flex justify-end">
+                    <Link
+                      href="/profile/orders"
+                      className="text-sm text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                    >
+                      Преглед на поръчките
+                      <ExternalLink size={14} />
+                    </Link>
+                  </div>
+                  <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <CreditCard size={18} />
+                        Плащане с Revolut
+                      </p>
+                      <p className="text-sm text-gray-500">Показвам баркод/линк за плащане с Revolut при поръчка</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={profile.revolutEnabled ?? false}
+                      onChange={(e) => updateProfile({ revolutEnabled: e.target.checked })}
+                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </label>
+
+                  {(profile.revolutEnabled ?? false) && (
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Снимка / URL на Revolut баркод
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          type="url"
+                          value={profile.revolutBarcodeUrl || ''}
+                          onChange={(e) => updateProfile({ revolutBarcodeUrl: e.target.value || null })}
+                          placeholder="https://... или качете снимка по-долу"
+                          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        />
+                        <label className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <ImageIcon size={18} />
+                          <span>Качи снимка</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (!file) return
+                              const formData = new FormData()
+                              formData.append('file', file)
+                              formData.append('folder', 'revolut')
+                              try {
+                                const res = await fetch('/api/upload', { method: 'POST', body: formData })
+                                const data = await res.json()
+                                if (data?.file?.url) updateProfile({ revolutBarcodeUrl: data.file.url })
+                                else toast.error('Грешка при качване')
+                              } catch {
+                                toast.error('Грешка при качване')
+                              }
+                              e.target.value = ''
+                            }}
+                          />
+                        </label>
+                      </div>
+                      {profile.revolutBarcodeUrl && (
+                        <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg inline-block">
+                          <img src={profile.revolutBarcodeUrl} alt="Revolut баркод" className="max-h-24 object-contain" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

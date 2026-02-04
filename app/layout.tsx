@@ -2,16 +2,12 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import ToastProvider from '@/components/ToastProvider'
-// import PWAInstall from '@/components/PWAInstall'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import BottomNav from '@/components/BottomNav'
+import PWAInstall from '@/components/PWAInstall'
+import AppShell from '@/components/AppShell'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
 import AuthProvider from '@/providers/AuthProvider'
 import { AccountModeProvider } from '@/contexts/AccountModeContext'
-import SPANavigation from '@/components/SPANavigation'
-import CookieConsent from '@/components/CookieConsent'
 
 // Optimize font loading with next/font
 const inter = Inter({
@@ -114,6 +110,12 @@ export default function RootLayout({
   return (
     <html lang="bg" className={inter.variable}>
       <head>
+        {/* PWA: manifest + iOS Add to Home Screen */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Rabotim.com" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
         {/* Preconnect to external domains for better performance */}
         <link rel="preconnect" href="https://wwbxzkbilklullziiogr.supabase.co" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
@@ -139,6 +141,12 @@ export default function RootLayout({
         }} />
       </head>
       <body className={inter.className}>
+        {/* Redirect password-reset link (hash type=recovery) to /reset-password before React – Supabase may send user to / with hash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var h=window.location.hash||'';if(h.indexOf('type=recovery')!==-1){window.location.replace(window.location.origin+'/reset-password'+h);}})();`,
+          }}
+        />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
@@ -146,21 +154,13 @@ export default function RootLayout({
         <WebSiteStructuredData />
         <AuthProvider>
           <AccountModeProvider>
-            <SPANavigation>
-              <Header />
-              <main className="pb-safe">
-                {children}
-              </main>
-              <Footer />
-              <BottomNav />
-              <CookieConsent />
-            </SPANavigation>
+            <AppShell>{children}</AppShell>
           </AccountModeProvider>
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}
         <ToastProvider />
-        {/* <PWAInstall /> */}
+        <PWAInstall />
         
         {/* Service Worker Registration */}
         <script

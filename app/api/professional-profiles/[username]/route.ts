@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceRoleClient } from '@/lib/supabase'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { logger } from '@/lib/logger'
 import { ProfessionalProfile } from '@/types/professional-profile'
 
-// GET - Fetch a professional profile by username
+// GET - Fetch a professional profile by username (public or preview for owner)
 export async function GET(
   request: NextRequest,
   { params }: { params: { username: string } }
 ) {
   try {
     const username = params.username.toLowerCase()
-
     const serviceClient = getServiceRoleClient()
 
-    // Get the profile
+    // Fetch profile by username (do not filter by is_published yet – owner can preview)
     const { data: profileData, error } = await serviceClient
       .from('professional_profiles')
       .select(`
@@ -21,11 +22,10 @@ export async function GET(
         user:users(id, full_name, avatar_url, rating, total_reviews, verified)
       `)
       .eq('username', username)
-      .eq('is_published', true)
       .single()
 
-    if (error) {
-      if (error.code === 'PGRST116') {
+    if (error || !profileData) {
+      if (error?.code === 'PGRST116') {
         return NextResponse.json(
           { error: 'Profile not found' },
           { status: 404 }
@@ -34,14 +34,48 @@ export async function GET(
       throw error
     }
 
-    // Increment view count
-    await serviceClient
-      .from('professional_profiles')
-      .update({ view_count: (profileData.view_count || 0) + 1 })
-      .eq('username', username)
+    // Allow owner to preview even when not published
+    let isOwnerPreview = false
+    try {
+      const cookieStore = cookies()
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) { return cookieStore.get(name)?.value },
+            set() {},
+            remove() {},
+          },
+        }
+      )
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && profileData.user_id === user.id) {
+        isOwnerPreview = true
+      }
+    } catch {
+      // ignore auth errors
+    }
+
+    const isPublic = profileData.is_published === true
+    if (!isPublic && !isOwnerPreview) {
+      return NextResponse.json(
+        { error: 'Profile not found' },
+        { status: 404 }
+      )
+    }
+
+    // Increment view count only for public views (not owner preview)
+    if (isPublic && !isOwnerPreview) {
+      await serviceClient
+        .from('professional_profiles')
+        .update({ view_count: (profileData.view_count || 0) + 1 })
+        .eq('username', username)
+    }
 
     // Transform database format to frontend format
     const profile: ProfessionalProfile = {
+      id: profileData.id,
       username: profileData.username,
       displayName: profileData.display_name || profileData.user?.full_name || username,
       tagline: profileData.tagline || '',
@@ -72,13 +106,17 @@ export async function GET(
       showPhone: profileData.show_phone ?? true,
       showEmail: profileData.show_email ?? true,
       acceptOnlineBooking: profileData.accept_online_booking ?? false,
+      isArtist: profileData.is_artist ?? false,
+      revolutEnabled: profileData.revolut_enabled ?? false,
+      revolutBarcodeUrl: profileData.revolut_barcode_url ?? null,
       createdAt: profileData.created_at,
       updatedAt: profileData.updated_at
     }
 
     return NextResponse.json({ 
       profile,
-      user: profileData.user
+      user: profileData.user,
+      isPreview: isOwnerPreview && !isPublic
     })
   } catch (error) {
     logger.error('Failed to fetch professional profile', error as Error, { username: params.username })

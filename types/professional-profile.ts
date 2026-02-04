@@ -9,6 +9,7 @@ export type ProfessionCategory =
   | 'teaching'
   | 'it'
   | 'design'
+  | 'art'
   | 'photography'
   | 'music'
   | 'transport'
@@ -55,6 +56,7 @@ export interface Certification {
 }
 
 export interface ProfessionalProfile {
+  id?: string // DB id (for artist orders)
   // Basic Info
   username: string // URL slug - e.g., "fitnessGuru" -> rabotim.com/p/fitnessGuru
   displayName: string
@@ -102,6 +104,11 @@ export interface ProfessionalProfile {
   showPhone: boolean
   showEmail: boolean
   acceptOnlineBooking: boolean
+
+  // Artist premium: картини по поръчка, Revolut
+  isArtist?: boolean
+  revolutEnabled?: boolean
+  revolutBarcodeUrl?: string | null
   
   createdAt: string
   updatedAt: string
@@ -276,6 +283,7 @@ export const professionCategories: { id: ProfessionCategory; name: string; nameB
   { id: 'teaching', name: 'Education & Tutoring', nameBg: 'Образование и уроци', icon: '📚' },
   { id: 'it', name: 'IT & Technology', nameBg: 'IT и технологии', icon: '💻' },
   { id: 'design', name: 'Design & Creative', nameBg: 'Дизайн и творчество', icon: '🎨' },
+  { id: 'art', name: 'Art & Painting', nameBg: 'Художник / изкуство', icon: '🖼️' },
   { id: 'photography', name: 'Photography & Video', nameBg: 'Фотография и видео', icon: '📷' },
   { id: 'music', name: 'Music & Entertainment', nameBg: 'Музика и забавления', icon: '🎵' },
   { id: 'transport', name: 'Transport & Moving', nameBg: 'Транспорт и преместване', icon: '🚚' },
