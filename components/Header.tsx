@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Menu, X, User, LogOut, Bell, ChevronDown, ArrowRight } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
