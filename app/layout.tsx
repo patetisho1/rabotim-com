@@ -7,7 +7,6 @@ import AppShell from '@/components/AppShell'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/StructuredData'
 import AuthProvider from '@/providers/AuthProvider'
-import { AccountModeProvider } from '@/contexts/AccountModeContext'
 
 // Optimize font loading with next/font
 const inter = Inter({
@@ -153,9 +152,7 @@ export default function RootLayout({
         <OrganizationStructuredData />
         <WebSiteStructuredData />
         <AuthProvider>
-          <AccountModeProvider>
-            <AppShell>{children}</AppShell>
-          </AccountModeProvider>
+          <AppShell>{children}</AppShell>
         </AuthProvider>
         {/* <MobileNav /> */}
         {/* <NotificationManager /> */}

@@ -1117,7 +1117,7 @@ export default function HomePage() {
                   onClick={handleBecomeTasker}
                    className="bg-white hover:bg-gray-100 active:bg-gray-200 text-blue-700 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base md:text-lg transition-all duration-200 shadow-lg min-h-[48px] sm:min-h-[56px] touch-manipulation font-heading w-full sm:w-auto"
                 >
-                  Стани изпълнител
+                  Регистрация
                 </button>
               </div>
               
@@ -1329,7 +1329,7 @@ export default function HomePage() {
                   onClick={handleBecomeTasker}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base md:text-lg transition-all duration-200 w-full sm:w-auto"
                 >
-                  Станете изпълнител
+                  Регистрация
                 </button>
               </div>
 
